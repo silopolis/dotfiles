@@ -1,0 +1,1433 @@
+{
+    "pipx_spec_version": "0.1",
+    "venvs": {
+        "eg": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/tarax/.local/pipx/venvs/eg/bin/eg",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {},
+                    "apps": [
+                        "eg"
+                    ],
+                    "apps_of_dependencies": [],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "man_pages": [],
+                    "man_pages_of_dependencies": [],
+                    "man_paths": [],
+                    "man_paths_of_dependencies": {},
+                    "package": "eg",
+                    "package_or_url": "eg",
+                    "package_version": "1.2.3",
+                    "pinned": false,
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.5",
+                "python_version": "Python 3.12.6",
+                "source_interpreter": {
+                    "__Path__": "/usr/bin/python3.12",
+                    "__type__": "Path"
+                },
+                "venv_args": []
+            }
+        },
+        "elia-chat": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/tarax/.local/pipx/venvs/elia-chat/bin/elia",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {
+                        "charset-normalizer": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/elia-chat/bin/normalizer",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "distro": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/elia-chat/bin/distro",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "httpx": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/elia-chat/bin/httpx",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "huggingface-hub": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/elia-chat/bin/huggingface-cli",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "jsonschema": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/elia-chat/bin/jsonschema",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "litellm": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/elia-chat/bin/litellm",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "markdown-it-py": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/elia-chat/bin/markdown-it",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "openai": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/elia-chat/bin/openai",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "pygments": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/elia-chat/bin/pygmentize",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "python-dotenv": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/elia-chat/bin/dotenv",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "rsa": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/elia-chat/bin/pyrsa-decrypt",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/elia-chat/bin/pyrsa-encrypt",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/elia-chat/bin/pyrsa-keygen",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/elia-chat/bin/pyrsa-priv2pub",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/elia-chat/bin/pyrsa-sign",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/elia-chat/bin/pyrsa-verify",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "tqdm": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/elia-chat/bin/tqdm",
+                                "__type__": "Path"
+                            }
+                        ]
+                    },
+                    "apps": [
+                        "elia"
+                    ],
+                    "apps_of_dependencies": [
+                        "pyrsa-decrypt",
+                        "pyrsa-encrypt",
+                        "pyrsa-keygen",
+                        "pyrsa-priv2pub",
+                        "pyrsa-sign",
+                        "pyrsa-verify",
+                        "normalizer",
+                        "tqdm",
+                        "litellm",
+                        "httpx",
+                        "jsonschema",
+                        "openai",
+                        "distro",
+                        "dotenv",
+                        "huggingface-cli",
+                        "markdown-it",
+                        "pygmentize"
+                    ],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "man_pages": [],
+                    "man_pages_of_dependencies": [],
+                    "man_paths": [],
+                    "man_paths_of_dependencies": {},
+                    "package": "elia-chat",
+                    "package_or_url": "elia-chat",
+                    "package_version": "1.10.0",
+                    "pinned": false,
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.5",
+                "python_version": "Python 3.11.11",
+                "source_interpreter": {
+                    "__Path__": "/home/linuxbrew/.linuxbrew/bin/python3.11",
+                    "__type__": "Path"
+                },
+                "venv_args": []
+            }
+        },
+        "flux-local": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/tarax/.local/pipx/venvs/flux-local/bin/flux-local",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {
+                        "pytest": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/flux-local/bin/py.test",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/flux-local/bin/pytest",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "python-slugify": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/flux-local/bin/slugify",
+                                "__type__": "Path"
+                            }
+                        ]
+                    },
+                    "apps": [
+                        "flux-local"
+                    ],
+                    "apps_of_dependencies": [
+                        "slugify",
+                        "py.test",
+                        "pytest"
+                    ],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "man_pages": [],
+                    "man_pages_of_dependencies": [],
+                    "man_paths": [],
+                    "man_paths_of_dependencies": {},
+                    "package": "flux-local",
+                    "package_or_url": "flux-local",
+                    "package_version": "7.2.1",
+                    "pinned": false,
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.5",
+                "python_version": "Python 3.12.8",
+                "source_interpreter": {
+                    "__Path__": "/usr/bin/python3.12",
+                    "__type__": "Path"
+                },
+                "venv_args": []
+            }
+        },
+        "frogmouth": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/tarax/.local/pipx/venvs/frogmouth/bin/frogmouth",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {
+                        "httpx": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/frogmouth/bin/httpx",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "markdown-it-py": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/frogmouth/bin/markdown-it",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "pygments": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/frogmouth/bin/pygmentize",
+                                "__type__": "Path"
+                            }
+                        ]
+                    },
+                    "apps": [
+                        "frogmouth"
+                    ],
+                    "apps_of_dependencies": [
+                        "httpx",
+                        "markdown-it",
+                        "pygmentize"
+                    ],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "man_pages": [],
+                    "man_pages_of_dependencies": [],
+                    "man_paths": [],
+                    "man_paths_of_dependencies": {},
+                    "package": "frogmouth",
+                    "package_or_url": "frogmouth",
+                    "package_version": "0.9.2",
+                    "pinned": false,
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.5",
+                "python_version": "Python 3.12.8",
+                "source_interpreter": {
+                    "__Path__": "/usr/bin/python3.12",
+                    "__type__": "Path"
+                },
+                "venv_args": []
+            }
+        },
+        "git-filter-repo": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/tarax/.local/pipx/venvs/git-filter-repo/bin/git-filter-repo",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {},
+                    "apps": [
+                        "git-filter-repo"
+                    ],
+                    "apps_of_dependencies": [],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "man_pages": [],
+                    "man_pages_of_dependencies": [],
+                    "man_paths": [],
+                    "man_paths_of_dependencies": {},
+                    "package": "git-filter-repo",
+                    "package_or_url": "git-filter-repo",
+                    "package_version": "2.47.0",
+                    "pinned": false,
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.5",
+                "python_version": "Python 3.12.6",
+                "source_interpreter": {
+                    "__Path__": "/usr/bin/python3.12",
+                    "__type__": "Path"
+                },
+                "venv_args": []
+            }
+        },
+        "k8sai": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/tarax/.local/pipx/venvs/k8sai/bin/k8sAI",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {
+                        "build": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/k8sai/bin/pyproject-build",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "charset-normalizer": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/k8sai/bin/normalizer",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "chromadb": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/k8sai/bin/chroma",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "coloredlogs": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/k8sai/bin/coloredlogs",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "distro": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/k8sai/bin/distro",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "fastapi": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/k8sai/bin/fastapi",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "httpx": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/k8sai/bin/httpx",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "huggingface-hub": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/k8sai/bin/huggingface-cli",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "humanfriendly": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/k8sai/bin/humanfriendly",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "jsonpatch": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/k8sai/bin/jsondiff",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/k8sai/bin/jsonpatch",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "jsonpointer": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/k8sai/bin/jsonpointer",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "langchain": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/k8sai/bin/langchain-server",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "langsmith": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/k8sai/bin/langsmith",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "markdown-it-py": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/k8sai/bin/markdown-it",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "numpy": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/k8sai/bin/f2py",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "onnxruntime": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/k8sai/bin/onnxruntime_test",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "openai": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/k8sai/bin/openai",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "opentelemetry-instrumentation": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/k8sai/bin/opentelemetry-bootstrap",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/k8sai/bin/opentelemetry-instrument",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "pygments": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/k8sai/bin/pygmentize",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "python-dotenv": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/k8sai/bin/dotenv",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "rsa": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/k8sai/bin/pyrsa-decrypt",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/k8sai/bin/pyrsa-encrypt",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/k8sai/bin/pyrsa-keygen",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/k8sai/bin/pyrsa-priv2pub",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/k8sai/bin/pyrsa-sign",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/k8sai/bin/pyrsa-verify",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "sympy": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/k8sai/bin/isympy",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "tqdm": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/k8sai/bin/tqdm",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "typer": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/k8sai/bin/typer",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "uvicorn": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/k8sai/bin/uvicorn",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "watchfiles": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/k8sai/bin/watchfiles",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "websocket-client": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/k8sai/bin/wsdump",
+                                "__type__": "Path"
+                            }
+                        ]
+                    },
+                    "apps": [
+                        "k8sAI"
+                    ],
+                    "apps_of_dependencies": [
+                        "langchain-server",
+                        "jsondiff",
+                        "jsonpatch",
+                        "jsonpointer",
+                        "langsmith",
+                        "httpx",
+                        "normalizer",
+                        "f2py",
+                        "chroma",
+                        "pyproject-build",
+                        "fastapi",
+                        "uvicorn",
+                        "dotenv",
+                        "watchfiles",
+                        "onnxruntime_test",
+                        "coloredlogs",
+                        "humanfriendly",
+                        "isympy",
+                        "opentelemetry-bootstrap",
+                        "opentelemetry-instrument",
+                        "huggingface-cli",
+                        "tqdm",
+                        "typer",
+                        "markdown-it",
+                        "pygmentize",
+                        "pyrsa-decrypt",
+                        "pyrsa-encrypt",
+                        "pyrsa-keygen",
+                        "pyrsa-priv2pub",
+                        "pyrsa-sign",
+                        "pyrsa-verify",
+                        "wsdump",
+                        "openai",
+                        "distro"
+                    ],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "man_pages": [],
+                    "man_pages_of_dependencies": [
+                        "man1/isympy.1"
+                    ],
+                    "man_paths": [],
+                    "man_paths_of_dependencies": {
+                        "sympy": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/k8sai/share/man/man1/isympy.1",
+                                "__type__": "Path"
+                            }
+                        ]
+                    },
+                    "package": "k8sai",
+                    "package_or_url": "k8sai",
+                    "package_version": "0.1.7",
+                    "pinned": false,
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.5",
+                "python_version": "Python 3.12.8",
+                "source_interpreter": {
+                    "__Path__": "/usr/bin/python3.12",
+                    "__type__": "Path"
+                },
+                "venv_args": []
+            }
+        },
+        "logmerger": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/tarax/.local/pipx/venvs/logmerger/bin/logmerger",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {
+                        "markdown-it-py": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/logmerger/bin/markdown-it",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "pygments": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/logmerger/bin/pygmentize",
+                                "__type__": "Path"
+                            }
+                        ]
+                    },
+                    "apps": [
+                        "logmerger"
+                    ],
+                    "apps_of_dependencies": [
+                        "markdown-it",
+                        "pygmentize"
+                    ],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "man_pages": [],
+                    "man_pages_of_dependencies": [],
+                    "man_paths": [],
+                    "man_paths_of_dependencies": {},
+                    "package": "logmerger",
+                    "package_or_url": "logmerger",
+                    "package_version": "0.10.0",
+                    "pinned": false,
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.5",
+                "python_version": "Python 3.12.8",
+                "source_interpreter": {
+                    "__Path__": "/usr/bin/python3.12",
+                    "__type__": "Path"
+                },
+                "venv_args": []
+            }
+        },
+        "ranger-fm": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/tarax/.local/pipx/venvs/ranger-fm/bin/ranger",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/tarax/.local/pipx/venvs/ranger-fm/bin/rifle",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {},
+                    "apps": [
+                        "ranger",
+                        "rifle"
+                    ],
+                    "apps_of_dependencies": [],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "man_pages": [
+                        "man1/ranger.1",
+                        "man1/rifle.1"
+                    ],
+                    "man_pages_of_dependencies": [],
+                    "man_paths": [
+                        {
+                            "__Path__": "/home/tarax/.local/pipx/venvs/ranger-fm/share/man/man1/ranger.1",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/tarax/.local/pipx/venvs/ranger-fm/share/man/man1/rifle.1",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "man_paths_of_dependencies": {},
+                    "package": "ranger-fm",
+                    "package_or_url": "ranger-fm",
+                    "package_version": "1.9.4",
+                    "pinned": false,
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.5",
+                "python_version": "Python 3.12.6",
+                "source_interpreter": {
+                    "__Path__": "/usr/bin/python3.12",
+                    "__type__": "Path"
+                },
+                "venv_args": []
+            }
+        },
+        "screenpen": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/tarax/.local/pipx/venvs/screenpen/bin/screenpen",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {
+                        "fonttools": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/screenpen/bin/fonttools",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/screenpen/bin/pyftmerge",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/screenpen/bin/pyftsubset",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/screenpen/bin/ttx",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "numpy": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/screenpen/bin/f2py",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/screenpen/bin/numpy-config",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "pyqt5": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/screenpen/bin/pylupdate5",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/screenpen/bin/pyrcc5",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/screenpen/bin/pyuic5",
+                                "__type__": "Path"
+                            }
+                        ]
+                    },
+                    "apps": [
+                        "screenpen"
+                    ],
+                    "apps_of_dependencies": [
+                        "pylupdate5",
+                        "pyrcc5",
+                        "pyuic5",
+                        "f2py",
+                        "numpy-config",
+                        "fonttools",
+                        "pyftmerge",
+                        "pyftsubset",
+                        "ttx"
+                    ],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "man_pages": [],
+                    "man_pages_of_dependencies": [
+                        "man1/ttx.1"
+                    ],
+                    "man_paths": [],
+                    "man_paths_of_dependencies": {
+                        "fonttools": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/screenpen/share/man/man1/ttx.1",
+                                "__type__": "Path"
+                            }
+                        ]
+                    },
+                    "package": "screenpen",
+                    "package_or_url": "screenpen",
+                    "package_version": "0.3.1",
+                    "pinned": false,
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.5",
+                "python_version": "Python 3.12.6",
+                "source_interpreter": {
+                    "__Path__": "/usr/bin/python3.12",
+                    "__type__": "Path"
+                },
+                "venv_args": []
+            }
+        },
+        "shell-gpt": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/tarax/.local/pipx/venvs/shell-gpt/bin/sgpt",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {
+                        "distro": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/shell-gpt/bin/distro",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "httpx": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/shell-gpt/bin/httpx",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "instructor": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/shell-gpt/bin/instructor",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "markdown-it-py": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/shell-gpt/bin/markdown-it",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "openai": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/shell-gpt/bin/openai",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "pygments": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/shell-gpt/bin/pygmentize",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "tqdm": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/shell-gpt/bin/tqdm",
+                                "__type__": "Path"
+                            }
+                        ]
+                    },
+                    "apps": [
+                        "sgpt"
+                    ],
+                    "apps_of_dependencies": [
+                        "distro",
+                        "instructor",
+                        "openai",
+                        "httpx",
+                        "tqdm",
+                        "markdown-it",
+                        "pygmentize"
+                    ],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "man_pages": [],
+                    "man_pages_of_dependencies": [],
+                    "man_paths": [],
+                    "man_paths_of_dependencies": {},
+                    "package": "shell-gpt",
+                    "package_or_url": "shell-gpt",
+                    "package_version": "1.4.4",
+                    "pinned": false,
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.5",
+                "python_version": "Python 3.12.8",
+                "source_interpreter": {
+                    "__Path__": "/usr/bin/python3.12",
+                    "__type__": "Path"
+                },
+                "venv_args": []
+            }
+        },
+        "term-image": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [],
+                    "app_paths_of_dependencies": {
+                        "charset-normalizer": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/term-image/bin/normalizer",
+                                "__type__": "Path"
+                            }
+                        ]
+                    },
+                    "apps": [],
+                    "apps_of_dependencies": [
+                        "normalizer"
+                    ],
+                    "include_apps": true,
+                    "include_dependencies": true,
+                    "man_pages": [],
+                    "man_pages_of_dependencies": [],
+                    "man_paths": [],
+                    "man_paths_of_dependencies": {},
+                    "package": "term-image",
+                    "package_or_url": "term-image",
+                    "package_version": "0.7.2",
+                    "pinned": false,
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.5",
+                "python_version": "Python 3.12.6",
+                "source_interpreter": {
+                    "__Path__": "/usr/bin/python3.12",
+                    "__type__": "Path"
+                },
+                "venv_args": []
+            }
+        },
+        "termite-ai": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/tarax/.local/pipx/venvs/termite-ai/bin/termite",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {
+                        "distro": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/termite-ai/bin/distro",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "httpx": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/termite-ai/bin/httpx",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "markdown-it-py": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/termite-ai/bin/markdown-it",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "openai": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/termite-ai/bin/openai",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "pygments": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/termite-ai/bin/pygmentize",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "tqdm": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/termite-ai/bin/tqdm",
+                                "__type__": "Path"
+                            }
+                        ]
+                    },
+                    "apps": [
+                        "termite"
+                    ],
+                    "apps_of_dependencies": [
+                        "openai",
+                        "distro",
+                        "httpx",
+                        "tqdm",
+                        "markdown-it",
+                        "pygmentize"
+                    ],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "man_pages": [],
+                    "man_pages_of_dependencies": [],
+                    "man_paths": [],
+                    "man_paths_of_dependencies": {},
+                    "package": "termite-ai",
+                    "package_or_url": "termite-ai",
+                    "package_version": "1.0.5",
+                    "pinned": false,
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.5",
+                "python_version": "Python 3.12.8",
+                "source_interpreter": {
+                    "__Path__": "/usr/bin/python3.12",
+                    "__type__": "Path"
+                },
+                "venv_args": []
+            }
+        },
+        "tftui": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/tarax/.local/pipx/venvs/tftui/bin/tftui",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {
+                        "charset-normalizer": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/tftui/bin/normalizer",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "markdown-it-py": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/tftui/bin/markdown-it",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "pygments": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/tftui/bin/pygmentize",
+                                "__type__": "Path"
+                            }
+                        ]
+                    },
+                    "apps": [
+                        "tftui"
+                    ],
+                    "apps_of_dependencies": [
+                        "normalizer",
+                        "markdown-it",
+                        "pygmentize"
+                    ],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "man_pages": [],
+                    "man_pages_of_dependencies": [],
+                    "man_paths": [],
+                    "man_paths_of_dependencies": {},
+                    "package": "tftui",
+                    "package_or_url": "tftui",
+                    "package_version": "0.13.4",
+                    "pinned": false,
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.5",
+                "python_version": "Python 3.12.8",
+                "source_interpreter": {
+                    "__Path__": "/usr/bin/python3.12",
+                    "__type__": "Path"
+                },
+                "venv_args": []
+            }
+        },
+        "tiptop": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/tarax/.local/pipx/venvs/tiptop/bin/tiptop",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {
+                        "commonmark": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/tiptop/bin/cmark",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "distro": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/tiptop/bin/distro",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "py-cpuinfo": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/tiptop/bin/cpuinfo",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "pygments": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/tiptop/bin/pygmentize",
+                                "__type__": "Path"
+                            }
+                        ]
+                    },
+                    "apps": [
+                        "tiptop"
+                    ],
+                    "apps_of_dependencies": [
+                        "cpuinfo",
+                        "distro",
+                        "cmark",
+                        "pygmentize"
+                    ],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "man_pages": [],
+                    "man_pages_of_dependencies": [],
+                    "man_paths": [],
+                    "man_paths_of_dependencies": {},
+                    "package": "tiptop",
+                    "package_or_url": "tiptop",
+                    "package_version": "0.2.8",
+                    "pinned": false,
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.5",
+                "python_version": "Python 3.12.8",
+                "source_interpreter": {
+                    "__Path__": "/usr/bin/python3.12",
+                    "__type__": "Path"
+                },
+                "venv_args": []
+            }
+        },
+        "toolong": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/tarax/.local/pipx/venvs/toolong/bin/tl",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {
+                        "markdown-it-py": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/toolong/bin/markdown-it",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "pygments": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/toolong/bin/pygmentize",
+                                "__type__": "Path"
+                            }
+                        ]
+                    },
+                    "apps": [
+                        "tl"
+                    ],
+                    "apps_of_dependencies": [
+                        "markdown-it",
+                        "pygmentize"
+                    ],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "man_pages": [],
+                    "man_pages_of_dependencies": [],
+                    "man_paths": [],
+                    "man_paths_of_dependencies": {},
+                    "package": "toolong",
+                    "package_or_url": "toolong",
+                    "package_version": "1.5.0",
+                    "pinned": false,
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.5",
+                "python_version": "Python 3.12.8",
+                "source_interpreter": {
+                    "__Path__": "/usr/bin/python3.12",
+                    "__type__": "Path"
+                },
+                "venv_args": []
+            }
+        },
+        "unidecode": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/tarax/.local/pipx/venvs/unidecode/bin/unidecode",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {},
+                    "apps": [
+                        "unidecode"
+                    ],
+                    "apps_of_dependencies": [],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "man_pages": [],
+                    "man_pages_of_dependencies": [],
+                    "man_paths": [],
+                    "man_paths_of_dependencies": {},
+                    "package": "unidecode",
+                    "package_or_url": "unidecode",
+                    "package_version": "1.3.8",
+                    "pinned": false,
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.5",
+                "python_version": "Python 3.12.6",
+                "source_interpreter": {
+                    "__Path__": "/usr/bin/python3.12",
+                    "__type__": "Path"
+                },
+                "venv_args": []
+            }
+        },
+        "wut-cli": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/tarax/.local/pipx/venvs/wut-cli/bin/wut",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {
+                        "distro": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/wut-cli/bin/distro",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "httpx": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/wut-cli/bin/httpx",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "markdown-it-py": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/wut-cli/bin/markdown-it",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "openai": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/wut-cli/bin/openai",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "pygments": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/wut-cli/bin/pygmentize",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "tqdm": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/wut-cli/bin/tqdm",
+                                "__type__": "Path"
+                            }
+                        ]
+                    },
+                    "apps": [
+                        "wut"
+                    ],
+                    "apps_of_dependencies": [
+                        "openai",
+                        "distro",
+                        "httpx",
+                        "tqdm",
+                        "markdown-it",
+                        "pygmentize"
+                    ],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "man_pages": [],
+                    "man_pages_of_dependencies": [],
+                    "man_paths": [],
+                    "man_paths_of_dependencies": {},
+                    "package": "wut-cli",
+                    "package_or_url": "wut-cli",
+                    "package_version": "1.0.8",
+                    "pinned": false,
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.5",
+                "python_version": "Python 3.12.8",
+                "source_interpreter": {
+                    "__Path__": "/usr/bin/python3.12",
+                    "__type__": "Path"
+                },
+                "venv_args": []
+            }
+        },
+        "xonsh": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/tarax/.local/pipx/venvs/xonsh/bin/xonsh",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/tarax/.local/pipx/venvs/xonsh/bin/xonsh-cat",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/tarax/.local/pipx/venvs/xonsh/bin/xonsh-uname",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/tarax/.local/pipx/venvs/xonsh/bin/xonsh-uptime",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {},
+                    "apps": [
+                        "xonsh",
+                        "xonsh-cat",
+                        "xonsh-uname",
+                        "xonsh-uptime"
+                    ],
+                    "apps_of_dependencies": [],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "man_pages": [],
+                    "man_pages_of_dependencies": [],
+                    "man_paths": [],
+                    "man_paths_of_dependencies": {},
+                    "package": "xonsh",
+                    "package_or_url": "xonsh",
+                    "package_version": "0.19.2",
+                    "pinned": false,
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.5",
+                "python_version": "Python 3.12.6",
+                "source_interpreter": {
+                    "__Path__": "/usr/bin/python3.12",
+                    "__type__": "Path"
+                },
+                "venv_args": []
+            }
+        },
+        "xxh-xxh": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/tarax/.local/pipx/venvs/xxh-xxh/bin/xxh",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/tarax/.local/pipx/venvs/xxh-xxh/bin/xxh.bash",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/tarax/.local/pipx/venvs/xxh-xxh/bin/xxh.xsh",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/tarax/.local/pipx/venvs/xxh-xxh/bin/xxh.zsh",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {},
+                    "apps": [
+                        "xxh",
+                        "xxh.bash",
+                        "xxh.xsh",
+                        "xxh.zsh"
+                    ],
+                    "apps_of_dependencies": [],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "man_pages": [],
+                    "man_pages_of_dependencies": [],
+                    "man_paths": [],
+                    "man_paths_of_dependencies": {},
+                    "package": "xxh-xxh",
+                    "package_or_url": "xxh-xxh",
+                    "package_version": "0.8.14",
+                    "pinned": false,
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.5",
+                "python_version": "Python 3.12.6",
+                "source_interpreter": {
+                    "__Path__": "/usr/bin/python3.12",
+                    "__type__": "Path"
+                },
+                "venv_args": []
+            }
+        }
+    }
+}
