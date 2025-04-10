@@ -42,6 +42,7 @@ brew dbus
 brew diff-so-fancy
 brew difftastic
 brew direnv
+brew dive
 brew dnstop
 brew expat
 brew eza
@@ -81,7 +82,6 @@ brew hcledit
 brew highway
 brew hstr
 brew hub
-brew icu4c@75
 brew icu4c@76
 brew imath
 brew infracost
@@ -129,7 +129,6 @@ brew libtirpc
 brew libtool
 brew libunistring
 brew libuv
-brew libvirt
 brew libvmaf
 brew libwebsockets
 brew libx11
@@ -254,6 +253,7 @@ tap future-architect/tap
 brew tftarget
 
 tap hashicorp/tap
+brew vagrant
 
 tap jckuester/tap
 brew awsls
@@ -272,6 +272,8 @@ brew gitops
 
 tap wez/wezterm-linuxbrew
 brew wezterm
+
+tap xpipe-io/tap
 
 # Other Homebrew packages
 brew icu4c
