@@ -32,18 +32,23 @@ alias less='less -r' # Output "raw" control characters by default.
 #export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
 
 # some more ls aliases
-alias l='ls -CF'
-alias la='ls -CFA'
-alias ll='ls -lh'
-alias lla='ls -lAh'
-alias lt='ls -ltrh'
+alias l='ls -C --classify --group-directories-first --show-control-chars'
+alias la='l --almost-all'
+alias ll='l -l --human-readable'
+alias lla='ll --almost-all'
+alias lls='ll --sort=size --reverse'
+alias llt='ll --sort=time --reverse'
+alias llx='ll --sort=extension'
 
 # use lsd if available
-if [ $(which lsd) ]; then
-  alias l='lsd -F'
-  alias la='lsd -AF'
-  alias ll='lsd -l'
-  alias lla='lsd -lA'
+if [ $(which xlsd) ]; then
+  alias l='lsd --classify --group-directories-first --git --total-size'
+  alias la='l --almost-all'
+  alias ll='l --long'
+  alias lla='ll --almost-all'
+  alias lls='ll --sizesort --reverse'
+  alias llt='ll --timesort --reverse'
+  alias llx='ll --extensionsort'
 fi
 
 ## grep
