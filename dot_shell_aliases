@@ -35,20 +35,26 @@ alias less='less -r' # Output "raw" control characters by default.
 alias l='ls -C --classify --group-directories-first --show-control-chars'
 alias la='l --almost-all'
 alias ll='l -l --human-readable'
-alias lla='ll --almost-all'
 alias lls='ll --sort=size --reverse'
 alias llt='ll --sort=time --reverse'
 alias llx='ll --sort=extension'
+alias lla='ll --almost-all'
+alias llas='lla --sort=size --reverse'
+alias llat='lla --sort=time --reverse'
+alias llax='lla --sort=extension'
 
 # use lsd if available
-if [ $(which xlsd) ]; then
-  alias l='lsd --classify --group-directories-first --git --total-size'
+if [ $(which lsd) ]; then
+  alias l='lsd --classify --group-directories-first --git'
   alias la='l --almost-all'
   alias ll='l --long'
-  alias lla='ll --almost-all'
-  alias lls='ll --sizesort --reverse'
+  alias lls='ll --total-size --sizesort --reverse'
   alias llt='ll --timesort --reverse'
   alias llx='ll --extensionsort'
+  alias lla='ll --almost-all'
+  alias llas='lla --total-size --sizesort --reverse'
+  alias llat='lla --timesort --reverse'
+  alias llax='lla --extensionsort'
 fi
 
 ## grep
