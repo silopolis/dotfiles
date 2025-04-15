@@ -1,0 +1,144 @@
+## Common aliases for all shells
+## This file is sourced by both .bashrc and .zshrc
+
+# enable color support of ls, less and man, and also add handy aliases
+if [ -x /usr/bin/dircolors ]; then
+    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    export LS_COLORS="$LS_COLORS:ow=30;44:" # fix ls color for folders with 777 permissions
+
+    alias ls='ls --color=auto'
+    alias dir='dir --color=auto'
+    alias vdir='vdir --color=auto'
+
+    alias grep='grep --color=auto'
+    alias fgrep='fgrep --color=auto'
+    alias egrep='egrep --color=auto'
+    alias diff='diff --color=auto'
+    alias ip='ip --color=auto'
+
+    export LESS_TERMCAP_mb=$'\E[1;31m'     # begin blink
+    export LESS_TERMCAP_md=$'\E[1;36m'     # begin bold
+    export LESS_TERMCAP_me=$'\E[0m'        # reset bold/blink
+    export LESS_TERMCAP_so=$'\E[01;33m'    # begin reverse video
+    export LESS_TERMCAP_se=$'\E[0m'        # reset reverse video
+    export LESS_TERMCAP_us=$'\E[1;32m'     # begin underline
+    export LESS_TERMCAP_ue=$'\E[0m'        # reset underline
+fi
+
+# less
+alias less='less -r' # Output "raw" control characters by default.
+
+# colored GCC warnings and errors
+#export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
+
+# some more ls aliases
+alias l='ls -C --classify --group-directories-first --show-control-chars'
+alias la='l --almost-all'
+alias ll='l -l --human-readable'
+alias lls='ll --sort=size --reverse'
+alias llt='ll --sort=time --reverse'
+alias llx='ll --sort=extension'
+alias lla='ll --almost-all'
+alias llas='lla --sort=size --reverse'
+alias llat='lla --sort=time --reverse'
+alias llax='lla --sort=extension'
+
+# use lsd if available
+if [ $(which lsd) ]; then
+  alias l='lsd --classify --group-directories-first --git'
+  alias la='l --almost-all'
+  alias ll='l --long'
+  alias lls='ll --total-size --sizesort --reverse'
+  alias llt='ll --timesort --reverse'
+  alias llx='ll --extensionsort'
+  alias lla='ll --almost-all'
+  alias llas='lla --total-size --sizesort --reverse'
+  alias llat='lla --timesort --reverse'
+  alias llax='lla --extensionsort'
+fi
+
+## grep
+alias sgrep='grep -R -n -H -C 5 --exclude-dir={.git,.svn,CVS} '
+
+## find
+alias fd='find . -type d -name'
+alias ff='find . -type f -name'
+
+## History
+alias h='history'
+alias hgrep="fc -El 0 | grep"
+
+## Git
+alias gita='git add'
+alias gitc='git commit -a -m'
+alias gits='git status'
+alias gitd='git diff'
+alias gitds='git diff --staged'
+alias gitp='git push origin'
+alias gitb='git branch -a'
+
+# Use English man pages
+alias man='LANG=C man'
+
+# Use batcat cat(1) clone with syntax highlighting and Git integration
+#alias bat='batcat'
+#alias batp='batcat --style plain'
+alias batp='bat --style plain'
+#alias cat='batcat'
+
+## Kitty terminal
+alias icat='kitten icat'
+alias ktn='kitty +kitten'
+alias kssh='ktn ssh'
+
+## Block devices management
+alias lblk="lsblk -e 7"
+alias llblk="lsblk -fme 7"
+## Extended lsblk output but without loop devices
+alias llablk="lsblk -fmte 7"
+## Shortcut to only list free space on physical devices
+alias dfblk='df -h -x devtmpfs -x tmpfs -x squashfs'
+
+## ZModem transfer
+alias rz='trz'
+alias sz='tsz'
+
+## Terraform and friends
+alias tf="terraform" 
+alias tu="tofu"
+alias tg="terragrunt"
+
+## Kubernetes and friends
+#export KUBECOLOR_PRESET="dark"
+#export KUBECOLOR_OBJ_FRESH="0s"
+alias kubectl="kubecolor"
+alias k="kubectl"
+alias kail="kubectl tail"
+
+## User containerized vagrant-libvirt 
+## https://vagrant-libvirt.github.io/vagrant-libvirt/installation.html#docker--podman
+vagrant-libvirt(){
+  docker run -it --rm \
+    -e LIBVIRT_DEFAULT_URI \
+    -v /var/run/libvirt/:/var/run/libvirt/ \
+    -v $(realpath ${VAGRANT_HOME:-~/.vagrant.d}):/.vagrant.d \
+    -v $(realpath "${PWD}"):${PWD} \
+    -w "${PWD}" \
+    --network host \
+    vagrantlibvirt/vagrant-libvirt:latest \
+      vagrant $@
+}
+
+vagrant-scp(){
+  OPTIONS=$(vagrant-libvirt ssh-config | tr -d '\r' | tail -n +2 | grep -v '^Host ' | awk -v ORS=' ' 'NF {print "-o " $1 "=" $2}')
+  echo $OPTIONS
+  scp ${OPTIONS} "$@" || echo "Transfer failed. Did you use 'default:' as the target?"
+}
+
+vagrant-rsync(){
+  OPTIONS=$(vagrant-libvirt ssh-config | tr -d '\r' | tail -n +2 | awk -v ORS=' ' 'NF {print "-o " $1 "=" $2}')
+  rsync -avz -e "ssh ${OPTIONS}" "$@" || echo "Transfer failed. Did you use 'default:' as the target?"
+}
+
+## Package management
+
