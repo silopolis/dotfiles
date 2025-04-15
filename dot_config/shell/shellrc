@@ -1,0 +1,111 @@
+## Common shell configuration
+
+#CURRENT_SHELL="$(ps -p $$ --no-header | tr -s ' ' | cut -d' ' -f5)"
+CURRENT_SHELL="${CURRENT_SHELL:-$(ps -p $$ -o comm=)}"
+
+# Set some XDG_* FreeDesktop directories
+export XDG_DATA_HOME="$HOME/.local/share"
+export XDG_CONFIG_HOME="$HOME/.config"
+export XDG_CACHE_HOME="$HOME/.cache"
+
+# Try to fix Qt6 theming issue
+export QT_QPA_PLATFORMTHEME=qt6ct
+
+
+## Configure PATH
+## Set base PATH
+#if [ "$(id -u)" -eq 0 ]; then
+#  PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+#else
+#  PATH="/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games"
+#fi
+## Set same PATH for root and users
+PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/games:/usr/games"
+
+# Include /snap/bin if it exists
+if [ -d "/snap/bin" ] ; then
+  PATH="/snap/bin:$PATH"
+fi
+
+# Include user's private "bin" directories if they exist
+#if [ "$(id -u)" -eq 0 ]; then
+  # Include user's private ~/bin if it exists
+  if [ -d "$HOME/bin" ] ; then
+    PATH="$HOME/bin:$PATH"
+  fi
+  # Include user's private ~/sbin if it exists
+  if [ -d "$HOME/sbin" ] ; then
+    PATH="$HOME/sbin:$PATH"
+  fi
+  # Include user's private ~/.local/bin if it exists
+  if [ -d "$HOME/.local/bin" ] ; then
+    PATH="$HOME/.local/bin:$PATH"
+  fi
+  # Include user's private ~/.local/sbin if it exists
+  if [ -d "$HOME/.local/sbin" ] ; then
+    PATH="$HOME/.local/sbin:$PATH"
+  fi
+#else
+#  # Include user's private ~/bin if it exists
+#  if [ -d "$HOME/bin" ] ; then
+#    echo "bin"
+#    PATH="$HOME/bin:$PATH"
+#  fi
+#  # Include user's private ~/.local/bin if it exists
+#  if [ -d "$HOME/.local/bin" ] ; then
+#    PATH="$HOME/.local/bin:$PATH"
+#  fi
+#fi
+
+export GOPATH="$HOME/.local/go"
+export GOBIN="$GOPATH/bin"
+# Include Go bin dir if it exists
+if [ -d "$GOBIN" ] ; then
+  PATH="$GOBIN:$PATH"
+fi
+
+KREW_PLUGINS_DIR="${KREW_ROOT:-$HOME/.krew}/bin"
+if [ -d "$KREW_PLUGINS_DIR" ]; then
+  PATH="$KREW_PLUGINS_DIR:$PATH"
+fi
+
+export PATH
+
+## Set locale
+LANG="fr_FR.UTF-8"
+LANGUAGE="fr_FR:en_US"
+LC_ALL="fr_FR.UTF-8"
+
+## brew
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+
+if [ -f $(brew --prefix)/etc/brew-wrap ];then
+  source $(brew --prefix)/etc/brew-wrap
+fi
+
+## broot launcher
+source /home/tarax/.config/broot/launcher/bash/br
+
+## Terraform
+alias tf='terraform'
+complete -o nospace -C /home/linuxbrew/.linuxbrew/bin/terraform terraform
+complete -o nospace -C /home/linuxbrew/.linuxbrew/bin/terraform tf
+#complete -C /home/linuxbrew/.linuxbrew/Cellar/tfenv/3.0.0/versions/1.6.6/terraform terraform
+
+## Source common shell aliases
+if [ -f ~/.config/shell/aliases ]; then
+    . ~/.config/shell/aliases
+fi
+
+export EDITOR="vim"
+export PAGER="most"
+
+source "${XDG_CONFIG_HOME:-$HOME/.config}/env"
+
+## Prompt
+## byobu-prompt
+#[ -r /home/tarax/.byobu/prompt ] && . /home/tarax/.byobu/prompt
+## Fancy prompt
+eval "$(starship init $CURRENT_SHELL)"
+
+# vim: set syntax=sh :
