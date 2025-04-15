@@ -67,6 +67,8 @@ alias cmea="chezmoi edit --apply"
 alias cmew="chezmoi edit --watch"
 alias cmg="chezmoi git"
 alias cmgl="chezmoi git log"
+alias cmglo="chezmoi git log -- --oneline"
+alias cmglos="chezmoi git log -- --oneline --stat"
 alias cms="chezmoi status"
 alias cmu="chezmoi update"
 
