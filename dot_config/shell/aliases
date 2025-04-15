@@ -60,6 +60,7 @@ fi
 ## chezmoi
 alias cm="chezmoi"
 alias cma="chezmoi add"
+alias cmap="chezmoi apply"
 alias cmcd="chezmoi cd"
 alias cmd="chezmoi diff"
 alias cme="chezmoi edit"
