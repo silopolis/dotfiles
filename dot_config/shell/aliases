@@ -69,8 +69,11 @@ alias cmg="chezmoi git"
 alias cmgl="chezmoi git log"
 alias cmglo="chezmoi git log -- --oneline"
 alias cmglos="chezmoi git log -- --oneline --stat"
+alias cmm="chezmoi managed"
 alias cms="chezmoi status"
 alias cmu="chezmoi update"
+alias cmum="chezmoi unmanaged"
+alias cmun="chezmoi unmanage"
 
 ## grep
 alias sgrep='grep -R -n -H -C 5 --exclude-dir={.git,.svn,CVS} '
