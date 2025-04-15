@@ -57,6 +57,18 @@ if [ $(which lsd) ]; then
   alias llax='lla --extensionsort'
 fi
 
+## chezmoi
+alias cm="chezmoi"
+alias cma="chezmoi add"
+alias cmcd="chezmoi cd"
+alias cmd="chezmoi diff"
+alias cme="chezmoi edit"
+alias cmea="chezmoi edit --apply"
+alias cmg="chezmoi git"
+alias cmgl="chezmoi git log"
+alias cms="chezmoi status"
+alias cmu="chezmoi update"
+
 ## grep
 alias sgrep='grep -R -n -H -C 5 --exclude-dir={.git,.svn,CVS} '
 
