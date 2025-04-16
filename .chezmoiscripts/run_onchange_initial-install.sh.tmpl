@@ -1,5 +1,5 @@
 # Add `config.toml` hash to get the script run when main config is updated
-# config.toml hash: {{ include "dot_config/mise/config.toml" | sha256sum }}
+# config.toml hash: \{\{ include "dot_config/mise/config.toml" | sha256sum \}\}"
 # shellcheck disable=SC1054,SC1083
 {{ if eq .chezmoi.os "linux" -}}
 #!/usr/bin/env bash
