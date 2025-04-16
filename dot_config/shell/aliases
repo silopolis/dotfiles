@@ -76,6 +76,8 @@ alias cmos='sh -c "$(curl -fsLS get.chezmoi.io)" -- init --oneshot' # $GITHUB_US
 alias cmm="chezmoi managed"
 alias cmpd="chezmoi git pull -- --autostash --rebase && chezmoi diff"
 alias cms="chezmoi status"
+alias cmstdbroc="chezmoi state delete-bucket --bucket=entryState" # clear the state of `run_onchange_` scripts
+alias cmstdbron="chezmoi state delete-bucket --bucket=scriptState" # clear the state of `run_once_` scripts
 alias cmu="chezmoi update"
 alias cmum="chezmoi unmanaged"
 alias cmun="chezmoi unmanage"
