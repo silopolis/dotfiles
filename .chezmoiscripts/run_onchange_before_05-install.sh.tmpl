@@ -69,7 +69,7 @@ brew file install
 # config.toml hash: {{ include "dot_config/pipx/packages.json" | sha256sum }}"
 pipx install-all "$HOME/.local/share/chezmoi/dot_config/pipx/packages.json"
 
-[ $(gh auth status &> /dev/null) ] || gh auth login
+$(gh auth status &> /dev/null) || gh auth login
 gh extension install github/gh-copilot
 
 # shellcheck disable=SC1009,SC1072,SC1073,SC1054,SC1083
