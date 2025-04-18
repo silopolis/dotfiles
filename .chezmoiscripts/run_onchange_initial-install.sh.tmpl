@@ -7,6 +7,14 @@
 set -ueo pipefail
 IFS=$'\n\t'
 
+export HOMEBREW_BREWFILE="$HOME/.local/share/chezmoi/dot_config/brewfile/Brewfile"
+export HOMEBREW_BREWFILE_BACKUP="$HOME/.config/brewfile/Brewfile.backup" # Set brew-file backup file name
+export HOMEBREW_BREWFILE_FULL_NAME=1 # Toggle use of full names (tap/name)
+export HOMEBREW_BREWFILE_LEAVES=0 # Only list leaves
+export HOMEBREW_BREWFILE_ON_REQUEST=1 # Only list packages installed on request. Has priority over leaves
+export HOMEBREW_BREWFILE_TOP_PACKAGES="gcc" # "go,coreutils" # Packages always to be listed
+export NONINTERACTIVE=1
+
 type brew &>/dev/null || \
   bash -c "$(curl -fsSL https://raw.github.com/rcmdnk/homebrew-file/install/install.sh)"
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
