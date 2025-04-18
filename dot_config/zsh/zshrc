@@ -251,30 +251,49 @@ if [ -f ~/.zsh_aliases ]; then
     . ~/.zsh_aliases
 fi
 
+
+## Docker
 if which docker &> /dev/null; then
   source <(docker completion zsh)
   alias d=docker
   compdef d=docker
 fi
 
+
+## Kubernetes
 if which kubectl &> /dev/null; then
   source <(kubectl completion zsh)
+  
   alias kubecolor=kubectl
   compdef kubecolor=kubectl
+  
   alias k=kubectl
   compdef k=kubectl
-  [ ! -f ~/.kube/kubectl_aliases ] \
-    && wget -q https://raw.githubusercontent.com/ahmetb/kubectl-aliases/master/.kubectl_aliases \
+
+  if [ ! -f "$HOME/.kube/kubectl_aliases" ]; then
+    [ -d "$HOME/.kube" ] || mkdir "$HOME/kube"
+    wget -q https://raw.githubusercontent.com/ahmetb/kubectl-aliases/master/.kubectl_aliases \
          -O ~/.kube/kubectl_aliases
-  source ~/.kube/kubectl_aliases
+  fi
+  if [ -f "$HOME/.kube/kubectl_aliases" ]; then
+    source ~/.kube/kubectl_aliases
+  fi
+    
+  [ -f ~/.kubectl_aliases ] && source ~/.kubectl_aliases
+
   function kubectl() { echo "+ kubectl $@">&2; command kubectl $@; }
 fi
+
 if which minikube &> /dev/null; then
   source <(minikube completion zsh)
 fi
+
 if which kind &> /dev/null; then
   source <(kind completion zsh)
 fi
+
+
+## AWS
 if which localstack &> /dev/null; then
   source <(localstack completion zsh)
 fi
@@ -320,8 +339,6 @@ export HSTR_TIOCSTI=n
 
 [ -f $HOMEBREW_PREFIX/share/forgit/forgit.plugin.zsh ] \
   && source $HOMEBREW_PREFIX/share/forgit/forgit.plugin.zsh
-
-[ -f ~/.kubectl_aliases ] && source ~/.kubectl_aliases
 
 ## Aqua
 if command -v aqua &> /dev/null; then

@@ -77,6 +77,18 @@ LANGUAGE="fr_FR:en_US"
 LC_ALL="fr_FR.UTF-8"
 
 ## brew
+#export HOMEBREW_BREWFILE="$HOME/.config/brewfile/Brewfile"
+export HOMEBREW_BREWFILE_BACKUP="$HOME/.config/brewfile/Brewfile.backup" # Set brew-file backup file name
+export HOMEBREW_BREWFILE_FULL_NAME=1 # Toggle use of full names (tap/name)
+export HOMEBREW_BREWFILE_LEAVES=0 # Only list leaves
+export HOMEBREW_BREWFILE_ON_REQUEST=1 # Only list packages installed on request. Has priority over leaves
+export HOMEBREW_BREWFILE_TOP_PACKAGES="gcc,g++" # "go,coreutils" # Packages always to be listed
+#export NONINTERACTIVE=1
+export HOMEBREW_AUTO_UPDATE_SECS=3600
+export HOMEBREW_NO_AUTO_UPDATE= # 1 to enable, empty to disable
+export HOMEBREW_NO_ENV_HINTS= # 1 to enable, empty to disable
+export HOMEBREW_NO_INSTALL_CLEANUP= # 1 to enable, empty to disable
+
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
 if [ -f $(brew --prefix)/etc/brew-wrap ];then
@@ -84,7 +96,9 @@ if [ -f $(brew --prefix)/etc/brew-wrap ];then
 fi
 
 ## broot launcher
-source /home/tarax/.config/broot/launcher/bash/br
+if [ -f /home/tarax/.config/broot/launcher/bash/br ]; then
+  source /home/tarax/.config/broot/launcher/bash/br
+fi
 
 ## Terraform
 alias tf='terraform'
@@ -100,7 +114,9 @@ fi
 export EDITOR="vim"
 export PAGER="most"
 
-source "${XDG_CONFIG_HOME:-$HOME/.config}/env"
+if [ -f "${XDG_CONFIG_HOME:-$HOME/.config}/env" ]; then
+  source "${XDG_CONFIG_HOME:-$HOME/.config}/env"
+fi
 
 ## Prompt
 ## byobu-prompt
