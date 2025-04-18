@@ -14,6 +14,10 @@ export HOMEBREW_BREWFILE_LEAVES=0 # Only list leaves
 export HOMEBREW_BREWFILE_ON_REQUEST=1 # Only list packages installed on request. Has priority over leaves
 export HOMEBREW_BREWFILE_TOP_PACKAGES="gcc" # "go,coreutils" # Packages always to be listed
 #export NONINTERACTIVE=1
+export HOMEBREW_AUTO_UPDATE_SECS=3600
+export HOMEBREW_NO_AUTO_UPDATE=0
+export HOMEBREW_NO_ENV_HINTS=0
+export HOMEBREW_NO_INSTALL_CLEANUP=0
 
 [ -x /home/linuxbrew/.linuxbrew/bin/brew ] || \
   bash -c "$(curl -fsSL https://raw.github.com/rcmdnk/homebrew-file/install/install.sh)"
