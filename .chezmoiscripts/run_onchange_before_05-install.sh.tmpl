@@ -34,6 +34,7 @@ if [ -f "$(brew --prefix)/etc/brew-wrap" ];then
   source "$(brew --prefix)/etc/brew-wrap"
 fi
 
+# config.toml hash: {{ include "dot_config/brewfile/Brewfile" | sha256sum }}"
 brew file install
 
 #brew install \
@@ -65,9 +66,10 @@ brew file install
 #    php \
 #    pnpm
 
+# config.toml hash: {{ include "dot_config/pipx/packages.json" | sha256sum }}"
 pipx install-all "$HOME/.local/share/chezmoi/dot_config/pipx/packages.json"
 
-gh auth login
+[ $(gh auth status &> /dev/null) ] || gh auth login
 gh extension install github/gh-copilot
 
 # shellcheck disable=SC1009,SC1072,SC1073,SC1054,SC1083
