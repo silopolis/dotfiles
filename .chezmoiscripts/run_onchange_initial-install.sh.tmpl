@@ -7,6 +7,12 @@
 set -ueo pipefail
 IFS=$'\n\t'
 
+# Raise limit for the max number of openfiles
+ulimit -n 10240
+# Make it permanent
+# https://www.tecmint.com/increase-set-open-file-limits-in-linux/
+sudo bash -c "echo '* soft nofile 10240' >> /etc/security/limits.conf"
+
 export HOMEBREW_BREWFILE="$HOME/.local/share/chezmoi/dot_config/brewfile/Brewfile"
 export HOMEBREW_BREWFILE_BACKUP="$HOME/.config/brewfile/Brewfile.backup" # Set brew-file backup file name
 export HOMEBREW_BREWFILE_FULL_NAME=1 # Toggle use of full names (tap/name)
@@ -15,9 +21,9 @@ export HOMEBREW_BREWFILE_ON_REQUEST=1 # Only list packages installed on request.
 export HOMEBREW_BREWFILE_TOP_PACKAGES="gcc" # "go,coreutils" # Packages always to be listed
 #export NONINTERACTIVE=1
 export HOMEBREW_AUTO_UPDATE_SECS=3600
-export HOMEBREW_NO_AUTO_UPDATE=0
-export HOMEBREW_NO_ENV_HINTS=0
-export HOMEBREW_NO_INSTALL_CLEANUP=0
+export HOMEBREW_NO_AUTO_UPDATE= # 1 to enable, empty to disable
+export HOMEBREW_NO_ENV_HINTS= # 1 to enable, empty to disable
+export HOMEBREW_NO_INSTALL_CLEANUP= # 1 to enable, empty to disable
 
 [ -x /home/linuxbrew/.linuxbrew/bin/brew ] || \
   bash -c "$(curl -fsSL https://raw.github.com/rcmdnk/homebrew-file/install/install.sh)"
