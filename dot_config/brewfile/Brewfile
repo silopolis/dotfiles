@@ -50,9 +50,11 @@ brew lazydocker
 brew lazygit
 brew lnav
 brew localstack
+brew lsd
 brew minikube
 brew mods
 brew mongosh
+brew most
 brew neofetch
 brew nerdctl
 brew nnn
