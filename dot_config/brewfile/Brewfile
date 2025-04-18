@@ -70,7 +70,6 @@ brew terraform-docs
 brew terraform-graph-beautifier
 brew terraform-local
 brew terraform-provider-libvirt
-brew terraform-rover
 brew terraform_landscape
 brew terrahelp
 brew terrascan
