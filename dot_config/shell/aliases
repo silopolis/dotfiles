@@ -44,7 +44,7 @@ alias llat='lla --sort=time --reverse'
 alias llax='lla --sort=extension'
 
 # use lsd if available
-if [ $(which lsd) ]; then
+if [ $(type lsd &> /dev/null) ]; then
   alias l='lsd --classify --group-directories-first --git'
   alias la='l --almost-all'
   alias ll='l --long'

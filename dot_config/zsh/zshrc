@@ -271,7 +271,7 @@ if which kubectl &> /dev/null; then
   compdef k=kubectl
 
   if [ ! -f "$HOME/.kube/kubectl_aliases" ]; then
-    [ -d "$HOME/.kube" ] || mkdir "$HOME/kube"
+    [ -d "$HOME/.kube" ] || mkdir "$HOME/.kube"
     wget -q https://raw.githubusercontent.com/ahmetb/kubectl-aliases/master/.kubectl_aliases \
          -O ~/.kube/kubectl_aliases
   fi
