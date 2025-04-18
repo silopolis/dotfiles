@@ -16,7 +16,6 @@ brew bore-cli
 brew catimg
 brew cheat
 brew checkov
-brew chezmoi
 brew d2
 brew diff-so-fancy
 brew difftastic
@@ -52,7 +51,6 @@ brew lazygit
 brew lnav
 brew localstack
 brew minikube
-brew mise
 brew mods
 brew mongosh
 brew neofetch
@@ -91,8 +89,6 @@ brew ttyd
 brew vale
 brew zoxide
 brew zsh-completions
-
-tap homebrew/bundle
 
 tap aquaproj/aqua
 brew aquaproj/aqua/aqua
