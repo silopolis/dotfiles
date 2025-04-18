@@ -38,6 +38,154 @@
                 "venv_args": []
             }
         },
+        "elia-chat": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/tarax/.local/pipx/venvs/elia-chat/bin/elia",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {
+                        "charset-normalizer": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/elia-chat/bin/normalizer",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "distro": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/elia-chat/bin/distro",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "httpx": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/elia-chat/bin/httpx",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "huggingface-hub": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/elia-chat/bin/huggingface-cli",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "jsonschema": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/elia-chat/bin/jsonschema",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "litellm": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/elia-chat/bin/litellm",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "markdown-it-py": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/elia-chat/bin/markdown-it",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "openai": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/elia-chat/bin/openai",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "pygments": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/elia-chat/bin/pygmentize",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "python-dotenv": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/elia-chat/bin/dotenv",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "rsa": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/elia-chat/bin/pyrsa-decrypt",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/elia-chat/bin/pyrsa-encrypt",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/elia-chat/bin/pyrsa-keygen",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/elia-chat/bin/pyrsa-priv2pub",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/elia-chat/bin/pyrsa-sign",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/elia-chat/bin/pyrsa-verify",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "tqdm": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/elia-chat/bin/tqdm",
+                                "__type__": "Path"
+                            }
+                        ]
+                    },
+                    "apps": [
+                        "elia"
+                    ],
+                    "apps_of_dependencies": [
+                        "pyrsa-decrypt",
+                        "pyrsa-encrypt",
+                        "pyrsa-keygen",
+                        "pyrsa-priv2pub",
+                        "pyrsa-sign",
+                        "pyrsa-verify",
+                        "normalizer",
+                        "tqdm",
+                        "litellm",
+                        "httpx",
+                        "jsonschema",
+                        "openai",
+                        "distro",
+                        "dotenv",
+                        "huggingface-cli",
+                        "markdown-it",
+                        "pygmentize"
+                    ],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "man_pages": [],
+                    "man_pages_of_dependencies": [],
+                    "man_paths": [],
+                    "man_paths_of_dependencies": {},
+                    "package": "elia-chat",
+                    "package_or_url": "elia-chat",
+                    "package_version": "1.10.0",
+                    "pinned": false,
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.5",
+                "python_version": "Python 3.11.11",
+                "source_interpreter": {
+                    "__Path__": "/home/linuxbrew/.linuxbrew/bin/python3.11",
+                    "__type__": "Path"
+                },
+                "venv_args": []
+            }
+        },
         "flux-local": {
             "metadata": {
                 "injected_packages": {},
