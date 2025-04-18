@@ -67,6 +67,9 @@ brew file install
 
 pipx install-all "$HOME/.local/share/chezmoi/dot_config/pipx/packages.json"
 
+gh auth login
+gh extension install github/gh-copilot
+
 # shellcheck disable=SC1009,SC1072,SC1073,SC1054,SC1083
 {{ else if eq .chezmoi.os "darwin" -}}
 #!/bin/sh
