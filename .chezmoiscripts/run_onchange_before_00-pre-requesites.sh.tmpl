@@ -2,11 +2,15 @@
 # This script should be the first one to run so be careful if you rename it or
 # add other `run_before_` scripts
 
-set -eu
+set -euo pipefail
+set -x
 
 # Install curl if it's not already installed
-if ! command -v curl >/dev/null; then
+#if ! command -v curl &> /dev/null; then
   sudo apt update
-  sudo apt install -y curl build-essential
-fi
+  sudo apt install -y curl wget
+  sudo apt install -y build-essential
+  sudo apt install -y btrfs-progs btrfsmaintenance btrfsd btrfs-assistant snapper
+  sudo apt install -y git-credential-oauth
+#fi
 
