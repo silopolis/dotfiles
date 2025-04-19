@@ -8,9 +8,10 @@ set -euo pipefail
 # Install curl if it's not already installed
 #if ! command -v curl &> /dev/null; then
   sudo apt-get update
-  sudo apt-get install -qy curl wget
-  sudo apt-get install -qy build-essential
-  sudo apt-get install -qy btrfs-progs btrfsmaintenance btrfsd btrfs-assistant snapper
-  sudo apt-get install -qy git-credential-oauth
+  sudo apt-get install -qy \
+    curl wget \
+    build-essential \
+    btrfs-progs btrfsmaintenance btrfsd btrfs-assistant snapper \
+    git-credential-oauth
 #fi
 
