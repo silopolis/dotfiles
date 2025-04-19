@@ -166,3 +166,7 @@ export HSTR_TIOCSTI=n
 
 [ -f ~/.kubectl_aliases ] && source ~/.kubectl_aliases
 
+## GitHub CLI
+eval "$(gh completion -s bash)"
+eval "$(gh copilot alias -- bash)"
+

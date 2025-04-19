@@ -1,8 +1,9 @@
 # ~/.zshrc file for zsh interactive shells.
 # see /usr/share/doc/zsh/examples/zshrc for examples
 
+## Zsh option
 setopt autocd              # change directory just by typing its name
-setopt correct            # auto correct mistakes
+setopt correct             # auto correct mistakes
 setopt interactivecomments # allow comments in interactive mode
 setopt magicequalsubst     # enable filename expansion for arguments of the form ‘anything=expression’
 setopt nonomatch           # hide error message if there is no match for the pattern
@@ -15,7 +16,7 @@ WORDCHARS=${WORDCHARS//\/} # Don't consider certain characters part of the word
 # hide EOL sign ('%')
 PROMPT_EOL_MARK=""
 
-# configure key keybindings
+## Keybindings
 bindkey -e                                        # emacs key bindings
 bindkey ' ' magic-space                           # do history expansion on space
 bindkey '^U' backward-kill-line                   # ctrl + U
@@ -29,7 +30,7 @@ bindkey '^[[H' beginning-of-line                  # home
 bindkey '^[[F' end-of-line                        # end
 bindkey '^[[Z' undo                               # shift + tab undo last action
 
-# enable completion features
+# Completion
 # Add brew completions
 if type brew &> /dev/null; then
   brew completions link &> /dev/null
@@ -67,7 +68,7 @@ if [ -f /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]; then
     ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#999'
 fi
 
-# History configurations
+## History
 HISTFILE=~/.zsh_history
 HISTSIZE=5000
 SAVEHIST=5000
@@ -89,6 +90,7 @@ if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
     debian_chroot=$(cat /etc/debian_chroot)
 fi
 
+## Prompt
 # set a fancy prompt (non-color, unless we know we "want" color)
 case "$TERM" in
     xterm-color|*-256color) color_prompt=yes;;
@@ -259,8 +261,8 @@ if which docker &> /dev/null; then
   compdef d=docker
 fi
 
-
 ## Kubernetes
+### Kubectl
 if which kubectl &> /dev/null; then
   source <(kubectl completion zsh)
   
@@ -284,30 +286,36 @@ if which kubectl &> /dev/null; then
   function kubectl() { echo "+ kubectl $@">&2; command kubectl $@; }
 fi
 
+### Minikube
 if which minikube &> /dev/null; then
   source <(minikube completion zsh)
 fi
 
+### KinD
 if which kind &> /dev/null; then
   source <(kind completion zsh)
 fi
 
 
 ## AWS
-if which localstack &> /dev/null; then
-  source <(localstack completion zsh)
-fi
-
+### AWS CLI
 [ -f "$HOME/.local/bin/aws_zsh_completer.sh" ] \
   && source "$HOME/.local/bin/aws_zsh_completer.sh" \
   && complete -C aws_completer awslocal
 
+### LocalStack
+if which localstack &> /dev/null; then
+  source <(localstack completion zsh)
+fi
+
 #complete -o nospace -C /home/linuxbrew/.linuxbrew/Cellar/tfenv/3.0.0/versions/1.6.6/terraform terraform
 
+## Direnv
 if which direnv &> /dev/null; then
   eval "$(direnv hook zsh)"
 fi
 
+## Mise
 if which mise &> /dev/null; then
   source <(mise activate zsh)
 fi
@@ -340,15 +348,20 @@ export HSTR_TIOCSTI=n
 [ -f $HOMEBREW_PREFIX/share/forgit/forgit.plugin.zsh ] \
   && source $HOMEBREW_PREFIX/share/forgit/forgit.plugin.zsh
 
-## Aqua
+## Aqua package manager
 if command -v aqua &> /dev/null; then
   export PATH="${AQUA_ROOT_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/aquaproj-aqua}/bin:$PATH"
   source <(aqua completion zsh)
 fi
 
+## GitHub CLI
+eval "$(gh completion -s zsh)"
 eval "$(gh copilot alias -- zsh)"
+
+## GitLab CLI
 eval "$(glab completion -s zsh)"
 
+## InfraCost
 if which infracost &> /dev/null; then
   source <(infracost completion --shell zsh)
 fi
