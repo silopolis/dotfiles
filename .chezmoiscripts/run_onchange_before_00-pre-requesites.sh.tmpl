@@ -3,14 +3,14 @@
 # add other `run_before_` scripts
 
 set -euo pipefail
-set -x
+#set -x
 
 # Install curl if it's not already installed
 #if ! command -v curl &> /dev/null; then
   sudo apt-get update
-  sudo apt-get install -y curl wget
-  sudo apt-get install -y build-essential
-  sudo apt-get install -y btrfs-progs btrfsmaintenance btrfsd btrfs-assistant snapper
-  sudo apt-get install -y git-credential-oauth
+  sudo apt-get install -qy curl wget
+  sudo apt-get install -qy build-essential
+  sudo apt-get install -qy btrfs-progs btrfsmaintenance btrfsd btrfs-assistant snapper
+  sudo apt-get install -qy git-credential-oauth
 #fi
 
