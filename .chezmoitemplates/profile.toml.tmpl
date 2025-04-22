@@ -1,0 +1,15 @@
+{{/*- $minimal := promptBoolOnce . "minimal" "Should this be a minimal installation?" false -*/}}
+{{- $ephemeral := false -}}{{/* true if this machine is ephemeral, e.g. a cloud or VM instance */}}
+{{- $headless := false -}}{{/* true if this machine does not have a screen and keyboard */}}
+{{- $personal := false -}}{{/* true if this machine should have personal secrets */}}
+{{- $work := false -}}{{/* true if this machine is used for work */}}
+
+{{/* detect interactive mode */}}
+{{- $force := or (has "--force" .chezmoi.args) (has "--force=true" .chezmoi.args) -}}
+{{/*- $interactive := and stdinIsATTY (not $force) -*/}}
+
+{{/* determine whether to prompt interactively */}}
+{{- $prompt := or (has "--prompt" .chezmoi.args) (has "--prompt=true" .chezmoi.args) -}}
+
+
+# vim:ft=toml.chezmoitmpl

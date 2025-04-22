@@ -1,0 +1,56 @@
+{{- $email := promptStringOnce . "email" "Email address" -}}
+{{- $gitemail := promptStringOnce . "gitemail" "Git email address" -}}
+{{- $firstname := promptStringOnce . "firstname" "User firstname" -}}
+{{- $name := promptStringOnce . "name" "User name" -}}
+{{- $username := .chezmoi.username -}}
+{{ if eq .chezmoi.os "windows" }}
+{{- $username = trimPrefix (print (upper .chezmoi.hostname) "\\") $username -}}
+{{- end -}}
+{{/*- $userConfig := or (get (or (get $osConfig "users") dict) $username) dict -*/}}
+{{/*- $userExternals := or (get $userConfig "externals") list -*/}}
+
+{{- includeTemplate "cpu.toml.tmpl" . }}
+{{- includeTemplate "machine-type.toml.tmpl" . }}
+{{- includeTemplate "gh-codespaces.toml.tmpl" . }}
+
+[data]
+  email = {{ $email | quote }}
+  gitemail = {{ $gitemail | quote }}
+  name = {{ $name | quote }}
+  firstname = {{ $firstname | quote }}
+
+[git]
+  autoAdd = true  # implied by autoCommit
+  autoCommit = true  # implied by autoPush
+  autoPush = true
+  commitMessageTemplate = "{{ promptString "Commit message" }}"
+  #commitMessageTemplateFile = ".commit_message.tmpl"
+
+[env]
+  HOMEBREW_BREWFILE_BACKUP = "$HOME/.config/brewfile/brewfile.backup" # Set brew-file backup file name
+  HOMEBREW_BREWFILE_FULL_NAME = "1" # Toggle use of full names (tap/name)
+  HOMEBREW_BREWFILE_LEAVES= "0" # Only list leaves
+  HOMEBREW_BREWFILE_ON_REQUEST= "1" # Only list packages installed on request. Has priority over leaves
+  #HOMEBREW_BREWFILE_TOP_PACKAGES = "go,coreutils" # Packages always to be listed
+
+[update]
+  # Update submodules recursively
+  recurseSubmodules = true
+
+[hooks.apply.pre]
+{{ if eq .chezmoi.os "linux" }}
+command = "chezmoi_pre_apply_hook"
+{{ else }}
+command = "pwsh"
+args = ["-c", "& {Invoke-RunBeforeChezmoiApply}"]
+{{ end }}
+
+[hooks.apply.post]
+{{ if eq .chezmoi.os "linux" }}
+command = "chezmoi_post_apply_hook"
+{{ else }}
+command = "pwsh"
+args = ["-c", "& {Invoke-RunAfterChezmoiApply}"]
+{{ end }}
+
+# vim:ft=toml.chezmoitmpl

@@ -1,0 +1,27 @@
+## Save osid (ex: "darwin" or "linux-debian")
+{{- $osid := .chezmoi.os -}}
+{{/*- $osConfig := or (get . $os) dict -*/}}
+{{- if hasKey .chezmoi.osRelease "id" -}}
+{{-   $osid = printf "%s-%s" .chezmoi.os .chezmoi.osRelease.id -}}
+{{- end}}
+
+{{/* detect OS */}}
+{{- $osid := .chezmoi.os -}}
+{{- if (and (eq .chezmoi.os "linux") (hasKey .chezmoi.osRelease "id")) -}}
+{{-   $osid = printf "%s-%s" .chezmoi.os .chezmoi.osRelease.id -}}
+{{- end -}}
+{{- $wsl2 := and (eq .chezmoi.os "linux") ( .chezmoi.kernel.osrelease | lower | contains "microsoft" ) -}}
+{{- $windows_sandbox := and (eq .chezmoi.os "windows") ( .chezmoi.username | contains "WDAGUtilityAccount" ) -}}
+{{- $steamdeck := eq $osid "linux-steamos" -}}
+
+{{/* detect macOS version */}}
+{{- $macos_version := "" -}}
+{{- if eq .chezmoi.os "darwin" -}}
+    {{- $macos_version = slice (output "sw_vers" "-productVersion" | trim | splitList "." ) 0 2 | join "." -}}
+{{- end -}}
+
+{{- $hostName := .chezmoi.hostname -}}
+{{/*- $hostConfig := or (get (or (get $osConfig "hosts") dict) $hostName) dict -*/}}
+{{/*- $hostExternals := or (get $hostConfig "externals") list -*/}}
+
+# vim:ft=toml.chezmoitmpl
