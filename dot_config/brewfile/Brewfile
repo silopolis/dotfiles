@@ -27,6 +27,7 @@ brew fastgron
 brew fd
 brew forgit
 brew fzf
+brew gcc
 brew gh
 brew git-delta
 brew git-interactive-rebase-tool
@@ -85,6 +86,7 @@ brew tfsec
 brew tfupdate
 brew the_silver_searcher
 brew tlrc
+brew tpm
 brew trippy
 brew trivy
 brew trzsz-go

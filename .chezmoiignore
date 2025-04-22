@@ -7,3 +7,4 @@ scripts
 .chezmoidata
 .chezmoitemplates
 
+dot_config/tmux/plugins
