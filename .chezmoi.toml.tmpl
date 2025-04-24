@@ -20,9 +20,9 @@
   firstname = {{ $firstname | quote }}
 
 [git]
-  autoAdd = true  # implied by autoCommit
-  autoCommit = true  # implied by autoPush
-  autoPush = true
+  autoAdd = false  # implied by autoCommit
+  autoCommit = false  # implied by autoPush
+  autoPush = false
   commitMessageTemplate = "{{ promptString "Commit message" }}"
   #commitMessageTemplateFile = ".commit_message.tmpl"
 
