@@ -37,6 +37,16 @@ fi
 # config.toml hash: {{ include "dot_config/brewfile/Brewfile" | sha256sum }}"
 brew file install
 
+# Initialize `rustup`, set a default toolchain:
+rustup default stable
+
+# If you have `rust` installed, ensure you have "$(brew --prefix rustup)/bin"
+# before "$(brew --prefix)/bin" in your $PATH:
+# https://rust-lang.github.io/rustup/installation/already-installed-rust.html
+
+# rustup is keg-only, which means it was not symlinked into /home/linuxbrew/.linuxbrew,
+# because it conflicts with rust.
+
 #brew install \
 #  mise \
 #  helix \

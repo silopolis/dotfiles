@@ -95,6 +95,9 @@ if [ -f $(brew --prefix)/etc/brew-wrap ];then
   source $(brew --prefix)/etc/brew-wrap
 fi
 
+PATH="$(brew --prefix rustup)/bin:$PATH"
+
+
 ## broot launcher
 if [ -f /home/tarax/.config/broot/launcher/bash/br ]; then
   source /home/tarax/.config/broot/launcher/bash/br

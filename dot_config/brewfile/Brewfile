@@ -67,6 +67,7 @@ brew pre-commit
 brew ranger
 brew ripgrep
 brew ripgrep-all
+brew rustup
 brew starship
 brew stern
 brew tailspin
