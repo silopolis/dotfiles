@@ -8,3 +8,4 @@ scripts
 .chezmoitemplates
 
 dot_config/tmux/plugins
+*.log

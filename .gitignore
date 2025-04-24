@@ -2,4 +2,6 @@
 *.swo
 *.swm
 
+*.log
+
 dot_config/tmux/plugins
