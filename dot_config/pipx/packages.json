@@ -30,9 +30,9 @@
                     "suffix": ""
                 },
                 "pipx_metadata_version": "0.5",
-                "python_version": "Python 3.12.6",
+                "python_version": "Python 3.13.3",
                 "source_interpreter": {
-                    "__Path__": "/usr/bin/python3.12",
+                    "__Path__": "/home/linuxbrew/.linuxbrew/opt/python@3.13/libexec/bin/python",
                     "__type__": "Path"
                 },
                 "venv_args": []
@@ -58,19 +58,12 @@
                                 "__Path__": "/home/tarax/.local/pipx/venvs/flux-local/bin/pytest",
                                 "__type__": "Path"
                             }
-                        ],
-                        "python-slugify": [
-                            {
-                                "__Path__": "/home/tarax/.local/pipx/venvs/flux-local/bin/slugify",
-                                "__type__": "Path"
-                            }
                         ]
                     },
                     "apps": [
                         "flux-local"
                     ],
                     "apps_of_dependencies": [
-                        "slugify",
                         "py.test",
                         "pytest"
                     ],
@@ -82,15 +75,15 @@
                     "man_paths_of_dependencies": {},
                     "package": "flux-local",
                     "package_or_url": "flux-local",
-                    "package_version": "7.2.1",
+                    "package_version": "7.4.0",
                     "pinned": false,
                     "pip_args": [],
                     "suffix": ""
                 },
                 "pipx_metadata_version": "0.5",
-                "python_version": "Python 3.12.8",
+                "python_version": "Python 3.13.3",
                 "source_interpreter": {
-                    "__Path__": "/usr/bin/python3.12",
+                    "__Path__": "/home/linuxbrew/.linuxbrew/opt/python@3.13/libexec/bin/python",
                     "__type__": "Path"
                 },
                 "venv_args": []
@@ -148,9 +141,9 @@
                     "suffix": ""
                 },
                 "pipx_metadata_version": "0.5",
-                "python_version": "Python 3.12.8",
+                "python_version": "Python 3.13.3",
                 "source_interpreter": {
-                    "__Path__": "/usr/bin/python3.12",
+                    "__Path__": "/home/linuxbrew/.linuxbrew/opt/python@3.13/libexec/bin/python",
                     "__type__": "Path"
                 },
                 "venv_args": []
@@ -185,9 +178,193 @@
                     "suffix": ""
                 },
                 "pipx_metadata_version": "0.5",
-                "python_version": "Python 3.12.6",
+                "python_version": "Python 3.13.3",
                 "source_interpreter": {
-                    "__Path__": "/usr/bin/python3.12",
+                    "__Path__": "/home/linuxbrew/.linuxbrew/opt/python@3.13/libexec/bin/python",
+                    "__type__": "Path"
+                },
+                "venv_args": []
+            }
+        },
+        "github-clone": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/tarax/.local/pipx/venvs/github-clone/bin/ghclone",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {
+                        "charset-normalizer": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/github-clone/bin/normalizer",
+                                "__type__": "Path"
+                            }
+                        ]
+                    },
+                    "apps": [
+                        "ghclone"
+                    ],
+                    "apps_of_dependencies": [
+                        "normalizer"
+                    ],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "man_pages": [],
+                    "man_pages_of_dependencies": [],
+                    "man_paths": [],
+                    "man_paths_of_dependencies": {},
+                    "package": "github-clone",
+                    "package_or_url": "github-clone",
+                    "package_version": "1.2.0",
+                    "pinned": false,
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.5",
+                "python_version": "Python 3.13.3",
+                "source_interpreter": {
+                    "__Path__": "/home/linuxbrew/.linuxbrew/opt/python@3.13/libexec/bin/python",
+                    "__type__": "Path"
+                },
+                "venv_args": []
+            }
+        },
+        "jc": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/tarax/.local/pipx/venvs/jc/bin/jc",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {
+                        "pygments": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/jc/bin/pygmentize",
+                                "__type__": "Path"
+                            }
+                        ]
+                    },
+                    "apps": [
+                        "jc"
+                    ],
+                    "apps_of_dependencies": [
+                        "pygmentize"
+                    ],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "man_pages": [],
+                    "man_pages_of_dependencies": [],
+                    "man_paths": [],
+                    "man_paths_of_dependencies": {},
+                    "package": "jc",
+                    "package_or_url": "jc",
+                    "package_version": "1.25.4",
+                    "pinned": false,
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.5",
+                "python_version": "Python 3.13.3",
+                "source_interpreter": {
+                    "__Path__": "/home/linuxbrew/.linuxbrew/opt/python@3.13/libexec/bin/python",
+                    "__type__": "Path"
+                },
+                "venv_args": []
+            }
+        },
+        "jello": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/tarax/.local/pipx/venvs/jello/bin/jello",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {
+                        "pygments": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/jello/bin/pygmentize",
+                                "__type__": "Path"
+                            }
+                        ]
+                    },
+                    "apps": [
+                        "jello"
+                    ],
+                    "apps_of_dependencies": [
+                        "pygmentize"
+                    ],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "man_pages": [],
+                    "man_pages_of_dependencies": [],
+                    "man_paths": [],
+                    "man_paths_of_dependencies": {},
+                    "package": "jello",
+                    "package_or_url": "jello",
+                    "package_version": "1.6.0",
+                    "pinned": false,
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.5",
+                "python_version": "Python 3.13.3",
+                "source_interpreter": {
+                    "__Path__": "/home/linuxbrew/.linuxbrew/opt/python@3.13/libexec/bin/python",
+                    "__type__": "Path"
+                },
+                "venv_args": []
+            }
+        },
+        "jtbl": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/tarax/.local/pipx/venvs/jtbl/bin/jtbl",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {
+                        "tabulate": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/jtbl/bin/tabulate",
+                                "__type__": "Path"
+                            }
+                        ]
+                    },
+                    "apps": [
+                        "jtbl"
+                    ],
+                    "apps_of_dependencies": [
+                        "tabulate"
+                    ],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "man_pages": [],
+                    "man_pages_of_dependencies": [],
+                    "man_paths": [],
+                    "man_paths_of_dependencies": {},
+                    "package": "jtbl",
+                    "package_or_url": "jtbl",
+                    "package_version": "1.6.0",
+                    "pinned": false,
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.5",
+                "python_version": "Python 3.13.3",
+                "source_interpreter": {
+                    "__Path__": "/home/linuxbrew/.linuxbrew/opt/python@3.13/libexec/bin/python",
                     "__type__": "Path"
                 },
                 "venv_args": []
@@ -232,15 +409,15 @@
                     "man_paths_of_dependencies": {},
                     "package": "logmerger",
                     "package_or_url": "logmerger",
-                    "package_version": "0.10.0",
+                    "package_version": "0.11.0",
                     "pinned": false,
                     "pip_args": [],
                     "suffix": ""
                 },
                 "pipx_metadata_version": "0.5",
-                "python_version": "Python 3.12.8",
+                "python_version": "Python 3.13.3",
                 "source_interpreter": {
-                    "__Path__": "/usr/bin/python3.12",
+                    "__Path__": "/home/linuxbrew/.linuxbrew/opt/python@3.13/libexec/bin/python",
                     "__type__": "Path"
                 },
                 "venv_args": []
@@ -292,9 +469,9 @@
                     "suffix": ""
                 },
                 "pipx_metadata_version": "0.5",
-                "python_version": "Python 3.12.6",
+                "python_version": "Python 3.13.3",
                 "source_interpreter": {
-                    "__Path__": "/usr/bin/python3.12",
+                    "__Path__": "/home/linuxbrew/.linuxbrew/opt/python@3.13/libexec/bin/python",
                     "__type__": "Path"
                 },
                 "venv_args": []
@@ -391,9 +568,9 @@
                     "suffix": ""
                 },
                 "pipx_metadata_version": "0.5",
-                "python_version": "Python 3.12.6",
+                "python_version": "Python 3.13.3",
                 "source_interpreter": {
-                    "__Path__": "/usr/bin/python3.12",
+                    "__Path__": "/home/linuxbrew/.linuxbrew/opt/python@3.13/libexec/bin/python",
                     "__type__": "Path"
                 },
                 "venv_args": []
@@ -410,6 +587,12 @@
                         }
                     ],
                     "app_paths_of_dependencies": {
+                        "charset-normalizer": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/shell-gpt/bin/normalizer",
+                                "__type__": "Path"
+                            }
+                        ],
                         "distro": [
                             {
                                 "__Path__": "/home/tarax/.local/pipx/venvs/shell-gpt/bin/distro",
@@ -451,6 +634,12 @@
                                 "__Path__": "/home/tarax/.local/pipx/venvs/shell-gpt/bin/tqdm",
                                 "__type__": "Path"
                             }
+                        ],
+                        "typer": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/shell-gpt/bin/typer",
+                                "__type__": "Path"
+                            }
                         ]
                     },
                     "apps": [
@@ -462,8 +651,10 @@
                         "openai",
                         "httpx",
                         "tqdm",
+                        "normalizer",
                         "markdown-it",
-                        "pygmentize"
+                        "pygmentize",
+                        "typer"
                     ],
                     "include_apps": true,
                     "include_dependencies": false,
@@ -473,15 +664,15 @@
                     "man_paths_of_dependencies": {},
                     "package": "shell-gpt",
                     "package_or_url": "shell-gpt",
-                    "package_version": "1.4.4",
+                    "package_version": "1.4.5",
                     "pinned": false,
                     "pip_args": [],
                     "suffix": ""
                 },
                 "pipx_metadata_version": "0.5",
-                "python_version": "Python 3.12.8",
+                "python_version": "Python 3.13.3",
                 "source_interpreter": {
-                    "__Path__": "/usr/bin/python3.12",
+                    "__Path__": "/home/linuxbrew/.linuxbrew/opt/python@3.13/libexec/bin/python",
                     "__type__": "Path"
                 },
                 "venv_args": []
@@ -518,9 +709,9 @@
                     "suffix": ""
                 },
                 "pipx_metadata_version": "0.5",
-                "python_version": "Python 3.12.6",
+                "python_version": "Python 3.13.3",
                 "source_interpreter": {
-                    "__Path__": "/usr/bin/python3.12",
+                    "__Path__": "/home/linuxbrew/.linuxbrew/opt/python@3.13/libexec/bin/python",
                     "__type__": "Path"
                 },
                 "venv_args": []
@@ -599,9 +790,9 @@
                     "suffix": ""
                 },
                 "pipx_metadata_version": "0.5",
-                "python_version": "Python 3.12.8",
+                "python_version": "Python 3.13.3",
                 "source_interpreter": {
-                    "__Path__": "/usr/bin/python3.12",
+                    "__Path__": "/home/linuxbrew/.linuxbrew/opt/python@3.13/libexec/bin/python",
                     "__type__": "Path"
                 },
                 "venv_args": []
@@ -624,6 +815,12 @@
                                 "__type__": "Path"
                             }
                         ],
+                        "distro": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/tftui/bin/distro",
+                                "__type__": "Path"
+                            }
+                        ],
                         "markdown-it-py": [
                             {
                                 "__Path__": "/home/tarax/.local/pipx/venvs/tftui/bin/markdown-it",
@@ -642,6 +839,7 @@
                     ],
                     "apps_of_dependencies": [
                         "normalizer",
+                        "distro",
                         "markdown-it",
                         "pygmentize"
                     ],
@@ -659,9 +857,9 @@
                     "suffix": ""
                 },
                 "pipx_metadata_version": "0.5",
-                "python_version": "Python 3.12.8",
+                "python_version": "Python 3.13.3",
                 "source_interpreter": {
-                    "__Path__": "/usr/bin/python3.12",
+                    "__Path__": "/home/linuxbrew/.linuxbrew/opt/python@3.13/libexec/bin/python",
                     "__type__": "Path"
                 },
                 "venv_args": []
@@ -726,9 +924,9 @@
                     "suffix": ""
                 },
                 "pipx_metadata_version": "0.5",
-                "python_version": "Python 3.12.8",
+                "python_version": "Python 3.13.3",
                 "source_interpreter": {
-                    "__Path__": "/usr/bin/python3.12",
+                    "__Path__": "/home/linuxbrew/.linuxbrew/opt/python@3.13/libexec/bin/python",
                     "__type__": "Path"
                 },
                 "venv_args": []
@@ -779,9 +977,9 @@
                     "suffix": ""
                 },
                 "pipx_metadata_version": "0.5",
-                "python_version": "Python 3.12.8",
+                "python_version": "Python 3.13.3",
                 "source_interpreter": {
-                    "__Path__": "/usr/bin/python3.12",
+                    "__Path__": "/home/linuxbrew/.linuxbrew/opt/python@3.13/libexec/bin/python",
                     "__type__": "Path"
                 },
                 "venv_args": []
@@ -810,15 +1008,15 @@
                     "man_paths_of_dependencies": {},
                     "package": "unidecode",
                     "package_or_url": "unidecode",
-                    "package_version": "1.3.8",
+                    "package_version": "1.4.0",
                     "pinned": false,
                     "pip_args": [],
                     "suffix": ""
                 },
                 "pipx_metadata_version": "0.5",
-                "python_version": "Python 3.12.6",
+                "python_version": "Python 3.13.3",
                 "source_interpreter": {
-                    "__Path__": "/usr/bin/python3.12",
+                    "__Path__": "/home/linuxbrew/.linuxbrew/opt/python@3.13/libexec/bin/python",
                     "__type__": "Path"
                 },
                 "venv_args": []
@@ -897,9 +1095,9 @@
                     "suffix": ""
                 },
                 "pipx_metadata_version": "0.5",
-                "python_version": "Python 3.12.8",
+                "python_version": "Python 3.13.3",
                 "source_interpreter": {
-                    "__Path__": "/usr/bin/python3.12",
+                    "__Path__": "/home/linuxbrew/.linuxbrew/opt/python@3.13/libexec/bin/python",
                     "__type__": "Path"
                 },
                 "venv_args": []
@@ -943,15 +1141,15 @@
                     "man_paths_of_dependencies": {},
                     "package": "xonsh",
                     "package_or_url": "xonsh",
-                    "package_version": "0.19.2",
+                    "package_version": "0.19.3",
                     "pinned": false,
                     "pip_args": [],
                     "suffix": ""
                 },
                 "pipx_metadata_version": "0.5",
-                "python_version": "Python 3.12.6",
+                "python_version": "Python 3.13.3",
                 "source_interpreter": {
-                    "__Path__": "/usr/bin/python3.12",
+                    "__Path__": "/home/linuxbrew/.linuxbrew/opt/python@3.13/libexec/bin/python",
                     "__type__": "Path"
                 },
                 "venv_args": []
@@ -1001,9 +1199,9 @@
                     "suffix": ""
                 },
                 "pipx_metadata_version": "0.5",
-                "python_version": "Python 3.12.6",
+                "python_version": "Python 3.13.3",
                 "source_interpreter": {
-                    "__Path__": "/usr/bin/python3.12",
+                    "__Path__": "/home/linuxbrew/.linuxbrew/opt/python@3.13/libexec/bin/python",
                     "__type__": "Path"
                 },
                 "venv_args": []
