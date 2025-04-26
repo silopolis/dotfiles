@@ -16,6 +16,7 @@ brew bore-cli
 brew catimg
 brew cheat
 brew checkov
+brew chezmoi
 brew d2
 brew diff-so-fancy
 brew difftastic
@@ -53,6 +54,7 @@ brew lnav
 brew localstack
 brew lsd
 brew minikube
+brew mise
 brew mods
 brew mongosh
 brew most
