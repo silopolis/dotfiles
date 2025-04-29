@@ -1,0 +1,93 @@
+[cache]
+dir = "~/.cache/tlrc"
+mirror = "https://github.com/tldr-pages/tldr/releases/latest/download"
+auto_update = true
+max_age = 336 # hours
+languages = []
+
+[output]
+show_title = true
+# Show the platform name ('common', 'linux', etc.) in the title.
+platform_title = false 
+# Prefix descriptions of examples with hyphens.
+show_hyphens = true
+# Use a custom string instead of a hyphen.
+example_prefix = "- "
+line_length = 100
+# Strip empty lines from output.
+compact = false
+# In option placeholders, show the specified option style. short, long, or both.
+option_style = "both"
+raw_markdown = false
+
+[indent]
+title = 2
+description = 2
+bullet = 2
+example = 4
+
+[style.title]
+color = { rgb = [198, 160, 246] }       # mauve, typically used for headings or accents
+background = "default"
+bold = true
+underline = false
+italic = false
+dim = false
+strikethrough = false
+
+[style.description]
+color = { rgb = [180, 190, 254] }       # lavender, soft and readable for descriptive text
+background = "default"
+bold = false
+underline = false
+italic = false
+dim = false
+strikethrough = false
+
+[style.bullet]
+#color = { rgb = [148, 226, 213] }        # teal, matches structural or list elements
+#color = { rgb = [198, 208, 245] }        # text
+color = { rgb = [140, 170, 238] }        # blue
+background = "default"
+bold = false
+underline = false
+italic = false
+dim = false
+strikethrough = false
+
+[style.example]
+color = { rgb = [137, 220, 235] }       # sky, stands out for commands/examples
+background = "default"
+bold = true
+underline = false
+italic = false
+dim = false
+strikethrough = false
+
+[style.url]
+color = { rgb = [245, 224, 220] }       # rosewater, gentle but visible for links
+background = "default"
+bold = false
+underline = false
+italic = true
+dim = false
+strikethrough = false
+
+[style.inline_code]
+color = { rgb = [249, 226, 175] }       # yellow, retained, aligns with `Catppuccin yellow`
+background = "default"
+bold = false
+underline = false
+italic = true
+dim = false
+strikethrough = false
+
+[style.placeholder]
+color = { rgb = [235, 160, 172] }       # maroon, indicates input needed by the user
+background = "default"
+bold = false
+underline = false
+italic = true
+dim = false
+strikethrough = false
+
