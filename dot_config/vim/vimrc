@@ -1,0 +1,569 @@
+" ==============================================================================
+" ## Plugins
+" ------------------------------------------------------------------------------
+" Brief help
+" :PluginList       - lists configured plugins
+" :PluginInstall    - installs plugins; append `!` to update or just :PluginUpdate
+" :PluginSearch foo - searches for foo; append `!` to refresh local cache
+" :PluginClean      - confirms removal of unused plugins; append `!` to auto-approve removal
+"
+" see :h vundle for more details or wiki for FAQ
+filetype off                  " required
+" set the runtime path (rtp) to include Vundle and initialize
+set rtp+=~/.vim/bundle/Vundle.vim
+" Keep Plugin commands between vundle#begin/end.
+call vundle#begin()
+" let Vundle manage Vundle, required
+Plugin 'VundleVim/Vundle.vim'
+
+
+" ------------------------------------------------------------------------------
+" ## Terminal integration
+" ------------------------------------------------------------------------------
+" Enhances Vim's integration with the terminal in four ways, particularly when
+" using tmux and iTerm or KDE Konsole: cursor shape change in insert and
+" replace mode, improved mouse support, focus reporting, 'bracketed paste' mode
+" TODO: config https://github.com/wincent/terminus/blob/main/doc/terminus.txt
+Plugin 'wincent/terminus'
+" Simple tmux statusline generator with support for powerline symbols and
+" vim/airline/lightline statusline integration
+Plugin 'edkolev/tmuxline.vim'
+
+
+" ------------------------------------------------------------------------------
+" ## Start screen
+" ------------------------------------------------------------------------------
+" Start screen for Vim and Neovim.
+" Provides dynamically created headers or footers and uses configurable lists to
+" show recently used or bookmarked files and persistent sessions. All of this
+" can be accessed in a simple to use menu that even allows to open multiple
+" entries at once.
+Plugin 'mhinz/vim-startify'
+
+" ------------------------------------------------------------------------------
+" ## Defaults and basic enhancements
+" ------------------------------------------------------------------------------
+" A universal set of defaults that (hopefully) everyone can agree on.
+Plugin 'tpope/vim-sensible'
+" Readline style insertion
+Plugin 'tpope/vim-rsi'
+" Pairs of handy bracket mappings
+Plugin 'tpope/vim-unimpaired'
+" Vim sugar for the UNIX shell commands that need it the most.
+Plugin 'tpope/vim-eunuch'
+
+
+" ------------------------------------------------------------------------------
+" ## Comments
+" ------------------------------------------------------------------------------
+"Plugin tpope/vim-commentary
+"Plugin 'tomtom/tcomment_vim'
+
+" Vim plugin for intensely nerdy commenting powers
+Plugin 'preservim/nerdcommenter'
+" Create default mappings
+"let g:NERDCreateDefaultMappings = 1
+" Add spaces after comment delimiters by default
+"let g:NERDSpaceDelims = 1
+" Use compact syntax for prettified multi-line comments
+let g:NERDCompactSexyComs = 1
+" Align line-wise comment delimiters flush left instead of following code indentation
+"let g:NERDDefaultAlign = 'left'
+" Set a language to use its alternate delimiters by default
+"let g:NERDAltDelims_java = 1
+" Add your own custom formats or override the defaults
+"let g:NERDCustomDelimiters = { 'c': { 'left': '/**','right': '*/' } }
+" Allow commenting and inverting empty lines (useful when commenting a region)
+"let g:NERDCommentEmptyLines = 1
+" Enable trimming of trailing whitespace when uncommenting
+let g:NERDTrimTrailingWhitespace = 1
+" Enable NERDCommenterToggle to check all selected lines is commented or not
+let g:NERDToggleCheckAllLines = 1
+
+
+" ------------------------------------------------------------------------------
+" ## File and directory explorer
+" ------------------------------------------------------------------------------
+" File system explorer to visually browse complex directory hierarchies, quickly
+" open files for reading or editing, and perform basic file system operations.
+Plugin 'preservim/nerdtree'
+nnoremap <leader>nn :NERDTreeFocus<CR>
+"nnoremap <C-n> :NERDTree<CR>
+nnoremap <leader>n :NERDTreeToggle<CR>
+"nnoremap <C-t> :NERDTreeToggle<CR>
+nnoremap <leader>n/ :NERDTreeFind<CR>
+"nnoremap <C-f> :NERDTreeFind<CR>
+" Function to open the file or NERDTree or netrw.
+"   Returns: 1 if either file explorer was opened; otherwise, 0.
+function! s:OpenFileOrExplorer(...)
+    if a:0 == 0 || a:1 == ''
+        NERDTree
+    elseif filereadable(a:1)
+        execute 'edit '.a:1
+        return 0
+    elseif a:1 =~? '^\(scp\|ftp\)://' " Add other protocols as needed.
+        execute 'Vexplore '.a:1
+    elseif isdirectory(a:1)
+        execute 'NERDTree '.a:1
+    endif
+    return 1
+endfunction
+
+" Auto commands to handle OS commandline arguments
+autocmd StdinReadPre * let s:std_in=1
+autocmd VimEnter * if argc()==1 && !exists('s:std_in') | if <SID>OpenFileOrExplorer(argv()[0]) | wincmd p | enew | wincmd p | endif | endif
+
+" Command to call the OpenFileOrExplorer function.
+command! -n=? -complete=file -bar Edit :call <SID>OpenFileOrExplorer('<args>')
+
+" Command-mode abbreviation to replace the :edit Vim command.
+cnoreabbrev e Edit
+
+" NERDTree plugins
+Plugin 'Xuyuanp/nerdtree-git-plugin' " Shows Git status flags for files and folders in NERDTree.
+Plugin 'ryanoasis/vim-devicons' " Adds filetype-specific icons to NERDTree files and folders,
+Plugin 'tiagofumo/vim-nerdtree-syntax-highlight' " Adds syntax highlighting to NERDTree based on filetype.
+"Plugin 'scrooloose/nerdtree-project-plugin' " Saves and restores the state of the NERDTree between sessions.
+Plugin 'DehanLUO/nerdtree-project-plugin'
+Plugin 'PhilRunninger/nerdtree-buffer-ops' " 1) Highlights open files in a different color. 2) Closes a buffer directly from NERDTree.
+Plugin 'PhilRunninger/nerdtree-visual-selection' " Enables NERDTree to open, delete, move, or copy multiple Visually-selected files at once.
+
+" Open NERDTree automatically when Vim starts
+" Each code block below is slightly different, as described in the comment lines.
+" Start NERDTree and leave the cursor in it.
+"autocmd VimEnter * NERDTree
+" Start NERDTree and put the cursor back in the other window.
+"autocmd VimEnter * NERDTree | wincmd p
+" Start NERDTree when Vim is started without file arguments.
+"autocmd StdinReadPre * let s:std_in=1
+"autocmd VimEnter * if argc() == 0 && !exists('s:std_in') | NERDTree | endif
+autocmd VimEnter *
+  \   if !argc()
+  \ |   Startify
+  \ |   NERDTree
+  \ |   wincmd w
+  \ | endif
+" Start NERDTree. If a file is specified, move the cursor to its window.
+autocmd StdinReadPre * let s:std_in=1
+autocmd VimEnter * NERDTree | if argc() > 0 || exists("s:std_in") | wincmd p | endif
+" Start NERDTree, unless a file or session is specified, eg. vim -S session_file.vim.
+"autocmd StdinReadPre * let s:std_in=1
+"autocmd VimEnter * if argc() == 0 && !exists('s:std_in') && v:this_session == '' | NERDTree | endif
+" Start NERDTree when Vim starts with a directory argument.
+autocmd StdinReadPre * let s:std_in=1
+autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists('s:std_in') |
+    \ execute 'NERDTree' argv()[0] | wincmd p | enew | execute 'cd '.argv()[0] | endif
+
+" Close Vim or a tab automatically when NERDTree is the last window
+" Because of the changes in how Vim handles its autocmd and layout locking,
+" quit command is no longer available in Vim9 auto commands.
+" Depending on which version you're running select one of these solutions.
+" NeoVim users should be able to choose either one of them!
+" Vim9
+" Exit Vim if NERDTree is the only window remaining in the only tab.
+autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() | call feedkeys(":quit\<CR>:\<BS>") | endif
+" Close the tab if NERDTree is the only window remaining in it.
+autocmd BufEnter * if winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() | call feedkeys(":quit\<CR>:\<BS>") | endif
+" Vim8 or older
+" Exit Vim if NERDTree is the only window remaining in the only tab.
+"autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() | quit | endif
+" Close the tab if NERDTree is the only window remaining in it.
+"autocmd BufEnter * if winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() | quit | endif
+
+" Prevent other buffers replacing NERDTree in its window
+" If another buffer tries to replace NERDTree, put it in the other window, and bring back NERDTree.
+autocmd BufEnter * if winnr() == winnr('h') && bufname('#') =~ 'NERD_tree_\d\+' && bufname('%') !~ 'NERD_tree_\d\+' && winnr('$') > 1 |
+    \ let buf=bufnr() | buffer# | execute "normal! \<C-W>w" | execute 'buffer'.buf | endif
+
+" Get the same NERDTree on every tab automatically
+" Open the existing NERDTree on each new tab.
+autocmd BufWinEnter * if &buftype != 'quickfix' && getcmdwintype() == '' | silent NERDTreeMirror | endif
+" or change your NERDTree-launching shortcut key like so:
+" Mirror the NERDTree before showing it. This makes it the same on all tabs.
+nnoremap <C-n> :NERDTreeMirror<CR>:NERDTreeFocus<CR>
+
+" Change the default arrows
+" The following values are the non-Windows default arrow symbols.
+" Setting these variables to empty strings will remove the arrows
+" completely and shift the entire tree two character positions to the left.
+" See :h NERDTreeDirArrowExpandable for more details.
+"let g:NERDTreeDirArrowExpandable = '?'
+"let g:NERDTreeDirArrowCollapsible = '?'
+
+" Show lines of files
+let g:NERDTreeFileLines = 1
+
+
+" ------------------------------------------------------------------------------
+" ## Indent guides
+" ------------------------------------------------------------------------------
+Plugin 'preservim/vim-indent-guides'
+let g:indent_guides_enable_on_vim_startup = 1
+let g:indent_guides_color_change_percent = 2
+let g:indent_guides_start_level = 2
+let g:indent_guides_exclude_buftype = 0  "disable the plugin on non-file buffers
+let g:indent_guides_exclude_filetypes = ['help', 'nerdtree']  " list of filetypes to disable the plugin for
+let g:indent_guides_default_mapping = 1  " set default mapping (<Leader>ig)
+"let g:indent_guides_auto_colors = 0
+"autocmd VimEnter,Colorscheme * :hi IndentGuidesOdd  guibg=red   ctermbg=3
+"autocmd VimEnter,Colorscheme * :hi IndentGuidesEven guibg=green ctermbg=4
+
+
+" ------------------------------------------------------------------------------
+" ## Git integration
+" ------------------------------------------------------------------------------
+" ViM/Git deep integration
+Plugin 'tpope/vim-fugitive'
+" Shows git diff markers in the sign column and stages/previews/undoes hunks
+" and partial hunks.
+Plugin 'airblade/vim-gitgutter'
+" Use the sign column to indicate added, modified and removed lines in a file
+" that is managed by a version control system (VCS). Multi-VCS alternative to
+" vim-git-gutter
+"Plugin 'mhinz mhinz/vim-signify' 
+" Git branch viewer.
+Plugin 'rbong/vim-flog'
+let g:flog_permanent_default_opts = {
+  \ 'date': 'short',
+  \ 'max_count': 2000,
+  \ }
+
+
+" ------------------------------------------------------------------------------
+" Dotenv
+" ------------------------------------------------------------------------------
+Plugin 'tpope/vim-dotenv'
+
+
+" ------------------------------------------------------------------------------
+" Vim Space Controller
+" ------------------------------------------------------------------------------
+" Manages tabs, buffers, files, workspaces (sessions), bookmarks for your favorite projects
+Plugin 'vim-ctrlspace/vim-ctrlspace'
+"set showtabline=0
+"nnoremap <silent><C-p> :CtrlSpace O<CR>  " refresh your search file list using <r> command
+"let g:CtrlSpaceLoadLastWorkspaceOnStart = 1
+let g:CtrlSpaceSaveWorkspaceOnSwitch = 1
+let g:CtrlSpaceSaveWorkspaceOnExit = 1
+let g:CtrlSpaceEnableFilesCache = 0
+if executable('rg')
+    let g:CtrlSpaceGlobCommand = 'rg --color=never --files'
+elseif executable('fd')
+    let g:CtrlSpaceGlobCommand = 'fd --type=file --color=never'
+elseif executable('ag')
+    let g:CtrlSpaceGlobCommand = 'ag -l --nocolor -g ""'
+endif
+
+
+" ------------------------------------------------------------------------------
+" Buffers
+" ------------------------------------------------------------------------------
+Plugin 'bling/vim-bufferline'
+" Show buffer list on the command line (1) or integrated into statusline (0)
+let g:bufferline_echo = 0
+autocmd VimEnter *
+  \ let &statusline='%{bufferline#refresh_status()}'
+    \ .bufferline#get_status_string()
+" The separator used on the left side of a buffer
+let g:bufferline_active_buffer_left = '|> '
+" The separator used on the right side of a buffer
+let g:bufferline_active_buffer_right = '<|'
+" The symbol to denote that a buffer is modified
+let g:bufferline_modified = '+'
+" Denotes whether buffer numbers should be displayed
+let g:bufferline_show_bufnr = 1
+" Bufferline rotation
+" 0: default, no rotate, no scrolling
+" 1: scrolling with fixed current buffer position
+" 2: scrolling without fixed current buffer position
+let g:bufferline_rotate = 1
+" Cuurent buffer position (only valid with `g:bufferline_rotate = 1`)
+" 0: always first, 1: always second (default), -1: always last
+let g:bufferline_fixed_index = 0
+" Whether the active highlight should be used when there is only one buffer.
+let g:bufferline_solo_highlight = 1
+" Whether paths in buffer names should be pathshorten()-ed.
+"let g:bufferline_pathshorten = 0
+
+" BufExplorer Plugin for Vim
+Plugin 'jlanzarotta/bufexplorer'
+
+
+" ------------------------------------------------------------------------------
+" Tabs
+" ------------------------------------------------------------------------------
+" Label & manage tabs, styled after Powerline
+"Plugin 'fweep/vim-tabber'
+Plugin 'gcmt/taboo.vim'
+" Have terminal style tabs in GUI GUI too
+set guioptions-=e
+" Remember tab names with ViM sessions
+set sessionoptions+=tabpages,globals
+
+
+" ------------------------------------------------------------------------------
+" Sessions
+" ------------------------------------------------------------------------------
+" Make Vim persist editing state without fuss
+"Plugin 'zhimsel/vim-stay'
+" Manges git branch specific vim session files
+"Plugin 'superDross/ticket.vim'
+" Extended session management for Vim (:mksession on steroids)
+"Plugin 'xolox/vim-session'
+
+" Continuously updated session files
+"Plugin 'tpope/vim-obsession'
+"Plugin 'silopolis/vim-obsession'
+" Integration with vim-airline
+" https://github.com/vim-airline/vim-airline/wiki/Configuration-Examples-and-Snippets#integration-with-vim-obsession
+"function! AirlineInit()
+"    let g:airline_section_z = airline#section#create(['%{ObsessionStatus(''$'', '''')}', 'windowswap', '%3p%% ', 'linenr', ':%3v '])
+"endfunction
+"autocmd User AirlineAfterInit call AirlineInit()
+
+"" Automated Vim session management with file auto-save and persistent undo history
+"Plugin 'thaerkh/vim-workspace'
+""let g:workspace_autocreate = 1
+"" When vim is run with an argument, create a new buffer in the existing tab instead of creating a new tab
+""let g:workspace_create_new_tabs = 0
+"nnoremap <leader>s :ToggleWorkspace<CR>
+"" Set default session name
+"let g:workspace_session_name = '.session.vim'
+"" Save all the session files in a single directory outside of the workspace
+"" This uses the workspace directory as the session file name, overriding g:workspace_sesssion_name.
+""let g:workspace_session_directory = $HOME . '/.vim/sessions/'
+"" https://github.com/tpope/vim-obsession/pull/2#issuecomment-512338742
+""let g:workspace_session_disable_on_args = 1
+""if has('nvim')
+""    au DirChanged * ++nested
+""        \ if empty(v:this_session) && filereadable(g:workspace_session_name) |
+""        \   exe ':source' . g:workspace_session_name |
+""        \ endif
+""endif
+
+" plugin from http://vim-scripts.org/vim/scripts.html
+" Plugin 'L9'
+" Git plugin not hosted on GitHub
+"Plugin 'git://git.wincent.com/command-t.git'
+" git repos on your local machine (i.e. when working on your own plugin)
+"Plugin 'file:///home/gmarik/path/to/plugin'
+" The sparkup vim script is in a subdirectory of this repo called vim.
+" Pass the path to set the runtimepath properly.
+"Plugin 'rstacruz/sparkup', {'rtp': 'vim/'}
+" Install L9 and avoid a Naming conflict if you've already installed a
+" different version somewhere else.
+" Plugin 'ascenator/L9', {'name': 'newL9'}
+
+
+" ------------------------------------------------------------------------------
+" ## Colorscheme
+" ------------------------------------------------------------------------------
+" https://github.com/NLKNguyen/papercolor-theme
+"Plugin 'NLKNguyen/papercolor-theme'
+" https://github.com/tomasr/molokai
+"Plugin 'tomasr/molokai'
+" https://github.com/altercation/vim-colors-solarized
+"Plugin 'altercation/vim-colors-solarized'
+" https://github.com/catppuccin/vim
+"Plugin 'catppuccin/vim'
+Plugin 'catppuccin/nvim'
+
+
+" ------------------------------------------------------------------------------
+" ## Statusline
+" ------------------------------------------------------------------------------
+" Fast and lightweight alternative to Powerline, 100% vimscript, no deps
+" https://github.com/vim-airline/vim-airline
+Plugin 'vim-airline/vim-airline'
+" https://github.com/vim-airline/vim-airline-themes
+"Plugin 'vim-airline/vim-airline-themes'
+
+
+" ------------------------------------------------------------------------------
+" ## Languages & syntaxes
+" ------------------------------------------------------------------------------
+" Check syntax in Vim/Neovim asynchronously and fix files, with Language Server
+" Protocol (LSP) support
+Plugin 'dense-analysis/ale'
+" Terraform
+Plugin 'hashivim/vim-terraform'
+Plugin 'alker0/chezmoi.vim'
+
+
+" ------------------------------------------------------------------------------
+" ## Undo / Redo
+" ------------------------------------------------------------------------------
+Plugin 'mbbill/undotree'
+" Guard for distributions lacking the persistent_undo feature.
+if has("persistent_undo")
+  " Define a path to store persistent_undo files.
+  let target_path = expand('~/.vim/undodir')
+
+  " Create the directory and any parent directories if the location does not
+  " exist.
+  if !isdirectory(target_path)
+    call mkdir(target_path, "p", 0700)
+  endif
+
+  " Point Vim to the defined undo directory.
+  let &undodir=target_path
+  " Finally, enable undo persistence.
+  set undofile
+  " Set a unique undo file name for each session
+  au BufReadPost * if line('\"') > 0 && line('\"') <= line('$') | exe 'normal! g`\"' | endif
+  au BufWritePost * if exists(':w') | silent! undojoin | endif
+  " Set undo persistence options
+  set undolevels=1000    " Maximum number of changes that can be undone
+  set undoreload=10000   " Maximum number lines to save for undo on a buffer reload
+endif
+nnoremap <F5> :UndotreeToggle<CR>
+" Make browsing the ridiculously powerful undo tree less painful. 
+"Plugin 'sjl/gundo.vim'
+
+
+" ------------------------------------------------------------------------------
+" ## Search
+" ------------------------------------------------------------------------------
+" An ack/ag/pt/rg powered code search and view tool, supports asynchronous
+" searching, and lets you edit file in-place with Edit Mode.
+Plugin 'dyng/ctrlsf.vim'
+" 
+Plugin 'junegunn/fzf.vim'
+
+
+" ------------------------------------------------------------------------------
+" ## Multi-cursor
+" ------------------------------------------------------------------------------
+" It's called vim-visual-multi in analogy with visual-block, but the plugin
+" works mostly from normal mode.
+Plugin 'mg979/vim-visual-multi'
+
+" ------------------------------------------------------------------------------
+" ## Visual help
+" ------------------------------------------------------------------------------
+" Distraction-free writing in Vim.
+Plugin 'junegunn/goyo.vim'
+let g:goyo_width  = 80 " (default: 80)
+let g:goyo_height = 90 " (default: 85%)
+let g:goyo_linenr = 1  " (default: 0)
+
+" Hyperfocus-writing in Vim.
+Plugin 'junegunn/limelight.vim'
+" You can invoke :Limelight for a visual range.
+" There are also <Plug> mappings for normal and visual mode for the purpose.
+"nmap <Leader>l <Plug>(Limelight)
+"xmap <Leader>l <Plug>(Limelight)
+" For some color schemes, Limelight may not be able to calculate the color for
+" dimming down the surrounding paragraphs. In that case, you need to define
+" g:limelight_conceal_ctermfg or g:limelight_conceal_guifg.
+" Color name (:help cterm-colors) or ANSI code
+"let g:limelight_conceal_ctermfg = 'gray'
+"let g:limelight_conceal_ctermfg = 240
+" Color name (:help gui-colors) or RGB color
+"let g:limelight_conceal_guifg = 'DarkGray'
+"let g:limelight_conceal_guifg = '#777777'
+" Default: 0.5
+"let g:limelight_default_coefficient = 0.7
+" Number of preceding/following paragraphs to include (default: 0)
+let g:limelight_paragraph_span = 1
+" Beginning/end of paragraph
+" When there's no empty line between the paragraphs and each paragraph starts
+" with indentation.
+"let g:limelight_bop = '^\s'
+"let g:limelight_eop = '\ze\n^\s'
+" Highlighting priority (default: 10)
+" Set it to -1 not to overrule hlsearch
+let g:limelight_priority = -1
+" Goyo.vim integration
+"autocmd! User GoyoEnter Limelight
+"autocmd! User GoyoLeave Limelight!
+
+
+" ------------------------------------------------------------------------------
+" All of your Plugins must be added before the following line
+call vundle#end()            " required
+" Put your non-Plugin stuff after this line
+" ==============================================================================
+
+
+" Autoreload vimrc (https://superuser.com/a/1120318/62256)
+if has ('autocmd') " Remain compatible with earlier versions
+ augroup vimrc     " Source vim configuration upon save
+    autocmd! BufWritePost $MYVIMRC source % | echom "Reloaded " . $MYVIMRC | redraw
+    autocmd! BufWritePost $MYGVIMRC if has('gui_running') | so % | echom "Reloaded " . $MYGVIMRC | endif | redraw
+  augroup END
+endif
+
+" ## Leader
+" Set leader to something AZERTY friendly
+let mapleader="*"
+"set timeoutlen 1000
+
+" Adapt unimpaired.vim bracket mappings to non-US keyboard
+"nmap < [
+"nmap > ]
+"omap < [
+"omap > ]
+"xmap < [
+"xmap > ]
+
+" ## Buffers
+" Don't ask to write when hidding a buffer
+set hidden
+nnoremap <Leader>b :buffers<CR>:buffer<Space>
+
+" ## Indentation
+set expandtab
+set tabstop=2
+set shiftwidth=2
+
+" ## Filetype
+filetype plugin indent on    " required
+" To ignore plugin indent changes, instead use:
+"filetype plugin on
+syntax on
+
+set number
+set encoding=utf-8
+"set laststatus
+
+" You might have to force true color when using regular vim inside tmux as the
+" colorscheme can appear to be grayscale with "termguicolors" option enabled.
+if !has('gui_running') && &term =~ '^\%(screen\|tmux\)'
+  let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+  let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+endif
+
+set termguicolors
+
+set t_Co=256  " This is may or may not needed.
+set background=dark
+
+"let g:PaperColor_Theme_Options = {
+"  \   'theme': {
+"  \     'default': {
+"  \       'transparent_background': 1
+"  \     }
+"  \   }
+"  \ }
+"colorscheme PaperColor
+"color PaperColor
+" prefer the scheme to match the original monokai background
+"let g:molokai_original = 1
+"let g:solarized_termtrans = 1
+"let g:solarized_visibility = low
+"colorscheme catppuccin_frappe
+"color catppuccin_frappe
+colorscheme catppuccin-frappe
+color catppuccin-frappe
+
+let g:airline_powerline_fonts = 1
+"let g:airline_theme='tomorrow'
+" https://github.com/catppuccin/vim
+" Airline should automatically choose the correct theme. If it does not you can
+" force it
+let g:airline_theme = 'catppuccin'
+" If you set airline theme manually, make sure the airline-tmuxline extension is
+" disabled, so it doesn't overwrite the theme:
+let g:airline#extensions#tmuxline#enabled = 0
+
