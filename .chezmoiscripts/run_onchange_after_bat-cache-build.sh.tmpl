@@ -1,0 +1,14 @@
+{{ if eq .chezmoi.os "linux" -}}
+#!/usr/bin/env bash
+# shellcheck disable=SC1054,SC1083
+# Add `config.toml` hash to get the script run when main config is updated
+# config hash: \{\{ include "dot_config/bat/config" | sha256sum \}\}"
+
+set -ueo pipefail
+#set -x
+IFS=$'\n\t'
+
+bat cache --build
+
+{{ end -}}
+
