@@ -1,0 +1,41 @@
+[user]
+	name = Jérémie Tarot (@silopolis)
+	email = silopolis@gmail.com
+[init]
+	defaultBranch = main
+[core]
+	pager = delta
+[include]
+  path = ~/.local/share/delta/themes.gitconfig
+  path = ~/.local/share/delta/themes.gitconfig
+[delta]
+	navigate = true
+  side-by-side = true
+  #line-numbers-left-format = ""
+  #line-numbers-right-format = "│ "
+  line-numbers = true
+  dark = true
+  hyperlinks = true
+  #hyperlinks-file-link-format = "vscode://file/{path}:{line}"
+  features = catppuccin-frappe
+[interactive]
+  diffFilter = delta --color-only
+[sequence]
+	editor = vim
+[merge]
+	conflictStyle = zdiff3
+[cola]
+	spellcheck = false
+[credential "https://github.com"]
+	helper = 
+	helper = !/usr/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper = 
+	helper = !/usr/bin/gh auth git-credential
+[hub]
+	protocol = https
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
