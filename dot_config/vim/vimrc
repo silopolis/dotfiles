@@ -16,7 +16,6 @@ call vundle#begin()
 " let Vundle manage Vundle, required
 Plugin 'VundleVim/Vundle.vim'
 
-
 " ------------------------------------------------------------------------------
 " ## Terminal integration
 " ------------------------------------------------------------------------------
@@ -28,7 +27,6 @@ Plugin 'wincent/terminus'
 " Simple tmux statusline generator with support for powerline symbols and
 " vim/airline/lightline statusline integration
 Plugin 'edkolev/tmuxline.vim'
-
 
 " ------------------------------------------------------------------------------
 " ## Start screen
@@ -51,7 +49,6 @@ Plugin 'tpope/vim-rsi'
 Plugin 'tpope/vim-unimpaired'
 " Vim sugar for the UNIX shell commands that need it the most.
 Plugin 'tpope/vim-eunuch'
-
 
 " ------------------------------------------------------------------------------
 " ## Comments
@@ -79,7 +76,6 @@ let g:NERDCompactSexyComs = 1
 let g:NERDTrimTrailingWhitespace = 1
 " Enable NERDCommenterToggle to check all selected lines is commented or not
 let g:NERDToggleCheckAllLines = 1
-
 
 " ------------------------------------------------------------------------------
 " ## File and directory explorer
@@ -193,7 +189,6 @@ nnoremap <C-n> :NERDTreeMirror<CR>:NERDTreeFocus<CR>
 " Show lines of files
 let g:NERDTreeFileLines = 1
 
-
 " ------------------------------------------------------------------------------
 " ## Indent guides
 " ------------------------------------------------------------------------------
@@ -207,7 +202,6 @@ let g:indent_guides_default_mapping = 1  " set default mapping (<Leader>ig)
 "let g:indent_guides_auto_colors = 0
 "autocmd VimEnter,Colorscheme * :hi IndentGuidesOdd  guibg=red   ctermbg=3
 "autocmd VimEnter,Colorscheme * :hi IndentGuidesEven guibg=green ctermbg=4
-
 
 " ------------------------------------------------------------------------------
 " ## Git integration
@@ -228,12 +222,10 @@ let g:flog_permanent_default_opts = {
   \ 'max_count': 2000,
   \ }
 
-
 " ------------------------------------------------------------------------------
 " Dotenv
 " ------------------------------------------------------------------------------
 Plugin 'tpope/vim-dotenv'
-
 
 " ------------------------------------------------------------------------------
 " Vim Space Controller
@@ -253,7 +245,6 @@ elseif executable('fd')
 elseif executable('ag')
     let g:CtrlSpaceGlobCommand = 'ag -l --nocolor -g ""'
 endif
-
 
 " ------------------------------------------------------------------------------
 " Buffers
@@ -288,7 +279,6 @@ let g:bufferline_solo_highlight = 1
 " BufExplorer Plugin for Vim
 Plugin 'jlanzarotta/bufexplorer'
 
-
 " ------------------------------------------------------------------------------
 " Tabs
 " ------------------------------------------------------------------------------
@@ -299,7 +289,6 @@ Plugin 'gcmt/taboo.vim'
 set guioptions-=e
 " Remember tab names with ViM sessions
 set sessionoptions+=tabpages,globals
-
 
 " ------------------------------------------------------------------------------
 " Sessions
@@ -354,7 +343,6 @@ set sessionoptions+=tabpages,globals
 " different version somewhere else.
 " Plugin 'ascenator/L9', {'name': 'newL9'}
 
-
 " ------------------------------------------------------------------------------
 " ## Colorscheme
 " ------------------------------------------------------------------------------
@@ -368,7 +356,6 @@ set sessionoptions+=tabpages,globals
 "Plugin 'catppuccin/vim'
 Plugin 'catppuccin/nvim'
 
-
 " ------------------------------------------------------------------------------
 " ## Statusline
 " ------------------------------------------------------------------------------
@@ -377,7 +364,6 @@ Plugin 'catppuccin/nvim'
 Plugin 'vim-airline/vim-airline'
 " https://github.com/vim-airline/vim-airline-themes
 "Plugin 'vim-airline/vim-airline-themes'
-
 
 " ------------------------------------------------------------------------------
 " ## Languages & syntaxes
@@ -388,7 +374,6 @@ Plugin 'dense-analysis/ale'
 " Terraform
 Plugin 'hashivim/vim-terraform'
 Plugin 'alker0/chezmoi.vim'
-
 
 " ------------------------------------------------------------------------------
 " ## Undo / Redo
@@ -419,7 +404,6 @@ endif
 nnoremap <F5> :UndotreeToggle<CR>
 " Make browsing the ridiculously powerful undo tree less painful. 
 "Plugin 'sjl/gundo.vim'
-
 
 " ------------------------------------------------------------------------------
 " ## Search
@@ -477,6 +461,22 @@ let g:limelight_priority = -1
 " Goyo.vim integration
 "autocmd! User GoyoEnter Limelight
 "autocmd! User GoyoLeave Limelight!
+
+" ------------------------------------------------------------------------------
+" ## Online help
+" ------------------------------------------------------------------------------
+" TLDR client for ViM/Neovim
+" Run :Tldr [command] to find the tldr of command.
+" Run :TldrUpdateDocs to get or update tldr docs.
+" Check :help tldr-options for other options.
+Plugin 'wlemuel/vim-tldr'
+let g:tldr_directory_path = '~/.cache/tldr'
+" tldr split window type: horizontal, vertical (default), or tab.
+let g:tldr_split_type = 'horizontal'
+"let g:tldr_language = 'fr'
+" Set the enabled tldr categories, it can be a list composed of
+" 'common', 'linux', 'osx', 'sunos' and 'windows':
+let g:tldr_enabled_categories = ["common", "linux"]
 
 
 " ------------------------------------------------------------------------------
