@@ -373,6 +373,7 @@ Plugin 'vim-airline/vim-airline'
 Plugin 'dense-analysis/ale'
 " Terraform
 Plugin 'hashivim/vim-terraform'
+" Highlight dotfiles managed with chezmoi
 Plugin 'alker0/chezmoi.vim'
 
 " ------------------------------------------------------------------------------
@@ -411,7 +412,9 @@ nnoremap <F5> :UndotreeToggle<CR>
 " An ack/ag/pt/rg powered code search and view tool, supports asynchronous
 " searching, and lets you edit file in-place with Edit Mode.
 Plugin 'dyng/ctrlsf.vim'
-" 
+" Integrate fzf with ViM
+" https://github.com/junegunn/fzf/blob/master/README-VIM.md
+Plugin 'junegunn/fzf'
 Plugin 'junegunn/fzf.vim'
 
 
@@ -567,3 +570,5 @@ let g:airline_theme = 'catppuccin'
 " disabled, so it doesn't overwrite the theme:
 let g:airline#extensions#tmuxline#enabled = 0
 
+" Add fzf to &runtimepath
+"set rtp+=/home/linuxbrew/.linuxbrew/bin/fzf

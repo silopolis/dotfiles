@@ -63,6 +63,7 @@ brew neovim
 brew nerdctl
 brew nnn
 brew peco
+brew perl
 brew pipx
 brew plantuml
 brew pre-commit
@@ -94,6 +95,7 @@ brew trippy
 brew trivy
 brew trzsz-go
 brew ttyd
+brew universal-ctags
 brew vale
 brew zoxide
 brew zsh-completions
