@@ -29,13 +29,21 @@
 [env]
   HOMEBREW_BREWFILE_BACKUP = "$HOME/.config/brewfile/brewfile.backup" # Set brew-file backup file name
   HOMEBREW_BREWFILE_FULL_NAME = "1" # Toggle use of full names (tap/name)
-  HOMEBREW_BREWFILE_LEAVES= "0" # Only list leaves
-  HOMEBREW_BREWFILE_ON_REQUEST= "1" # Only list packages installed on request. Has priority over leaves
+  HOMEBREW_BREWFILE_LEAVES = "0" # Only list leaves
+  HOMEBREW_BREWFILE_ON_REQUEST = "1" # Only list packages installed on request. Has priority over leaves
   #HOMEBREW_BREWFILE_TOP_PACKAGES = "go,coreutils" # Packages always to be listed
 
 [update]
   # Update submodules recursively
   recurseSubmodules = true
+
+[diff]
+  pager = "delta"
+  diff.exclude = ["externals"]
+
+[merge]
+  command = "vimdiff"
+  {{/*args = ["-d", "{{ .Destination }}", "{{ .Source }}", "{{ .Target }}"]*/}}
 
 [hooks.apply.pre]
 {{/* if eq .chezmoi.os "linux" }}
