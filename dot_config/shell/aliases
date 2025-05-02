@@ -26,7 +26,7 @@ if [ -x /usr/bin/dircolors ]; then
 fi
 
 # less
-alias less='less -r' # Output "raw" control characters by default.
+alias less='less -FKR' # Output "raw" control characters by default.
 
 # colored GCC warnings and errors
 #export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
@@ -56,6 +56,27 @@ if [ ! $(type lsd &> /dev/null) ]; then
   alias llat='lla --timesort --reverse'
   alias llax='lla --extensionsort'
 fi
+
+# cd
+alias mkcd='_(){ mkdir -p $1; cd $1; }; _'
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+alias .....='cd ../../../..'
+
+# APT
+alias aptup='sudo apt -V update'
+alias aptug='sudo apt -V upgrade'
+alias aptar='sudo apt -V autoremove'
+alias aptac='sudo apt -V autoclean'
+alias apti='sudo apt -V install'
+alias aptu='sudo apt -V uninstall'
+alias aptp='sudo apt -V purge'
+alias apts='apt -V search'
+alias aptf='apt-file search'
+alias aptm='apt-cache madison'
+alias aptsp='apt-cache showpkg'
+alias aptpo='apt-cache policy'
 
 ## chezmoi
 alias cm="chezmoi"
