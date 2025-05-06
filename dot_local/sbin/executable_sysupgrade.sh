@@ -26,7 +26,7 @@ flatpak update
 #echo "-- Update Snap packages"
 #snap refresh
 echo "--Update gh CLI extensions"
-gh extensions update --all
+gh extensions upgrade --all
 
 echo "-- Clean disabled Snap packages"
 snap-clean
