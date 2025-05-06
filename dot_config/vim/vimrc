@@ -571,4 +571,4 @@ let g:airline_theme = 'catppuccin'
 let g:airline#extensions#tmuxline#enabled = 0
 
 " Add fzf to &runtimepath
-"set rtp+=/home/linuxbrew/.linuxbrew/bin/fzf
+set rtp+=/home/linuxbrew/.linuxbrew/bin/fzf
