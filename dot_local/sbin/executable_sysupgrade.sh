@@ -20,6 +20,9 @@ brew update -v \
 echo "-- Upgrade pipx packages"
 pipx upgrade-all --include-injected
 
+echo "-- Upgrade bin managed packages"
+bin update --all --continue-on-error #--yes
+
 echo "-- Update Flatpack packages"
 flatpak update
 
