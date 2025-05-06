@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -euo pipefail
+#set -x
+
 echo "-- Update APT package sources"
 sudo apt update
 
