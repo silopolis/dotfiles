@@ -17,6 +17,7 @@ brew catimg
 brew cheat
 brew checkov
 brew chezmoi
+brew clipboard
 brew d2
 brew diff-so-fancy
 brew difftastic
