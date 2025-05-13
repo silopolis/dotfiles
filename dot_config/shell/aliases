@@ -166,6 +166,10 @@ alias llablk="lsblk -fmte 7"
 ## Shortcut to only list free space on physical devices
 alias dfblk='df -h -x devtmpfs -x tmpfs -x squashfs'
 
+## Disk usage
+alias dui="dua interactive"
+alias duix="dua --stay-on-filesystem interactive"
+
 ## ZModem transfer
 alias rz='trz'
 alias sz='tsz'
