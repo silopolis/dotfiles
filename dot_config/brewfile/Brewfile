@@ -69,8 +69,10 @@ brew peco
 brew perl
 brew pipx
 brew plantuml
+brew poppler
 brew pre-commit
 brew ranger
+brew resvg
 brew ripgrep
 brew ripgrep-all
 brew rustup
@@ -100,6 +102,9 @@ brew trzsz-go
 brew ttyd
 brew universal-ctags
 brew vale
+brew vifm
+brew xplr
+brew yazi
 brew zoxide
 brew zsh-completions
 
