@@ -465,6 +465,9 @@ let g:limelight_priority = -1
 "autocmd! User GoyoEnter Limelight
 "autocmd! User GoyoLeave Limelight!
 
+" Use ViFM as a file picker
+Plugin 'vifm/vifm.vim'
+
 " ------------------------------------------------------------------------------
 " ## Online help
 " ------------------------------------------------------------------------------
