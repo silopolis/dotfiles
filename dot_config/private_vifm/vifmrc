@@ -136,7 +136,9 @@ endif
 set grepprg="grep -n -H -I -r -s %i %a %s"
 
 " List of color schemes to try (picks the first one supported by the terminal)
-colorscheme Default-256 Default
+"colorscheme Default-256 Default
+"colorscheme palenight
+colorscheme catppuccin-frappe
 
 " ------------------------------------------------------------------------------
 " Bookmarks
@@ -596,7 +598,7 @@ nnoremap <a-o> :sync %c<cr>
 " let $VIFM_SERVER_NAME = v:servername
 
 " Activate screen/tmux support
-" screen!
+screen!
 
 " ------------------------------------------------------------------------------
 " Icon decorations example
