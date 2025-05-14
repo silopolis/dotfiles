@@ -1,6 +1,48 @@
 {
     "pipx_spec_version": "0.1",
     "venvs": {
+        "colorpedia": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/tarax/.local/pipx/venvs/colorpedia/bin/color",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/tarax/.local/pipx/venvs/colorpedia/bin/colorpedia",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {},
+                    "apps": [
+                        "color",
+                        "colorpedia"
+                    ],
+                    "apps_of_dependencies": [],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "man_pages": [],
+                    "man_pages_of_dependencies": [],
+                    "man_paths": [],
+                    "man_paths_of_dependencies": {},
+                    "package": "colorpedia",
+                    "package_or_url": "colorpedia",
+                    "package_version": "1.2.3",
+                    "pinned": false,
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.5",
+                "python_version": "Python 3.13.3",
+                "source_interpreter": {
+                    "__Path__": "/home/linuxbrew/.linuxbrew/opt/python@3.13/libexec/bin/python",
+                    "__type__": "Path"
+                },
+                "venv_args": []
+            }
+        },
         "eg": {
             "metadata": {
                 "injected_packages": {},
