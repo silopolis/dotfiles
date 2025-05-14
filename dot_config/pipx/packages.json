@@ -75,7 +75,7 @@
                     "man_paths_of_dependencies": {},
                     "package": "flux-local",
                     "package_or_url": "flux-local",
-                    "package_version": "7.4.0",
+                    "package_version": "7.5.0",
                     "pinned": false,
                     "pip_args": [],
                     "suffix": ""
@@ -264,7 +264,7 @@
                     "man_paths_of_dependencies": {},
                     "package": "jc",
                     "package_or_url": "jc",
-                    "package_version": "1.25.4",
+                    "package_version": "1.25.5",
                     "pinned": false,
                     "pip_args": [],
                     "suffix": ""
@@ -410,6 +410,62 @@
                     "package": "logmerger",
                     "package_or_url": "logmerger",
                     "package_version": "0.11.0",
+                    "pinned": false,
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.5",
+                "python_version": "Python 3.13.3",
+                "source_interpreter": {
+                    "__Path__": "/home/linuxbrew/.linuxbrew/opt/python@3.13/libexec/bin/python",
+                    "__type__": "Path"
+                },
+                "venv_args": []
+            }
+        },
+        "lscolors": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/tarax/.local/pipx/venvs/lscolors/bin/lscolors",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {
+                        "argcomplete": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/lscolors/bin/activate-global-python-argcomplete",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/lscolors/bin/python-argcomplete-check-easy-install-script",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/lscolors/bin/register-python-argcomplete",
+                                "__type__": "Path"
+                            }
+                        ]
+                    },
+                    "apps": [
+                        "lscolors"
+                    ],
+                    "apps_of_dependencies": [
+                        "activate-global-python-argcomplete",
+                        "python-argcomplete-check-easy-install-script",
+                        "register-python-argcomplete"
+                    ],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "man_pages": [],
+                    "man_pages_of_dependencies": [],
+                    "man_paths": [],
+                    "man_paths_of_dependencies": {},
+                    "package": "lscolors",
+                    "package_or_url": "lscolors",
+                    "package_version": "1.0.3",
                     "pinned": false,
                     "pip_args": [],
                     "suffix": ""
