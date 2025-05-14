@@ -73,7 +73,8 @@ alias ...='cd ../..'
 alias ....='cd ../../..'
 alias .....='cd ../../../..'
 
-# APT
+## Package management
+### APT
 alias aptup='sudo apt -V update'
 alias aptug='sudo apt -V upgrade'
 alias aptar='sudo apt -V autoremove'
@@ -189,11 +190,25 @@ alias tu="tofu"
 alias tg="terragrunt"
 
 ## Kubernetes and friends
-#export KUBECOLOR_PRESET="dark"
-#export KUBECOLOR_OBJ_FRESH="0s"
-alias kubectl="kubecolor"
-alias k="kubectl"
-alias kail="kubectl tail"
+if which kubectl &> /dev/null; then
+  alias k="kubectl"
+
+  if [ -f "$HOME/.kube/kubectl_aliases" ]; then
+    source ~/.kube/kubectl_aliases
+  elif [ -f ~/.kubectl_aliases ]; then
+   source ~/.kubectl_aliases
+  fi
+
+  alias kail="kubectl tail"
+
+  if type kubecolor &> /dev/null; then
+    export KUBECOLOR_FORCE_COLORS=auto
+    #export KUBECOLOR_PRESET="dark"
+    #export KUBECOLOR_OBJ_FRESH="0s"
+    export KUBECOLOR_CONFIG="$HOME/.kube/colors/catppuccin-frappe.yaml"
+    alias kubectl="kubecolor"
+  fi
+fi
 
 ## User containerized vagrant-libvirt 
 ## https://vagrant-libvirt.github.io/vagrant-libvirt/installation.html#docker--podman
@@ -220,5 +235,4 @@ vagrant-rsync(){
   rsync -avz -e "ssh ${OPTIONS}" "$@" || echo "Transfer failed. Did you use 'default:' as the target?"
 }
 
-## Package management
-
+# vim: set syntax=sh :

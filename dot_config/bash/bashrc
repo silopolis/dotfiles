@@ -144,8 +144,7 @@ eval "$(fzf --bash)"
 
 eval "$(zoxide init bash)"
 
-
-# HSTR configuration - add this to ~/.bashrc
+# HSTR configuration
 alias hh=hstr                    # hh to be alias for hstr
 export HSTR_CONFIG=hicolor       # get more colors
 shopt -s histappend              # append new history items to .bash_history
@@ -164,9 +163,21 @@ export HSTR_TIOCSTI=n
 
 [ -f $HOMEBREW_PREFIX/share/forgit/forgit.plugin.sh ] && source $HOMEBREW_PREFIX/share/forgit/forgit.plugin.sh
 
-[ -f ~/.kubectl_aliases ] && source ~/.kubectl_aliases
+if type kubectl &> /dev/null; then
+  source <(kubectl completion bash)
+
+  # Make "k" alias borrow the same completion logic as "kubectl"
+  complete -o default -F __start_kubectl k
+
+  if type kubecolor &> /dev/null; then
+    # Make "kubecolor" borrow the same completion logic as "kubectl"
+    complete -o default -F __start_kubectl kubecolor
+  fi
+fi
+
 
 ## GitHub CLI
 eval "$(gh completion -s bash)"
 eval "$(gh copilot alias -- bash)"
 
+# vim: set syntax=bash :

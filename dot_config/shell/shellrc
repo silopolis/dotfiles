@@ -97,7 +97,6 @@ fi
 
 PATH="$(brew --prefix rustup)/bin:$PATH"
 
-
 ## broot launcher
 if [ -f /home/tarax/.config/broot/launcher/bash/br ]; then
   source /home/tarax/.config/broot/launcher/bash/br
@@ -107,7 +106,6 @@ fi
 alias tf='terraform'
 complete -o nospace -C /home/linuxbrew/.linuxbrew/bin/terraform terraform
 complete -o nospace -C /home/linuxbrew/.linuxbrew/bin/terraform tf
-#complete -C /home/linuxbrew/.linuxbrew/Cellar/tfenv/3.0.0/versions/1.6.6/terraform terraform
 
 ## Source common shell aliases
 if [ -f ~/.config/shell/aliases ]; then

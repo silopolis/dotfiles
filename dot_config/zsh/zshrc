@@ -43,6 +43,7 @@ if type brew &> /dev/null; then
     fpath=($brew_completion $fpath)
   fi
 fi
+
 autoload -Uz +X compinit
 compinit -d ~/.cache/zcompdump
 zstyle ':completion:*:*:*:*:*' menu select
@@ -266,23 +267,14 @@ fi
 if which kubectl &> /dev/null; then
   source <(kubectl completion zsh)
   
-  alias kubecolor=kubectl
-  compdef kubecolor=kubectl
-  
-  alias k=kubectl
+  # Make "k" alias borrow the same completion logic as "kubectl"
   compdef k=kubectl
 
-  if [ ! -f "$HOME/.kube/kubectl_aliases" ]; then
-    [ -d "$HOME/.kube" ] || mkdir "$HOME/.kube"
-    wget -q https://raw.githubusercontent.com/ahmetb/kubectl-aliases/master/.kubectl_aliases \
-         -O ~/.kube/kubectl_aliases
+  if type kubecolor &> /dev/null; then
+    # Make "kubecolor" borrow the same completion logic as "kubectl"
+    compdef kubecolor=kubectl
   fi
-  if [ -f "$HOME/.kube/kubectl_aliases" ]; then
-    source ~/.kube/kubectl_aliases
-  fi
-    
-  [ -f ~/.kubectl_aliases ] && source ~/.kubectl_aliases
-
+  
   function kubectl() { echo "+ kubectl $@">&2; command kubectl $@; }
 fi
 
