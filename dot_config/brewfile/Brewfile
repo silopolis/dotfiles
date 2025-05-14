@@ -74,6 +74,7 @@ brew poppler
 brew pre-commit
 brew ranger
 brew resvg
+brew rich
 brew ripgrep
 brew ripgrep-all
 brew rustup
