@@ -3,7 +3,16 @@
 
 # enable color support of ls, less and man, and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
-    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    if type vivid &> /dev/null; then
+        export LS_COLORS="$(vivid generate catppuccin-frappe)"
+    elif [ -r ~/.dircolors ]; then
+        eval "$(dircolors -b ~/.dircolors)"
+    elif [ -r ~/.config/dircolors ]; then
+        eval "$(dircolors -b ~/.dircolors)"
+    else
+        eval "$(dircolors -b)"
+    fi
+
     export LS_COLORS="$LS_COLORS:ow=30;44:" # fix ls color for folders with 777 permissions
 
     alias ls='ls --color=auto'
