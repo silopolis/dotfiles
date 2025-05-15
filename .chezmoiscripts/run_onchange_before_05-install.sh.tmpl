@@ -34,41 +34,29 @@ if [ -f "$(brew --prefix)/etc/brew-wrap" ];then
   source "$(brew --prefix)/etc/brew-wrap"
 fi
 
-# config.toml hash: {{ include "dot_config/brewfile/Brewfile" | sha256sum }}"
+# config.toml hash: {{ include "dot_config/brewfile/Brewfile" | sha256sum }}
 brew file install
 
-# Initialize `rustup`, set a default toolchain:
-rustup default stable
-
+## Initialize `rustup` and set a default toolchain:
 # If you have `rust` installed, ensure you have "$(brew --prefix rustup)/bin"
 # before "$(brew --prefix)/bin" in your $PATH:
 # https://rust-lang.github.io/rustup/installation/already-installed-rust.html
-
 # rustup is keg-only, which means it was not symlinked into /home/linuxbrew/.linuxbrew,
 # because it conflicts with rust.
-
-#brew install \
-#  mise \
-#  helix \
-#  tmux \
-#  jq \
-#  ripgrep \
-#  fd \
-#  direnv \
-
+rustup default stable
 
 
 #mise plugins install --all --yes
 #
 #mise install
 #
-#for SH in bash fish; do
+#for SH in bash zsh fish; do
 #    mise activate --shell "$SH" > ~/.config/"$SH"/conf.d/mise."$SH"
 #    mise complete --shell "$SH" > ~/.config/"$SH"/completions/mise."$SH"
 #done
 #
-#mkdir -p  ~/.config/direnv/lib
-#mise direnv >~/.config/direnv/lib/use_mise.sh
+#mkdir -p ~/.config/direnv/lib
+#mise direnv > ~/.config/direnv/lib/use_mise.sh
 #ln -snf ~/.config/direnv/lib/use_mise.sh ~/.config/direnv/lib/use_rtx.sh
 #
 #mise plugins install --force \
@@ -85,7 +73,6 @@ gh extension install github/gh-copilot
 # shellcheck disable=SC1009,SC1072,SC1073,SC1054,SC1083
 {{ else if eq .chezmoi.os "darwin" -}}
 #!/bin/sh
-brew install ripgrep
 
 {{ end -}}
 
