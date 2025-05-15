@@ -1,0 +1,19 @@
+packages:
+  linux:
+    dpkgs:
+    brews:
+    pipxs:
+    bins:
+    krews:
+      - colorize-managed-fields
+      - explore
+      - get-all
+      - neat
+      - node-shell
+      - stern
+      - tail
+  darwin:
+    brews:
+    - 'git'
+    casks:
+    - 'google-chrome'

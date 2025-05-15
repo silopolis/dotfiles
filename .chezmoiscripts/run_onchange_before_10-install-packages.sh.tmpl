@@ -1,0 +1,28 @@
+
+{{- if eq .chezmoi.os "linux" -}}
+#!/usr/bin/env bash
+# shellcheck disable=SC1054,SC1083
+# Add `packages.yaml` hash to get the script run when package list is updated
+# config.toml hash: {{ include ".chezmoidata/packages.yaml" | sha256sum }}
+
+set -ueo pipefail
+IFS=$'\n\t'
+
+# Install kubectl plugins
+# shellcheck disable=SC1083
+kubectl krew install {{ index .packages .chezmoi.os "krews" | join " " }}
+
+# shellcheck disable=SC1009,SC1072,SC1073,SC1054,SC1083
+{{ else if eq .chezmoi.os "darwin" -}}
+#!/bin/bash
+
+brew bundle --file=/dev/stdin <<EOF
+{{ range .packages.darwin.brews -}}
+brew {{ . | quote }}
+{{ end -}}
+{{ range .packages.darwin.casks -}}
+cask {{ . | quote }}
+{{ end -}}
+EOF
+
+{{ end -}}
