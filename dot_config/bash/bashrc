@@ -167,6 +167,7 @@ if type kubectl &> /dev/null; then
   source <(kubectl completion bash)
 
   # Make "k" alias borrow the same completion logic as "kubectl"
+  alias k=kubectl
   complete -o default -F __start_kubectl k
 
   if type kubecolor &> /dev/null; then
