@@ -154,6 +154,14 @@ alias gitds='git diff --staged'
 alias gitp='git push origin'
 alias gitb='git branch -a'
 
+## LazyGit
+alias lg='lazygit'
+alias lgb='lazygit branch -sm half'
+alias lgl='lazygit log -sm half'
+alias lgf='lazygit -sm half -f'
+alias lgs='lazygit status -sm half'
+alias lgh='lazygit stash -sm half'
+
 # Use English man pages
 alias man='LANG=C man'
 
