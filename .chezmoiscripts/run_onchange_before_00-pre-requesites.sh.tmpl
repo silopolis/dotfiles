@@ -9,8 +9,8 @@ set -euo pipefail
 #if ! command -v curl &> /dev/null; then
   sudo apt-get update
   sudo apt-get install -qy \
-    curl wget \
-    build-essential \
+    build-essential procps curl file git \
+    wget \
     btrfs-progs btrfsmaintenance btrfsd btrfs-assistant snapper \
     git-credential-oauth
 #fi
