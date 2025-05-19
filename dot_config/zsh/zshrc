@@ -1,7 +1,13 @@
 # ~/.zshrc file for zsh interactive shells.
 # see /usr/share/doc/zsh/examples/zshrc for examples
 
-## Zsh option
+# Start Zsh profiler
+#zmodload zsh/zprof
+#export ZSHRC_TIMER=$EPOCHREALTIME
+#echo "Start: $ZSHRC_TIMER"
+
+## Zsh options
+
 setopt autocd              # change directory just by typing its name
 setopt correct             # auto correct mistakes
 setopt interactivecomments # allow comments in interactive mode
@@ -13,10 +19,8 @@ setopt promptsubst         # enable command substitution in prompt
 
 WORDCHARS=${WORDCHARS//\/} # Don't consider certain characters part of the word
 
-# hide EOL sign ('%')
-PROMPT_EOL_MARK=""
-
 ## Keybindings
+
 bindkey -e                                        # emacs key bindings
 bindkey ' ' magic-space                           # do history expansion on space
 bindkey '^U' backward-kill-line                   # ctrl + U
@@ -31,27 +35,16 @@ bindkey '^[[F' end-of-line                        # end
 bindkey '^[[Z' undo                               # shift + tab undo last action
 
 # Completion
-# Add brew completions
-if type brew &> /dev/null; then
-  brew completions link &> /dev/null
-  zsh_completions="$(brew --prefix)/share/zsh-completions"
-  if [ $? -eq 0 ] && [ -d "$zsh_completions" ];then
-    fpath=($zsh_completions $fpath)
-  fi
-  brew_completion="$(brew --prefix 2>/dev/null)/share/zsh/zsh-site-functions"
-  if [ $? -eq 0 ] && [ -d "$brew_completion" ];then
-    fpath=($brew_completion $fpath)
-  fi
-fi
 
 autoload -Uz +X compinit
 compinit -d ~/.cache/zcompdump
+#zstyle ':completion:*' use-cache on
+#zstyle ':completion:*' cache-path "$XDG_CACHE_HOME/zsh/.zcompcache"
 zstyle ':completion:*:*:*:*:*' menu select
 zstyle ':completion:*' auto-description 'specify: %d'
-zstyle ':completion:*' completer _expand _complete
+zstyle ':completion:*' completer _extensions _expand _complete _approximate
 zstyle ':completion:*' format 'Completing %d'
 zstyle ':completion:*' group-name ''
-zstyle ':completion:*' list-colors ''
 zstyle ':completion:*' list-prompt %SAt %p: Hit TAB for more, or the character to insert%s
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
 zstyle ':completion:*' rehash true
@@ -59,17 +52,27 @@ zstyle ':completion:*' select-prompt %SScrolling active: current selection at %p
 zstyle ':completion:*' use-compctl false
 zstyle ':completion:*' verbose true
 zstyle ':completion:*:kill:*' command 'ps -u $USER -o pid,%cpu,tty,cputime,cmd'
+# Take advantage of $LS_COLORS for completion as well
+if [ -x /usr/bin/dircolors ]; then
+  zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
+  zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#)*=0=01;31'
+else
+  zstyle ':completion:*' list-colors ''
+fi
 
 autoload -U +X bashcompinit && bashcompinit
 
+## Auto-suggestions
+
 # enable auto-suggestions based on the history
 if [ -f /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]; then
-    . /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+    source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
     # change suggestion color
     ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#999'
 fi
 
 ## History
+
 HISTFILE=~/.zsh_history
 HISTSIZE=5000
 SAVEHIST=5000
@@ -80,18 +83,37 @@ setopt hist_verify            # show command with history expansion to user befo
 setopt share_history          # share command history data
 alias history="history 0"     # force zsh to show the complete history
 
+### HSTR
+alias hh=hstr                    # hh to be alias for hstr
+#setopt histignorespace           # skip cmds w/ leading space from history
+export HSTR_CONFIG=hicolor       # get more colors
+#hstr_no_tiocsti() {
+#    zle -I
+#    { HSTR_OUT="$( { </dev/tty hstr ${BUFFER}; } 2>&1 1>&3 3>&- )"; } 3>&1;
+#    BUFFER="${HSTR_OUT}"
+#    CURSOR=${#BUFFER}
+#    zle redisplay
+#}
+#zle -N hstr_no_tiocsti
+#bindkey '\C-r' hstr_no_tiocsti
+export HSTR_TIOCSTI=n
+
 # configure `time` format
 TIMEFMT=$'\nreal\t%E\nuser\t%U\nsys\t%S\ncpu\t%P'
 
 # make less more friendly for non-text input files, see lesspipe(1)
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
 
+## Prompt
+
+# hide EOL sign ('%')
+PROMPT_EOL_MARK=""
+
 # set variable identifying the chroot you work in (used in the prompt below)
 if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
     debian_chroot=$(cat /etc/debian_chroot)
 fi
 
-## Prompt
 # set a fancy prompt (non-color, unless we know we "want" color)
 case "$TERM" in
     xterm-color|*-256color) color_prompt=yes;;
@@ -234,129 +256,27 @@ precmd() {
     fi
 }
 
-# enable command-not-found if installed
+## command-not-found handler
 if [ -f /etc/zsh_command_not_found ]; then
     . /etc/zsh_command_not_found
 fi
 
-
-## Source common shell configuration
-if [ -f ~/.config/shell/shellrc ]; then
-    . ~/.config/shell/shellrc
-fi
-
 ## Alias definitions.
-## You may want to put all your additions into a separate file like
-## ~/.zsh_aliases, instead of adding them here directly.
-## Common shell aliases definitions should be defined in '~/.shell_aliases'
-## Source ZSH specific aliases definitions
+# You may want to put all your additions into a separate file like
+# ~/.zsh_aliases, instead of adding them here directly.
+# Common shell aliases definitions should be defined in '~/.shell_aliases'
+# Source ZSH specific aliases definitions
 if [ -f ~/.zsh_aliases ]; then
     . ~/.zsh_aliases
 fi
 
-
-## Docker
-if which docker &> /dev/null; then
-  source <(docker completion zsh)
-  alias d=docker
-  compdef d=docker
+## Source common shell configuration
+if [ -f "$HOME/.config/shell/shellrc" ]; then
+    source "$HOME/.config/shell/shellrc"
 fi
 
-## Kubernetes
-### Kubectl
-if which kubectl &> /dev/null; then
-  source <(kubectl completion zsh)
-  
-  # Make "k" alias borrow the same completion logic as "kubectl"
-  alias k=kubectl
-  compdef k=kubectl
-
-  if type kubecolor &> /dev/null; then
-    # Make "kubecolor" borrow the same completion logic as "kubectl"
-    compdef kubecolor=kubectl
-  fi
-  
-  function kubectl() { echo "+ kubectl $@">&2; command kubectl $@; }
-fi
-
-### Minikube
-if which minikube &> /dev/null; then
-  source <(minikube completion zsh)
-fi
-
-### KinD
-if which kind &> /dev/null; then
-  source <(kind completion zsh)
-fi
-
-
-## AWS
-### AWS CLI
-[ -f "$HOME/.local/bin/aws_zsh_completer.sh" ] \
-  && source "$HOME/.local/bin/aws_zsh_completer.sh" \
-  && complete -C aws_completer awslocal
-
-### LocalStack
-if which localstack &> /dev/null; then
-  source <(localstack completion zsh)
-fi
-
-#complete -o nospace -C /home/linuxbrew/.linuxbrew/Cellar/tfenv/3.0.0/versions/1.6.6/terraform terraform
-
-## Direnv
-if which direnv &> /dev/null; then
-  eval "$(direnv hook zsh)"
-fi
-
-## Mise
-if which mise &> /dev/null; then
-  source <(mise activate zsh)
-fi
-
-# Set up fzf key bindings and fuzzy completion
-if which fzf &> /dev/null; then
-  source <(fzf --zsh)
-fi
-# For completions to work, the above line must be added after compinit is called.
-# You may have to rebuild your completions cache by running `rm ~/.zcompdump*; compinit`.
-if which zoxide &> /dev/null; then
-  eval "$(zoxide init zsh)"
-fi
-
-# HSTR configuration - add this to ~/.zshrc
-alias hh=hstr                    # hh to be alias for hstr
-#setopt histignorespace           # skip cmds w/ leading space from history
-export HSTR_CONFIG=hicolor       # get more colors
-#hstr_no_tiocsti() {
-#    zle -I
-#    { HSTR_OUT="$( { </dev/tty hstr ${BUFFER}; } 2>&1 1>&3 3>&- )"; } 3>&1;
-#    BUFFER="${HSTR_OUT}"
-#    CURSOR=${#BUFFER}
-#    zle redisplay
-#}
-#zle -N hstr_no_tiocsti
-#bindkey '\C-r' hstr_no_tiocsti
-export HSTR_TIOCSTI=n
-
-[ -f $HOMEBREW_PREFIX/share/forgit/forgit.plugin.zsh ] \
-  && source $HOMEBREW_PREFIX/share/forgit/forgit.plugin.zsh
-
-## Aqua package manager
-if command -v aqua &> /dev/null; then
-  export PATH="${AQUA_ROOT_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/aquaproj-aqua}/bin:$PATH"
-  source <(aqua completion zsh)
-fi
-
-## GitHub CLI
-eval "$(gh completion -s zsh)"
-eval "$(gh copilot alias -- zsh)"
-
-## GitLab CLI
-eval "$(glab completion -s zsh)"
-
-## InfraCost
-if which infracost &> /dev/null; then
-  source <(infracost completion --shell zsh)
-fi
+# Report Zsh proling results
+#echo "Total init time: $(( EPOCHREALTIME - ZSHRC_TIMER ))s"
+#zprof
 
 # vim: set syntax=zsh :

@@ -1,30 +1,125 @@
 ## Common shell configuration
 
-#CURRENT_SHELL="$(ps -p $$ --no-header | tr -s ' ' | cut -d' ' -f5)"
-CURRENT_SHELL="${CURRENT_SHELL:-$(ps -p $$ -o comm=)}"
+### Set XDG_* FreeDesktop directories
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
+export XDG_LIB_HOME="${XDG_LIB_HOME:-$HOME/.local/lib}"
+export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
 
-# Set some XDG_* FreeDesktop directories
-export XDG_DATA_HOME="$HOME/.local/share"
-export XDG_CONFIG_HOME="$HOME/.config"
-export XDG_CACHE_HOME="$HOME/.cache"
+## Environment variables
+
+### source global environment configuration
+if [ -f "${XDG_CONFIG_HOME}/envrc" ]; then
+  source "${XDG_CONFIG_HOME}/envrc"
+fi
+
+### source global private environment configuration
+if [ -f "${XDG_CONFIG_HOME}/env" ]; then
+  source "${XDG_CONFIG_HOME}/env"
+fi
+
+## Set locale
+export LANG="${LANG:-en_US.UTF-8}"
+export LANGUAGE="${LANGUAGE:-en_US}"
+export LC_ALL="${LC_ALL:-fr_FR.UTF-8}"
+
+export EDITOR="${EDITOR:-vim}"
+export PAGER="${PAGER:-less}"
 
 # Try to fix Qt6 theming issue
 export QT_QPA_PLATFORMTHEME=qt6ct
 
+#CURRENT_SHELL="$(ps -p $$ --no-header | tr -s ' ' | cut -d' ' -f5)"
+#export CURRENT_SHELL="${CURRENT_SHELL:-$(ps -p $$ -o comm=)}"
 
 ## Configure PATH
-## Set base PATH
+
+### Base PATH
 #if [ "$(id -u)" -eq 0 ]; then
 #  PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 #else
 #  PATH="/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games"
 #fi
-## Set same PATH for root and users
+### Set same PATH for root and users
 PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/games:/usr/games"
 
-# Include /snap/bin if it exists
+### Flatpack
+# TODO Flatpack env setup
+
+### Snap
 if [ -d "/snap/bin" ] ; then
   PATH="/snap/bin:$PATH"
+fi
+
+### Homebrew
+if [ -x "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
+  #export NONINTERACTIVE=1
+  export HOMEBREW_AUTO_UPDATE_SECS=3600
+  # 1 to enable, empty to disable
+  export HOMEBREW_NO_AUTO_UPDATE=
+  # 1 to enable, empty to disable
+  export HOMEBREW_NO_ENV_HINTS=
+  # 1 to enable, empty to disable
+  export HOMEBREW_NO_INSTALL_CLEANUP=
+
+  # Load brew shell env
+  # Sets HOMEBREW_PREFIX, HOMEBREW_CELLAR, and HOMEBREW_REPOSITORY
+  # Loads auto-completions
+  # Adds brew bin and sbin dirs to PATH
+  # Updates MANPATH and INFOPATH
+  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv $CURRENT_SHELL)"
+  #export HOMEBREW_PREFIX="${HOMEBREW_PREFIX:-$(brew --prefix)}"
+
+  # Add brew completions
+  case $CURRENT_SHELL in
+    "bash")
+      if [[ -r "${HOMEBREW_PREFIX}/etc/profile.d/bash_completion.sh" ]]; then
+        source "${HOMEBREW_PREFIX}/etc/profile.d/bash_completion.sh"
+      else
+        for COMPLETION in "${HOMEBREW_PREFIX}/etc/bash_completion.d/"*; do
+          [[ -r "${COMPLETION}" ]] && source "${COMPLETION}"
+        done
+      fi
+      ;;
+    "zsh")
+      brew completions link &> /dev/null
+      zsh_completions="${HOMEBREW_PREFIX}/share/zsh-completions"
+      if [ $? -eq 0 ] && [ -d "$zsh_completions" ];then
+        fpath=($zsh_completions $fpath)
+      fi
+      brew_completion="${HOMEBREW_PREFIX}/share/zsh/zsh-site-functions"
+      if [ $? -eq 0 ] && [ -d "$brew_completion" ];then
+        fpath=($brew_completion $fpath)
+      fi
+      ;;
+  esac
+
+  if command -v brew-file &> /dev/null; then
+    #export HOMEBREW_BREWFILE="$HOME/.config/brewfile/Brewfile"
+    # brew-file backup file name
+    export HOMEBREW_BREWFILE_BACKUP="$HOME/.config/brewfile/Brewfile.backup"
+    # Toggle use of full names (tap/name)
+    export HOMEBREW_BREWFILE_FULL_NAME=1
+    # Only list leaves
+    export HOMEBREW_BREWFILE_LEAVES=0
+    # Only list packages installed on request. Has priority over leaves
+    export HOMEBREW_BREWFILE_ON_REQUEST=1
+    # "go,coreutils" # Packages always to be listed
+    export HOMEBREW_BREWFILE_TOP_PACKAGES="gcc,g++"
+
+    # brew command wrapper for brew-file
+    if [ -f "${HOMEBREW_PREFIX}/etc/brew-wrap" ];then
+      source "${HOMEBREW_PREFIX}/etc/brew-wrap"
+    fi
+  fi
+fi
+
+## Aqua package manager
+if command -v aqua &> /dev/null; then
+  export AQUA_ROOT_DIR="${AQUA_ROOT_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/aquaproj-aqua}"
+  export AQUA_BIN_DIR="${AQUA_BIN_DIR:-${AQUA_ROOT_DIR}}/bin"
+  export PATH="${AQUA_BIN_DIR}:$PATH"
+  source <(aqua completion $CURRENT_SHELL)
 fi
 
 # Include user's private "bin" directories if they exist
@@ -57,6 +152,7 @@ fi
 #  fi
 #fi
 
+## Go Env
 export GOPATH="$HOME/.local/go"
 export GOBIN="$GOPATH/bin"
 # Include Go bin dir if it exists
@@ -64,65 +160,66 @@ if [ -d "$GOBIN" ] ; then
   PATH="$GOBIN:$PATH"
 fi
 
-KREW_PLUGINS_DIR="${KREW_ROOT:-$HOME/.krew}/bin"
+## Rust Env
+PATH="$(brew --prefix rustup)/bin:$PATH"
+
+# FIXME move KREW_PLUGIN_DIR to .local/[share|lib]/krew
+export KREW_PLUGINS_DIR="${KREW_ROOT:-$HOME/.krew}/bin"
 if [ -d "$KREW_PLUGINS_DIR" ]; then
   PATH="$KREW_PLUGINS_DIR:$PATH"
 fi
 
 export PATH
 
-## Set locale
-LANG="fr_FR.UTF-8"
-LANGUAGE="fr_FR:en_US"
-LC_ALL="fr_FR.UTF-8"
-
-## brew
-#export HOMEBREW_BREWFILE="$HOME/.config/brewfile/Brewfile"
-export HOMEBREW_BREWFILE_BACKUP="$HOME/.config/brewfile/Brewfile.backup" # Set brew-file backup file name
-export HOMEBREW_BREWFILE_FULL_NAME=1 # Toggle use of full names (tap/name)
-export HOMEBREW_BREWFILE_LEAVES=0 # Only list leaves
-export HOMEBREW_BREWFILE_ON_REQUEST=1 # Only list packages installed on request. Has priority over leaves
-export HOMEBREW_BREWFILE_TOP_PACKAGES="gcc,g++" # "go,coreutils" # Packages always to be listed
-#export NONINTERACTIVE=1
-export HOMEBREW_AUTO_UPDATE_SECS=3600
-export HOMEBREW_NO_AUTO_UPDATE= # 1 to enable, empty to disable
-export HOMEBREW_NO_ENV_HINTS= # 1 to enable, empty to disable
-export HOMEBREW_NO_INSTALL_CLEANUP= # 1 to enable, empty to disable
-
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-
-if [ -f $(brew --prefix)/etc/brew-wrap ];then
-  source $(brew --prefix)/etc/brew-wrap
-fi
-
-PATH="$(brew --prefix rustup)/bin:$PATH"
-
-## broot launcher
-if [ -f /home/tarax/.config/broot/launcher/bash/br ]; then
-  source /home/tarax/.config/broot/launcher/bash/br
-fi
-
-## Terraform
-alias tf='terraform'
-complete -o nospace -C /home/linuxbrew/.linuxbrew/bin/terraform terraform
-complete -o nospace -C /home/linuxbrew/.linuxbrew/bin/terraform tf
-
 ## Source common shell aliases
 if [ -f ~/.config/shell/aliases ]; then
     . ~/.config/shell/aliases
 fi
 
-export EDITOR="vim"
-export PAGER="most"
+## Shell extensions and utilities
 
-if [ -f "${XDG_CONFIG_HOME:-$HOME/.config}/env" ]; then
-  source "${XDG_CONFIG_HOME:-$HOME/.config}/env"
+### direnv
+if command -v direnv &> /dev/null; then
+  eval "$(direnv hook $CURRENT_SHELL)"
+fi
+
+### Mise-en-place
+if command -v mise &> /dev/null; then
+  case $CURRENT_SHELL in
+    "bash")
+      source <(eval "$(mise activate $CURRENT_SHELL)")
+      ;;
+    "zsh")
+      source <(mise activate $CURRENT_SHELL)
+      ;;
+  esac
+fi
+
+### fzf
+# Set up fzf key bindings and fuzzy completion
+if command -v fzf &> /dev/null; then
+  case $CURRENT_SHELL in
+    "bash")
+      eval "$(fzf --$CURRENT_SHELL)"
+      ;;
+    "zsh")
+      source <(fzf --$CURRENT_SHELL)
+      ;;
+  esac
+fi
+
+### Zoxide
+# For completions to work, this block must be placed at the end of the shell config file.
+# For Zsh, it must anyway be added after compinit is called, You may have to rebuild your
+# completions cache by running `rm ~/.zcompdump*; compinit`.
+if command -v zoxide &> /dev/null; then
+  eval "$(zoxide init $CURRENT_SHELL)"
 fi
 
 ## Prompt
-## byobu-prompt
+### byobu-prompt
 #[ -r /home/tarax/.byobu/prompt ] && . /home/tarax/.byobu/prompt
-## Fancy prompt
+## Starship prompt
 eval "$(starship init $CURRENT_SHELL)"
 
 # vim: set syntax=sh :
