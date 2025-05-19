@@ -5,9 +5,10 @@
 	defaultBranch = main
 [core]
 	pager = delta
-[include]
-  path = ~/.config/git/gitalias
-  path = ~/.local/share/delta/themes.gitconfig
+[pager]
+  # Use a pager if the difftool output is larger than one screenful,
+  # consistent with the behaviour of `git diff`.
+  difftool = true
 [delta]
 	navigate = true
   side-by-side = true
@@ -22,6 +23,15 @@
   diffFilter = delta --color-only
 [sequence]
 	editor = vim
+[diff]
+  # Set difftastic as the default difftool, so we don't need to specify
+  # `-t difftastic` every time.
+  tool = difft
+  guitool = vimdiff
+[difftool]
+  # Run the difftool immediately, don't ask 'are you sure' each time.
+  prompt = false
+  guiDefault = false
 [merge]
 	conflictStyle = zdiff3
 [cola]
@@ -39,3 +49,6 @@
 	smudge = git-lfs smudge -- %f
 	process = git-lfs filter-process
 	required = true
+[include]
+  path = ~/.config/git/gitalias
+  path = ~/.local/share/delta/themes.gitconfig
