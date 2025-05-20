@@ -356,6 +356,9 @@ set sessionoptions+=tabpages,globals
 "Plugin 'catppuccin/vim'
 Plugin 'catppuccin/nvim'
 
+Plugin 'vim-scripts/color_toon'
+Plugin 'guns/xterm-color-table'
+
 " ------------------------------------------------------------------------------
 " ## Statusline
 " ------------------------------------------------------------------------------
