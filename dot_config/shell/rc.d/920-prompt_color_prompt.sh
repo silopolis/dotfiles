@@ -1,6 +1,6 @@
 # set a fancy prompt (non-color, unless we know we "want" color)
 case "$TERM" in
-    xterm-color|*-256color|xterm-kitty)
+    *-direct|*-256color|*-color|*kitty*|*alacritty*)
       color_prompt=yes
       ;;
 esac
