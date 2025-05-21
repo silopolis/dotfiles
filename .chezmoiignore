@@ -1,6 +1,35 @@
 README.md
 TODO.md
 
+.bash_history
+.cache
+.Xauthority
+.sudo_as_admin_successful
+
+Applications
+Bureau
+Documents
+GDrive
+Images
+Modèles
+Musique
+Network
+Nextcloud
+PDF
+Public
+Réseau
+Sources (local)
+Téléchargements
+Virtualization
+generate.vim
+kind
+snap
+tmp
+
+.config/brewfile/Brewfile.*
+.config/brewfile/brewfile.*
+.config/btop/btop.log
+
 scripts
 
 .chezmoiscripts
