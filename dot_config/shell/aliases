@@ -316,7 +316,8 @@ if command -v kubectl &> /dev/null; then
   alias kail="k tail"
 
   # Output expanded kubectl command on stderr before running it
-  function kubectl() { echo "+ kubectl $@">&2; command kubectl $@; }
+  # FIXME Now breaks completion of kubectl & k alias
+  #function kubectl() { echo "+ kubectl $@">&2; command kubectl $@; }
 fi
 
 ### Minikube
