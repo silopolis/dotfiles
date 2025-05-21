@@ -365,6 +365,10 @@ if command -v aws &> /dev/null; then
   esac
 fi
 
+### awsenv
+# Quickly log into and switch between AWS accounts in a terminal
+alias awsenv="source $HOME/.local/bin/awsenv"
+
 ### LocalStack
 if which localstack &> /dev/null; then
   source <(localstack completion $CURRENT_SHELL)
