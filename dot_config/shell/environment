@@ -1,0 +1,13 @@
+## Common ${XDG_CONFIG_HOME}/shell/environment file for any shell.
+
+echo "Loading environment config..."
+
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+
+## Load environment configuration scripts
+SHELL_ENV_RC_DIR="${SHELL_ENV_RC_DIR:-$XDG_CONFIG_HOME/shell/rc.d}"
+for rc_script in "${SHELL_ENV_RC_DIR}"/*-env_*.sh; do
+  source "${rc_script}"
+done
+
+# vim: set syntax=sh :
