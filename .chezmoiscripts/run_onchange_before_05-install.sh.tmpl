@@ -68,6 +68,8 @@ rustup default stable
 #    pnpm
 
 # config.toml hash: {{ include "dot_config/pipx/packages.json" | sha256sum }}"
+# https://github.com/pypa/pipx/issues/359
+# https://github.com/br3ndonland/dotfiles/commit/b133fb84e85cff7989ffd657248618a8edafdf1e
 pipx install-all "$HOME/.local/share/chezmoi/dot_config/pipx/packages.json"
 
 $(gh auth status &> /dev/null) || gh auth login
