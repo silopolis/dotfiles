@@ -2,6 +2,7 @@
 # tap repositories and their packages
 
 tap homebrew/core
+brew aqua
 brew aws-nuke
 brew aws-shell
 brew aws-vault
@@ -73,7 +74,7 @@ brew poppler
 brew pre-commit
 brew ranger
 brew resvg
-brew rich
+brew rich-cli
 brew ripgrep
 brew ripgrep-all
 brew rustup
@@ -110,7 +111,7 @@ brew yazi
 brew zoxide
 brew zsh-completions
 
-brew aqua
+tap aquaproj/aqua
 
 tap aurc/loggo
 brew aurc/loggo/loggo
@@ -123,6 +124,9 @@ brew fluxcd/tap/flux
 
 tap future-architect/tap
 brew future-architect/tap/tftarget
+
+tap gromgit/brewtils
+brew gromgit/brewtils/taproom
 
 tap hashicorp/tap
 brew hashicorp/tap/vagrant
@@ -142,6 +146,9 @@ tap rcmdnk/file
 brew rcmdnk/file/brew-file
 
 tap stefanlogue/tools
+
+tap valkyrie00/bbrew
+brew valkyrie00/bbrew/bbrew
 
 tap weaveworks/tap
 brew weaveworks/tap/gitops
