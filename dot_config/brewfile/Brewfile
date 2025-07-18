@@ -110,8 +110,7 @@ brew yazi
 brew zoxide
 brew zsh-completions
 
-tap aquaproj/aqua
-brew aquaproj/aqua/aqua
+brew aqua
 
 tap aurc/loggo
 brew aurc/loggo/loggo
