@@ -91,6 +91,18 @@
                         }
                     ],
                     "app_paths_of_dependencies": {
+                        "charset-normalizer": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/flux-local/bin/normalizer",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "jsonschema": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/flux-local/bin/jsonschema",
+                                "__type__": "Path"
+                            }
+                        ],
                         "pytest": [
                             {
                                 "__Path__": "/home/tarax/.local/pipx/venvs/flux-local/bin/py.test",
@@ -100,14 +112,23 @@
                                 "__Path__": "/home/tarax/.local/pipx/venvs/flux-local/bin/pytest",
                                 "__type__": "Path"
                             }
+                        ],
+                        "python-slugify": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/flux-local/bin/slugify",
+                                "__type__": "Path"
+                            }
                         ]
                     },
                     "apps": [
                         "flux-local"
                     ],
                     "apps_of_dependencies": [
+                        "jsonschema",
+                        "normalizer",
                         "py.test",
-                        "pytest"
+                        "pytest",
+                        "slugify"
                     ],
                     "include_apps": true,
                     "include_dependencies": false,
@@ -117,7 +138,7 @@
                     "man_paths_of_dependencies": {},
                     "package": "flux-local",
                     "package_or_url": "flux-local",
-                    "package_version": "7.5.0",
+                    "package_version": "7.5.6",
                     "pinned": false,
                     "pip_args": [],
                     "suffix": ""
@@ -352,7 +373,7 @@
                     "man_paths_of_dependencies": {},
                     "package": "jello",
                     "package_or_url": "jello",
-                    "package_version": "1.6.0",
+                    "package_version": "1.6.1",
                     "pinned": false,
                     "pip_args": [],
                     "suffix": ""
@@ -405,6 +426,94 @@
                 },
                 "pipx_metadata_version": "0.5",
                 "python_version": "Python 3.13.3",
+                "source_interpreter": {
+                    "__Path__": "/home/linuxbrew/.linuxbrew/opt/python@3.13/libexec/bin/python",
+                    "__type__": "Path"
+                },
+                "venv_args": []
+            }
+        },
+        "llm": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/tarax/.local/pipx/venvs/llm/bin/llm",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {
+                        "distro": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/llm/bin/distro",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "httpx": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/llm/bin/httpx",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "openai": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/llm/bin/openai",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "python-ulid": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/llm/bin/ulid",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "sqlite-utils": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/llm/bin/sqlite-utils",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "tabulate": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/llm/bin/tabulate",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "tqdm": [
+                            {
+                                "__Path__": "/home/tarax/.local/pipx/venvs/llm/bin/tqdm",
+                                "__type__": "Path"
+                            }
+                        ]
+                    },
+                    "apps": [
+                        "llm"
+                    ],
+                    "apps_of_dependencies": [
+                        "openai",
+                        "distro",
+                        "httpx",
+                        "tqdm",
+                        "sqlite-utils",
+                        "tabulate",
+                        "ulid"
+                    ],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "man_pages": [],
+                    "man_pages_of_dependencies": [],
+                    "man_paths": [],
+                    "man_paths_of_dependencies": {},
+                    "package": "llm",
+                    "package_or_url": "llm",
+                    "package_version": "0.26",
+                    "pinned": false,
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.5",
+                "python_version": "Python 3.13.5",
                 "source_interpreter": {
                     "__Path__": "/home/linuxbrew/.linuxbrew/opt/python@3.13/libexec/bin/python",
                     "__type__": "Path"
@@ -1239,7 +1348,7 @@
                     "man_paths_of_dependencies": {},
                     "package": "xonsh",
                     "package_or_url": "xonsh",
-                    "package_version": "0.19.3",
+                    "package_version": "0.19.9",
                     "pinned": false,
                     "pip_args": [],
                     "suffix": ""
