@@ -2,6 +2,7 @@ README.md
 TODO.md
 
 .bash_history
+.config/bash/bash_history
 .cache
 .Xauthority
 .sudo_as_admin_successful
@@ -26,9 +27,13 @@ kind
 snap
 tmp
 
+.config/alacritty/alacritty.yml
+.config/alacritty/themes
+.config/brew
 .config/brewfile/Brewfile.*
 .config/brewfile/brewfile.*
 .config/btop/btop.log
+.config/chezmoi/chezmoistate.boltdb
 
 scripts
 
