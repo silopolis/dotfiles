@@ -38,6 +38,7 @@ fi
 
 # config.toml hash: {{ include "dot_config/brewfile/Brewfile" | sha256sum }}
 brew file install
+brew file clean -V warning
 
 ## Initialize `rustup` and set a default toolchain:
 # If you have `rust` installed, ensure you have "$(brew --prefix rustup)/bin"
