@@ -8,10 +8,12 @@ set -ueo pipefail
 IFS=$'\n\t'
 
 # Raise limit for the max number of openfiles
-ulimit -n 10240
+ulimit -n 20480
 # Make it permanent
+# https://www.baeldung.com/linux/error-too-many-open-files
 # https://www.tecmint.com/increase-set-open-file-limits-in-linux/
-sudo bash -c "echo '* soft nofile 10240' >> /etc/security/limits.conf"
+sudo bash -c "echo '* soft nofile 20480' > /etc/security/limits.d/ulimit.conf"
+sudo bash -c "echo '* hard nofile 40960' >> /etc/security/limits.d/ulimit.conf"
 
 export HOMEBREW_BREWFILE="$HOME/.local/share/chezmoi/dot_config/brewfile/Brewfile"
 export HOMEBREW_BREWFILE_BACKUP="$HOME/.config/brewfile/Brewfile.backup" # Set brew-file backup file name
