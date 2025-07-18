@@ -67,7 +67,6 @@ brew neovim
 brew nerdctl
 brew nnn
 brew peco
-brew perl
 brew pipx
 brew plantuml
 brew poppler
@@ -138,8 +137,12 @@ brew jmattaa/laser/laser
 tap one2nc/cloudlens
 brew one2nc/cloudlens/cloudlens
 
+tap panter-dsd/tap
+
 tap rcmdnk/file
 brew rcmdnk/file/brew-file
+
+tap stefanlogue/tools
 
 tap weaveworks/tap
 brew weaveworks/tap/gitops
