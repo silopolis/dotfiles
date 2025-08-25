@@ -34,6 +34,7 @@ brew fd
 brew forgit
 brew fzf
 brew gcc
+brew gcli
 brew gh
 brew git-delta
 brew git-interactive-rebase-tool
