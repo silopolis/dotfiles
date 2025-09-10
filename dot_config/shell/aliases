@@ -335,6 +335,9 @@ if command -v minikube &> /dev/null; then
       compdef mk=minikube
       ;;
   esac
+  alias mkp="mk profile"
+  alias mkpl="mk profile list"
+  alias mkss="mk status"
 fi
 
 ### KinD
