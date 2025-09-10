@@ -41,6 +41,7 @@ brew git-interactive-rebase-tool
 brew glab
 brew glow
 brew go
+brew gping
 brew gron
 brew grype
 brew hcledit
