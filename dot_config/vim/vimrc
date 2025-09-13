@@ -532,7 +532,11 @@ filetype plugin indent on    " required
 "filetype plugin on
 syntax on
 
+" Enable line numbering
 set number
+" Enable relative line numbering
+set relativenumber
+
 set encoding=utf-8
 "set laststatus
 
