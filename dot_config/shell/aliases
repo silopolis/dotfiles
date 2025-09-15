@@ -148,11 +148,15 @@ alias cmgs="chezmoi git -- status"
 alias cmi="chezmoi init" # $GITHUB_USERNAME
 alias cmia="chezmoi init --apply" # $GITHUB_USERNAME
 alias cmiaf="chezmoi init --apply --force" # $GITHUB_USERNAME
+alias cmll="ll $(chezmoi source-path)/"
+alias cmlla="lla $(chezmoi source-path)/"
 alias cmm="chezmoi managed"
+alias cmmkdir="mkdir -p $(chezmoi source-path)/"
 alias cmpd="chezmoi git pull -- --autostash --rebase && chezmoi diff"
 alias cms="chezmoi status"
 alias cmstdbroc="chezmoi state delete-bucket --bucket=entryState" # clear the state of `run_onchange_` scripts
 alias cmstdbron="chezmoi state delete-bucket --bucket=scriptState" # clear the state of `run_once_` scripts
+alias cmtouch="touch $(chezmoi source-path)/"
 alias cmu="chezmoi update"
 alias cmum="chezmoi unmanaged"
 alias cmun="chezmoi unmanage"
