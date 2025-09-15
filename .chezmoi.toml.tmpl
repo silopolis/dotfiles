@@ -13,6 +13,10 @@
 {{- includeTemplate "machine-type.toml.tmpl" . }}
 {{- includeTemplate "gh-codespaces.toml.tmpl" . }}
 
+pager = "bat"
+#pagerArgs = ""
+color = true
+
 [data]
   email = {{ $email | quote }}
   gitemail = {{ $gitemail | quote }}
@@ -34,12 +38,24 @@
   #HOMEBREW_BREWFILE_TOP_PACKAGES = "go,coreutils" # Packages always to be listed
 
 [update]
+  #apply = false
+  #command = ""
+  #args = ""
   # Update submodules recursively
   recurseSubmodules = true
 
 [diff]
+  #command = "vimdiff"
   pager = "delta"
+  #pagerArgs = ""
   diff.exclude = ["externals"]
+  #reverse = true
+
+[edit]
+  #command = ""
+  #args = ""
+  #apply = true
+  #watch = true
 
 [merge]
   command = "vimdiff"
