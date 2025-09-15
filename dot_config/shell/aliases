@@ -111,11 +111,14 @@ alias aptsp='apt-cache showpkg'
 alias aptpo='apt-cache policy'
 
 ## chezmoi
+alias cm_aliases="alias | grep ^cm"
+alias cm_install='sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply' # $GITHUB_USERNAME
+alias cm_install_oneshot='sh -c "$(curl -fsLS get.chezmoi.io)" -- init --oneshot' # $GITHUB_USERNAME
 alias cm="chezmoi"
 alias cma="chezmoi add"
 alias cmaa="chezmoi add --autotemplate"
 alias cmaf="chezmoi add --force"
-alias cm_aliases="alias | grep ^cm"
+alias cmra="chezmoi re-add"
 alias cmap="chezmoi apply"
 alias cmapf="chezmoi apply --force"
 alias cmreap="chezmoi --refresh-externals apply"
@@ -145,8 +148,6 @@ alias cmgs="chezmoi git -- status"
 alias cmi="chezmoi init" # $GITHUB_USERNAME
 alias cmia="chezmoi init --apply" # $GITHUB_USERNAME
 alias cmiaf="chezmoi init --apply --force" # $GITHUB_USERNAME
-alias cm_install='sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply' # $GITHUB_USERNAME
-alias cm_install_oneshot='sh -c "$(curl -fsLS get.chezmoi.io)" -- init --oneshot' # $GITHUB_USERNAME
 alias cmm="chezmoi managed"
 alias cmpd="chezmoi git pull -- --autostash --rebase && chezmoi diff"
 alias cms="chezmoi status"
