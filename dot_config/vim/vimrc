@@ -278,7 +278,7 @@ let g:bufferline_show_bufnr = 1
 " 1: scrolling with fixed current buffer position
 " 2: scrolling without fixed current buffer position
 let g:bufferline_rotate = 1
-" Cuurent buffer position (only valid with `g:bufferline_rotate = 1`)
+" Current buffer position (only valid with `g:bufferline_rotate = 1`)
 " 0: always first, 1: always second (default), -1: always last
 let g:bufferline_fixed_index = 0
 " Whether the active highlight should be used when there is only one buffer.
