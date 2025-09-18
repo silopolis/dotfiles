@@ -254,6 +254,11 @@ endif
 " ------------------------------------------------------------------------------
 " Buffers
 " ------------------------------------------------------------------------------
+" Modern buffer manager for ViM
+"Plugin "zefei/vim-wintabs"
+" Powerline style rendering for Wintabs
+"Plugin "zefei/vim-wintabs-powerline"
+" Potentially redendant with Airline builtin feature
 Plugin 'bling/vim-bufferline'
 " Show buffer list on the command line (1) or integrated into statusline (0)
 let g:bufferline_echo = 0
