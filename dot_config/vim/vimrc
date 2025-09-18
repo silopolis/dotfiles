@@ -378,6 +378,54 @@ Plugin 'guns/xterm-color-table'
 " Fast and lightweight alternative to Powerline, 100% vimscript, no deps
 " https://github.com/vim-airline/vim-airline
 Plugin 'vim-airline/vim-airline'
+" Enable/disable bufferline integration
+let g:airline#extensions#bufferline#enabled = 1
+" Determine whether bufferline will overwrite customization variables
+"let g:airline#extensions#bufferline#overwrite_variables = 1
+" enable/disable [codeium|windsurf].vim integration
+"let g:airline#extensions#codeium#enabled = 1
+" enable/disable fugitive integration
+let g:airline#extensions#fugitiveline#enabled = 1
+" enable/disable fzf integration
+let g:airline#extensions#fzf#enabled = 1
+" enable/disable vim-grepper integration
+"let g:airline#extensions#grepper#enabled = 1
+" enable/disable vim-gutentags integration
+"let g:airline#extensions#gutentags#enabled = 1
+" enable/disable gen_tags.vim integration
+"let g:airline#extensions#gen_tags#enabled = 1
+" enable/disable showing a summary of changed hunks under source control.
+let g:airline#extensions#hunks#enabled = 1
+" enable/disable showing only non-zero hunks.
+let g:airline#extensions#hunks#non_zero_only = 1
+" set hunk count symbols.
+let g:airline#extensions#hunks#hunk_symbols = ['+', '~', '-']
+" enable coc-git extension.
+" If not set to 1, vim-airline will not consider to use coc-git for the hunks
+" extension. Make sure to have the coc-git extension enabled.
+"let g:airline#extensions#hunks#coc_git = 1
+" Airline displays the Nerdtree specific statusline (which can be configured
+" using the |'NerdTreeStatusline'| variable (for details, see the help of
+" NerdTree)
+" enable/disable nerdtree's statusline integration
+let g:airline#extensions#nerdtree_statusline = 1
+" The quickfix extension is a simple built-in extension which determines
+" whether the buffer is a quickfix or location list buffer, and adjusts the
+" title accordingly.
+" configure the title text for quickfix buffers
+let g:airline#extensions#quickfix#quickfix_text = 'Quickfix'
+" configure the title text for location list buffers
+let g:airline#extensions#quickfix#location_text = 'Location'
+" The searchcount extension supports the searchcount() function in Vim script.
+" Note: This is only enabled when 'hls' is on. When you turn off search
+" highlighting (e.g. using |:nohls|), it this will be disabled.
+" enable/disable searchcount integration >
+let g:airline#extensions#searchcount#enabled = 1
+" enable/disable displaying search term >
+let g:airline#extensions#searchcount#show_search_term = 1
+" truncate long search terms to a fixed length >
+let g:airline#extensions#searchcount#search_term_limit = 8
+
 " https://github.com/vim-airline/vim-airline-themes
 "Plugin 'vim-airline/vim-airline-themes'
 
