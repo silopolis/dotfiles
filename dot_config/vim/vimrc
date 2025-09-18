@@ -30,6 +30,12 @@ Plugin 'wincent/terminus'
 Plugin 'edkolev/tmuxline.vim'
 
 " ------------------------------------------------------------------------------
+" ## Shell integration
+" ------------------------------------------------------------------------------
+" Vim sugar for the UNIX shell commands that need it the most.
+Plugin 'tpope/vim-eunuch'
+
+" ------------------------------------------------------------------------------
 " ## Start screen
 " ------------------------------------------------------------------------------
 " Start screen for Vim and Neovim.
@@ -48,8 +54,6 @@ Plugin 'tpope/vim-sensible'
 Plugin 'tpope/vim-rsi'
 " Pairs of handy bracket mappings
 Plugin 'tpope/vim-unimpaired'
-" Vim sugar for the UNIX shell commands that need it the most.
-Plugin 'tpope/vim-eunuch'
 
 " ------------------------------------------------------------------------------
 " ## Comments
