@@ -593,6 +593,10 @@ set shiftwidth=2
 set hlsearch
 " Show search matches as pattern is typed
 set incsearch
+" Clear highlight + search register
+" <leader><Space> searches for the word under the cursor
+"nnoremap <silent> <Esc><Esc> :let @/=""<CR>
+nnoremap <silent> <Leader>/ :let @/=""<CR>
 
 " ## Paste mode
 " FIXME overriden by terminus plugin
