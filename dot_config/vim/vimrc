@@ -535,6 +535,12 @@ set tabstop=2
 set softtabstop=2
 set shiftwidth=2
 
+" ## Search
+" Highlight search pattern matches
+set hlsearch
+" Show search matches as pattern is typed
+set incsearch
+
 " ## Paste mode
 " FIXME overriden by terminus plugin
 set pastetoggle=OQ
