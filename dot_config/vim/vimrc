@@ -19,6 +19,7 @@ Plugin 'VundleVim/Vundle.vim'
 " ------------------------------------------------------------------------------
 " ## Terminal integration
 " ------------------------------------------------------------------------------
+" See online help for `tmux-integration` in term.txt
 " Enhances Vim's integration with the terminal in four ways, particularly when
 " using tmux and iTerm or KDE Konsole: cursor shape change in insert and
 " replace mode, improved mouse support, focus reporting, 'bracketed paste' mode
@@ -524,7 +525,15 @@ nnoremap <Leader>b :buffers<CR>:buffer<Space>
 " ## Indentation
 set expandtab
 set tabstop=2
+set softtabstop=2
 set shiftwidth=2
+
+" ## Paste mode
+" FIXME overriden by terminus plugin
+set pastetoggle=OQ
+" Set direct mappings to circumvent to issue
+nnoremap <F2> :set paste! paste?<CR>
+inoremap <F2> <C-o>:set paste! paste?<CR>
 
 " ## Filetype
 filetype plugin indent on    " required
@@ -582,3 +591,4 @@ let g:airline#extensions#tmuxline#enabled = 0
 
 " Add fzf to &runtimepath
 set rtp+=/home/linuxbrew/.linuxbrew/bin/fzf
+
