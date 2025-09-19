@@ -618,6 +618,10 @@ set relativenumber
 
 set encoding=utf-8
 "set laststatus
+" swap and signcolumn update period (default 4000)
+set updatetime=1000
+" Configure signcolumn (anything but `no` for vim-gitgutter compatibility)
+set signcolumn=auto
 
 " You might have to force true color when using regular vim inside tmux as the
 " colorscheme can appear to be grayscale with "termguicolors" option enabled.
