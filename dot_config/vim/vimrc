@@ -690,3 +690,19 @@ let g:airline#extensions#tmuxline#enabled = 0
 " Add fzf to &runtimepath
 set rtp+=/home/linuxbrew/.linuxbrew/bin/fzf
 
+
+" ==============================================================================
+" ## Custum Functions
+" ------------------------------------------------------------------------------
+function! s:EditOrCreateFile()
+  let file = expand('<cfile>')
+  let dir  = fnamemodify(file, ':h')
+  if !isdirectory(dir)
+    call mkdir(dir, 'p')
+  endif
+  execute 'edit ' . fnameescape(file)
+endfunction
+
+nnoremap gF :call <SID>EditOrCreateFile()<CR>
+" ==============================================================================
+
