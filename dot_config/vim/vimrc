@@ -599,6 +599,18 @@ set shiftwidth=2
 set hlsearch
 " Show search matches as pattern is typed
 set incsearch
+" Ignore case when searching
+set ignorecase
+" Override 'ignorecase' if pattern contains uppercase
+set smartcase
+" Maximum number for the search count shm-S
+"set maxsearchcount
+" Suppress messages shm-s; show search count shm-S
+"set shortmess
+" Continue searching from the start of the file
+"set wrapscan
+" Use Windows IME when entering the search pattern
+"set imsearch
 " Clear highlight + search register
 " <leader><Space> searches for the word under the cursor
 "nnoremap <silent> <Esc><Esc> :let @/=""<CR>
