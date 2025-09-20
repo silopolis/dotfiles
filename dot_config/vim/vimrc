@@ -219,6 +219,12 @@ let g:indent_guides_default_mapping = 1  " set default mapping (<Leader>ig)
 " ------------------------------------------------------------------------------
 " ViM/Git deep integration
 Plugin 'tpope/vim-fugitive'
+" GitHub plugin for Fugitive
+Plugin 'tpope/vim-rhubarb'
+" GitLab plugin for Fugitive
+Plugin 'shumphrey/fugitive-gitlab.vim'
+" Gitea plugin for Fugitive
+Plugin 'borissov/fugitive-gitea'
 " Shows git diff markers in the sign column and stages/previews/undoes hunks
 " and partial hunks.
 Plugin 'airblade/vim-gitgutter'
