@@ -746,6 +746,15 @@ set wrapmargin=0
 " Display as much as possible of the last line instead of '@'
 :set display+=lastline
 
+" ## Automatic formating
+" Default value is 'tcq', see `:help fo-table` for all values
+" Disable auto-wrap text using textwidth
+":set formatoptions-=t
+" Disable auto-wrap comments using textwidth (also auto-inserts comment
+" leader)
+":set formatoptions-=c
+":set formatoptions-=q
+
 " Add fzf to &runtimepath
 set rtp+=/home/linuxbrew/.linuxbrew/bin/fzf
 
