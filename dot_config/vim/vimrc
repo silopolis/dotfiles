@@ -622,10 +622,11 @@ set smartcase
 "nnoremap <silent> <Esc><Esc> :let @/=""<CR>
 nnoremap <silent> <Leader>/ :let @/=""<CR>
 
-" ## Paste mode
+" ## Copying/pasting
+" Configure paste toggle key
 " FIXME overriden by terminus plugin
 set pastetoggle=OQ
-" Set direct mappings to circumvent to issue
+" Set direct paste toggle mappings to circumvent the issue
 nnoremap <F2> :set paste! paste?<CR>
 inoremap <F2> <C-o>:set paste! paste?<CR>
 
@@ -633,20 +634,26 @@ inoremap <F2> <C-o>:set paste! paste?<CR>
 filetype plugin indent on    " required
 " To ignore plugin indent changes, instead use:
 "filetype plugin on
+" Enable syntax highlighting
 syntax on
 
+" ## Line numbering
 " Enable line numbering
 set number
 " Enable relative line numbering
 set relativenumber
 
+" ## Encoding
+" Define display encoding
 set encoding=utf-8
+
 "set laststatus
 " swap and signcolumn update period (default 4000)
 set updatetime=1000
 " Configure signcolumn (anything but `no` for vim-gitgutter compatibility)
 set signcolumn=auto
 
+" ## Colors
 " You might have to force true color when using regular vim inside tmux as the
 " colorscheme can appear to be grayscale with "termguicolors" option enabled.
 if !has('gui_running') && &term =~ '^\%(screen\|tmux\)'
@@ -677,6 +684,7 @@ set background=dark
 colorscheme catppuccin-frappe
 color catppuccin-frappe
 
+" ## Statusline
 let g:airline_powerline_fonts = 1
 "let g:airline_theme='tomorrow'
 " https://github.com/catppuccin/vim
