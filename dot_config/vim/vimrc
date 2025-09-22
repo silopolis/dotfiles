@@ -656,7 +656,6 @@ set encoding=utf-8
 " Define file writing encoding
 set fileencoding=utf-8
 
-"set laststatus
 " swap and signcolumn update period (default 4000)
 set updatetime=1000
 " Configure signcolumn (anything but `no` for vim-gitgutter compatibility)
@@ -694,6 +693,8 @@ colorscheme catppuccin-frappe
 color catppuccin-frappe
 
 " ## Statusline
+" Always show the status line
+set laststatus = 2
 let g:airline_powerline_fonts = 1
 "let g:airline_theme='tomorrow'
 " https://github.com/catppuccin/vim
