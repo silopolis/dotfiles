@@ -594,10 +594,14 @@ let mapleader="*"
 set hidden
 nnoremap <Leader>b :buffers<CR>:buffer<Space>
 
-" ## Indentation
+" ## Tabulations and indentation
+" Use spaces instead of tabs
 set expandtab
+" Column multiple used to display the Horizontal Tab
 set tabstop=2
+" Number of spaces to use instead of tabs
 set softtabstop=2
+" Number of columns that make up one level of (auto)indentation
 set shiftwidth=2
 
 " ## Search
@@ -656,6 +660,7 @@ set encoding=utf-8
 " Define file writing encoding
 set fileencoding=utf-8
 
+" ## Sign column
 " swap and signcolumn update period (default 4000)
 set updatetime=1000
 " Configure signcolumn (anything but `no` for vim-gitgutter compatibility)
