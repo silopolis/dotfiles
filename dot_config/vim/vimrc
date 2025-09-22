@@ -735,6 +735,17 @@ let c_no_tab_space_error = 1
 " ## Filling characters
 ":set fillchars=stl:\ ,stlnc:\ ,vert:\|,fold:-,diff:-,tpl_vert:\|
 
+" ## Line/word wrap
+" Enable visual wrapping
+set wrap
+" Only wrap at a character in the breakat option list (' ^I!@*-+;:,./?' by default)
+set linebreak
+" Prevent automatic insertion of line breaks in newly entered text
+set textwidth=0
+set wrapmargin=0
+" Display as much as possible of the last line instead of '@'
+:set display+=lastline
+
 " Add fzf to &runtimepath
 set rtp+=/home/linuxbrew/.linuxbrew/bin/fzf
 
