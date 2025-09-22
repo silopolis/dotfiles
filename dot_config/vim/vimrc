@@ -629,6 +629,13 @@ set pastetoggle=OQ
 " Set direct paste toggle mappings to circumvent the issue
 nnoremap <F2> :set paste! paste?<CR>
 inoremap <F2> <C-o>:set paste! paste?<CR>
+" Copy and paste to/from Vim and the clipboard
+nnoremap <C-y> +y
+vnoremap <C-y> +y
+nnoremap <C-p> +P
+vnoremap <C-p> +P
+" Access system clipboard
+set clipboard=unnamed
 
 " ## Filetype
 filetype plugin indent on    " required
