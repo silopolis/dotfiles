@@ -609,6 +609,37 @@ let g:UltiSnipsJumpBackwardTrigger="<c-z>"
 let g:UltiSnipsEditSplit="vertical"
 
 " ------------------------------------------------------------------------------
+" ### Completion {{{2
+" ------------------------------------------------------------------------------
+" YouCompleteMe code-completion engine - https://github.com/ycm-core/YouCompleteMe
+Plugin 'ycm-core/YouCompleteMe'
+let g:ycm_python_interpreter_path = ''
+"let g:ycm_python_binary_path='/home/linuxbrew/.linuxbrew/bin/python3'
+let g:ycm_python_sys_path = []
+let g:ycm_extra_conf_vim_data = [
+  \  'g:ycm_python_interpreter_path',
+  \  'g:ycm_python_sys_path'
+  \]
+let g:ycm_global_ycm_extra_conf='~/.vim/ycm_extra_conf.py'
+let g:ycm_confirm_extra_conf=0
+"let g:clang_library_path = '/usr/lib64/'
+"let g:clang_complete_copen = 0
+"let g:clang_hl_errors = 1
+"let g:clang_snippets = 1
+"let g:clang_snippets_engine = 'ultisnips'
+"let g:clang_close_preview = 1
+"let g:clang_complete_macros = 1
+let g:ycm_autoclose_preview_window_after_completion = 1
+let g:ycm_autoclose_preview_window_after_insertion = 1
+let g:ycm_use_ultisnips_completer = 1
+" Do not use <Tab> with YCM. Cycling through completion remains available with
+" <c-n> and <c-p>
+let g:ycm_key_list_select_completion=[]
+let g:ycm_key_list_previous_completion=[]
+" Disable preview window displaying language documentation
+"set completeopt-=preview
+
+" ------------------------------------------------------------------------------
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
 " Put your non-Plugin stuff after this line
