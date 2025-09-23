@@ -50,5 +50,8 @@
 	process = git-lfs filter-process
 	required = true
 [include]
+  # Pulled automatically from https://github.com/GitAlias/gitalias
   path = ~/.config/git/gitalias
+  # Personnal aliases
+  path = ~/.config/git/mygitalias
   path = ~/.local/share/delta/themes.gitconfig
