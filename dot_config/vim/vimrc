@@ -385,6 +385,10 @@ set sessionoptions+=tabpages,globals
 " https://github.com/catppuccin/vim
 "Plugin 'catppuccin/vim'
 Plugin 'catppuccin/nvim'
+" https://github.com/chriskempson/base16-vim
+"Plugin 'chriskempson/base16-vim'
+" https://github.com/flazz/vim-colorschemes
+"Plugin 'flazz/vim-colorschemes'
 
 Plugin 'vim-scripts/color_toon'
 Plugin 'guns/xterm-color-table.vim'
