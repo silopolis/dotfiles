@@ -641,7 +641,7 @@ set autoindent
 " - Before a line starting with '}' (only with the 'O' command).
 set smartindent
 " Disable auto-deindentation of comment lines by smartindent
-:inoremap # X^H#
+":inoremap # X^H#
 
 " ## Search
 " Highlight search pattern matches
