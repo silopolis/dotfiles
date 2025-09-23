@@ -1,3 +1,85 @@
 [alias]
+  ## Commits
+  # Undo last commit
+  undo=reset --soft HEAD^
+  # See commit created by the last command (typically `git pull`)
+  new = !sh -c 'git log $1@{1}..$1@{0} "$@"'
+  # Use fzf to choose the revision to fixup in the list of the last 50 ones, and fix it up
   fixup = "!git log -n 50 --pretty=format:'%h %s' --no-merges | fzf | cut -c -7 | xargs -o git commit --fixup"
+
+  ## Working with remotes
+  # Force push only if you don't risk to overwrite others work
+  please = push --force-with-lease
+  # Fetch origin and rebase on main branch
+  up = !git fetch origin && git rebase origin/main
+  remote-open = "!open $(git remote get-url origin | sed -E 's/git@github\\.com:(.*)\\.git/https:\\/\\/github.com\\/\\1/') #"
+
+  ## Staging
+  # Add all
+  aa= !git add -u && git add . && git status
+
+  ## Branches
+  current-branch = "!git rev-parse --abbrev-ref HEAD #"
+  default-branch = "!git remote show $(git remote get-url origin) | awk '/HEAD branch/ {print $NF}' #"
+  # Create and switch to a new branch
+  cob = checkout -b
+  # Remove branch
+  rmb = !sh -c 'git branch -D $1 && git push origin :$1' -
+  # Prune all remote stale branches
+  prune-all = !git remote | xargs -n 1 git remote prune
+  # Set upstream branch to one with the same name on origin
+  set-upstream = !git branch --set-upstream-to=origin/`git symbolic-ref --short HEAD`
+  # Lists all remote branches, with last modification date and author, sorted in descending order by last commit date
+  branches = for-each-ref --sort=-committerdate --format=\"%(color:blue)%(authordate:relative)\t%(color:red)%(authorname)\t%(color:white)%(color:bold)%(refname:short)\" refs/remotes
+  # Last 10 most recently used branches
+  bmru = for-each-ref --sort=-committerdate --count=10 refs/heads/ --format='%(HEAD) %(color:yellow)%(refname:short)%(color:reset) - %(color:red)%(objectname:short)%(color:reset) - %(contents:subject) - %(authorname) (%(color:green)%(committerdate:relative)%(color:reset))'
+
+  ## Rework history
+  # Amend last commit by preserving commit message
+  ca = commit --amend -C HEAD
+  # Interactive rebase
+  ir = !git rebase -i origin/main
+
+  # Update, merge into main and push current branch
+  done = !git fetch && git rebase origin/main && git checkout main && git merge @{-1} && git push
+
+  # Who has contributed to a project
+  who = shortlog -n -s --no-merges
+
+  ## Repository
+  # Remove remote branch references that no longer exist, cleanup unnecessary git files, remove untracked files from the working tree and clear out your stash
+  cleanup = !git remote prune origin && git gc && git clean -dfx && git stash clear
+  cleaner = "!git clean -xffd; git submodule foreach --recursive git clean -xffd; git reset --hard; git submodule foreach --recursive git reset --hard; git submodule update --init --recursive #"
+
+  ## Log
+  # All new commits after you fetched, with stats, but excluding merges
+  lc = log ORIG_HEAD.. --stat --no-merges
+  # Pretty logs (http://www.jukie.net/~bart/blog/pimping-out-git-log/)
+  lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
+  lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
+  loge = "!git log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit #"
+
+  ## Diffs
+  changes=diff --name-status -r
+  diffstat=diff --stat -r
+  # Diff ignoring whitespaces and color highlighting only
+  wdiff = diff -w --word-diff=color
+
+  ## Serve
+  # Run Git daemon and serve current repository
+  serve = !git daemon --reuseaddr --verbose  --base-path=. --export-all ./.git
+  # Edit and add unmerged files during a merge conflict
+  edit-unmerged = "!f() { git diff --name-status --diff-filter=U | cut -f2 ; }; vim `f`"
+  add-unmerged = "!f() { git diff --name-status --diff-filter=U | cut -f2 ; }; git add `f`"
+
+  ## Utility aliases
+  # Get the root of the repository
+  root = rev-parse --show-toplevel
+  # When was a file added/modified/deleted
+  whatadded = log --diff-filter=A
+  whatmodified = log --diff-filter=M
+  whatdeleted = log --diff-filer=D
+  #tmp = "!git commit -m \"tmp! $1\" #"
+  #tmp-squash = "!hashes=$(git log $1..HEAD --grep='tmp!' --oneline | cut -d' ' -f1 | tr '\n' ',' | sed 's/.$//') && git-filter-repo --commit-callback \"$(cat ~/.git/filter-repo-tmp-commits.py | sed \"s/REPLACE_ME_HASHES/$hashes/\")\" --force #"
+  #dummy = "!touch $(openssl rand -hex 10); git add .; git commit -m \"$1\" #"
 

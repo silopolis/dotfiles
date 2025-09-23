@@ -183,6 +183,27 @@ alias gitd='git diff'
 alias gitds='git diff --staged'
 alias gitp='git push origin'
 alias gitb='git branch -a'
+# Branch changes: see what the current branch has that the designated base hasn't
+gbc() {
+  git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%Creset' --abbrev-commit --date=relative $@..$(git rev-parse --abbrev-ref HEAD)
+}
+# Base branch changes : see what the designated base branch has that the current branch hasn't
+gbbc() {
+  git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%Creset' --abbrev-commit --date=relative $(git rev-parse --abbrev-ref HEAD)..$@
+}
+# "Quick rebase": update current branch with changes from the designated upstream base branch
+gqrb() {
+  git set-upstream
+  git fetch origin "$@:$@" && git pull && git rebase "$@"
+}
+# Branch interactive rebase of all revisions since it diverged from designated branch
+gbir() {
+  git rebase -i --autosquash $(git merge-base --fork-point "$@" $(git rev-parse --abbrev-ref HEAD))
+}
+# Quick fixup
+gfu() {
+  git commit --amend --no-edit
+}
 
 ## LazyGit
 alias lg='lazygit'
