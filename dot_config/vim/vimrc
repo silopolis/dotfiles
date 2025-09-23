@@ -60,6 +60,11 @@ Plugin 'tpope/vim-sensible'
 Plugin 'tpope/vim-rsi'
 " Pairs of handy bracket mappings
 Plugin 'tpope/vim-unimpaired'
+" Insert or delete brackets, parens, quotes in pair.
+Plugin 'jiangmiao/auto-pairs'
+" Always force closed-pair jumping instead of inserting. only for ')', '}', ']'
+"let g:AutoPairsFlyMode = 0
+"let g:AutoPairsShortcutBackInsert = '<M-b>'
 
 " ------------------------------------------------------------------------------
 " ## Comments
