@@ -1,11 +1,13 @@
 " ==============================================================================
-" ## Builtin Plugins
+" ## Builtin Plugins {{{1
 " ------------------------------------------------------------------------------
 packadd helptoc
+nnoremap <Leader>ht <Cmd>HelpToc<CR>
+"tnoremap <C-t><C-t> <Cmd>HelpToc<CR>
 " ==============================================================================
 
 " ==============================================================================
-" ## External Plugins
+" ## External Plugins {{{1
 " ------------------------------------------------------------------------------
 " Brief help
 " :PluginList       - lists configured plugins
@@ -23,7 +25,7 @@ call vundle#begin()
 Plugin 'VundleVim/Vundle.vim'
 
 " ------------------------------------------------------------------------------
-" ## Terminal integration
+" ### Terminal integration {{{2
 " ------------------------------------------------------------------------------
 " See online help for `tmux-integration` in term.txt
 " Enhances Vim's integration with the terminal in four ways, particularly when
@@ -36,13 +38,13 @@ Plugin 'wincent/terminus'
 Plugin 'edkolev/tmuxline.vim'
 
 " ------------------------------------------------------------------------------
-" ## Shell integration
+" ### Shell integration {{{2
 " ------------------------------------------------------------------------------
 " Vim sugar for the UNIX shell commands that need it the most.
 Plugin 'tpope/vim-eunuch'
 
 " ------------------------------------------------------------------------------
-" ## Start screen
+" ### Start screen {{{2
 " ------------------------------------------------------------------------------
 " Start screen for Vim and Neovim.
 " Provides dynamically created headers or footers and uses configurable lists to
@@ -52,7 +54,7 @@ Plugin 'tpope/vim-eunuch'
 Plugin 'mhinz/vim-startify'
 
 " ------------------------------------------------------------------------------
-" ## Defaults and basic enhancements
+" ### Defaults and basic enhancements {{{2
 " ------------------------------------------------------------------------------
 " A universal set of defaults that (hopefully) everyone can agree on.
 Plugin 'tpope/vim-sensible'
@@ -67,7 +69,7 @@ Plugin 'jiangmiao/auto-pairs'
 "let g:AutoPairsShortcutBackInsert = '<M-b>'
 
 " ------------------------------------------------------------------------------
-" ## Comments
+" ### Comments {{{2
 " ------------------------------------------------------------------------------
 "Plugin tpope/vim-commentary
 "Plugin 'tomtom/tcomment_vim'
@@ -94,7 +96,7 @@ let g:NERDTrimTrailingWhitespace = 1
 let g:NERDToggleCheckAllLines = 1
 
 " ------------------------------------------------------------------------------
-" ## File and directory explorer
+" ### File and directory explorer {{{2
 " ------------------------------------------------------------------------------
 " File system explorer to visually browse complex directory hierarchies, quickly
 " open files for reading or editing, and perform basic file system operations.
@@ -206,7 +208,7 @@ nnoremap <C-n> :NERDTreeMirror<CR>:NERDTreeFocus<CR>
 let g:NERDTreeFileLines = 1
 
 " ------------------------------------------------------------------------------
-" ## Indent guides
+" ### Indent guides {{{2
 " ------------------------------------------------------------------------------
 Plugin 'preservim/vim-indent-guides'
 let g:indent_guides_enable_on_vim_startup = 1
@@ -220,7 +222,7 @@ let g:indent_guides_default_mapping = 1  " set default mapping (<Leader>ig)
 "autocmd VimEnter,Colorscheme * :hi IndentGuidesEven guibg=green ctermbg=4
 
 " ------------------------------------------------------------------------------
-" ## Git integration
+" ### Git integration {{{2
 " ------------------------------------------------------------------------------
 " ViM/Git deep integration
 Plugin 'tpope/vim-fugitive'
@@ -245,12 +247,12 @@ let g:flog_permanent_default_opts = {
   \ }
 
 " ------------------------------------------------------------------------------
-" Dotenv
+" ### Dotenv {{{2
 " ------------------------------------------------------------------------------
 Plugin 'tpope/vim-dotenv'
 
 " ------------------------------------------------------------------------------
-" Vim Space Controller
+" ### Vim Space Controller {{{2
 " ------------------------------------------------------------------------------
 " Manages tabs, buffers, files, workspaces (sessions), bookmarks for your favorite projects
 Plugin 'vim-ctrlspace/vim-ctrlspace'
@@ -269,7 +271,7 @@ elseif executable('ag')
 endif
 
 " ------------------------------------------------------------------------------
-" Buffers
+" ### Buffers {{{2
 " ------------------------------------------------------------------------------
 " Modern buffer manager for ViM
 "Plugin "zefei/vim-wintabs"
@@ -310,7 +312,7 @@ Plugin 'jlanzarotta/bufexplorer'
 Plugin 'moll/vim-bbye'
 
 " ------------------------------------------------------------------------------
-" Tabs
+" ### Tabs {{{2
 " ------------------------------------------------------------------------------
 " Label & manage tabs, styled after Powerline
 "Plugin 'fweep/vim-tabber'
@@ -321,7 +323,7 @@ set guioptions-=e
 set sessionoptions+=tabpages,globals
 
 " ------------------------------------------------------------------------------
-" Sessions
+" ### Sessions {{{2
 " ------------------------------------------------------------------------------
 " Make Vim persist editing state without fuss
 "Plugin 'zhimsel/vim-stay'
@@ -374,7 +376,7 @@ set sessionoptions+=tabpages,globals
 " Plugin 'ascenator/L9', {'name': 'newL9'}
 
 " ------------------------------------------------------------------------------
-" ## Colorscheme
+" ### Colorscheme {{{2
 " ------------------------------------------------------------------------------
 " https://github.com/NLKNguyen/papercolor-theme
 "Plugin 'NLKNguyen/papercolor-theme'
@@ -394,7 +396,7 @@ Plugin 'vim-scripts/color_toon'
 Plugin 'guns/xterm-color-table.vim'
 
 " ------------------------------------------------------------------------------
-" ## Statusline
+" ### Statusline {{{2
 " ------------------------------------------------------------------------------
 " Fast and lightweight alternative to Powerline, 100% vimscript, no deps
 " https://github.com/vim-airline/vim-airline
@@ -451,7 +453,7 @@ let g:airline#extensions#searchcount#search_term_limit = 8
 "Plugin 'vim-airline/vim-airline-themes'
 
 " ------------------------------------------------------------------------------
-" ## Languages & syntaxes
+" ### Languages & syntaxes {{{2
 " ------------------------------------------------------------------------------
 " Check syntax in Vim/Neovim asynchronously and fix files, with Language Server
 " Protocol (LSP) support
@@ -462,7 +464,7 @@ Plugin 'hashivim/vim-terraform'
 Plugin 'alker0/chezmoi.vim'
 
 " ------------------------------------------------------------------------------
-" ## Undo / Redo
+" ### Undo / Redo {{{2
 " ------------------------------------------------------------------------------
 Plugin 'mbbill/undotree'
 " Guard for distributions lacking the persistent_undo feature.
@@ -492,7 +494,7 @@ nnoremap <F5> :UndotreeToggle<CR>
 "Plugin 'sjl/gundo.vim'
 
 " ------------------------------------------------------------------------------
-" ## Search
+" ### Search {{{2
 " ------------------------------------------------------------------------------
 " An ack/ag/pt/rg powered code search and view tool, supports asynchronous
 " searching, and lets you edit file in-place with Edit Mode.
@@ -524,14 +526,14 @@ imap <c-x><c-f> <plug>(fzf-complete-path)
 imap <c-x><c-l> <plug>(fzf-complete-line)
 
 " ------------------------------------------------------------------------------
-" ## Multi-cursor
+" ### Multi-cursor {{{2
 " ------------------------------------------------------------------------------
 " It's called vim-visual-multi in analogy with visual-block, but the plugin
 " works mostly from normal mode.
 Plugin 'mg979/vim-visual-multi'
 
 " ------------------------------------------------------------------------------
-" ## Visual help
+" ### Visual help {{{2
 " ------------------------------------------------------------------------------
 " Distraction-free writing in Vim.
 Plugin 'junegunn/goyo.vim'
@@ -574,7 +576,7 @@ let g:limelight_priority = -1
 Plugin 'vifm/vifm.vim'
 
 " ------------------------------------------------------------------------------
-" ## Online help
+" ### Online help {{{2
 " ------------------------------------------------------------------------------
 " TLDR client for ViM/Neovim
 " Run :Tldr [command] to find the tldr of command.
@@ -597,6 +599,9 @@ call vundle#end()            " required
 " ==============================================================================
 
 
+" ==============================================================================
+" ## Configuration {{{1
+" ------------------------------------------------------------------------------
 " Autoreload vimrc (https://superuser.com/a/1120318/62256)
 if has ('autocmd') " Remain compatible with earlier versions
  augroup vimrc     " Source vim configuration upon save
@@ -605,7 +610,9 @@ if has ('autocmd') " Remain compatible with earlier versions
   augroup END
 endif
 
-" ## Leader
+" ------------------------------------------------------------------------------
+" ### Leader {{{2
+" ------------------------------------------------------------------------------
 " Set leader to something AZERTY friendly
 let mapleader="*"
 "set timeoutlen 1000
@@ -618,12 +625,16 @@ let mapleader="*"
 "xmap < [
 "xmap > ]
 
-" ## Buffers
+" ------------------------------------------------------------------------------
+" ### Buffers {{{2
+" ------------------------------------------------------------------------------
 " Don't ask to write when hidding a buffer
 set hidden
 nnoremap <Leader>b :buffers<CR>:buffer<Space>
 
-" ## Tabulations and indentation
+" ------------------------------------------------------------------------------
+" ### Tabulations and indentation {{{2
+" ------------------------------------------------------------------------------
 " Use spaces instead of tabs
 set expandtab
 " Column multiple used to display the Horizontal Tab
@@ -643,7 +654,9 @@ set smartindent
 " Disable auto-deindentation of comment lines by smartindent
 ":inoremap # X^H#
 
-" ## Search
+" ------------------------------------------------------------------------------
+" ### Search {{{2
+" ------------------------------------------------------------------------------
 " Highlight search pattern matches
 set hlsearch
 " Show search matches as pattern is typed
@@ -665,7 +678,9 @@ set smartcase
 "nnoremap <silent> <Esc><Esc> :let @/=""<CR>
 nnoremap <silent> <Leader>/ :let @/=""<CR>
 
-" ## Copying/pasting
+" ------------------------------------------------------------------------------
+" ### Copying/pasting {{{2
+" ------------------------------------------------------------------------------
 " Configure paste toggle key
 " FIXME overriden by terminus plugin
 set pastetoggle=OQ
@@ -680,32 +695,42 @@ vnoremap <C-p> +P
 " Access system clipboard
 set clipboard=unnamed
 
-" ## Filetype
+" ------------------------------------------------------------------------------
+" ### Filetype {{{2
+" ------------------------------------------------------------------------------
 filetype plugin indent on    " required
 " To ignore plugin indent changes, instead use:
 "filetype plugin on
 " Enable syntax highlighting
 syntax on
 
-" ## Line numbering
+" ------------------------------------------------------------------------------
+" ### Line numbering {{{2
+" ------------------------------------------------------------------------------
 " Enable line numbering
 set number
 " Enable relative line numbering
 set relativenumber
 
-" ## Encoding
+" ------------------------------------------------------------------------------
+" ### Encoding {{{2
+" ------------------------------------------------------------------------------
 " Define display encoding
 set encoding=utf-8
 " Define file writing encoding
 set fileencoding=utf-8
 
-" ## Sign column
+" ------------------------------------------------------------------------------
+" ### Sign column {{{2
+" ------------------------------------------------------------------------------
 " swap and signcolumn update period (default 4000)
 set updatetime=1000
 " Configure signcolumn (anything but `no` for vim-gitgutter compatibility)
 set signcolumn=auto
 
-" ## Colors
+" ------------------------------------------------------------------------------
+" ### Colors {{{2
+" ------------------------------------------------------------------------------
 " You might have to force true color when using regular vim inside tmux as the
 " colorscheme can appear to be grayscale with "termguicolors" option enabled.
 if !has('gui_running') && &term =~ '^\%(screen\|tmux\)'
@@ -736,7 +761,9 @@ set background=dark
 colorscheme catppuccin-frappe
 color catppuccin-frappe
 
-" ## Statusline
+" ------------------------------------------------------------------------------
+" ### Statusline {{{2
+" ------------------------------------------------------------------------------
 " Always show the status line
 set laststatus=2
 let g:airline_powerline_fonts = 1
@@ -749,7 +776,9 @@ let g:airline_theme = 'catppuccin'
 " disabled, so it doesn't overwrite the theme:
 let g:airline#extensions#tmuxline#enabled = 0
 
-" ## Unprintable/invisible characters
+" ------------------------------------------------------------------------------
+" ### Unprintable/invisible characters {{{2
+" ------------------------------------------------------------------------------
 "set listchars=tab:¦\ ,eol:¬¶,lead:⋅,trail:⋅,extends:❯,precedes:❮
 set listchars=tab:→\ ,eol:↲,lead:⋅,trail:⋅,nbsp:␣,extends:›,precedes:‹
 set invlist
@@ -771,10 +800,14 @@ let c_no_trail_space_error = 1
 " Disable space errors in front of tabs
 let c_no_tab_space_error = 1
 
-" ## Filling characters
+" ------------------------------------------------------------------------------
+" ### Filling characters {{{2
+" ------------------------------------------------------------------------------
 ":set fillchars=stl:\ ,stlnc:\ ,vert:\|,fold:-,diff:-,tpl_vert:\|
 
-" ## Line/word wrap
+" ------------------------------------------------------------------------------
+" ### Line/word wrap {{{2
+" ------------------------------------------------------------------------------
 " Enable visual wrapping
 set wrap
 " Only wrap at a character in the breakat option list (' ^I!@*-+;:,./?' by default)
@@ -785,7 +818,9 @@ set wrapmargin=0
 " Display as much as possible of the last line instead of '@'
 :set display+=lastline
 
-" ## Automatic formating
+" ------------------------------------------------------------------------------
+" ### Automatic formating {{{2
+" ------------------------------------------------------------------------------
 " Default value is 'tcq', see `:help fo-table` for all values
 " Disable auto-wrap text using textwidth
 ":set formatoptions-=t
@@ -793,13 +828,10 @@ set wrapmargin=0
 " leader)
 ":set formatoptions-=c
 ":set formatoptions-=q
-
-" Add fzf to &runtimepath
-set rtp+=/home/linuxbrew/.linuxbrew/bin/fzf
-
+" ==============================================================================
 
 " ==============================================================================
-" ## Custum Functions
+" ## Custom Functions {{{1
 " ------------------------------------------------------------------------------
 function! s:EditOrCreateFile()
   let file = expand('<cfile>')
