@@ -72,6 +72,9 @@ rustup default stable
 # https://github.com/br3ndonland/dotfiles/commit/b133fb84e85cff7989ffd657248618a8edafdf1e
 pipx install-all "$HOME/.local/share/chezmoi/dot_config/pipx/packages.json"
 
+vim +PluginInstall +qall
+python3 $HOME/.vim/bundle/YouCompleteMe/install.py --all
+
 $(gh auth status &> /dev/null) || gh auth login
 gh extension install github/gh-copilot
 
