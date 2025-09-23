@@ -501,7 +501,27 @@ Plugin 'dyng/ctrlsf.vim'
 " https://github.com/junegunn/fzf/blob/master/README-VIM.md
 Plugin 'junegunn/fzf'
 Plugin 'junegunn/fzf.vim'
-
+" Add fzf to &runtimepath
+set rtp+=/home/linuxbrew/.linuxbrew/bin/fzf
+" First initialize configuration dictionary
+"let g:fzf_vim = {}
+" Set global prefix for fzf commands
+"let g:fzf_vim.command_prefix = 'Fzf'
+" Make fzf respect gitignore if `ag` is installed
+if (executable('ag'))
+  let $FZF_DEFAULT_COMMAND = 'ag --hidden --ignore .git -g ""'
+endif
+" Bind fzf to 'ctrl-p'
+nnoremap <C-P> :Files<CR>
+" Mapping selection mappings
+nmap <leader><tab> <plug>(fzf-maps-n)
+xmap <leader><tab> <plug>(fzf-maps-x)
+omap <leader><tab> <plug>(fzf-maps-o)
+imap <c-x><leader><tab> <plug>(fzf-maps-i)
+" Insert mode completion
+imap <c-x><c-k> <plug>(fzf-complete-word)
+imap <c-x><c-f> <plug>(fzf-complete-path)
+imap <c-x><c-l> <plug>(fzf-complete-line)
 
 " ------------------------------------------------------------------------------
 " ## Multi-cursor
