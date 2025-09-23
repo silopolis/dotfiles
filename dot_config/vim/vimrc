@@ -640,6 +640,18 @@ let g:ycm_key_list_previous_completion=[]
 "set completeopt-=preview
 
 " ------------------------------------------------------------------------------
+" ### File Types {{{2
+" ------------------------------------------------------------------------------
+" Use upstream vim-markdown - https://github.com/tpope/vim-markdown/
+Plugin 'tpope/vim-markdown'
+" Enable fenced code highlighting
+let g:markdown_fenced_languages = ['html', 'python', 'bash=sh']
+" Enable markdown syntax concealing
+let g:markdown_syntax_conceal = 1
+" Set syntax highlighting synchronization range (default = 50)
+let g:markdown_minlines = 50
+
+" ------------------------------------------------------------------------------
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
 " Put your non-Plugin stuff after this line
