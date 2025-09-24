@@ -690,6 +690,15 @@ set exrc
 " '.exrc' in the current directory and map commands are displayed
 set secure
 
+" ------------------------------------------------------------------------------
+" ### Command-line completion {{{2
+" ------------------------------------------------------------------------------
+" Character you have to type to start wildcard expansion in the command-line
+set wildchar=<Tab>
+" Completion mode used for command-line completion (default=full)
+set wildmode=noselect:full
+set wildoptions=fuzzy,pum
+
 " ### Leader {{{2
 " ------------------------------------------------------------------------------
 " Set leader to something AZERTY friendly
