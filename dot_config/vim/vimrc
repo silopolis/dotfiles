@@ -671,7 +671,8 @@ endif
 " ### Leader {{{2
 " ------------------------------------------------------------------------------
 " Set leader to something AZERTY friendly
-let mapleader="*"
+let mapleader=" "
+let localleader="\\"
 "set timeoutlen 1000
 
 " Adapt unimpaired.vim bracket mappings to non-US keyboard
