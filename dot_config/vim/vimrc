@@ -2,8 +2,6 @@
 " ## Builtin Plugins {{{1
 " ------------------------------------------------------------------------------
 packadd helptoc
-nnoremap <Leader>ht <Cmd>HelpToc<CR>
-"tnoremap <C-t><C-t> <Cmd>HelpToc<CR>
 " ==============================================================================
 
 " ==============================================================================
@@ -887,6 +885,102 @@ set wrapmargin=0
 " leader)
 ":set formatoptions-=c
 ":set formatoptions-=q
+
+" ------------------------------------------------------------------------------
+" ### Mappings {{{2
+" ------------------------------------------------------------------------------
+" Bring <Esc> in pinky's reach
+inoremap ² <Esc>
+
+" If you keep inverting j and k
+"nnoremap j k
+"nnoremap k j
+"nnoremap gj gk
+"nnoremap gk gj
+"vnoremap j k
+"vnoremap k j
+"vnoremap gj gk
+"vnoremap gk gj
+
+" Start and end of line
+nnoremap H ^
+nnoremap L $
+vnoremap L g_
+
+" Windows navigation
+nnoremap <C-h> <C-w>h
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-l> <C-w>l
+nnoremap <C-w>w <C-w>p
+nnoremap <C-w><C-w> <C-w>p
+inoremap <C-h> <C-o><C-w>h
+inoremap <C-j> <C-o><C-w>j
+inoremap <C-k> <C-o><C-w>k
+inoremap <C-l> <C-o><C-w>l
+
+" Windows resizing
+nnoremap + <C-W>+
+nnoremap _ <C-W>-
+" the next one conflicts with ==
+" nnoremap = <C-W>>
+nnoremap - <C-W><
+
+" Previous and next command
+nnoremap <silent> <leader>, :cprevious<CR>
+nnoremap <silent> <leader>; :cnext<CR>
+if has('nvim')
+  nnoremap <silent> <M-,> :cprevious<CR>
+  nnoremap <silent> <M-;> :cnext<CR>
+endif
+" repeat last command but prefix with !
+nnoremap !: q:kI!<esc><cr>
+
+" Fast saving and closing
+nnoremap <leader><leader> :w<cr>
+nnoremap <leader>q :q!<cr>
+nnoremap <leader>w :wq<cr>
+
+" Opening splits
+nnoremap <leader>v <C-w><C-v><C-w>l
+nnoremap <leader>s <C-w>s
+
+" Insert newline and stay in normal mode
+nnoremap <silent> <leader>o o<Esc>
+nnoremap <silent> <leader>O O<Esc>
+
+if has('nvim')
+  nnoremap <M-h> :tabp<cr>
+  nnoremap <M-l> :tabn<cr>
+else
+  " alt + h
+  nnoremap h :tabp<cr>
+  " alt + l
+  nnoremap <Esc>l :tabn<cr>
+endif
+
+if executable('ag')
+  set grepprg=ag\ --nogroup\ --nocolor
+endif
+
+" swap ; and .
+"nnoremap . ;
+"nnoremap ; .
+
+if has('nvim')
+  tnoremap <Esc><Esc> <C-\><C-n>
+end
+
+" Hard way (restrict use of some features)
+nnoremap o<Esc> :echoerr "Use <lt>leader>o instead"<cr>
+nnoremap O<Esc> :echoerr "Use <lt>leader>O instead"<cr>
+
+" Easy access to HelpToc
+nnoremap <Leader>ht <Cmd>HelpToc<CR>
+"tnoremap <C-t><C-t> <Cmd>HelpToc<CR>
+"
+" ==============================================================================
+
 " ==============================================================================
 
 " ==============================================================================
