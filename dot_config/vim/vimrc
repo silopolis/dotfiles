@@ -699,6 +699,17 @@ set wildchar=<Tab>
 set wildmode=noselect:full
 set wildoptions=fuzzy,pum
 
+" ------------------------------------------------------------------------------
+" ### Backups {{{2
+" ------------------------------------------------------------------------------
+"set [no]backup
+"set [no]writebackup
+"set backupskip
+"set backupcopy
+"set backupdir
+"set [noswapfile)]
+
+" ------------------------------------------------------------------------------
 " ### Leader {{{2
 " ------------------------------------------------------------------------------
 " Set leader to something AZERTY friendly
