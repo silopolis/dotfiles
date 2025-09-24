@@ -1029,6 +1029,50 @@ nnoremap <Leader>ht <Cmd>HelpToc<CR>
 " ==============================================================================
 
 " ==============================================================================
+" ## File types settings {{{1
+" ------------------------------------------------------------------------------
+" Python file settings {{{
+augroup filetype_python
+  autocmd!
+  if has('nvim')
+    autocmd FileType python nnoremap <buffer> <F5> :vsplit \| ./%<CR>
+    autocmd FileType python nnoremap <buffer> <F4> :vsplit \| ./% 
+  else
+    autocmd FileType python nnoremap <buffer> <F5> :!./%<CR>
+    autocmd FileType python nnoremap <buffer> <F4> :!./% 
+  endif
+augroup end
+" }}}
+
+
+" Vimscript file settings {{{
+augroup filetype_vim
+  autocmd!
+  autocmd FileType vim setlocal foldmethod=marker
+
+  autocmd FileType vim setlocal nolinebreak
+
+  " Insert <leader> and <Esc>
+  autocmd FileType vim inoremap <buffer> <C-l>      <lt>leader>
+  autocmd FileType vim inoremap <buffer> <C-V><Esc> <lt>Esc>
+  autocmd FileType vim inoremap <buffer> <C-V><CR>  <lt>CR>
+
+  autocmd FileType vim nnoremap <buffer> <F5> :source %<CR>
+
+  autocmd FileType vim setlocal keywordprg=:help
+augroup end
+" }}}
+
+" Markdown file settings {{{
+augroup filetype_markdown
+  autocmd!
+  "autocmd FileType markdown setlocal wrap
+  "autocmd FileType markdown setlocal linebreak
+  autocmd FileType markdown nnoremap <buffer> j gj
+  autocmd FileType markdown nnoremap <buffer> k gk
+augroup end
+" }}}
+" ==============================================================================
 
 " ==============================================================================
 " ## Custom Functions {{{1
