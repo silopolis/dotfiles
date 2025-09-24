@@ -333,15 +333,10 @@ set sessionoptions+=tabpages,globals
 " Extended session management for Vim (:mksession on steroids)
 "Plugin 'xolox/vim-session'
 
-" Continuously updated session files
+" obsession.vim: continuously updated session files - https://github.com/tpope/vim-obsession
 "Plugin 'tpope/vim-obsession'
-"Plugin 'silopolis/vim-obsession'
-" Integration with vim-airline
-" https://github.com/vim-airline/vim-airline/wiki/Configuration-Examples-and-Snippets#integration-with-vim-obsession
-"function! AirlineInit()
-"    let g:airline_section_z = airline#section#create(['%{ObsessionStatus(''$'', '''')}', 'windowswap', '%3p%% ', 'linenr', ':%3v '])
-"endfunction
-"autocmd User AirlineAfterInit call AirlineInit()
+" @silopolis fork integrating community improvements - https://github.com/silopolis/vim-obsession
+Plugin 'silopolis/vim-obsession'
 
 "" Automated Vim session management with file auto-save and persistent undo history
 "Plugin 'thaerkh/vim-workspace'
@@ -362,19 +357,6 @@ set sessionoptions+=tabpages,globals
 ""        \   exe ':source' . g:workspace_session_name |
 ""        \ endif
 ""endif
-
-" plugin from http://vim-scripts.org/vim/scripts.html
-" Plugin 'L9'
-" Git plugin not hosted on GitHub
-"Plugin 'git://git.wincent.com/command-t.git'
-" git repos on your local machine (i.e. when working on your own plugin)
-"Plugin 'file:///home/gmarik/path/to/plugin'
-" The sparkup vim script is in a subdirectory of this repo called vim.
-" Pass the path to set the runtimepath properly.
-"Plugin 'rstacruz/sparkup', {'rtp': 'vim/'}
-" Install L9 and avoid a Naming conflict if you've already installed a
-" different version somewhere else.
-" Plugin 'ascenator/L9', {'name': 'newL9'}
 
 " ------------------------------------------------------------------------------
 " ### Colorscheme {{{2
@@ -453,6 +435,12 @@ let g:airline#extensions#searchcount#search_term_limit = 8
 " https://github.com/vim-airline/vim-airline-themes
 "Plugin 'vim-airline/vim-airline-themes'
 
+" vim-obsession integration with vim-airline
+" https://github.com/vim-airline/vim-airline/wiki/Configuration-Examples-and-Snippets#integration-with-vim-obsession
+function! AirlineInit()
+  let g:airline_section_z = airline#section#create(['%{ObsessionStatus(''S'', ''$'')}', 'windowswap', '%3p%% ', 'linenr', ':%3v '])
+endfunction
+autocmd User AirlineAfterInit call AirlineInit()
 " ------------------------------------------------------------------------------
 " ### Languages & syntaxes {{{2
 " ------------------------------------------------------------------------------
@@ -1095,5 +1083,6 @@ function! s:EditOrCreateFile()
 endfunction
 
 nnoremap gF :call <SID>EditOrCreateFile()<CR>
+
 " ==============================================================================
 
