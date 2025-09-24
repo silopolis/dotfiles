@@ -662,6 +662,7 @@ call vundle#end()            " required
 " ==============================================================================
 " ## Configuration {{{1
 " ------------------------------------------------------------------------------
+
 " Autoreload vimrc (https://superuser.com/a/1120318/62256)
 if has ('autocmd') " Remain compatible with earlier versions
  augroup vimrc     " Source vim configuration upon save
@@ -671,6 +672,24 @@ if has ('autocmd') " Remain compatible with earlier versions
 endif
 
 " ------------------------------------------------------------------------------
+" ### Basic options {{{2
+" ------------------------------------------------------------------------------
+set nocompatible
+" Enable mouse in all modes (n, v, i, c, h)
+set mouse=a
+" Show (partial) command in the last line of the screen.
+set showcmd
+" Location used to display the (partially) entered command
+" (last -default/statusline/tabline)
+set showcmdloc=last
+" Minimal number of screen lines to keep above and below the cursor.
+set scrolloff=3
+" Enables the reading of .vimrc, .exrc and .gvimrc in the current directory
+set exrc
+" When on, ''autocmd', shell and write commands are not allowed in '.vimrc' and
+" '.exrc' in the current directory and map commands are displayed
+set secure
+
 " ### Leader {{{2
 " ------------------------------------------------------------------------------
 " Set leader to something AZERTY friendly
