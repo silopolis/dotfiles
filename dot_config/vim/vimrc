@@ -689,6 +689,10 @@ set exrc
 " When on, ''autocmd', shell and write commands are not allowed in '.vimrc' and
 " '.exrc' in the current directory and map commands are displayed
 set secure
+" Path to viminfo file
+set viminfofile='$HOME/.local/share/vim/viminfo'
+" viminfo options
+set viminfo='100,<1000,s100,h
 
 " ------------------------------------------------------------------------------
 " ### Command-line completion {{{2
