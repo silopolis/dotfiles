@@ -245,9 +245,12 @@ let g:flog_permanent_default_opts = {
   \ }
 
 " ------------------------------------------------------------------------------
-" ### Dotenv {{{2
+" ### Project configuration {{{2
 " ------------------------------------------------------------------------------
+" Basic support for .env and Procfile - https://github.com/tpope/vim-dotenv
 Plugin 'tpope/vim-dotenv'
+" EditorConfig support for ViM - https://github.com/editorconfig/editorconfig-vim
+Plugin 'editorconfig/editorconfig-vim'
 
 " ------------------------------------------------------------------------------
 " ### Vim Space Controller {{{2
