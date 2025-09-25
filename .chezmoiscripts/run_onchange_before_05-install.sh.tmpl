@@ -73,7 +73,10 @@ rustup default stable
 pipx install-all "$HOME/.local/share/chezmoi/dot_config/pipx/packages.json"
 
 vim +PluginInstall +qall
-python3 $HOME/.vim/bundle/YouCompleteMe/install.py --all
+YCM_INSTALL="$HOME/.vim/bundle/YouCompleteMe/install.py"
+if [ -f "$YCM_INSTALL" ]; then
+  python3 "$YCM_INSTALL" --all
+fi
 
 $(gh auth status &> /dev/null) || gh auth login
 gh extension install github/gh-copilot
