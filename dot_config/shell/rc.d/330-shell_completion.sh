@@ -49,4 +49,15 @@ for comp_script in "${SHELL_COMP_DIR}"/*.sh; do
   source "${comp_script}"
 done
 
+## Source gcloud CLI completion
+case "${CURRENT_SHELL}" in
+  "bash")
+    . /usr/share/google-cloud-sdk/completion.bash.inc
+    ;;
+  "zsh")
+    . /usr/share/google-cloud-sdk/completion.zsh.inc
+    ;;
+esac
+
+
 # vim: set syntax=sh :
