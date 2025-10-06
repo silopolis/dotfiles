@@ -151,6 +151,9 @@ brew rcmdnk/file/brew-file
 
 tap stefanlogue/tools
 
+tap unhappychoice/tap
+brew unhappychoice/tap/gittype
+
 tap valkyrie00/bbrew
 brew valkyrie00/bbrew/bbrew
 
