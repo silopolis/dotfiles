@@ -133,6 +133,9 @@ brew future-architect/tap/tftarget
 tap gromgit/brewtils
 brew gromgit/brewtils/taproom
 
+tap gu1llaum-3/sshm
+brew gu1llaum-3/sshm/sshm
+
 tap hashicorp/tap
 brew hashicorp/tap/vagrant
 
