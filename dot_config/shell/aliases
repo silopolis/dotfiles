@@ -438,4 +438,13 @@ vagrant-rsync(){
   rsync -avz -e "ssh ${OPTIONS}" "$@" || echo "Transfer failed. Did you use 'default:' as the target?"
 }
 
+
+## Misc aliases and functions
+### Convert all files in dir to PNG format
+convert_to_png(){
+  local _dir=$&
+  find $_dir -type f ! -iname "*.png" -exec mogrify -format png {} +
+}
+
+
 # vim: set syntax=sh :
