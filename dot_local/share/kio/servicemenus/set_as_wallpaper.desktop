@@ -1,0 +1,17 @@
+## https://develop.kde.org/docs/apps/dolphin/service-menus/
+[Desktop Entry]
+Type=Service
+MimeType=image/*;
+Actions=setAsWallpaper;tileAsWallpaper;
+X-KDE-Submenu=Use As Wallpaper
+
+[Desktop Action setAsWallpaper]
+Name=Scaled
+Icon=background
+Exec=qdbus org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript 'var allDesktops = desktops();print (allDesktops);for (i=0;i<allDesktops.length;i++) {d = allDesktops[i];d.wallpaperPlugin = "org.kde.image";d.currentConfigGroup = Array("Wallpaper", "org.kde.image", "General");d.writeConfig("Image", "%u")}';
+
+[Desktop Action tileAsWallpaper]
+Name=Tiled
+Icon=background
+Exec=qdbus org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript 'var allDesktops = desktops();print (allDesktops);for (i=0;i<allDesktops.length;i++) {d = allDesktops[i];d.wallpaperPlugin = "org.kde.image";d.currentConfigGroup = Array("Wallpaper", "org.kde.image", "General");d.writeConfig("FillMode", "3")};d.writeConfig("Image", "%u")}';
+

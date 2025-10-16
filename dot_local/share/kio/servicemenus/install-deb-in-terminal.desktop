@@ -1,0 +1,14 @@
+[Desktop Entry]
+
+Actions=install
+Icon=dialog-information
+MimeType=application/vnd.debian.binary-package
+ServiceTypes=KonqPopupMenu/Plugin
+Type=Service
+X-KDE-Priority=TopLevel
+
+
+[Desktop Action install]
+Exec=konsole --hold -e sudo apt install %f
+Icon=/usr/share/icons/breeze/mimetypes/22/application-x-deb.svg
+Name=Install with APT in Terminal
