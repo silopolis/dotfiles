@@ -122,6 +122,7 @@ tap aurc/loggo
 brew aurc/loggo/loggo
 
 tap charmbracelet/tap
+brew charmbracelet/tap/crush
 brew charmbracelet/tap/soft-serve
 
 tap fluxcd/tap
