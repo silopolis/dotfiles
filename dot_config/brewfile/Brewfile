@@ -21,6 +21,7 @@ brew cheat
 brew checkov
 brew chezmoi
 brew clipboard
+brew ctop
 brew d2
 brew diff-so-fancy
 brew difftastic
@@ -71,6 +72,7 @@ brew most
 brew neofetch
 brew neovim
 brew nerdctl
+brew nethogs
 brew nnn
 brew peco
 brew pipx
