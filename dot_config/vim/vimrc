@@ -711,7 +711,8 @@ set wildoptions=fuzzy,pum
 " Set leader to something AZERTY friendly
 let mapleader=" "
 let localleader="\\"
-"set timeoutlen 1000
+" Set the leader timeout to 500 milliseconds
+set timeoutlen=300
 
 " Adapt unimpaired.vim bracket mappings to non-US keyboard
 "nmap < [
