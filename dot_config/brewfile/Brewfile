@@ -33,6 +33,7 @@ brew dnstop
 brew dua-cli
 brew dust
 brew eza
+brew fabric-ai
 brew fastgron
 brew fd
 brew forgit

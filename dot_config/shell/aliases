@@ -456,5 +456,14 @@ convert_to_png(){
   find $_dir -type f ! -iname "*.png" -exec mogrify -format png {} +
 }
 
+## AI tools and Agents
+alias fabric="fabric-ai"
+alias fpcb="xclip -selection clipboard -o | fabric --pattern"
+alias fspcb="xclip -selection clipboard -o | fabric --stream --pattern"
+fspcbtr(){
+  local _lang="$1"
+  xclip -selection clipboard -o | fabric --stream --pattern translate -v=lang_code:"${_lang}"
+}
 
 # vim: set syntax=sh :
+
