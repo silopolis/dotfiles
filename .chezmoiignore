@@ -43,3 +43,4 @@ scripts
 
 dot_config/tmux/plugins
 *.log
+key.txt.age
