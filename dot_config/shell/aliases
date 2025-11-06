@@ -113,6 +113,12 @@ alias aptpo='apt-cache policy'
 ## Chromium
 # Fix GCM DEPRECATED ENDPOINT error
 alias chromium="chromium --disable-gpu"
+
+## Passwords and secrets
+genpw(){
+  pwgen -scy -r\' -r\" -r\\ 64 1 | tee -p >(awk '{printf "%s", $0}' | xclip -i -selection clipboard)
+}
+
 ## chezmoi
 alias cm_aliases="alias | grep ^cm"
 alias cm_install='sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply' # $GITHUB_USERNAME
