@@ -71,6 +71,7 @@ brew mise
 brew mods
 brew mongosh
 brew most
+brew nb
 brew neofetch
 brew neovim
 brew nerdctl
