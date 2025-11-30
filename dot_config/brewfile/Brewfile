@@ -13,6 +13,7 @@ brew awsume
 brew awsweeper
 brew bat
 brew bat-extras
+brew block-goose-cli
 brew bore-cli
 brew bottom
 brew broot
@@ -77,6 +78,7 @@ brew neovim
 brew nerdctl
 brew nethogs
 brew nnn
+brew opencode
 brew peco
 brew pipx
 brew plantuml
