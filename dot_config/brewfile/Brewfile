@@ -145,7 +145,6 @@ tap gu1llaum-3/sshm
 brew gu1llaum-3/sshm/sshm
 
 tap hashicorp/tap
-brew hashicorp/tap/vagrant
 
 tap jckuester/tap
 brew jckuester/tap/awsls
