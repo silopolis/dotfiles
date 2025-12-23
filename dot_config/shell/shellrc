@@ -8,7 +8,8 @@
 
 export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 
-## Load shell runtime configuration scripts
+echo "Loading ${CURRENT_SHELL} shell runtime configuration scripts..."
+
 SHELL_RC_DOT_DIR="${SHELL_RC_DOT_DIR:-$XDG_CONFIG_HOME/shell/rc.d}"
 for rc_script in "${SHELL_RC_DOT_DIR}"/*.sh; do
   source "${rc_script}"

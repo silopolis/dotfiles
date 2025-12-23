@@ -25,13 +25,13 @@
 #  fi
 #fi
 
-echo "Loading login shell config..."
-
-#CURRENT_SHELL="$(ps -p $$ -o comm=)"
-CURRENT_SHELL=${0#-}
-CURRENT_SHELL=${CURRENT_SHELL##*/}
+CURRENT_SHELL="$(ps -p $$ -o comm=)"
+#CURRENT_SHELL=${0#-}
+#CURRENT_SHELL=${CURRENT_SHELL##*/}
 
 export CURRENT_SHELL
+
+echo "Loading ${CURRENT_SHELL} login shell config..."
 
 if [ -f "$HOME/.config/${CURRENT_SHELL}/${CURRENT_SHELL}rc" ]; then
   source "$HOME/.config/${CURRENT_SHELL}/${CURRENT_SHELL}rc"

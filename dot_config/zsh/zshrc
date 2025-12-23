@@ -1,7 +1,7 @@
 # ~/.zshrc file for zsh interactive shells.
 # see /usr/share/doc/zsh/examples/zshrc for examples
 
-echo "Loading interactive shell config..."
+echo "Loading ${CURRENT_SHELL} interactive shell config..."
 
 ## Source common shell configuration
 if [ -f "$HOME/.config/shell/shellrc" ]; then
