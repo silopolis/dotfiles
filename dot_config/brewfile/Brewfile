@@ -3,6 +3,7 @@
 
 tap homebrew/core
 brew aqua
+brew ast-grep
 brew aws-nuke
 brew aws-shell
 brew aws-vault
@@ -54,8 +55,11 @@ brew hcledit
 brew hstr
 brew htop
 brew hub
+brew iftop
+brew imagemagick
 brew infracost
 brew inxi
+brew ipcalc
 brew k9s
 brew kind
 brew krew
@@ -67,6 +71,8 @@ brew lazygit
 brew lnav
 brew localstack
 brew lsd
+brew luarocks
+brew mermaid-cli
 brew minikube
 brew mise
 brew mods
@@ -93,6 +99,7 @@ brew rustup
 brew starship
 brew stern
 brew tailspin
+brew tectonic
 brew tenv
 brew terraform-docs
 brew terraform-graph-beautifier
@@ -110,6 +117,7 @@ brew tfupdate
 brew the_silver_searcher
 brew tlrc
 brew tpm
+brew tree-sitter-cli
 brew trippy
 brew trivy
 brew trzsz-go
@@ -157,10 +165,16 @@ brew one2nc/cloudlens/cloudlens
 
 tap panter-dsd/tap
 
+tap philocalyst/tap
+brew philocalyst/tap/caligula
+
 tap rcmdnk/file
 brew rcmdnk/file/brew-file
 
 tap stefanlogue/tools
+
+tap timothyye/tap
+brew timothyye/tap/skm
 
 tap unhappychoice/tap
 brew unhappychoice/tap/gittype
