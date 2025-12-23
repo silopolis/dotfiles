@@ -52,20 +52,19 @@ gui:
   # How things are filtered when typing '/'.
   # One of 'substring' (default) | 'fuzzy'
   filterMode: substring
-
 git:
-  paging:
-    # Value of the --color arg in the git diff command.
-    # Some pagers want this to be set to 'always' and some want it set to 'never'
-    colorArg: always
-    # If true, Lazygit will use whatever pager is specified in `$GIT_PAGER`, `$PAGER`, or your
-    # *git config*. If the pager ends with something like ` | less` we will strip that part out,
-    # because less doesn't play nice with our rendering approach. If the custom pager uses less
-    # under the hood, that will also break rendering (hence the `--paging=never` flag for the
-    # `delta` pager).
-    #useConfig: true
-    pager: delta --dark --paging=never --line-numbers --hyperlinks --hyperlinks-file-link-format="lazygit-edit://{path}:{line}"
-    externalDiffCommand: difft --color=always
+  pagers:
+    - # Value of the --color arg in the git diff command.
+      # Some pagers want this to be set to 'always' and some want it set to 'never'
+      colorArg: always
+      # If true, Lazygit will use whatever pager is specified in `$GIT_PAGER`, `$PAGER`, or your
+      # *git config*. If the pager ends with something like ` | less` we will strip that part out,
+      # because less doesn't play nice with our rendering approach. If the custom pager uses less
+      # under the hood, that will also break rendering (hence the `--paging=never` flag for the
+      # `delta` pager).
+      #useConfig: true
+      pager: delta --dark --paging=never --line-numbers --hyperlinks --hyperlinks-file-link-format="lazygit-edit://{path}:{line}"
+      externalDiffCommand: difft --color=always
   commit:
     # Automatic WYSIWYG wrapping of the commit message as you type
     autoWrapCommitMessage: true
@@ -109,7 +108,6 @@ git:
   # If true, parse emoji strings in commit messages e.g. render :rocket: as 🚀
   # (This should really be under 'gui', not 'git')
   parseEmoji: true
-
 os:
   # Command for editing a file. Should contain "{{filename}}".
   #edit: ""
@@ -153,5 +151,3 @@ os:
 
 # If true, display a confirmation when subprocess terminates. This allows you to view the output of the subprocess before returning to Lazygit.
 #promptToReturnFromSubprocess: true
-
-
