@@ -40,3 +40,5 @@ hide_when_typing = true
 
 [hints]
 
+[bell]
+command = { program = "none", args = [] }
