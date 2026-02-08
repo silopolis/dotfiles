@@ -453,6 +453,65 @@ vagrant-rsync(){
 }
 
 
+## VirtualBox
+alias vbm="VBoxManage"
+alias vbh="VBoxHeadless"
+alias vblsrv="vbm list runningvms"
+alias vbsvi="vbm showvminfo"
+alias vbcv="vbm controlvm"
+alias vbmv="vbm modifyvm"
+vbx_create() {
+  local _VM_NAME _VM_DIR _ISO_PATH
+  _VM_UUID="uuid"
+  _VM_NAME="${1:-$VBX_VMS_PREFIX$(_UUID%%-*)}" && shift
+  _VM_OS_ID="${1:-debian}" && shift
+  _VM_OS_VERSION_ID="${1:-13}"
+  _VM_OS_TYPE="${1:-${_VM_OS_VERSION^}_${_VM_OS_VERSION_ID}}"
+  _ISO_PATH="$ISO_PATH/-22.04.iso"
+  _VM_DIR="${1:-$VBX_VMS_DIR/$_VM_NAME}"
+
+# Create VM
+  VBoxManage createvm --name "$_VM_NAME" --ostype "Ubuntu_64" --register
+
+# Configure hardware
+  VBoxManage modifyvm "$_VM_NAME" --memory 2048 --vram 16 --cpus 2
+  VBoxManage modifyvm "$_VM_NAME" --nic1 nat --natpf1 "SSH,tcp,,2222,,22"
+  VBoxManage modifyvm "$_VM_NAME" --boot1 dvd --boot2 disk --boot3 none --boot4 none
+
+# Create and attach storage
+  VBoxManage createhd --filename "$_VM_DIR/$_VM_NAME.vdi" --size 30720
+  VBoxManage storagectl "$_VM_NAME" --name "SATA" --add sata --controller IntelAhci
+  VBoxManage storageattach "$_VM_NAME" --storagectl "SATA" --port 0 --device 0 --type hdd --medium "$_VM_DIR/$_VM_NAME.vdi"
+  VBoxManage storageattach "$_VM_NAME" --storagectl "SATA" --port 1 --device 0 --type dvddrive --medium "$_ISO_PATH"
+
+# Start headless
+  VBoxManage startvm "$_VM_NAME" --type headless
+
+  echo "VM started. Connect via VNC or wait for OS installation to complete, then SSH to port 2222"
+}
+vbx() {
+  local _CMD _VM_NAME
+  _CMD="$1" && shift
+  _VM_NAME="$1" && shift
+  case $_CMD in
+    start)
+      vbh --startvm "$_VM_NAME" &
+      ;;
+    halt|stop)
+      vbcv "$_VM_NAME" acpipowerbutton
+      ;;
+    help)
+      echo "Usage: vbx <ACTION> <VM_NAME> [OPTIONS]"
+      ;;
+    *)
+      vbcv "$_VM_NAME" "$_CMD" "$@"
+      ;;
+  esac
+}
+alias vbss="vbm snapshot"
+
+
+
 ## Misc aliases and functions
 ### Convert all files in dir to PNG format
 convert_to_png(){
