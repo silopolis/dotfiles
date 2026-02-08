@@ -168,6 +168,8 @@ tap panter-dsd/tap
 tap philocalyst/tap
 brew philocalyst/tap/caligula
 
+tap ramonvermeulen/whosthere
+
 tap rcmdnk/file
 brew rcmdnk/file/brew-file
 
