@@ -401,6 +401,7 @@ fi
 ### AWS CLI
 if command -v aws &> /dev/null; then
   AWS_BIN_PATH="$(dirname $(realpath $(which aws)))"
+  AWS_PAGER="bat"
   case $CURRENT_SHELL in
     "bash")
       [ -f "$AWS_BIN_PATH/aws_bash_completer" ] \
