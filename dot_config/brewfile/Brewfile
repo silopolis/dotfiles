@@ -99,6 +99,7 @@ brew rich-cli
 brew ripgrep
 brew ripgrep-all
 brew rustup
+brew snitch
 brew starship
 brew stern
 brew tailspin
