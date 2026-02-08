@@ -1,6 +1,9 @@
 ## Common aliases for all shells
 ## This file is sourced by both .bashrc and .zshrc
 
+# Neovim
+alias n="nvim"
+
 # enable color support of ls, less and man, and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
     if command -v vivid &> /dev/null; then
