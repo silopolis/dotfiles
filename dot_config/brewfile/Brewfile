@@ -72,6 +72,7 @@ brew lnav
 brew localstack
 brew lsd
 brew luarocks
+brew mcptools
 brew mermaid-cli
 brew minikube
 brew mise
