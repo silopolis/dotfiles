@@ -181,7 +181,7 @@ imports: [
         # (un)comment to choose your preferred skin
         #file: skins/dark-blue.hjson
         # https://github.com/catppuccin/catppuccin/discussions/1848
-        file: skins/catppuccin-macchiato.hjson
+        file: skins/catppuccin/themes/frappe/catppuccin-frappe-mauve.hjson
         //file: skins/catppuccin-mocha.hjson
         //file: skins/dark-gruvbox.hjson
         //file: skins/dark-orange.hjson
