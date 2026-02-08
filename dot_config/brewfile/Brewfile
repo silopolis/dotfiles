@@ -173,6 +173,9 @@ brew rcmdnk/file/brew-file
 
 tap stefanlogue/tools
 
+tap textualize/homebrew
+brew textualize/homebrew/frogmouth
+
 tap timothyye/tap
 brew timothyye/tap/skm
 
