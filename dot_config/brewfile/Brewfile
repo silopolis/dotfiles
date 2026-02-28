@@ -4,6 +4,7 @@
 tap homebrew/core
 brew age
 brew aqua
+brew aria2
 brew ast-grep
 brew aws-nuke
 brew aws-shell
@@ -105,6 +106,7 @@ brew snitch
 brew starship
 brew stern
 brew tailspin
+brew talosctl
 brew tectonic
 brew tenv
 brew terraform-docs
@@ -166,6 +168,9 @@ brew jckuester/tap/awsls
 
 tap jmattaa/laser
 brew jmattaa/laser/laser
+
+tap kdash-rs/kdash
+brew kdash-rs/kdash/kdash
 
 tap one2nc/cloudlens
 brew one2nc/cloudlens/cloudlens
