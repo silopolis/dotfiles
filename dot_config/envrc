@@ -4,7 +4,7 @@
 export EDITOR="nvim"
 export VISUAL="nvim"
 
-export ISO_PATH="${ISO_PATH:-$HOME/Téléchargement/ISOs}"
+export ISO_PATH="${ISO_PATH:-$HOME/Téléchargements/ISOs}"
 
 
 ## VirtualBox
