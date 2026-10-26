@@ -35,6 +35,7 @@ brew direnv
 brew diskonaut
 brew dive
 brew dnstop
+brew dry
 brew dua-cli
 brew dust
 brew eza
@@ -42,6 +43,7 @@ brew fabric-ai
 brew fastgron
 brew fd
 brew forgit
+brew fx
 brew fzf
 brew gcc
 brew gcli
@@ -55,6 +57,7 @@ brew gping
 brew gron
 brew grype
 brew hcledit
+brew hey
 brew hstr
 brew htop
 brew hub
@@ -84,12 +87,10 @@ brew mods
 brew mongosh
 brew most
 brew nb
-brew neofetch
 brew neovim
 brew nerdctl
 brew nethogs
 brew nnn
-brew opencode
 brew peco
 brew pipx
 brew plantuml
@@ -101,7 +102,8 @@ brew rich-cli
 brew ripgrep
 brew ripgrep-all
 brew rustup
-brew shellcheck
+brew sem-cli
+brew skm
 brew snitch
 brew starship
 brew stern
@@ -117,7 +119,6 @@ brew terraform_landscape
 brew terrahelp
 brew terrascan
 brew tfk8s
-brew tflint
 brew tfmigrate
 brew tfschema
 brew tfsec
@@ -145,9 +146,17 @@ tap aquaproj/aqua
 tap aurc/loggo
 brew aurc/loggo/loggo
 
+tap brevity1swos/tap
+brew brevity1swos/tap/rgx
+
 tap charmbracelet/tap
 brew charmbracelet/tap/crush
 brew charmbracelet/tap/soft-serve
+
+tap davep/homebrew
+
+tap dgunzy/tap
+brew dgunzy/tap/flux9s
 
 tap fluxcd/tap
 brew fluxcd/tap/flux
@@ -163,11 +172,16 @@ brew gu1llaum-3/sshm/sshm
 
 tap hashicorp/tap
 
+tap hjr265/gittop
+brew hjr265/gittop/gittop
+
+tap huseyinbabal/tap
+brew huseyinbabal/tap/taws
+
 tap jckuester/tap
 brew jckuester/tap/awsls
 
 tap jmattaa/laser
-brew jmattaa/laser/laser
 
 tap kdash-rs/kdash
 brew kdash-rs/kdash/kdash
@@ -191,7 +205,6 @@ tap textualize/homebrew
 brew textualize/homebrew/frogmouth
 
 tap timothyye/tap
-brew timothyye/tap/skm
 
 tap unhappychoice/tap
 brew unhappychoice/tap/gittype
@@ -202,7 +215,11 @@ brew valkyrie00/bbrew/bbrew
 tap weaveworks/tap
 brew weaveworks/tap/gitops
 
-tap wez/wezterm-linuxbrew
-brew wez/wezterm-linuxbrew/wezterm
+tap wezterm/wezterm-linuxbrew
+brew wezterm/wezterm-linuxbrew/wezterm
 
 tap xpipe-io/tap
+
+# Other Homebrew packages
+brew neofetch
+brew tflint
