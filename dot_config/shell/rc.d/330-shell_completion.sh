@@ -12,6 +12,9 @@ case "${CURRENT_SHELL}" in
     fi
     ;;
   "zsh")
+    # User-installed completions (e.g. OpenSpec's _openspec)
+    # shellcheck disable=SC3030
+    [ -d "$HOME/.zsh/completions" ] && fpath=("$HOME/.zsh/completions" $fpath)
     autoload -Uz +X compinit
     compinit -d "$HOME/.cache/zcompdump"
     #zstyle ':completion:*' use-cache on
