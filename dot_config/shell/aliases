@@ -377,15 +377,29 @@ if command -v minikube &> /dev/null; then
   alias mk="minikube"
   case ${CURRENT_SHELL} in
     "bash")
-      complete -o default -F __start_minikube mk
+      if [[ $(type -t compopt) = "builtin" ]]; then
+          complete -o default -F __start_minikube mk
+      else
+          complete -o default -o nospace -F __start_minikube mk
+      fi
       ;;
     "zsh")
       compdef mk=minikube
       ;;
   esac
+  # TODO Add more minikube aliases
   alias mkp="mk profile"
   alias mkpl="mk profile list"
   alias mkss="mk status"
+  alias mknl="mk node list"
+  alias mknu="mk node start"     # up
+  alias mknd="mk node stop"      # down
+  alias mkna="mk node add"
+  alias mknx="mk node delete"
+  alias mku="minikube start -p"  # up
+  alias mkd="minikube stop -p"   # down
+  alias mkx="minikube delete -p"
+  alias mkuc="minikube update-context"
 fi
 
 ### KinD
@@ -400,6 +414,7 @@ if command -v kind &> /dev/null; then
       compdef kd=kind
       ;;
   esac
+  # TODO Add more kind aliases
 fi
 
 ## AWS
