@@ -1,5 +1,9 @@
 # User environment configuration
 
+# TODO Fallback to vim
+export EDITOR="nvim"
+export VISUAL="nvim"
+
 export ISO_PATH="${ISO_PATH:-$HOME/Téléchargement/ISOs}"
 
 
