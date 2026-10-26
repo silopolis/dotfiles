@@ -2,7 +2,9 @@
 ## This file is sourced by both .bashrc and .zshrc
 
 # Neovim
-alias n="nvim"
+alias n='nvim'
+alias avante='nvim -c "lua vim.defer_fn(function()require(\"avante.api\").zen_mode()end, 100)"'
+alias a='avante'
 
 # enable color support of ls, less and man, and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
