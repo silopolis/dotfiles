@@ -63,7 +63,7 @@ git:
       # under the hood, that will also break rendering (hence the `--paging=never` flag for the
       # `delta` pager).
       #useConfig: true
-      pager: delta --dark --paging=never --line-numbers --hyperlinks --hyperlinks-file-link-format="lazygit-edit://{path}:{line}"
+      #pager: delta --dark --paging=never --line-numbers --hyperlinks --hyperlinks-file-link-format="lazygit-edit://{path}:{line}"
       externalDiffCommand: difft --color=always
   commit:
     # Automatic WYSIWYG wrapping of the commit message as you type
@@ -123,7 +123,7 @@ os:
   #openDirInEditor: ""
   # A built-in preset that sets all of the above settings. Supported presets
   # are defined in the getPreset function in editor_presets.go.
-  editPreset: 'vim'
+  editPreset: "vim"
   # Command for opening a file, as if the file is double-clicked. Should
   # contain "{{filename}}", but doesn't support "{{line}}".
   #open: ""
