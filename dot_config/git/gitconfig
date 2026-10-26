@@ -34,6 +34,7 @@
   guiDefault = false
 [merge]
 	conflictStyle = zdiff3
+	tool = nvim
 [cola]
 	spellcheck = false
 [credential "https://github.com"]
@@ -55,3 +56,6 @@
   # Personnal aliases
   path = ~/.config/git/mygitalias
   path = ~/.local/share/delta/themes.gitconfig
+[mergetool "nvim"]
+	cmd = nvim -d \"$LOCAL\" \"$BASE\" \"$REMOTE\" \"$MERGED\"
+	trustExitCode = true
