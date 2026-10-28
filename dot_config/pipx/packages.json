@@ -152,66 +152,6 @@
                 "venv_args": []
             }
         },
-        "frogmouth": {
-            "metadata": {
-                "injected_packages": {},
-                "main_package": {
-                    "app_paths": [
-                        {
-                            "__Path__": "/home/tarax/.local/pipx/venvs/frogmouth/bin/frogmouth",
-                            "__type__": "Path"
-                        }
-                    ],
-                    "app_paths_of_dependencies": {
-                        "httpx": [
-                            {
-                                "__Path__": "/home/tarax/.local/pipx/venvs/frogmouth/bin/httpx",
-                                "__type__": "Path"
-                            }
-                        ],
-                        "markdown-it-py": [
-                            {
-                                "__Path__": "/home/tarax/.local/pipx/venvs/frogmouth/bin/markdown-it",
-                                "__type__": "Path"
-                            }
-                        ],
-                        "pygments": [
-                            {
-                                "__Path__": "/home/tarax/.local/pipx/venvs/frogmouth/bin/pygmentize",
-                                "__type__": "Path"
-                            }
-                        ]
-                    },
-                    "apps": [
-                        "frogmouth"
-                    ],
-                    "apps_of_dependencies": [
-                        "httpx",
-                        "markdown-it",
-                        "pygmentize"
-                    ],
-                    "include_apps": true,
-                    "include_dependencies": false,
-                    "man_pages": [],
-                    "man_pages_of_dependencies": [],
-                    "man_paths": [],
-                    "man_paths_of_dependencies": {},
-                    "package": "frogmouth",
-                    "package_or_url": "frogmouth",
-                    "package_version": "0.9.2",
-                    "pinned": false,
-                    "pip_args": [],
-                    "suffix": ""
-                },
-                "pipx_metadata_version": "0.5",
-                "python_version": "Python 3.13.3",
-                "source_interpreter": {
-                    "__Path__": "/home/linuxbrew/.linuxbrew/opt/python@3.13/libexec/bin/python",
-                    "__type__": "Path"
-                },
-                "venv_args": []
-            }
-        },
         "git-filter-repo": {
             "metadata": {
                 "injected_packages": {},
