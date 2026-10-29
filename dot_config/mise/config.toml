@@ -1,0 +1,10 @@
+[tools]
+"cargo:pdf_oxide_cli" = "latest"
+"github:obsidianmd/obsidian-releases" = "latest"
+herdr = "latest"
+"github:rtk-ai/rtk" = "latest"
+jiq = "latest"
+"aqua:anomalyco/opencode" = "1"  # 1.x only: 2.x (npm:@opencode/cli) waits for plugin/fleet support
+"pipx:frogmouth" = { version = "latest", uvx_args = "--python 3.13" }
+uv = "latest"
+restic = "0.19.1"
