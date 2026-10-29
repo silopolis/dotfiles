@@ -28,6 +28,9 @@
   # `-t difftastic` every time.
   tool = difft
   guitool = vimdiff
+  algorithm = histogram
+  colorMoved = plain
+  mnemonicPrefix = true
 [difftool]
   # Run the difftool immediately, don't ask 'are you sure' each time.
   prompt = false
@@ -59,3 +62,18 @@
 [mergetool "nvim"]
 	cmd = nvim -d \"$LOCAL\" \"$BASE\" \"$REMOTE\" \"$MERGED\"
 	trustExitCode = true
+[branch]
+	sort = -committerdate
+[column]
+	ui = auto
+[commit]
+	verbose = true
+[pull]
+	rebase = true
+[push]
+	autoSetupRemote = true
+[rerere]
+	enabled = true
+	autoupdate = true
+[tag]
+	sort = -version:refname

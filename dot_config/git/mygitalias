@@ -82,4 +82,6 @@
   #tmp = "!git commit -m \"tmp! $1\" #"
   #tmp-squash = "!hashes=$(git log $1..HEAD --grep='tmp!' --oneline | cut -d' ' -f1 | tr '\n' ',' | sed 's/.$//') && git-filter-repo --commit-callback \"$(cat ~/.git/filter-repo-tmp-commits.py | sed \"s/REPLACE_ME_HASHES/$hashes/\")\" --force #"
   #dummy = "!touch $(openssl rand -hex 10); git add .; git commit -m \"$1\" #"
-
+  ## Short forms
+  br = branch
+  st = status
