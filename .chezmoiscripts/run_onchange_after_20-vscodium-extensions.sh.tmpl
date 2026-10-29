@@ -1,0 +1,27 @@
+{{- if eq .chezmoi.os "linux" -}}
+#!/usr/bin/env bash
+# Install missing VSCodium extensions. Never removes anything.
+# The list is in .chezmoidata/vscodium.yaml; its hash makes chezmoi re-run this
+# script whenever the list changes.
+# extensions hash: {{ .vscodium.extensions | toJson | sha256sum }}
+set -uo pipefail
+
+if ! command -v codium >/dev/null 2>&1; then
+  echo "vscodium-extensions: codium not found, skipping" >&2
+  exit 0
+fi
+
+installed="$(codium --list-extensions 2>/dev/null | tr '[:upper:]' '[:lower:]')"
+for ext in {{ .vscodium.extensions | join " " }}; do
+  if grep -qxF "${ext,,}" <<<"${installed}"; then
+    continue
+  fi
+  codium --install-extension "${ext}" || echo "vscodium-extensions: failed: ${ext}" >&2
+done
+
+# Extensions that are not on Open VSX: .vsix files kept outside this repository.
+for vsix in "${HOME}"/.local/share/vsix/*.vsix; do
+  [ -e "${vsix}" ] || continue
+  codium --install-extension "${vsix}" || echo "vscodium-extensions: failed: ${vsix}" >&2
+done
+{{- end }}

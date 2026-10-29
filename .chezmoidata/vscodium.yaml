@@ -1,0 +1,110 @@
+# VSCodium settings and extensions managed by chezmoi (see dot_config/VSCodium/User/modify_settings.json.tmpl).
+# Public repository: never put keys, tokens or passwords here.
+# settings: merged over the live settings.json at apply time; keys not listed stay local.
+# extensions: installed when missing by .chezmoiscripts/run_onchange_after_20-vscodium-extensions.sh.tmpl; never removed.
+vscodium:
+  settings:
+    "[markdown]": {"editor.defaultFormatter": "darkriszty.markdown-table-prettify"}
+    "application.shellEnvironmentResolutionTimeout": 30
+    "chat.editor.wordWrap": "on"
+    "claudeCode.preferredLocation": "panel"
+    "claudeCode.useCtrlEnterToSend": true
+    "containers.containerClient": "com.microsoft.visualstudio.containers.docker"
+    "containers.orchestratorClient": "com.microsoft.visualstudio.orchestrators.dockercompose"
+    "deepl.formality": "default"
+    "deepl.splitSentences": "1"
+    "deepl.tagHandling": "off"
+    "deepl.translationMode": "Replace"
+    "docker.extension.enableComposeLanguageServer": false
+    "editor.renderWhitespace": "boundary"
+    "editor.wordWrap": "wordWrapColumn"
+    "editor.wordWrapColumn": 100
+    "explorer.confirmDragAndDrop": false
+    "git.branchWhitespaceChar": "_"
+    "gitlens.views.scm.grouped.hiddenViews": {"commits": false, "worktrees": true, "branches": false, "remotes": false, "stashes": false, "tags": false, "contributors": false, "repositories": true, "fileHistory": false, "launchpad": false, "searchAndCompare": false}
+    "gitlens.views.scm.grouped.views": {"commits": false, "branches": false, "remotes": false, "stashes": false, "tags": true, "worktrees": true, "contributors": true, "fileHistory": false, "repositories": false, "searchAndCompare": false, "launchpad": false}
+    "ltex.additionalRules.motherTongue": "fr"
+    "ltex.completionEnabled": true
+    "ltex.languageToolHttpServerUri": "https://api.languagetoolplus.com/"
+    "ltex.markdown.nodes": {"CodeBlock": "ignore", "FencedCodeBlock": "ignore", "AutoLink": "dummy", "Code": "dummy"}
+    "ltex.statusBarItem": true
+    "markdown-preview-enhanced.breakOnSingleNewLine": false
+    "markdown-preview-enhanced.frontMatterRenderingOption": "code block"
+    "markdown-preview-enhanced.previewTheme": "vscode.css"
+    "markdown-preview-enhanced.revealjsTheme": "vscode.css"
+    "markdown.occurrencesHighlight.enabled": true
+    "python.analysis.typeCheckingMode": "standard"
+    "redhat.telemetry.enabled": false
+    "vscode-kubernetes.log-viewer.wrap": true
+    "workbench.colorTheme": "Catppuccin Mocha"
+  extensions:
+    - 3timeslazy.vscodium-devpodcontainers
+    - anthropic.claude-code
+    - arcticicestudio.nord-visual-studio-code
+    - bierner.markdown-mermaid
+    - bpruitt-goddard.mermaid-markdown-syntax-highlighting
+    - caenrigen.jupytext-sync
+    - catppuccin.catppuccin-vsc
+    - charkoal.charkoal
+    - charliermarsh.ruff
+    - codezombiech.gitignore
+    - continue.continue
+    - danielsanmedium.dscodegpt
+    - darkriszty.markdown-table-prettify
+    - davidanson.vscode-markdownlint
+    - ddorch.codium-devcontainer
+    - docker.docker
+    - donjayamanne.githistory
+    - dviererbe.vscode-lxd
+    - eamodio.gitlens
+    - enkia.tokyo-night
+    - franneck94.vscode-python-config
+    - franneck94.vscode-python-dev-extension-pack
+    - github.vscode-pull-request-github
+    - gitlab.gitlab-workflow
+    - gruntfuggly.todo-tree
+    - hediet.vscode-drawio
+    - jdinhlife.gruvbox
+    - jeanp413.open-remote-ssh
+    - kelvin.vscode-sshfs
+    - l3aro.opencode-connector
+    - ltex-plus.vscode-ltex-plus
+    - mcanouil.quarto-wizard
+    - meta.pyrefly
+    - mhutchie.git-graph
+    - mousavian.ssh-config-syntax-highlighter
+    - ms-azuretools.vscode-containers
+    - ms-azuretools.vscode-docker
+    - ms-kubernetes-tools.vscode-kubernetes-tools
+    - ms-pyright.pyright
+    - ms-python.debugpy
+    - ms-python.python
+    - ms-python.vscode-python-envs
+    - ms-toolsai.jupyter
+    - ms-toolsai.jupyter-keymap
+    - ms-toolsai.jupyter-renderers
+    - ms-toolsai.vscode-jupyter-cell-tags
+    - ms-toolsai.vscode-jupyter-powertoys
+    - ms-toolsai.vscode-jupyter-slideshow
+    - natizyskunk.sftp
+    - njpwerner.autodocstring
+    - njqdev.vscode-python-typehint
+    - ntluong95.quarto-wingman
+    - quarto.quarto
+    - redhat.vscode-yaml
+    - renathossain.markdown-runner
+    - samuelcolvin.jinjahtml
+    - saoudrizwan.claude-dev
+    - shd101wyy.markdown-preview-enhanced
+    - soerenuhrbach.vscode-deepl
+    - srl-labs.vscode-containerlab
+    - sst-dev.opencode
+    - takumii.markdowntable
+    - tamasfe.even-better-toml
+    - tanishqkancharla.opencode-vscode
+    - tomoki1207.pdf
+    - waderyan.gitblame
+    - xaberus.remote-oss
+    - yunierolivera.markdown-quarto-word-count
+    - yzane.markdown-pdf
+    - yzhang.markdown-all-in-one

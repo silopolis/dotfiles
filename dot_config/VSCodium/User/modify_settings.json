@@ -1,0 +1,12 @@
+{{- /* chezmoi:modify-template */ -}}
+{{- /*
+  Merge the keys listed in .chezmoidata/vscodium.yaml over the live VSCodium
+  settings.json. Keys that are not listed stay as they are, so anything an
+  extension or the UI writes (API keys included) never reaches this public repo.
+  Comments in the live file are not kept: the result is plain JSON.
+*/ -}}
+{{- $live := dict -}}
+{{- if ne (trim .chezmoi.stdin) "" -}}
+{{-   $live = fromJsonc .chezmoi.stdin -}}
+{{- end -}}
+{{- mergeOverwrite $live (deepCopy .vscodium.settings) | toPrettyJson "    " }}
