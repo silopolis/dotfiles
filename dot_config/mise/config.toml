@@ -8,3 +8,45 @@ jiq = "latest"
 "pipx:frogmouth" = { version = "latest", uvx_args = "--python 3.13" }
 uv = "latest"
 restic = "0.19.1"
+
+# From omalap (migration 2026-10); goose and git-filter-repo already come from brew and pipx
+"aqua:erikjuhani/basalt" = "latest"  # binary sits in a sub-folder mise does not add to PATH
+bun = "latest"
+"github:Piebald-AI/splitrail" = "latest"
+"github:matthart1983/diskwatch" = "latest"
+"github:matthart1983/netwatch" = "latest"
+"github:matthart1983/syswatch" = "latest"
+"github:szhekpisov/diffyml" = "latest"
+"github:xguot/difi" = "latest"
+"npm:@mixedbread/mgrep" = "latest"
+"npm:hunkdiff" = "latest"
+"npm:md-to-pdf" = "latest"
+"pipx:claudeshell" = "latest"
+"pipx:datalab-python-sdk" = "latest"
+"aqua:jdx/usage" = "latest"
+"npm:critique" = { version = "latest", npm = { package_manager = "bun" } }
+"github:reekta92/clin-rs" = "latest"
+"github:bjarneo/ku" = "latest"
+"pipx:ghgrab" = "latest"
+"github:anordal/shellharden" = "latest"
+"cargo:usbtree" = "latest"
+"github:rgburke/grv" = { version = "latest", rename_exe = "grv" }
+"aqua:lusingander/serie" = "latest"
+"github:wtnqk/ftdv" = "latest"
+"github:chmouel/lazyworktree" = "latest"
+"github:ahkohd/oyo" = "latest"
+gitui = "latest"
+"github:DanielCardonaRojas/codemark" = "latest"
+lazyssh = "latest"
+lazyjournal = "latest"
+superfile = "latest"
+codex = "latest"
+antigravity-cli = "latest"
+"npm:skills" = "latest"
+"npm:backpass" = "latest"
+"npm:acpx" = "latest"
+pi = "latest"
+
+[settings]
+# aube (the default JS package manager) aborts on packages with install scripts
+npm.package_manager = "npm"
