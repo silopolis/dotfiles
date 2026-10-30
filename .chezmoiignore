@@ -1,5 +1,11 @@
 README.md
 TODO.md
+# Repository files, not dotfiles.
+# Temporary block: the openspec change adopt-chezmoiroot moves the source state
+# into home/ and removes it.
+AGENTS.md
+docs
+openspec
 
 .bash_history
 .config/bash/bash_history

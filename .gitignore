@@ -5,3 +5,9 @@
 *.log
 
 dot_config/tmux/plugins
+
+# opencode installs its plugin SDK in project .opencode/ folders
+.opencode/node_modules/
+.opencode/package.json
+.opencode/package-lock.json
+.opencode/bun.lock

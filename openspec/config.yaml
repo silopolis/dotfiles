@@ -1,0 +1,59 @@
+schema: spec-driven
+
+# Project context, shown to the AI when it creates artifacts.
+context: |
+  Repository: silopolis/dotfiles, a PUBLIC GitHub repository.
+  It is the chezmoi source state of one user's Linux workstations
+  (main machine: Kali Rolling, KDE Plasma 6 on X11, zsh, laptop).
+  It is the base layer of cles-en-main (cem), a workstation lifecycle tool
+  built on chezmoi and mise that will eventually supersede parts of it.
+
+  Layout (flat today; the change adopt-chezmoiroot moves it into home/):
+  - .chezmoi.toml.tmpl: config template (prompts, data, encryption).
+  - .chezmoidata/: template data (packages.yaml, vscodium.yaml).
+  - .chezmoiexternals/: themes, gitalias, kubectl aliases, Vundle, bin.
+  - .chezmoiscripts/: run_onchange before/after scripts (installs).
+  - .chezmoitemplates/: shared template snippets.
+  - dot_config/, dot_local/: managed files; root symlink_dot_* entries
+    point ~/.zshrc, ~/.bashrc, ~/.profile, ~/.gitconfig... into ~/.config.
+  - dot_config/shell/: shared bash/zsh startup (shellrc, profile, rc.d/NNN-*.sh).
+  - docs/audits/: dated audits; docs/audits/2026-10-30-environment.md is the
+    baseline that every consolidation change refers to.
+
+  chezmoi attributes in use: dot_, private_, executable_, encrypted_ (age),
+  symlink_, empty_, modify_ (VSCodium settings merge), run_onchange_.
+  Encryption: age, identity ~/.config/chezmoi/key.age, decrypted from the
+  passphrase-protected key.txt.age by a before script.
+
+  Install priority for tools: mise, then brew, then apt, then a vendor APT
+  repository, then Flatpak; .deb files released on GitHub go through bin.
+
+  Commit messages: type(domain:subject): imperative lowercase summary,
+  for example feat(shell:env), fix(term:kitty), chore(pkg:brew),
+  docs(chezmoi:spec). Subject at most 80 characters, English.
+
+  Markdown: one sentence per line (SemBr), no em or en dashes, no emoji,
+  sentence-case headings, vim modeline as the last line.
+
+# Per-artifact rules.
+rules:
+  proposal:
+    - "Write for a public repository: no secret values, no names of secret
+      variables, no token scopes, no private hosts or IP addresses, no
+      employer or client details; describe open security issues in general
+      terms and give a local lookup command instead."
+    - Cite the audit section the change comes from
+      (docs/audits/2026-10-30-environment.md).
+  specs:
+    - Requirements describe observable results on the machine (files, modes,
+      commands, exit codes), so each scenario can be checked by a command.
+  design:
+    - Any step that writes outside $HOME, uses sudo, uninstalls, or deletes
+      MUST be idempotent, guarded, and listed under Risks.
+  tasks:
+    - Every task ends with its verification command in backticks.
+    - Never run a full chezmoi apply without first reviewing
+      chezmoi apply --dry-run --verbose; single targets use --exclude=scripts.
+    - Commits are proposed to the user and made only after validation.
+    - "Last group of every change: archive the change and tick the matching
+      cem checklist line when one exists."
