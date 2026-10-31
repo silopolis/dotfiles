@@ -23,6 +23,25 @@ Credentials, sessions, databases, logs and caches of AI tools SHALL never be add
 - **WHEN** `chezmoi managed` is searched for session, log, cache or database paths of the AI tools
 - **THEN** nothing is found
 
+### Requirement: Agent shells show commit hook output
+
+The output filter used by agent shells SHALL NOT rewrite `git commit`, so that a passing commit prints what its hooks reported.
+
+#### Scenario: Commit is not rewritten
+
+- **WHEN** `rtk rewrite "git commit -m test"` runs
+- **THEN** it prints nothing and exits 1
+
+#### Scenario: A passing commit shows hook output
+
+- **WHEN** an agent shell commits a change through a repository whose pre-commit hook prints step results
+- **THEN** the commit's output contains those step results, not only the short hash
+
+#### Scenario: Machine state stays out of the source
+
+- **WHEN** the rtk target in the source state is searched for telemetry consent keys
+- **THEN** nothing is found
+
 ### Requirement: Provider keys are referenced, not stored
 
 Managed AI configs SHALL reference provider keys through environment variables or a loader, never as literal values.

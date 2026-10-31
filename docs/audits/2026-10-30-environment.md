@@ -222,15 +222,16 @@ MM .config, .local/share/fonts, .local/share/icons, three LXQt theme dirs (modes
 | 10 | `install-terminal-fonts` | F17 | 6.3 | proposal, specs, draft tasks |
 | 11 | `manage-kde-desktop-config` | F36 | Later steps: KDE preferences | proposal, specs |
 | 12 | `manage-xdg-basics` | F36 | | proposal, specs |
-| 13 | `manage-ai-tool-configs` | F36 | 5.5 (configs only) | proposal, specs |
+| 13 | `manage-ai-tool-configs` | F36 | 5.5 (configs only) | proposal, specs; rtk hides passing-commit hook output, added 2026-10-31 |
 | 14 | `manage-dev-tui-configs` | F36 | | proposal, specs |
 | 15 | `ignore-app-state` | F36 | | proposal, specs |
 | 16 | `cleanup-dead-config` | F29, F30, F31, F35, F37, F39, F40 | 4.2 (check) | proposal, specs |
 | 17 | `add-repo-quality-gates` | process | | proposal, specs |
 | 18 | `refresh-repo-docs` | F34 | | proposal, specs |
 | 19 | `manage-gh-config` | F01, F31 (gh part) | | proposal, specs; added 2026-10-31 on request |
+| 20 | `enforce-hook-with-system-git` | F12 (regression after archive) | | proposal, specs; added 2026-10-31, suggested early (before order 2) |
 
-Changes 6 to 19 refine their artifacts at the start of their own session (`/opsx-continue`).
+Changes 6 to 20 refine their artifacts at the start of their own session (`/opsx-continue`).
 
 ## 7. Working a change in a fresh session
 
