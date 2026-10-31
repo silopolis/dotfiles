@@ -32,6 +32,16 @@ A pre-commit hook SHALL refuse commits that add secrets or private keys.
 - **WHEN** a staged file in a scratch clone contains a token-shaped test string and `hk run pre-commit` runs
 - **THEN** the hook fails and names the file
 
+#### Scenario: A private key is refused
+
+- **WHEN** a staged file in a scratch clone contains a private-key header and `hk run pre-commit` runs
+- **THEN** the hook fails and names the file
+
+#### Scenario: A partial commit keeps unstaged work
+
+- **WHEN** a scratch clone has an unstaged edit in one file and `git commit --only -m test -- <other file>` commits another file
+- **THEN** the commit succeeds and the unstaged edit is still in the working tree
+
 #### Scenario: A normal commit passes
 
 - **WHEN** `hk check --all` runs on the clean tree

@@ -33,18 +33,12 @@
 
 ### Neovim external
 
-```toml
-[".config/nvim"]
-  type = "git-repo"
-  url = "https://github.com/<owner>/<repo>.git"
-  refreshPeriod = "0"
-  clone.args = ["--branch", "dev"]
-  pull.args = ["--ff-only"]
-```
+The external, its `<host>/<owner>/<repo>` data and its offline guard (a clone or a GitHub CLI login file must exist) are defined in `fix-chezmoi-config-template`.
+This change only builds on it:
 
-`refreshPeriod = 0` means chezmoi clones when the directory is missing and never pulls; updates stay a git operation in the repository.
-Guard: wrap the entry in a template condition on a data flag (`nvim.external`, default true) and on `gh auth status` succeeding (`output` in the external template), so a machine without GitHub access still applies.
-Alternative considered: a `run_once` script cloning the repository; rejected, the external is declarative and visible in `chezmoi managed`.
+- skip it for profiles that do not need Neovim, if cem `T-012` says so;
+- optional extra data keys (`nvim.branch`, `nvim.protocol` for SSH) if they prove useful;
+- prove in the container that a machine without a GitHub login bootstraps and skips it.
 
 ### Container test
 
@@ -54,8 +48,7 @@ Brew in a container is slow; the test may set `CHEZMOI_SCRIPTS_DRY_RUN=1` for pa
 ## Risks / Trade-offs
 
 - [Risk] Templating plain files changes their output subtly. → `chezmoi diff` must be empty on this laptop after each conversion.
-- [Risk] `chezmoi apply --refresh-externals` (or `-R`) pulls into the Neovim working copy. → `pull.args = ["--ff-only"]` refuses anything but a fast-forward; documented in `AGENTS.md`.
-- [Risk] A private-repository external fails during `apply` and aborts it. → Guard as above; test in an environment without GitHub authentication.
+- [Risk] A private-repository external fails during `apply` and aborts it. → The guard from `fix-chezmoi-config-template` skips it without a clone or a login file; test in a container without GitHub authentication.
 - [Risk] Profile values chosen here conflict with cem `T-012`. → Keep the schema minimal and record it in cem before implementing.
 
 ## Open Questions
@@ -63,5 +56,6 @@ Brew in a container is slow; the test may set `CHEZMOI_SCRIPTS_DRY_RUN=1` for pa
 - Profile names and how many (cem `T-012`).
 - Keep `syssetup.sh` (system bootstrap with apt) or fold it into `scripts/install.sh`?
 - Does the btrfs and snapper part of the apt prerequisites belong to a `btrfs` machine flag?
+- Which extra Neovim values (branch, SSH transport) deserve a prompt, and is the external skipped for some profiles?
 
 <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->

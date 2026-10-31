@@ -2,6 +2,7 @@
 
 The real config template `.chezmoi.toml.tmpl` and the config chezmoi actually uses have diverged: a frozen rendered config from another machine is deployed over `~/.config/chezmoi/chezmoi.toml`, it is the only place encryption is configured, and several settings in the template never take effect.
 A fresh machine therefore cannot decrypt, this machine carries wrong data, and the next change (scripts) needs a trustworthy config (audit findings F03, F04, F07, F08, F09, F13, F41).
+The same config is the right home for the location of the Neovim repository, so that no repository name is written in this public repository (F05, decision of 2026-10-31).
 
 ## What Changes
 
@@ -12,12 +13,15 @@ A fresh machine therefore cannot decrypt, this machine carries wrong data, and t
 - Drop the `commitMessageTemplate` prompt (`autoCommit` is off) (F09).
 - Delete the frozen `dot_config/chezmoi/chezmoi.toml.tmpl` and regenerate the config with `chezmoi init`, which yields the real data for this machine (laptop, 6 cores, 12 threads) (F03).
 - After the brew hook re-adds the Brewfile, re-apply it so its mode matches the target state (F41).
+- Ask once for the Neovim repository location (`nvim.host`, default `github.com`, `nvim.owner`, `nvim.repo`; an empty owner or repository means no external) and clone it through a `git-repo` external that never pulls over local work (`refreshPeriod = "0"`, `pull.args = ["--ff-only"]`).
+  The external exists only when the data is set and the machine either already has the clone or has a GitHub CLI login file, so a machine without GitHub access still applies (F05).
 
 ## Capabilities
 
 ### New Capabilities
 
 - `chezmoi-config`: how chezmoi's own configuration is produced and what it must contain.
+- `neovim-config`: where the Neovim configuration comes from and how it is kept safe from the external.
 
 ### Modified Capabilities
 
@@ -29,5 +33,8 @@ None.
 - With umask 027, the next full apply changes the mode of most managed files and directories (handled and reviewed in `reconcile-drift-and-supervised-apply`); this change applies nothing in bulk.
 - `chezmoi diff` stops showing externals; the global pager becomes `bat`.
 - `dot_config/shell/rc.d/110-pkg_brew.sh` (brew hook) gains one step.
+- New `.chezmoiexternals/nvim.toml.tmpl`; the first apply that includes it runs one fast-forward-only `git pull` in `~/.config/nvim`, which is applied only when the user's Neovim work is idle.
+- Constraint: the GitHub CLI login file stays unmanaged and untracked, because the external guard reads its presence (roadmap item `manage-gh-config`).
+- `AGENTS.md` notes that `chezmoi apply -R` also pulls into `~/.config/nvim`.
 
 <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->

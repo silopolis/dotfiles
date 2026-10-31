@@ -28,24 +28,14 @@ Managed files SHALL not contain the user's home path or the Homebrew prefix as l
 - **WHEN** a plain file is turned into a template to remove a literal path
 - **THEN** `chezmoi diff` for its target is empty on this laptop
 
-### Requirement: Neovim configuration from its own repository
+### Requirement: Bootstrap does not depend on GitHub access
 
-The Neovim configuration SHALL be cloned from its repository by a chezmoi external that never overwrites local work.
+A machine without a GitHub login SHALL still bootstrap; the Neovim external (defined by the `neovim-config` capability) is skipped.
 
-#### Scenario: Missing directory is cloned
+#### Scenario: No GitHub login
 
-- **WHEN** `~/.config/nvim` does not exist, GitHub authentication works, and `chezmoi apply` runs
-- **THEN** the repository is cloned there
-
-#### Scenario: Existing clone is left alone
-
-- **WHEN** `~/.config/nvim` exists with local commits or uncommitted changes and `chezmoi apply` runs
-- **THEN** its `git status` and `HEAD` are unchanged
-
-#### Scenario: No GitHub access
-
-- **WHEN** GitHub authentication is missing and `chezmoi apply` runs
-- **THEN** the apply succeeds and reports that the Neovim external was skipped
+- **WHEN** the bootstrap runs in a clean container where `~/.config/gh/hosts.yml` does not exist
+- **THEN** it exits 0 and `chezmoi managed | grep -c '^\.config/nvim$'` prints 0
 
 ### Requirement: git identity from data
 

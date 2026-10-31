@@ -18,11 +18,11 @@
 - [ ] 3.2 Fix or remove `executable_syssetup.sh`
 - [ ] 3.3 Document the bootstrap command in `README.md`
 
-## 4. Neovim external
+## 4. Neovim external (defined in `fix-chezmoi-config-template`)
 
-- [ ] 4.1 Add the guarded `git-repo` external with `refreshPeriod = "0"` (`chezmoi managed | grep -c '^\.config/nvim$'`)
-- [ ] 4.2 Prove it leaves the existing clone alone (`git -C ~/.config/nvim status -sb` and `rev-parse HEAD` before and after `chezmoi apply --include=externals ~/.config/nvim`)
-- [ ] 4.3 Prove the skip path with GitHub authentication unavailable
+- [ ] 4.1 Decide with cem `T-012` whether the external is skipped for some profiles, and if so add the condition to `.chezmoiexternals/nvim.toml.tmpl` (`chezmoi --override-data '{"profile":"<name>"}' managed | grep -c '^\.config/nvim$'` prints 0)
+- [ ] 4.2 Decide whether the branch and an SSH transport get data keys (`nvim.branch`, `nvim.protocol`); if yes, add the questions and use them in the external (`chezmoi execute-template < .chezmoiexternals/nvim.toml.tmpl`)
+- [ ] 4.3 Prove the skip path with no GitHub login in the container (bootstrap exits 0; `chezmoi managed | grep -c '^\.config/nvim$'` prints 0)
 
 ## 5. Test
 
