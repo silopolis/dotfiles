@@ -228,8 +228,9 @@ MM .config, .local/share/fonts, .local/share/icons, three LXQt theme dirs (modes
 | 16 | `cleanup-dead-config` | F29, F30, F31, F35, F37, F39, F40 | 4.2 (check) | proposal, specs |
 | 17 | `add-repo-quality-gates` | process | | proposal, specs |
 | 18 | `refresh-repo-docs` | F34 | | proposal, specs |
+| 19 | `manage-gh-config` | F01, F31 (gh part) | | proposal, specs; added 2026-10-31 on request |
 
-Changes 6 to 18 refine their artifacts at the start of their own session (`/opsx-continue`).
+Changes 6 to 19 refine their artifacts at the start of their own session (`/opsx-continue`).
 
 ## 7. Working a change in a fresh session
 
