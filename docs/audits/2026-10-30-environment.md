@@ -210,7 +210,7 @@ MM .config, .local/share/fonts, .local/share/icons, three LXQt theme dirs (modes
 | Order | Change | Findings | cem checklist | Detail on 2026-10-30 |
 | --- | --- | --- | --- | --- |
 | 0 | `bootstrap-spec-workflow` | process | | done, archived |
-| 1 | `harden-sensitive-targets` | F10, F11, F12, F05 (check) | | full |
+| 1 | `harden-sensitive-targets` | F10, F11, F12, F05 (check) | | done, archived 2026-10-31 |
 | 2 | `adopt-chezmoiroot` | layout | | full |
 | 3 | `fix-chezmoi-config-template` | F03, F04, F07, F08, F09, F13, F41 | | full |
 | 4 | `make-install-scripts-idempotent` | F01, F02, F24 (scripts), F27 | | full |

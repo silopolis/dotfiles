@@ -1,4 +1,10 @@
-## ADDED Requirements
+# secret-hygiene Specification
+
+## Purpose
+
+How secrets are stored, deployed and kept out of the public history of this repository: encrypted sources deploy as private files, the history and every new commit are scanned for leaks, and one pinned chezmoi binary does the deploying.
+
+## Requirements
 
 ### Requirement: Decrypted secrets are private
 
@@ -12,7 +18,7 @@ Every target produced from an `encrypted_` source file SHALL be deployed with mo
 #### Scenario: Every encrypted source name is private
 
 - **WHEN** `git ls-files | grep 'encrypted_' | grep -v 'private_'` runs
-- **THEN** it prints nothing, except the bootstrap identity `key.txt.age`, which is not a target
+- **THEN** it prints nothing
 
 ### Requirement: Clean public history
 
@@ -67,3 +73,4 @@ Exactly one chezmoi executable SHALL be on `PATH`, at the latest release when th
 - **THEN** the `latest-version` check is `ok`
 
 <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->
+
