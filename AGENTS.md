@@ -43,6 +43,9 @@ Not here: Neovim (`~/.config/nvim`, its own repository).
 - `zsh -n <file>`, `bash -n <file>`, `shellcheck <file>`: shell checks.
 - `openspec validate --all --strict`: check specs and changes.
 - Startup time: `for i in 1 2 3; do /usr/bin/env time -f %e zsh -i -c exit; done` (or `date +%s.%N` around the call when GNU time is missing).
+- chezmoi comes from brew, and minimal non-interactive shells (ssh command, cron, `env -i`) do not load brew, so they do not find it.
+  Run `eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"` first, or call `/home/linuxbrew/.linuxbrew/bin/chezmoi`.
+  This holds until `fast-correct-shell-startup` fixes bash login startup (F22).
 
 ## Safety rules
 
