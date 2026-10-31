@@ -29,6 +29,7 @@ Paths below are the flat layout; after the change `adopt-chezmoiroot`, everythin
 | `dot_config/shell/` | Shared bash and zsh startup: `profile`, `shellrc`, `rc.d/NNN-*.sh`, `aliases` |
 | `docs/audits/` | Dated audits; the 2026-10-30 one is the consolidation baseline |
 | `openspec/` | Specs (`specs/`), active and archived changes (`changes/`), `config.yaml` |
+| `memory/sessions/` | Redacted transcripts of agent sessions, public profile; see its `README.md` |
 | `.opencode/` | OpenSpec commands and skills for opencode |
 
 Not here: Neovim (`~/.config/nvim`, its own repository).
@@ -53,6 +54,7 @@ Not here: Neovim (`~/.config/nvim`, its own repository).
 - Apply single targets with `--exclude=scripts`.
 - Edit the source, never the target, for managed files; bring live edits back with `chezmoi re-add` after a diff review.
 - Never print, log or commit secret values; encrypted files are added with `chezmoi add --encrypt` and keep the `private_` attribute.
+- Raw session exports contain private data: keep them in a scratch directory with mode 0700, commit only the redacted copies in `memory/sessions/`, and delete the raw files.
 - Anything that uses sudo, writes outside `$HOME`, uninstalls or deletes needs the user's explicit go.
 - Commits: propose the messages, commit only after the user validates them, never push without being asked.
 - The brew hook (`dot_config/shell/rc.d/110-pkg_brew.sh`) commits the Brewfile by itself after brew changes: expect those commits.

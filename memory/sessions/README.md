@@ -1,0 +1,52 @@
+# memory/sessions: redacted session transcripts
+
+Transcripts of the agent sessions that worked on this repository.
+They are raw memory: not curated, not edited after export, redacted for a public repository.
+They are not chezmoi targets (`.chezmoiignore`).
+
+## Naming
+
+```text
+{YYYYMMDDHHMM}-{slug}.md
+```
+
+- The timestamp is the session's creation time, local time.
+- Sub-agent sessions sit next to their parent; their slug starts with the parent's slug.
+- Slugs are neutral on purpose: a file name is not redacted, so it must not carry a name that the text masks.
+
+## Contents
+
+| File | Session | Notes |
+| --- | --- | --- |
+| `202610301854-harden_sensitive_targets.md` | `ses_e720ce42affen6d11Mjrfbnxpi` | Change `harden-sensitive-targets`: apply, hook probes, verify, archive; then the rtk and system git hook findings, the signal to the project factory, and this export |
+| `202610311807-harden_sensitive-explore_dispatch_rules.md` | `ses_e6d11a624ffePObu4C6kjRjMqm` | Sub-agent: how a fleet repository signals the project factory, and where rtk is configured |
+| `202610311807-harden_sensitive-explore_export_machinery.md` | `ses_e6d11c8cdffe3dVrtrei30j3UH` | Sub-agent: the existing session export machinery |
+
+Each file's header states how far it goes (`<!-- session-export: through msg_... -->`).
+The main file stops when it was exported: the commit of the export and the push are not in it.
+
+## Redaction
+
+The public profile of the redaction tool rewrites each raw export before it enters this repository:
+
+1. secrets (API keys, tokens, age secret keys, private key blocks) become `[redacted:secret]`;
+2. private terms, repository names, credential variable names, token scope lines, IP addresses, e-mail addresses and non-public git hosts become `[redacted:private]`, `[redacted:repo]`, `[redacted:ip]` and similar markers;
+3. home directories become `~`; `/home/linuxbrew` (Homebrew's prefix) and the placeholder `/home/user` stay.
+
+The private terms come from a private terms directory selected with the environment variable `SESSION_REDACT_TERMS_DIR`, never from this repository.
+The tool and the directory are recorded in the user's private notes; the tool is transitional.
+
+Redaction only knows what it is told.
+Before committing, run the tool's `--check` on the redacted files, run the repository's secret scan on `memory/sessions/`, and search the files for what this export is known to be about; none of these is proof on its own.
+
+## Reproduce
+
+1. Export the session to a scratch directory with mode 0700, through a file and never through a pipe (the exporter loses its tail when piped), as a full export.
+2. Redact each raw file into this directory, using a neutral slug for the new file name.
+3. Check, scan, read samples, then commit.
+4. Delete the raw files.
+
+These files do not follow the Markdown rules of this repository (one sentence per line, no dashes, modeline): they are verbatim transcripts.
+Linters added later must exclude `memory/sessions/`.
+
+<!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->
