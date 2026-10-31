@@ -1,0 +1,22 @@
+// Secret scanning for this public repository (change harden-sensitive-targets).
+//
+// Top-level `steps` feed the implicit `check`, `fix` and `pre-commit` hooks.
+// The explicit `pre-commit` hook replaces `gitleaks` with its staged variant,
+// so a commit is judged on exactly what is staged, and keeps the inherited
+// `detect_private_key` step.
+// Allowlisted false positives live in `.gitleaks.toml`.
+amends "package://github.com/jdx/hk/releases/download/v2.10.0/hk@2.10.0#/Config.pkl"
+import "package://github.com/jdx/hk/releases/download/v2.10.0/hk@2.10.0#/Builtins.pkl"
+
+steps {
+  ["gitleaks"] = Builtins.gitleaks
+  ["detect_private_key"] = Builtins.detect_private_key
+}
+
+hooks {
+  ["pre-commit"] {
+    steps {
+      ["gitleaks"] = (Builtins.gitleaks) { scan = "staged" }
+    }
+  }
+}

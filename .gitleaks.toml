@@ -1,0 +1,18 @@
+# gitleaks configuration for this repository.
+# It extends the default rules; only reviewed false positives are listed below.
+title = "dotfiles gitleaks configuration"
+
+[extend]
+useDefault = true
+
+# Reviewed on 2026-10-31 (change harden-sensitive-targets): the finding is an
+# example token inside the vendored upstream fabric prompt
+# write_nuclei_template_rule, present in the public upstream project; its
+# payload holds placeholder claims only.
+# The path pattern matches before and after the move into home/.
+[[allowlists]]
+description = "Example JWT in the vendored upstream fabric prompt write_nuclei_template_rule"
+targetRules = ["jwt"]
+paths = ['''(^|/)dot_config/fabric/private_patterns/write_nuclei_template_rule/system\.md$''']
+
+# vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en :
