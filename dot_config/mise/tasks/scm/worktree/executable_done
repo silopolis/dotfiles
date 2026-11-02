@@ -1,0 +1,71 @@
+#!/usr/bin/env -S usage bash
+#MISE description="Clean up merged worktrees: verify the merge into origin/main, then run scm:worktree:rm"
+#MISE alias="scm:wt:done"
+#USAGE arg "[target]" help="Stem, name, branch or path; omit with --all-merged"
+#USAGE flag "--all-merged" help="Clean every worktree whose branch is in origin/main and that is clean"
+#USAGE flag "--force" help="Skip the merge check and discard (same as scm:worktree:rm --force)"
+#USAGE flag "--keep-tab" help="Do not close the herdr tab"
+# shellcheck shell=bash
+set -euo pipefail
+
+# shellcheck disable=SC1091
+source "${MISE_CONFIG_DIR:-$HOME/.config/mise}/lib/scm.sh"
+
+here=$(dirname "$(readlink -f "$0")")
+rm_task=$here/rm
+[[ -x $rm_task ]] || rm_task=$here/executable_rm
+[[ -x $rm_task ]] || scm_die "cannot find the sibling task scm:worktree:rm"
+
+src=$(scm_origin_dir)
+main=$(scm_preflight "$src")
+
+git -C "$main" fetch --quiet origin 2>/dev/null || scm_warn "could not fetch origin; checking against the local origin/main"
+git -C "$main" rev-parse --verify --quiet origin/main >/dev/null || scm_die "origin/main does not exist"
+
+rm_args=(--reason "done")
+[[ -n ${usage_force:-} ]] && rm_args+=(--force)
+[[ -n ${usage_keep_tab:-} ]] && rm_args+=(--keep-tab)
+
+clean_one() { # path
+  "$rm_task" "$1" "${rm_args[@]}"
+}
+
+if [[ -n ${usage_all_merged:-} ]]; then
+  [[ -z ${usage_target:-} ]] || scm_die "give a target or --all-merged, not both"
+  done_count=0 skipped=0
+  path='' branch=''
+  while IFS= read -r line; do
+    case $line in
+      "worktree "*) path=${line#worktree }; branch='' ;;
+      "branch "*) branch=${line#branch refs/heads/} ;;
+      "")
+        if [[ -n $path && $path != "$main" && -n $branch ]]; then
+          if ! git -C "$main" merge-base --is-ancestor "$branch" origin/main; then
+            scm_info "skip $(basename "$path"): '$branch' is not in origin/main"
+            skipped=$((skipped + 1))
+          elif [[ -n $(git -C "$path" status --porcelain 2>/dev/null) ]]; then
+            scm_info "skip $(basename "$path"): uncommitted or untracked files"
+            skipped=$((skipped + 1))
+          else
+            clean_one "$path" && done_count=$((done_count + 1))
+          fi
+        fi
+        path=''
+        ;;
+    esac
+  done < <(git -C "$main" worktree list --porcelain; echo)
+  scm_info "done: $done_count cleaned, $skipped skipped"
+  exit 0
+fi
+
+target=${usage_target:-}
+[[ -n $target ]] || scm_die "give a target, or --all-merged"
+rc=0
+found=$(scm_find_worktree "$main" "$target") || rc=$?
+((rc == 0)) || scm_die "$([[ $rc -eq 2 ]] && echo "'$target' matches several worktrees" || echo "no worktree matches '$target'")"
+IFS=$'\t' read -r path branch <<<"$found"
+
+if [[ -z ${usage_force:-} ]] && ! git -C "$main" merge-base --is-ancestor "$branch" origin/main; then
+  scm_die "branch '$branch' is not in origin/main: merge its pull request first (or use --force to discard)"
+fi
+clean_one "$path"

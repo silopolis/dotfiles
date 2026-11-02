@@ -1,0 +1,129 @@
+#!/usr/bin/env -S usage bash
+#MISE description="Create a git worktree for a new branch, optionally with a herdr tab and an agent"
+#MISE alias="scm:wt:new"
+#USAGE arg "<branch>" help="New branch, <type>/<name>; the worktree directory is <prefix>-<name>"
+#USAGE flag "--base <ref>" default="origin/main" help="Commit the branch starts from"
+#USAGE flag "--path <dir>" help="Worktree directory (default: $WORKTREES_ROOT or ~/Work/trees, then <prefix>-<name>)"
+#USAGE flag "--prefix <prefix>" help="Name prefix (else $WORKTREES_PREFIX, var scm_worktrees_prefix, {repo})"
+#USAGE flag "--tab" help="Open a herdr tab in the worktree"
+#USAGE flag "--workspace <label>" help="herdr workspace label or id for --tab (default: $HERDR_WORKSPACE_ID)"
+#USAGE flag "--label <text>" help="Tab label (default: the worktree name)"
+#USAGE flag "--env <kv>" var=#true help="KEY=VALUE for the tab and the post-create hook (repeatable)"
+#USAGE flag "--agent-kind <kind>" help="Start this herdr agent kind (for example opencode) in the tab"
+#USAGE flag "--agent-name <name>" help="herdr agent name, [a-z][a-z0-9_-]{0,31}, server-wide"
+#USAGE flag "--prompt <text>" help="First prompt sent to the agent"
+#USAGE flag "--generic" help="Run even in a repository that defines its own worktree:new or worktree:rm"
+#USAGE flag "--json" help="Print the result as JSON on stdout"
+#USAGE arg "[agent_args]..." var=#true help="Arguments passed to the agent, after -- (they may use flags of their own, such as --agent plan)"
+# Generic: nothing here is specific to one repository. A project can add behaviour
+# with the tasks scm:worktree:hook:post-create and scm:worktree:hook:incident.
+# Hook protocol: post-create runs inside the new worktree with WT_PATH, WT_BRANCH,
+# WT_NAME, WT_STEM, WT_REPO and WT_ENV_FILE; KEY=VALUE lines it writes to
+# WT_ENV_FILE become tab environment.
+# shellcheck shell=bash
+set -euo pipefail
+
+# shellcheck disable=SC1091
+source "${MISE_CONFIG_DIR:-$HOME/.config/mise}/lib/scm.sh"
+
+branch=${usage_branch:?}
+base=${usage_base:-origin/main}
+env_pairs=()
+agent_args=()
+[[ -n ${usage_env:-} ]] && eval "env_pairs=(${usage_env})"
+[[ -n ${usage_agent_args:-} ]] && eval "agent_args=(${usage_agent_args})"
+
+src=$(scm_origin_dir)
+main=$(scm_preflight "$src")
+scm_require_trusted "$main" "so its project hooks and settings cannot be found"
+
+if [[ -z ${usage_generic:-} ]]; then
+  for own in worktree:new worktree:rm; do
+    scm_has_task "$main" "$own" && scm_die "this repository defines its own '$own'; use it, or pass --generic"
+  done
+fi
+
+[[ $branch == */* ]] || scm_warn "branch '$branch' has no <type>/ segment; the name stem is the whole branch"
+stem=${branch#*/}
+stem=${stem//\//-}
+prefix=$(scm_prefix "$main" "${usage_prefix:-}")
+name="${prefix}-${stem}"
+path=${usage_path:-$(scm_worktrees_root)/$name}
+path=${path/#\~/$HOME}
+repo=$(scm_repo_name "$main")
+
+# Refuse duplicates: nothing is created when anything exists.
+git -C "$main" show-ref --verify --quiet "refs/heads/$branch" && scm_die "branch '$branch' already exists locally"
+git -C "$main" show-ref --verify --quiet "refs/remotes/origin/$branch" && scm_die "branch '$branch' already exists on origin"
+if git -C "$main" remote get-url origin >/dev/null 2>&1; then
+  if git -C "$main" ls-remote --exit-code --heads origin "$branch" >/dev/null 2>&1; then
+    scm_die "branch '$branch' already exists on origin"
+  fi
+fi
+[[ -e $path ]] && scm_die "path '$path' already exists"
+
+if [[ $base == origin/* ]]; then
+  git -C "$main" fetch --quiet origin 2>/dev/null || scm_warn "could not fetch origin; using the local $base"
+fi
+git -C "$main" rev-parse --verify --quiet "$base^{commit}" >/dev/null || scm_die "base '$base' does not exist"
+
+mkdir -p "$(dirname "$path")"
+git -C "$main" worktree add --no-track -b "$branch" "$path" "$base" >&2
+scm_check_source "$main"
+scm_info "worktree: $path ($branch from $base)"
+
+# Trust the new worktree only when the source checkout is trusted, before any project task.
+if scm_trusted "$main"; then
+  mise trust "$path" >&2
+fi
+
+# Project hook: may write KEY=VALUE lines to WT_ENV_FILE (tab environment).
+env_file=$(mktemp)
+trap 'rm -f "$env_file"' EXIT
+hook_env=("WT_PATH=$path" "WT_BRANCH=$branch" "WT_NAME=$name" "WT_STEM=$stem" "WT_REPO=${repo:-$(basename "$main")}" "WT_ENV_FILE=$env_file")
+((${#env_pairs[@]})) && hook_env+=("${env_pairs[@]}")
+if ! scm_run_hook "$path" scm:worktree:hook:post-create "${hook_env[@]}"; then
+  scm_die "post-create hook failed; the worktree is left at $path (remove it with: mise run scm:worktree:rm $stem --force)"
+fi
+
+tab_id='' pane_id='' agent=''
+if [[ -n ${usage_tab:-} ]]; then
+  workspace=${usage_workspace:-${HERDR_WORKSPACE_ID:-}}
+  [[ -n $workspace ]] || scm_die "--tab needs --workspace or HERDR_WORKSPACE_ID"
+  workspace=$(scm_workspace_id "$workspace") || scm_die "herdr workspace '$workspace' not found (or ambiguous)"
+  tab_env=()
+  for kv in "${env_pairs[@]}"; do tab_env+=(--env "$kv"); done
+  while IFS= read -r kv; do
+    [[ $kv == *=* ]] && tab_env+=(--env "$kv")
+  done <"$env_file"
+  created=$(herdr tab create --workspace "$workspace" --cwd "$path" --label "${usage_label:-$name}" "${tab_env[@]}" --no-focus) \
+    || scm_die "herdr could not create the tab (the worktree exists at $path)"
+  tab_id=$(jq -r '.result.tab.tab_id' <<<"$created")
+  pane_id=$(jq -r '.result.root_pane.pane_id' <<<"$created")
+  printf '%s\n' "$tab_id" >"$(scm_tab_file "$path")"
+  scm_info "tab: $tab_id (pane $pane_id)"
+
+  if [[ -n ${usage_agent_kind:-} ]]; then
+    agent=${usage_agent_name:-}
+    if [[ -z $agent ]]; then
+      agent=$(tr '[:upper:]' '[:lower:]' <<<"$name" | tr -c 'a-z0-9_\n-' '-' | cut -c1-32)
+      [[ $agent =~ ^[a-z] ]] || agent="w-$agent"
+      agent=${agent:0:32}
+    fi
+    [[ $agent =~ ^[a-z][a-z0-9_-]{0,31}$ ]] || scm_die "bad agent name '$agent'"
+    scm_start_agent "$agent" "$usage_agent_kind" "$pane_id" "${agent_args[@]}" \
+      || scm_die "herdr could not start agent '$agent' (the worktree and tab $tab_id are left in place)"
+    scm_info "agent: $agent ($usage_agent_kind ${agent_args[*]})"
+    if [[ -n ${usage_prompt:-} ]]; then
+      scm_prompt_agent "$agent" "$usage_prompt" || scm_warn "could not send the prompt to '$agent' (it is running; send it by hand)"
+    fi
+  fi
+fi
+
+if [[ -n ${usage_json:-} ]]; then
+  jq -n --arg path "$path" --arg branch "$branch" --arg name "$name" --arg tab "$tab_id" \
+    --arg pane "$pane_id" --arg agent "$agent" \
+    '{path: $path, branch: $branch, name: $name, tab: $tab, pane: $pane, agent: $agent}'
+else
+  printf '%s\n' "$path"
+fi

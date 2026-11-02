@@ -1,0 +1,84 @@
+#!/usr/bin/env -S usage bash
+#MISE description="Remove a git worktree and its local branch (low-level; scm:worktree:done checks the merge first)"
+#MISE alias="scm:wt:rm"
+#USAGE arg "<target>" help="Stem, name, branch or path of the worktree"
+#USAGE flag "--force" help="Remove a dirty worktree and discard an unmerged branch"
+#USAGE flag "--keep-tab" help="Do not close the herdr tab"
+#USAGE flag "--reason <why>" default="rm" hide=#true help="Passed to the hook: rm or done"
+# Order: refuse (dirty, unmerged) -> project hook scm:worktree:hook:post-remove (inside the
+# worktree, still trusted) -> untrust -> git worktree remove -> branch -> prune -> close tab.
+# The remote branch is never touched. Afterwards the source checkout must still have
+# no core.worktree setting (exit status 3 otherwise).
+# shellcheck shell=bash
+set -euo pipefail
+
+# shellcheck disable=SC1091
+source "${MISE_CONFIG_DIR:-$HOME/.config/mise}/lib/scm.sh"
+
+target=${usage_target:?}
+force=${usage_force:-}
+reason=${usage_reason:-rm}
+
+src=$(scm_origin_dir)
+main=$(scm_preflight "$src")
+
+rc=0
+found=$(scm_find_worktree "$main" "$target") || rc=$?
+((rc == 0)) || scm_die "$([[ $rc -eq 2 ]] && echo "'$target' matches several worktrees" || echo "no worktree matches '$target'")"
+IFS=$'\t' read -r path branch <<<"$found"
+name=$(basename "$path")
+stem=${branch#*/}
+stem=${stem//\//-}
+
+if [[ -z $force ]]; then
+  if [[ -n $(git -C "$path" status --porcelain 2>/dev/null) ]]; then
+    scm_die "worktree $path has uncommitted or untracked files (commit them, or use --force to discard)"
+  fi
+  if [[ -n $branch ]]; then
+    merged=
+    git -C "$main" rev-parse --verify --quiet origin/main >/dev/null \
+      && git -C "$main" merge-base --is-ancestor "$branch" origin/main && merged=1
+    [[ -n $merged ]] || { git -C "$main" merge-base --is-ancestor "$branch" HEAD && merged=1; } || true
+    [[ -n $merged ]] || scm_die "branch '$branch' has commits that are not in origin/main (merge it first, or use --force to discard)"
+  fi
+fi
+
+tab_id=
+tab_file=$(scm_tab_file "$path" || true)
+[[ -n $tab_file && -f $tab_file ]] && tab_id=$(<"$tab_file")
+
+if [[ -n $force ]]; then
+  mise -C "$path" trust --show 2>&1 | grep -q ': untrusted$' \
+    && scm_warn "the mise config of $path is not trusted: its post-remove hook is skipped"
+else
+  scm_require_trusted "$path" "so its post-remove hook would be skipped and leave data behind (or use --force)"
+fi
+repo=$(scm_repo_name "$main")
+scm_run_hook "$path" scm:worktree:hook:post-remove \
+  "WT_PATH=$path" "WT_BRANCH=$branch" "WT_NAME=$name" "WT_STEM=$stem" \
+  "WT_REPO=${repo:-$(basename "$main")}" "WT_REASON=$reason" "WT_TAB=$tab_id" \
+  || scm_warn "post-remove hook failed; continuing with the removal"
+
+# Untrust while the directory still exists (mise keys trust on the real path).
+mise trust --untrust "$path" >/dev/null 2>&1 || true
+
+if [[ -n $force ]]; then
+  git -C "$main" worktree remove --force "$path" >&2
+else
+  git -C "$main" worktree remove "$path" >&2
+fi
+if [[ -n $branch ]]; then
+  git -C "$main" branch -D "$branch" >&2 || scm_warn "could not delete local branch '$branch'"
+fi
+git -C "$main" worktree prune
+
+if [[ -n $tab_id && -z ${usage_keep_tab:-} ]]; then
+  if [[ ${HERDR_TAB_ID:-} == "$tab_id" ]]; then
+    scm_warn "tab $tab_id is the one running this task; close it by hand"
+  else
+    herdr tab close "$tab_id" >/dev/null 2>&1 || scm_warn "could not close tab $tab_id"
+  fi
+fi
+
+scm_check_source "$main"
+scm_info "removed $path (branch ${branch:-none}); the remote branch is kept"

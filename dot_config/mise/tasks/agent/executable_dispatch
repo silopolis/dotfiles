@@ -1,0 +1,55 @@
+#!/usr/bin/env -S usage bash
+#MISE description="Start an agent in another repository's herdr workspace and point it at a brief"
+#USAGE flag "--workspace <label>" required=#true help="Label (or id) of the target herdr workspace"
+#USAGE flag "--cwd <path>" required=#true help="Working directory of the new tab (the target repository)"
+#USAGE flag "--name <agent-name>" required=#true help="herdr agent name, [a-z][a-z0-9_-]{0,31}, server-wide: prefix it with the sender repository"
+#USAGE flag "--brief <file>" required=#true help="Absolute path of the brief the agent must read and execute"
+#USAGE flag "--label <text>" help="Tab label (default: the agent name)"
+#USAGE flag "--kind <kind>" default="opencode" help="herdr agent kind"
+#USAGE flag "--json" help="Print the result as JSON"
+# A dispatch is a signal, not a work order: the brief states its provenance and the
+# target decides. Confirm the brief with the user before dispatching it.
+# shellcheck shell=bash
+set -euo pipefail
+
+# shellcheck disable=SC1091
+source "${MISE_CONFIG_DIR:-$HOME/.config/mise}/lib/scm.sh"
+
+name=${usage_name:?}
+brief=${usage_brief:?}
+cwd=${usage_cwd:?}
+cwd=${cwd/#\~/$HOME}
+brief=${brief/#\~/$HOME}
+
+[[ $name =~ ^[a-z][a-z0-9_-]{0,31}$ ]] || scm_die "bad agent name '$name' (must match [a-z][a-z0-9_-]{0,31})"
+[[ $brief == /* ]] || scm_die "--brief must be an absolute path"
+[[ -f $brief ]] || scm_die "brief '$brief' does not exist"
+[[ -d $cwd ]] || scm_die "directory '$cwd' does not exist"
+[[ ${HERDR_ENV:-} == 1 ]] || command -v herdr >/dev/null 2>&1 || scm_die "herdr is not available"
+
+workspace=$(scm_workspace_id "${usage_workspace:?}") \
+  || scm_die "herdr workspace '${usage_workspace}' not found, or several share that label"
+if herdr agent get "$name" >/dev/null 2>&1; then
+  scm_die "an agent named '$name' already exists"
+fi
+
+created=$(herdr tab create --workspace "$workspace" --cwd "$cwd" --label "${usage_label:-$name}" --no-focus) \
+  || scm_die "herdr could not create a tab in workspace $workspace"
+tab_id=$(jq -r '.result.tab.tab_id' <<<"$created")
+pane_id=$(jq -r '.result.root_pane.pane_id' <<<"$created")
+
+# A dispatch that fails before the agent runs must not leave an empty tab in someone else's workspace.
+if ! scm_start_agent "$name" "${usage_kind:-opencode}" "$pane_id"; then
+  herdr tab close "$tab_id" >/dev/null 2>&1 || true
+  scm_die "herdr could not start agent '$name'; the tab it created was closed"
+fi
+scm_prompt_agent "$name" "Read and execute the brief at $brief" \
+  || scm_die "agent '$name' started but the brief was not taken up (tab $tab_id is open; send the prompt by hand)"
+
+scm_info "dispatched '$name' to workspace $workspace (tab $tab_id, pane $pane_id)"
+if [[ -n ${usage_json:-} ]]; then
+  jq -n --arg agent "$name" --arg workspace "$workspace" --arg tab "$tab_id" --arg pane "$pane_id" --arg brief "$brief" \
+    '{agent: $agent, workspace: $workspace, tab: $tab, pane: $pane, brief: $brief}'
+else
+  printf '%s\n' "$name"
+fi

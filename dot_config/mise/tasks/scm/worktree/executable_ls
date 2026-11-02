@@ -1,0 +1,85 @@
+#!/usr/bin/env -S usage bash
+#MISE description="List git worktrees: branch, ahead/behind origin/main, dirty state, pull request, herdr tab and agent"
+#MISE alias="scm:wt:ls"
+#USAGE flag "--all" help="Every worktree under WORKTREES_ROOT (default ~/Work/trees), grouped by repository"
+#USAGE flag "--json" help="Print JSON instead of a table"
+#USAGE flag "--no-pr" help="Skip the GitHub lookup"
+# shellcheck shell=bash
+set -euo pipefail
+
+# shellcheck disable=SC1091
+source "${MISE_CONFIG_DIR:-$HOME/.config/mise}/lib/scm.sh"
+
+src=$(scm_origin_dir)
+
+# Rows (TSV): repo name path branch ahead behind dirty pr tab agent
+rows() { # main
+  local main=$1 repo prs agents path='' branch='' line name ab ahead behind dirty pr tab tabid agent
+  repo=$(scm_repo_name "$main")
+  repo=${repo:-$(basename "$main")}
+  prs=''
+  if [[ -z ${usage_no_pr:-} ]] && command -v gh >/dev/null 2>&1; then
+    prs=$(cd "$main" && timeout 15 gh pr list --state all --limit 100 --json headRefName,state,number \
+      --jq '.[] | [.headRefName, "#\(.number) \(.state)"] | @tsv' 2>/dev/null || true)
+  fi
+  agents=''
+  if [[ ${HERDR_ENV:-} == 1 ]]; then
+    agents=$(herdr agent list 2>/dev/null | jq -r '.result.agents[] | [.tab_id, (.name // "-"), .agent_status] | @tsv' 2>/dev/null || true)
+  fi
+  while IFS= read -r line; do
+    case $line in
+      "worktree "*) path=${line#worktree }; branch='' ;;
+      "branch "*) branch=${line#branch refs/heads/} ;;
+      "")
+        if [[ -n $path ]]; then
+          name=$(basename "$path")
+          ab=$(git -C "$path" rev-list --left-right --count origin/main...HEAD 2>/dev/null || echo "? ?")
+          behind=${ab%%[[:space:]]*}
+          ahead=${ab##*[[:space:]]}
+          dirty=$(git -C "$path" status --porcelain 2>/dev/null | wc -l)
+          pr=$([[ -n $branch ]] && awk -F'\t' -v b="$branch" '$1 == b {print $2; exit}' <<<"$prs" || true)
+          tab='-' agent='-'
+          tabid=$(cat "$(scm_tab_file "$path" 2>/dev/null || echo /nonexistent)" 2>/dev/null || true)
+          if [[ -n $tabid ]]; then
+            tab=$(herdr tab get "$tabid" 2>/dev/null | jq -r '.result.tab.label // "-"' 2>/dev/null || echo "-")
+            agent=$(awk -F'\t' -v t="$tabid" '$1 == t {print $2 ":" $3; exit}' <<<"$agents")
+          fi
+          printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
+            "$repo" "$name" "$path" "${branch:-"(detached)"}" "$ahead" "$behind" "$dirty" "${pr:--}" "$tab" "${agent:--}"
+        fi
+        path=''
+        ;;
+    esac
+  done < <(git -C "$main" worktree list --porcelain; echo)
+}
+
+mains=()
+if [[ -n ${usage_all:-} ]]; then
+  root=$(scm_worktrees_root)
+  declare -A seen=()
+  for dir in "$root"/*/; do
+    [[ -e ${dir}.git ]] || continue
+    m=$(scm_main_checkout "$dir" 2>/dev/null) || continue
+    [[ -n ${seen[$m]:-} ]] || { seen[$m]=1; mains+=("$m"); }
+  done
+  ((${#mains[@]})) || { scm_info "no worktree under $root"; exit 0; }
+else
+  mains=("$(scm_main_checkout "$src")") || scm_die "$src is not inside a git repository"
+fi
+
+all=''
+for m in "${mains[@]}"; do
+  all+=$(rows "$m")$'\n'
+done
+all=${all%$'\n'}
+
+if [[ -n ${usage_json:-} ]]; then
+  jq -R -s 'split("\n") | map(select(length > 0) | split("\t")
+    | {repo: .[0], name: .[1], path: .[2], branch: .[3], ahead: (.[4] | tonumber? // null),
+       behind: (.[5] | tonumber? // null), dirty: ((.[6] | tonumber? // 0) > 0), pr: .[7], tab: .[8], agent: .[9]})' <<<"$all"
+else
+  {
+    printf 'REPO\tNAME\tBRANCH\tAHEAD\tBEHIND\tDIRTY\tPR\tTAB\tAGENT\n'
+    cut -f1,2,4- <<<"$all"
+  } | column -t -s $'\t'
+fi
