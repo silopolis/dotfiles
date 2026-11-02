@@ -80,6 +80,70 @@ scm_tab_file() {
   printf '%s/herdr-tab' "$gitdir"
 }
 
+# File where scm:worktree:new stores the commit the branch starts from (same directory).
+scm_base_file() {
+  local gitdir
+  gitdir=$(git -C "$1" rev-parse --absolute-git-dir 2>/dev/null) || return 1
+  printf '%s/scm-base' "$gitdir"
+}
+
+# Commit the branch $3 of the worktree $2 (repository $1) started from: the scm-base file,
+# else the creation entry of the branch reflog (reflog entries expire, 90 days by default).
+# Fails when neither is there.
+scm_branch_base() { # main path branch
+  local main=$1 path=$2 branch=$3 file line
+  file=$(scm_base_file "$path") || file=''
+  if [[ -n $file && -s $file ]]; then
+    head -n 1 "$file"
+    return 0
+  fi
+  line=$(git -C "$main" reflog show --format='%H %gs' "refs/heads/$branch" -- 2>/dev/null | tail -n 1)
+  [[ $line == *' branch: Created from '* ]] || return 1
+  printf '%s\n' "${line%% *}"
+}
+
+# Whether the branch $3 of the worktree $2 (repository $1) has commits of its own since
+# its start. Status 0: yes; 1: no; 2: unknown (no start commit on record).
+scm_own_commits() { # main path branch
+  local base count
+  base=$(scm_branch_base "$1" "$2" "$3") || return 2
+  count=$(git -C "$1" rev-list --count "$base..refs/heads/$3" 2>/dev/null) || return 2
+  ((count > 0)) || return 1
+}
+
+# Whether the branch $2 of the repository $1 is merged; prints the proof. Proofs, in order:
+# its tip is an ancestor of origin/main or of one of the extra refs; else GitHub has a merged
+# pull request from that branch into main whose head commit is the local tip (squash and
+# rebase merges). The tip must match, so commits added after the merge keep the branch, and
+# a pull request from a fork that reuses the branch name does not count.
+# Status 0: merged; 1: not merged; 2: not merged by git, and the pull request lookup was not
+# available (gh missing, offline, not logged in, not a GitHub repository).
+scm_merged() { # main branch [extra-ref...]
+  local main=$1 branch=$2 tip ref prs number
+  shift 2
+  tip=$(git -C "$main" rev-parse --verify --quiet "refs/heads/$branch^{commit}") || return 1
+  for ref in origin/main "$@"; do
+    git -C "$main" rev-parse --verify --quiet "$ref^{commit}" >/dev/null || continue
+    if git -C "$main" merge-base --is-ancestor "$tip" "$ref"; then
+      printf 'in %s\n' "$ref"
+      return 0
+    fi
+  done
+  command -v gh >/dev/null 2>&1 || return 2
+  prs=$(cd "$main" && timeout 15 gh pr list --head "$branch" --base main --state merged \
+    --json number,headRefOid </dev/null 2>/dev/null) || return 2
+  number=$(jq -r --arg tip "$tip" 'first(.[] | select(.headRefOid == $tip) | .number) // empty' \
+    <<<"$prs" 2>/dev/null) || return 2
+  [[ -n $number ]] || return 1
+  printf 'pull request #%s\n' "$number"
+}
+
+# Suffix for a refusal after scm_merged returned status $1.
+scm_merged_hint() {
+  [[ $1 == 2 ]] && printf ' (the pull request lookup was not available)'
+  return 0
+}
+
 # Run the project hook task $2 (if the project at $1 defines it) with the
 # remaining arguments as VAR=value environment entries. Returns the task's status.
 scm_run_hook() {

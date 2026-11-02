@@ -70,6 +70,8 @@ git -C "$main" rev-parse --verify --quiet "$base^{commit}" >/dev/null || scm_die
 mkdir -p "$(dirname "$path")"
 git -C "$main" worktree add --no-track -b "$branch" "$path" "$base" >&2
 scm_check_source "$main"
+# Start commit, so scm:worktree:done can tell whether the branch has commits of its own.
+git -C "$main" rev-parse --verify "refs/heads/$branch" >"$(scm_base_file "$path")"
 scm_info "worktree: $path ($branch from $base)"
 
 # Trust the new worktree only when the source checkout is trusted, before any project task.

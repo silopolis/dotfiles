@@ -35,11 +35,10 @@ if [[ -z $force ]]; then
     scm_die "worktree $path has uncommitted or untracked files (commit them, or use --force to discard)"
   fi
   if [[ -n $branch ]]; then
-    merged=
-    git -C "$main" rev-parse --verify --quiet origin/main >/dev/null \
-      && git -C "$main" merge-base --is-ancestor "$branch" origin/main && merged=1
-    [[ -n $merged ]] || { git -C "$main" merge-base --is-ancestor "$branch" HEAD && merged=1; } || true
-    [[ -n $merged ]] || scm_die "branch '$branch' has commits that are not in origin/main (merge it first, or use --force to discard)"
+    # Merged into origin/main, into the main checkout's HEAD, or through a merged pull request.
+    rc=0
+    scm_merged "$main" "$branch" HEAD >/dev/null || rc=$?
+    ((rc == 0)) || scm_die "branch '$branch' has commits that are not in origin/main and no merged pull request with the same head$(scm_merged_hint "$rc") (merge it first, or use --force to discard)"
   fi
 fi
 

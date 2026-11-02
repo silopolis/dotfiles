@@ -1,10 +1,14 @@
 #!/usr/bin/env -S usage bash
-#MISE description="Clean up merged worktrees: verify the merge into origin/main, then run scm:worktree:rm"
+#MISE description="Clean up merged worktrees: verify the merge into main (git or a merged pull request), then run scm:worktree:rm"
 #MISE alias="scm:wt:done"
 #USAGE arg "[target]" help="Stem, name, branch or path; omit with --all-merged"
-#USAGE flag "--all-merged" help="Clean every worktree whose branch is in origin/main and that is clean"
-#USAGE flag "--force" help="Skip the merge check and discard (same as scm:worktree:rm --force)"
+#USAGE flag "--all-merged" help="Clean every clean worktree whose branch has commits of its own, merged into main"
+#USAGE flag "--force" help="Skip the checks of a target and discard (same as scm:worktree:rm --force)"
 #USAGE flag "--keep-tab" help="Do not close the herdr tab"
+# Merged: the branch tip is in origin/main, or GitHub has a merged pull request from the
+# branch into main whose head commit is the local tip (squash and rebase merges).
+# A branch with no commits of its own since its start is never cleaned as merged: it would
+# look merged, being an ancestor of origin/main; remove it with scm:worktree:rm.
 # shellcheck shell=bash
 set -euo pipefail
 
@@ -27,33 +31,46 @@ rm_args=(--reason "done")
 [[ -n ${usage_keep_tab:-} ]] && rm_args+=(--keep-tab)
 
 clean_one() { # path
-  "$rm_task" "$1" "${rm_args[@]}"
+  "$rm_task" "$1" "${rm_args[@]}" </dev/null
 }
 
 if [[ -n ${usage_all_merged:-} ]]; then
   [[ -z ${usage_target:-} ]] || scm_die "give a target or --all-merged, not both"
   done_count=0 skipped=0
+  skip() { scm_info "skip $1: $2"; skipped=$((skipped + 1)); }
+  # Read the whole list first: the steps below run commands that could read stdin.
+  mapfile -t lines < <(git -C "$main" worktree list --porcelain; echo)
   path='' branch=''
-  while IFS= read -r line; do
+  for line in "${lines[@]}"; do
     case $line in
       "worktree "*) path=${line#worktree }; branch='' ;;
       "branch "*) branch=${line#branch refs/heads/} ;;
       "")
         if [[ -n $path && $path != "$main" && -n $branch ]]; then
-          if ! git -C "$main" merge-base --is-ancestor "$branch" origin/main; then
-            scm_info "skip $(basename "$path"): '$branch' is not in origin/main"
-            skipped=$((skipped + 1))
+          name=$(basename "$path")
+          own=0
+          scm_own_commits "$main" "$path" "$branch" || own=$?
+          if ((own == 1)); then
+            skip "$name" "'$branch' has no commits of its own"
+          elif ((own == 2)); then
+            skip "$name" "cannot tell whether '$branch' has commits of its own (clean it with: mise run scm:worktree:done $name)"
           elif [[ -n $(git -C "$path" status --porcelain 2>/dev/null) ]]; then
-            scm_info "skip $(basename "$path"): uncommitted or untracked files"
-            skipped=$((skipped + 1))
+            skip "$name" "uncommitted or untracked files"
           else
-            clean_one "$path" && done_count=$((done_count + 1))
+            rc=0
+            proof=$(scm_merged "$main" "$branch") || rc=$?
+            if ((rc != 0)); then
+              skip "$name" "'$branch' is not in origin/main and has no merged pull request with the same head$(scm_merged_hint "$rc")"
+            else
+              scm_info "$name: merged ($proof)"
+              clean_one "$path" && done_count=$((done_count + 1))
+            fi
           fi
         fi
         path=''
         ;;
     esac
-  done < <(git -C "$main" worktree list --porcelain; echo)
+  done
   scm_info "done: $done_count cleaned, $skipped skipped"
   exit 0
 fi
@@ -65,7 +82,14 @@ found=$(scm_find_worktree "$main" "$target") || rc=$?
 ((rc == 0)) || scm_die "$([[ $rc -eq 2 ]] && echo "'$target' matches several worktrees" || echo "no worktree matches '$target'")"
 IFS=$'\t' read -r path branch <<<"$found"
 
-if [[ -z ${usage_force:-} ]] && ! git -C "$main" merge-base --is-ancestor "$branch" origin/main; then
-  scm_die "branch '$branch' is not in origin/main: merge its pull request first (or use --force to discard)"
+if [[ -z ${usage_force:-} ]]; then
+  [[ -n $branch ]] || scm_die "worktree $path has no branch (detached HEAD); remove it with: mise run scm:worktree:rm $(basename "$path")"
+  own=0
+  scm_own_commits "$main" "$path" "$branch" || own=$?
+  ((own != 1)) || scm_die "branch '$branch' has no commits of its own, so there is nothing merged to clean; remove it with: mise run scm:worktree:rm $(basename "$path")"
+  rc=0
+  proof=$(scm_merged "$main" "$branch") || rc=$?
+  ((rc == 0)) || scm_die "branch '$branch' is not in origin/main and has no merged pull request with the same head$(scm_merged_hint "$rc"): merge it first (or use --force to discard)"
+  scm_info "$(basename "$path"): merged ($proof)"
 fi
 clean_one "$path"
