@@ -7,6 +7,7 @@ It comes after `fast-correct-shell-startup` because both edit the same files.
 
 - Port the Omarchy aliases into `dot_config/shell/aliases` (or a new `rc.d` file): `c cx cy h t g gcm gcam gcad mup ff eff sff open .. ... ....`, the zoxide `cd` wrapper, `l ll lA la lt`; on a name clash the existing definition wins (`a`, `n`).
 - Port the functions: rsync helper, ssh reconnect, ssh port forwarding, git worktrees, tmux, herdr, `try` (scratch repositories under `~/Work/tries`).
+  Git worktrees are covered by the global mise tasks `scm:worktree:*` of `adopt-global-mise-tasks`: a worktree function is either a thin wrapper over them or skipped.
 - Check each port in both bash and zsh.
 - Fix or drop the broken entries of F32 (`aptu`, `genpw`, `lt` and `check_language`, `icat`, double `k`, `AWS_PAGER`, `vbx_create`, `convert_to_png`, `egrep` and `fgrep`, double `br`).
 
