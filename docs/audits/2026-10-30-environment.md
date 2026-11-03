@@ -231,6 +231,7 @@ MM .config, .local/share/fonts, .local/share/icons, three LXQt theme dirs (modes
 | 19 | `manage-gh-config` | F01, F31 (gh part) | | proposal, specs; added 2026-10-31 on request |
 | 20 | `enforce-hook-with-system-git` | F12 (regression after archive) | | proposal, specs; added 2026-10-31, suggested early (before order 2) |
 | 21 | `adopt-global-mise-tasks` | 2.7 (mise) | | done, archived 2026-11-02; added the same day on request of the Neovim repository |
+| 22 | `fix-prompt-delivery` | 2.7 (mise) | | full; added 2026-11-03 on request of the Neovim repository; follow-up: default setting and override flag for its timeouts and limits |
 
 Changes 6 to 20 refine their artifacts at the start of their own session (`/opsx-continue`).
 
