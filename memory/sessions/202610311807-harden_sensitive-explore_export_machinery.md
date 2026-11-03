@@ -1436,7 +1436,7 @@ Found 60 matches
 
 
 [redacted:repo]:scripts/worktree/new.py:
-  Line 67:     """`$WORKTREES_ROOT` (variable d'environnement, défaut `~/Work/trees/`,
+  Line 67:     """`$WORKTREES_ROOT` (variable d'environnement, défaut `[redacted:worktrees_root]/`,
 
   Line 69:     raw = os.environ.get("WORKTREES_ROOT", "")
 

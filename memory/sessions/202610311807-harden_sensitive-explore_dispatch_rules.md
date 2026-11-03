@@ -1302,9 +1302,9 @@ Found 41 matches
 ```
 [redacted:repo]/migrations/2026-10-[redacted:private]-to-[redacted:private]/checklist.md:189:- [x] 2.5 `~/tmp` (244); Tideflow AppImage + link (runs); `.local/share/{understand_anything,rtk,fonts,icons}`; `~/.understand-anything-plugin` link resolves
 [redacted:repo]/migrations/2026-10-[redacted:private]-to-[redacted:private]/checklist.md:207:  - `~/.config`: Mattermost, teams-for-linux, Typora, GIMP, inkscape, scribus, Deezer, deezer-desktop, deezer-enhanced, app.mwco.excalidraw-desktop, Equicord, gh-dash, gitui, grv, ftdv
-[redacted:repo]/migrations/2026-10-[redacted:private]-to-[redacted:private]/checklist.md:255:  - Added from [redacted:private]: plugins (tokenscope, readonly-guard through `file://~/Work/opencode-readonly-guard`, anthropic auth), `plugins/{rtk.ts,herdr-agent-state.js}`, `command
+[redacted:repo]/migrations/2026-10-[redacted:private]-to-[redacted:private]/checklist.md:255:  - Added from [redacted:private]: plugins (tokenscope, readonly-guard through `file://[redacted:repo]`, anthropic auth), `plugins/{rtk.ts,herdr-agent-state.js}`, `command
 [redacted:repo]/migrations/2026-10-[redacted:private]-to-[redacted:private]/checklist.md:257:  - `rtk` 1.1.0 added to [redacted:private]'s mise (`"github:rtk-ai/rtk"`), required by `rtk.ts`; backup of the replaced files `[redacted:private]`
-[redacted:repo]/migrations/2026-10-[redacted:private]-to-[redacted:private]/plan.md:31:| ssh [redacted:private] to [redacted:private] | temporary (F2, Fri 10:40): `ssh -o BatchMode=yes -i ~/.ssh/[redacted:private]-[redacted:private] -o IdentitiesOnly=yes [redacted:private]@[redacted:ip]` (not through `rtk ssh`, which mangles `-o
+[redacted:repo]/migrations/2026-10-[redacted:private]-to-[redacted:private]/plan.md:31:| ssh [redacted:private] to [redacted:private] | temporary (F2, Fri 10:40): `ssh -o BatchMode=yes -i ~/.ssh/[redacted:private]-[redacted:private] -o IdentitiesOnly=yes [redacted:user_username]@[redacted:ip]` (not through `rtk ssh`, which mangles `-o
 [redacted:repo]/migrations/2026-10-[redacted:private]-to-[redacted:private]/plan.md:207:- rtk can truncate remote command output: use plain `ssh` when exact output matters.
 [redacted:repo]/memory/sessions/202610281930-T-001-lay_down.md:30:- rtk truncated remote command output in several early comparisons: use plain `ssh` when exact output matters.
 [redacted:repo]/memory/sessions/202610301030-T-004-friday.md:32:- `rtk ssh` mangles `-o` options: use plain `ssh` for [redacted:private].
@@ -1412,7 +1412,7 @@ _Thinking:_
 117: - **B-002** - Decide whether to track `[redacted:repo]:ADR-201` and `[redacted:repo]:ADR-202` at their milestone-branch versions or wait for the merge into `dev` (the freshest fleet records are unmerged).
 118: - **B-003** - Propose to [redacted:repo] the `.agents/` layout of `[redacted:repo]:ADR-104` ([redacted:repo] still uses `.opencode/command/`).
 119: - **B-004** - Evaluate trunk-based development as a fleet decision (not adopted here: `DR-001`).
-120: - **B-005** - Mail setup of the Nextcloud server is broken (SMTP error 69), blocks notification jobs.
+120: - **B-005** - [redacted:private]
 121: - **B-006** - Convert the 241 [redacted:private] opencode sessions created with 1.x so 2.x lists them, before the 2.x move (`DR-007`).
 122: - **B-007** - Before publishing [redacted:repo], separate the tool from personal instance data (migration records, machine facts, work, client and hosting details), in a private instance repository or as age-encrypted files like the dotfiles; decide between cleaning and restarting the history (72 commits on 2026-10-30, private details in about 23 files); add gitleaks to `hk.pkl`.
 123: 
@@ -1497,7 +1497,7 @@ mise.toml.jinja  1.6K
 166:Standalone tasks, out of any milestone: `T-001` (spec import, self-initiated, closed ahead of `M-001` opening); `T-013` (re-import review, `[redacted:repo]:DR-000` 1.4.1 -> 1.6.0 and `[redacted:repo]:DR-013` 1.
 251:  Triage (2026-10-15): the dispatch was received as `[redacted:repo]:T-050` (`ready` since 2026-08-27, `dispatch_origin: "[redacted:repo]:B-008"`, kept standalone outside `[redacted:repo]:M-003`), and `[redacted:repo]:DR-003` i
 == [redacted:repo]
-120:- **B-005** - Mail setup of the Nextcloud server is broken (SMTP error 69), blocks notification jobs.
+120:- **B-005** - [redacted:private]
 121:- **B-006** - Convert the 241 [redacted:private] opencode sessions created with 1.x so 2.x lists them, before the 2.x move (`DR-007`).
 122:- **B-007** - Before publishing [redacted:repo], separate the tool from personal instance data (migration records, machine facts, work, client and hosting deta
 == [redacted:repo]
@@ -1722,9 +1722,9 @@ _Thinking:_
 == [redacted:repo]
 [redacted:repo]/migrations/2026-10-[redacted:private]-to-[redacted:private]/checklist.md:189:- [x] 2.5 `~/tmp` (244); Tideflow AppImage + link (runs); `.local/share/{understand_anything,rtk,fonts,icons}`; `~/.understand-anything-plugin` link resol
 [redacted:repo]/migrations/2026-10-[redacted:private]-to-[redacted:private]/checklist.md:207:  - `~/.config`: Mattermost, teams-for-linux, Typora, GIMP, inkscape, scribus, Deezer, deezer-desktop, deezer-enhanced, app.mwco.excalidraw-desktop, Equic
-[redacted:repo]/migrations/2026-10-[redacted:private]-to-[redacted:private]/checklist.md:255:  - Added from [redacted:private]: plugins (tokenscope, readonly-guard through `file://~/Work/opencode-readonly-guard`, anthropic auth), `plugins/{rtk.ts,he
+[redacted:repo]/migrations/2026-10-[redacted:private]-to-[redacted:private]/checklist.md:255:  - Added from [redacted:private]: plugins (tokenscope, readonly-guard through `file://[redacted:repo]`, anthropic auth), `plugins/{rtk.ts,he
 [redacted:repo]/migrations/2026-10-[redacted:private]-to-[redacted:private]/checklist.md:257:  - `rtk` 1.1.0 added to [redacted:private]'s mise (`"github:rtk-ai/rtk"`), required by `rtk.ts`; backup of the replaced files `[redacted:private]`
-[redacted:repo]/migrations/2026-10-[redacted:private]-to-[redacted:private]/plan.md:31:| ssh [redacted:private] to [redacted:private] | temporary (F2, Fri 10:40): `ssh -o BatchMode=yes -i ~/.ssh/[redacted:private]-[redacted:private] -o IdentitiesOnly=yes [redacted:private]@[redacted:ip]` (not throug
+[redacted:repo]/migrations/2026-10-[redacted:private]-to-[redacted:private]/plan.md:31:| ssh [redacted:private] to [redacted:private] | temporary (F2, Fri 10:40): `ssh -o BatchMode=yes -i ~/.ssh/[redacted:private]-[redacted:private] -o IdentitiesOnly=yes [redacted:user_username]@[redacted:ip]` (not throug
 [redacted:repo]/migrations/2026-10-[redacted:private]-to-[redacted:private]/plan.md:207:- rtk can truncate remote command output: use plain `ssh` when exact output matters.
 == [redacted:repo]
 [redacted:repo]/memory/notes/notes.md:28:Vigilances de séance reconduites : pas de pipes rtk pour les comptages exacts ; typographie CT-002 sur toute prose nouvelle ; compteurs (N/M) rafraîchis avant chaque commit touchant la che

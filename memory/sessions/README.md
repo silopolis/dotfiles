@@ -18,12 +18,13 @@ They are not chezmoi targets (`.chezmoiignore`).
 
 | File | Session | Notes |
 | --- | --- | --- |
-| `202610301854-harden_sensitive_targets.md` | `ses_e720ce42affen6d11Mjrfbnxpi` | Change `harden-sensitive-targets`: apply, hook probes, verify, archive; then the rtk and system git hook findings, the signal to the project factory, and this export |
+| `202610301854-harden_sensitive_targets.md` | `ses_e720ce42affen6d11Mjrfbnxpi` | Orchestrator session of the repository. Change `harden-sensitive-targets`: apply, hook probes, verify, archive; then the rtk and system git hook findings, the signal to the project factory, the first export, the hand-over of the git source evaluation, and the state of the other agents' changes. Re-exported in full on 2026-11-03 (a continued session is overwritten, not duplicated) |
 | `202610311807-harden_sensitive-explore_dispatch_rules.md` | `ses_e6d11a624ffePObu4C6kjRjMqm` | Sub-agent: how a fleet repository signals the project factory, and where rtk is configured |
 | `202610311807-harden_sensitive-explore_export_machinery.md` | `ses_e6d11c8cdffe3dVrtrei30j3UH` | Sub-agent: the existing session export machinery |
 
 Each file's header states how far it goes (`<!-- session-export: through msg_... -->`).
-The main file stops when it was exported: the commit of the export and the push are not in it.
+The main file stops when it was exported: the commit of the export and anything after it are not in it.
+The session keeps going after an export, so the file is replaced by a longer one at each re-export.
 
 ## Redaction
 
@@ -31,9 +32,12 @@ The public profile of the redaction tool rewrites each raw export before it ente
 
 1. secrets (API keys, tokens, age secret keys, private key blocks) become `[redacted:secret]`;
 2. private terms, repository names, credential variable names, token scope lines, IP addresses, e-mail addresses and non-public git hosts become `[redacted:private]`, `[redacted:repo]`, `[redacted:ip]` and similar markers;
-3. home directories become `~`; `/home/linuxbrew` (Homebrew's prefix) and the placeholder `/home/user` stay.
+3. identity values (name, e-mail address, login name) become `[redacted:user_...]` markers, and the worktrees root becomes `[redacted:worktrees_root]`;
+4. home directories become `~`; `/home/linuxbrew` (Homebrew's prefix) and the placeholder `/home/user` stay.
 
 The private terms come from a private terms directory selected with the environment variable `SESSION_REDACT_TERMS_DIR`, never from this repository.
+For this public repository the directory used is a throwaway copy of the private store's `dotfiles` terms with the switch that keeps sibling repository names readable removed, so every sibling repository name is masked.
+Details the tool does not know are added to that copy as extra terms before the export, after reading the raw export for them.
 The tool and the directory are recorded in the user's private notes; the tool is transitional.
 
 Redaction only knows what it is told.
