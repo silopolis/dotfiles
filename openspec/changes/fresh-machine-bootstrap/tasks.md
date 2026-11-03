@@ -22,7 +22,7 @@
 
 - [ ] 4.1 Decide with cem `T-012` whether the external is skipped for some profiles, and if so add the condition to `.chezmoiexternals/nvim.toml.tmpl` (`chezmoi --override-data '{"profile":"<name>"}' managed | grep -c '^\.config/nvim$'` prints 0)
 - [ ] 4.2 Decide whether the branch and an SSH transport get data keys (`nvim.branch`, `nvim.protocol`); if yes, add the questions and use them in the external (`chezmoi execute-template < .chezmoiexternals/nvim.toml.tmpl`)
-- [ ] 4.3 Prove the skip path with no GitHub login in the container (bootstrap exits 0; `chezmoi managed | grep -c '^\.config/nvim$'` prints 0)
+- [ ] 4.3 Prove the skip path with no GitHub login in the container (bootstrap exits 0; `chezmoi managed | grep -c '^\.config/nvim$'` prints 0); once `add-private-store-external` is applied, the private store external is skipped too (`chezmoi managed | grep -c '^\.local/share/chezmoi-private$'` prints 0)
 
 ## 5. Test
 
