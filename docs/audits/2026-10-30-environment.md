@@ -233,6 +233,7 @@ MM .config, .local/share/fonts, .local/share/icons, three LXQt theme dirs (modes
 | 21 | `adopt-global-mise-tasks` | 2.7 (mise) | | done, archived 2026-11-02; added the same day on request of the Neovim repository |
 | 22 | `fix-prompt-delivery` | 2.7 (mise) | | full; added 2026-11-03 on request of the Neovim repository; follow-up: default setting and override flag for its timeouts and limits |
 | 23 | `add-private-store-external` | F05, 2.8 | | full; added 2026-11-03 on request of the Neovim repository; after orders 2 and 3; the Neovim session S16 merges after it |
+| 24 | `add-repo-roadmap` | F34, process | | proposal, specs; added 2026-11-03 on request; once applied, `ROADMAP.md` replaces this table and this section is frozen |
 
 Changes 6 to 20 refine their artifacts at the start of their own session (`/opsx-continue`).
 
