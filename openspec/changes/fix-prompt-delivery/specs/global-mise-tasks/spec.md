@@ -8,14 +8,15 @@ Direct cases source the helper with `sleep` replaced by a no-op and call `scm_pr
 
 `scm_prompt_agent`, used by `scm:worktree:new --prompt` and `agent:dispatch`, SHALL deliver the first prompt as follows:
 
-- before the first submission, wait up to 15 s for the agent to be `idle`, where a failed wait is not fatal, then pause 1 s;
+- before the first submission, wait up to 15 s for the agent to be `idle`, where a failed wait is not fatal;
+- then read the visible screen every second, up to 60 reads, until at least 5 lines hold something besides frame characters and whitespace, where a failed read counts as blank and a screen that never draws does not stop the submission; then pause 1 s;
 - submit with `herdr agent prompt --wait --until working`;
 - after any unconfirmed submission, inspect before doing anything else:
   - agent status `working` or `done` means delivered;
   - status `blocked` stops;
   - otherwise read the visible screen; the prompt is on screen when its first 24 non-whitespace characters appear in the screen text, with frame characters (U+2500 to U+259F) and all whitespace removed from both;
 - while the prompt is on screen, press Enter at most twice and never submit the text again;
-- submit again only when the prompt is not on screen, at most 3 submissions in all.
+- submit again only when the prompt is not on screen, at most 5 submissions in all.
 
 It SHALL set `SCM_PROMPT_OUTCOME` to `working`, `unsent`, `lost`, `blocked` or `unreadable`.
 It SHALL return 0 only for `working`.
@@ -24,7 +25,17 @@ Whenever it stops without delivery, it SHALL print the outcome and the last 15 n
 #### Scenario: First submission works
 
 - **WHEN** the fake herdr accepts the first submission
-- **THEN** the helper returns 0 with outcome `working`, after 1 submission, 0 Enter presses and 1 paste, and the fake herdr's log shows `agent wait --until idle` before `agent prompt`
+- **THEN** the helper returns 0 with outcome `working`, after 1 submission, 0 Enter presses and 1 paste, and the fake herdr's log shows `agent wait --until idle`, then `agent read`, before `agent prompt`
+
+#### Scenario: Waits for the TUI to draw
+
+- **WHEN** the fake herdr shows a blank screen for the first 3 reads and loses any submission made while the screen is blank
+- **THEN** the helper returns 0 with outcome `working`, after 4 screen reads before the first submission, 1 submission and 1 paste
+
+#### Scenario: Screen never draws
+
+- **WHEN** the fake herdr keeps the screen blank and loses every submission
+- **THEN** the helper reads the screen 60 times before its first submission, submits anyway, and returns non-zero with outcome `lost`, after 5 submissions and 0 pastes, and stderr says the screen never drew
 
 #### Scenario: A lost prompt is submitted again
 
@@ -53,8 +64,8 @@ Whenever it stops without delivery, it SHALL print the outcome and the last 15 n
 
 #### Scenario: Lost every time
 
-- **WHEN** the fake herdr loses every submission
-- **THEN** the helper returns non-zero with outcome `lost`, after 3 submissions, 0 Enter presses and 0 pastes
+- **WHEN** the fake herdr loses every submission while the screen is drawn
+- **THEN** the helper returns non-zero with outcome `lost`, after 5 submissions, 0 Enter presses and 0 pastes
 
 #### Scenario: Blocked agent
 
@@ -68,7 +79,7 @@ Whenever it stops without delivery, it SHALL print the outcome and the last 15 n
 
 #### Scenario: Unreadable screen
 
-- **WHEN** the fake herdr stalls and `agent read` fails
+- **WHEN** the fake herdr draws the screen, stalls the submission, and from then on fails `agent read`
 - **THEN** the helper returns non-zero with outcome `unreadable`, with no Enter press and no second submission
 
 #### Scenario: Failed idle wait is not fatal
@@ -104,7 +115,7 @@ A call that times out SHALL count as failed with the code `timeout`.
 
 #### Scenario: A hung screen read
 
-- **WHEN** the fake herdr stalls the submission and `agent read` hangs, with the read timeout set to 2 s by the harness
+- **WHEN** the fake herdr draws the screen, stalls the submission, and from then on hangs on `agent read`, with the read timeout set to 2 s by the harness
 - **THEN** the helper returns non-zero with outcome `unreadable` within 10 s, after 1 paste
 
 ### Requirement: Prompt help warns about file references
@@ -115,6 +126,15 @@ The help of `scm:worktree:new --prompt` SHALL say that a text ending in a file r
 
 - **WHEN** `mise run scm:worktree:new --help` runs
 - **THEN** its output contains `@file`
+
+### Requirement: Unknown workspace is refused before anything is created
+
+`scm:worktree:new --tab` SHALL resolve `--workspace` (or `HERDR_WORKSPACE_ID`) before it creates the worktree, and SHALL name the value it was given when the workspace is not found or several workspaces share that label.
+
+#### Scenario: Bad workspace
+
+- **WHEN** `mise run scm:worktree:new feat/w --tab --workspace nope` runs in a scratch repository with the fake herdr, which knows no workspace `nope`
+- **THEN** it exits 1, its message contains `herdr workspace 'nope' not found`, and `git worktree list` and `git branch --list feat/w` show nothing new
 
 ### Requirement: Delivery harness is kept in the repository
 

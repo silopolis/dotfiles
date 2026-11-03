@@ -7,6 +7,9 @@
   herdr's documentation adds that neither proves the prompt was not delivered.
 - Other herdr commands used: `agent get` (`.result.agent.agent_status`: `idle`, `working`, `blocked`, `done`, `unknown`), `agent read --source visible` (plain text), `agent send-keys <name> enter`, `agent wait --until <state> --timeout <ms>`.
   On error they print `{"error":{"code":...}}` and exit 1, with `agent_not_found` for an unknown name.
+  `agent read --source recent --lines <n>` fails with `agent_not_idle` while the agent works, whereas `--source visible` always answers (checked on 2026-11-03).
+- The sender's real-TUI test (2026-11-03): herdr reports `interactive_ready: true` and `idle` as soon as `agent start` returns, but opencode draws nothing for about 10 s (blank visible screen; longer in a fresh worktree).
+  Every prompt sent in that window is lost: three quick submissions in the first 20 s or so were all lost.
 - `herdr agent prompt` pastes the text, then sends Enter.
   In the opencode TUI, a trailing `@file` opens the file autocomplete popup, which takes that Enter, so the text stays in the input.
   The Neovim repository saw this in nine sessions, once with a stray `@explore` completion in the input.
@@ -15,8 +18,12 @@
   - `agent:dispatch` sends `Read and execute the brief at <path>` and exits 1 when the helper fails, telling the user to send the prompt by hand;
   - `scm:worktree:new --prompt` warns and exits 0.
 - `scm:worktree:new --json` and `agent:dispatch --json` print with `jq -n`, which spreads the object over several lines.
+- `scm:worktree:new --tab` resolves the workspace after it has created the worktree, run the post-create hook and trusted the path.
+  It does so with `workspace=$(scm_workspace_id "$workspace") || scm_die "herdr workspace '$workspace' not found"`; on failure the assignment has already emptied the variable, so the message names `''`.
+  `agent:dispatch` names `--workspace` from the flag and is not affected.
 - The sender wrote the same algorithm in Python (`workflow.delivery.deliver` in the Neovim repository, with a fake TUI in its unit tests).
   This design transcribes it, with the four deviations listed below, which the user approved on 2026-11-03.
+  The sender then adopted deviations 1 and 2 and, after its real-TUI test, added a wait for the TUI to draw and raised the submission budget to 5 (brief updated the same day).
 - The repository has no shell test harness; `adopt-global-mise-tasks` ran its checks from a scratch script and then deleted it.
 
 ## Goals / Non-Goals
@@ -42,18 +49,25 @@
 The helper follows the sender's algorithm:
 
 1. `herdr agent wait <name> --until idle --timeout 15000`; a failure is not fatal.
-   Then sleep 1 s, because a prompt sent right after `agent start` can be lost by the TUI.
-2. Submit: `herdr agent prompt <name> <text> --wait --until working --timeout 20000`.
+2. Wait for the TUI to draw: read `herdr agent read <name> --source visible` every second, up to 60 reads, until at least 5 lines hold something besides frame characters and whitespace.
+   A failed read counts as a blank screen.
+   herdr's `idle` and `interactive_ready` come long before the TUI draws, and a prompt sent to a blank screen is lost.
+   When the screen never draws, the helper submits anyway and lets the inspection decide; the stderr report then says the screen stayed blank.
+   Then sleep 1 s, so that the input box is listening.
+3. Submit: `herdr agent prompt <name> <text> --wait --until working --timeout 20000`.
    Success means delivered.
-3. `agent_blocked`: stop with `blocked` (nothing was sent).
-4. Any other failure, including unknown codes, goes through an inspection loop and never straight to a new submission.
+4. `agent_blocked`: stop with `blocked` (nothing was sent).
+5. Any other failure, including unknown codes, goes through an inspection loop and never straight to a new submission.
    Each pass of the loop sleeps 1.5 s, then:
    - `agent get`: `working` or `done` means delivered; `blocked` stops with `blocked`;
    - `agent read --source visible`: when the screen cannot be read, stop with `unreadable`;
-   - prompt not on screen: leave the loop and submit again, at most 3 submissions in all, after which the outcome is `lost`;
+   - prompt not on screen: leave the loop and submit again, at most 5 submissions in all, after which the outcome is `lost`;
    - prompt on screen: when 2 Enter presses are already spent, stop with `unsent`; otherwise run `herdr agent send-keys <name> enter`, and when `herdr agent wait <name> --until working --timeout 8000` succeeds, the prompt is delivered.
 
-The limits (3 submissions, 2 Enter presses, 24-character marker, waits of 15 s, 20 s and 8 s, pauses of 1 s and 1.5 s) are shell variables set at the top of the helper section, so the harness can shorten the pauses.
+A lost prompt is safe to send again, because its text is not on the screen; hence 5 submissions, the sender's figure after its test, instead of 3.
+The limits (5 submissions, 2 Enter presses, 24-character marker, 60 screen reads 1 s apart, 5 drawn lines, waits of 15 s, 20 s and 8 s, pauses of 1 s and 1.5 s) are shell variables set at the top of the helper section, so the harness can shorten the pauses.
+Alternative considered: trust `interactive_ready` or `idle` alone. Rejected: the sender's test shows both are true while the screen is still blank.
+Alternative considered: a fixed delay of 10 to 20 s. Rejected: it is too long for a warm TUI and too short for a fresh worktree.
 Alternative considered: always press Enter after a delay. Rejected because it hides lost prompts and could submit something half-typed in the input.
 Alternative considered: Escape to close the popup before Enter. Rejected: it is TUI-specific, and in some TUIs Escape interrupts the agent.
 
@@ -83,7 +97,7 @@ Callers call it directly, never in `$(...)`, so the variable reaches them; the h
 - `blocked`: answer the dialog in the tab;
 - `unreadable`: look at the tab before sending anything.
 
-When the helper stops, it prints to stderr a line with the outcome and the counts, then the last 15 non-blank lines of the screen; nothing else is pasted.
+When the helper stops, it prints to stderr a line with the outcome and the counts (submissions, Enter presses, screen reads before the TUI drew, or that it never drew), then the last 15 non-blank lines of the screen; nothing else is pasted.
 
 ### Bounded herdr calls (deviation 4)
 
@@ -102,10 +116,17 @@ A parser of the whole output works with both forms.
 
 `--prompt` gets: `First prompt sent to the agent; a text ending in a file reference such as @file opens the TUI's autocomplete, which may swallow the Enter`.
 
+### Workspace resolved before anything is created
+
+With `--tab`, `scm:worktree:new` resolves the workspace together with its other refusals (duplicate branch or path), before `git worktree add`, into a separate variable, so that the message keeps the user's value: `herdr workspace 'nope' not found (or several share that label)`.
+A wrong flag then leaves no worktree, branch or trust entry behind.
+Alternative considered: fix only the message where the check is today. Rejected because the failure would still leave a worktree for a typo; the sender reported only the message.
+
 ### Test harness
 
 - `tests/global-mise-tasks/fake-herdr` is a bash script, put first on `PATH` by the harness.
-  It keeps its state in a directory (input box, history, status, counters) and takes the scenario from environment variables: lose the first N submissions, leave the text in the input, the Nth Enter submits, never start, blocked, stall although working, done after a stall, unreadable screen, failing idle wait, input width.
+  It keeps its state in a directory (input box, history, status, counters) and takes the scenario from environment variables: blank screen for the first N reads (submissions while blank are lost, as in opencode) or forever, lose the first N submissions, leave the text in the input, the Nth Enter submits, never start, blocked, stall although working, done after a stall, unreadable screen, failing idle wait, input width.
+  A drawn screen shows a few lines of TUI chrome, the history and the input.
   It answers `agent prompt`, `get`, `read`, `send-keys`, `wait`, `start`, `tab create`, `tab close`, `workspace list` and `notification show`, and logs every call.
   Its `read` wraps the input at the configured width, cutting words, behind a `┃` frame.
 - `tests/global-mise-tasks/prompt-delivery.sh` sources the helper from the source tree, under `home/dot_config` or `dot_config`, so it works in both layouts.
@@ -122,7 +143,7 @@ With the user's go at that step:
 
 - Create a scratch repository under `/tmp/opencode/` with a bare origin and an `AGENTS.md`.
 - Run `mise run scm:worktree:new feat/live --tab --workspace chezmoi --agent-kind opencode --agent-name chezmoi-live --prompt "Reply with the single word ok and do nothing else. @AGENTS.md" --json`.
-- Expect `"prompt":"working"` and the marker exactly once on the agent's screen.
+- Expect `"prompt":"working"` and the marker exactly once on the agent's screen; note from the stderr trace how many screen reads passed before the TUI drew, to compare with the sender's 10 s.
 - Finish with `mise run scm:worktree:rm live --force`, which closes the tab, then delete the scratch repository.
 
 ## Risks / Trade-offs
@@ -133,7 +154,10 @@ With the user's go at that step:
 - [Risk] herdr changes its error codes. → Unknown codes take the inspection path, never a blind resubmission.
 - [Risk] A caller runs the helper in a subshell and loses the outcome. → Both callers call it directly, and the helper's comment warns about it.
 - [Risk] The harness and the live check write outside `$HOME`, in `/tmp/opencode/` (scratch repositories, worktrees, fake herdr state). → One directory per run, removed on exit and checked with `test ! -e`; the live check removes its worktree with `scm:worktree:rm --force` and closes its tab, and its agent spends one short turn; opencode keeps a project record for the scratch path in its own database.
-- [Trade-off] The first prompt takes at least 1 s longer, and up to about 2 min in the worst case (15 s idle wait, then 3 submissions with their inspection passes), which is bounded where it used to be blind.
+- [Risk] Another agent kind draws fewer than 5 lines, or shows 5 lines of splash screen before its input listens. → The first case costs 60 s and then submits anyway; in the second, a lost prompt is not on screen, so it is sent again within the budget of 5.
+- [Trade-off] The first prompt waits for the TUI to draw (about 10 s for opencode) plus 1 s.
+  The worst case is about 4 min: 15 s idle wait, 60 s of screen reads, then 5 submissions with their 20 s waits, inspection passes and two 8 s Enter waits.
+  That is long, but bounded and visible on stderr, where the old helper pasted blindly.
 
 ## Migration Plan
 
