@@ -64,6 +64,8 @@ Not here: Neovim (`~/.config/nvim`, its own repository).
 - No secret values, no names of secret variables, no token scopes, no private hosts or IP addresses, no employer or client details.
 - Open security issues are described in general terms, with a command that shows the details locally.
 - The same rule applies to cem, which will become public too.
+- Sibling repositories: name only those that are public or meant to be (darse, cem, bosco, greffe, the Neovim configuration repository); call any other "a fleet repository".
+  A file that is committed here is public, so a private repository is not named even to say that it is private.
 
 ## Conventions
 

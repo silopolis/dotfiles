@@ -4,7 +4,7 @@ The commit-time secret scan delivered by `harden-sensitive-targets` is installed
 This machine has two git binaries: brew's (2.55) enforces the hook, the system one (2.53) ignores it silently.
 On 2026-10-31 a staged, generated token-shaped test string was committed with the system git without any refusal (undone before any push), while the same commit through brew's git was refused.
 Any caller that resolves the system git therefore bypasses the scan with no warning.
-The hk hook installer is shared by the whole fleet: darse, istc and cem install their hooks the same way (config hooks, no script shims), so they have the same gap on this machine.
+The hk hook installer is shared by the whole fleet: darse, cem and the other fleet repositories install their hooks the same way (config hooks, no script shims), so they have the same gap on this machine.
 Lookup on any repository: `git config --local --get-regexp '^hook\.'` lists config hooks, `/usr/bin/git --version` shows whether that git reads them.
 Source: audit finding F12 (`docs/audits/2026-10-30-environment.md`), regression found after its change was archived.
 
