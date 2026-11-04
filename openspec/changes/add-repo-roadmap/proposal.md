@@ -2,42 +2,60 @@
 
 There is no single place that shows this repository's work as a whole: what is done, what is in progress, what comes next and why in that order.
 `openspec list` shows only the active changes with task counts, `openspec view` is a dashboard of the current specs and changes, and the archive is a folder of dated directories with no index.
-The order and the priorities live in one hand-kept table, the change map in section 6 of the audit (`docs/audits/2026-10-30-environment.md`), which is a dated baseline and not meant to be maintained; its rows 21 to 23 were added by other sessions without the rest of the document following.
-The sibling repositories (cem, darse and others) each keep a roadmap and the Neovim configuration repository has a task that reports the state of its roadmap, so the practice and the tooling already exist in the fleet.
+The order and the priorities live in one hand-kept table, the change map in section 6 of the audit (`docs/audits/2026-10-30-environment.md`), which is a dated baseline and not meant to be maintained; its later rows were added by other sessions without the rest of the document following.
+The fleet's roadmaps keep one record per item with its dependencies and status in the front matter, and the roadmap file is a projection of those records that tools write or check; the Neovim configuration repository's roadmap is hand-written and a task derives the state from git.
+Here the records already exist: each OpenSpec change is one, but it carries no order, no dependency and no priority.
 `TODO.md` is out of date and is to be retired (audit finding F34, change `refresh-repo-docs`).
-Source: request of the user on 2026-11-03, audit finding F34 and section 6 of `docs/audits/2026-10-30-environment.md`.
+Source: requests of the user on 2026-11-03 and 2026-11-04, audit finding F34 and section 6 of the audit.
 
 ## What Changes
 
-- A root `ROADMAP.md`, kept by hand: one sequencing table with the order, the dependencies and the reason for the order of each change, plus a backlog of ideas that are not changes yet (permanent `B-NNN` ids, never reassigned, as in darse).
-  It takes over the role of the audit's change map; section 6 of the audit becomes a frozen snapshot that points to `ROADMAP.md`.
-- No stored status: a change is done when its directory is in `openspec/changes/archive/`, in progress when it has ticked tasks or an open branch or worktree, startable when everything it depends on is done, blocked otherwise.
-  This is the rule the Neovim configuration repository uses; here the active changes and their task counts come from `openspec list --json`.
-- A repo-local mise task `roadmap` (file `.mise/tasks/roadmap`, standard library only), adapted from the Neovim configuration repository's `roadmap` task and read-only: it prints Done (with the archive date), In progress (task counts, worktree or branch), Next, and Blocked (with what it waits for).
-- `mise run roadmap --check` fails when a change directory (active or archived) has no row, a row names no change, a change appears twice, a dependency is unknown, or the dependencies form a cycle.
-- Wiring:
-  - `ROADMAP.md` is listed in the temporary repository-files block of `.chezmoiignore` (removed by `adopt-chezmoiroot` with the rest); `.mise/` needs no entry, chezmoi ignores names starting with a dot.
-  - `AGENTS.md` tells a fresh session to run `mise run roadmap` first, and states the rule that a new change gets its `ROADMAP.md` row in the same commit.
+- **Transitional.**
+  This is a stand-in for the fleet's records system (bosco and greffe), which is not available yet and has no date.
+  The vocabulary follows the fleet's, so that a later migration is mechanical: permanent `B-NNN` backlog ids, dependencies named by change id, status derived and never typed by hand.
+  When the fleet's system is available, this change is superseded and `ROADMAP.md` is generated from its records instead.
+- **Roadmap fields per change.**
+  Every change, active or archived, carries a small record: dependencies, phase, priority, size, the finding or request it answers, one line on why it sits where it does.
+  The design decides where the record lives (a file in the change folder, or extra keys in `.openspec.yaml`); OpenSpec ignores both and archiving moves the folder as a whole.
+- **`ROADMAP.md` is mostly generated.**
+  A root `ROADMAP.md` holds hand-written text (purpose, phase descriptions, backlog, decisions) and sections between markers that the task writes: the sequencing table in dependency order and the done list with archive dates.
+  What is generated is only what is stable in a commit; the live state (in progress, task counts, startable, blocked) is never committed, because it depends on the checkout.
+- **A global mise task `openspec:roadmap`, usable by any OpenSpec repository.**
+  Python with the standard library only, deployed with the other global tasks, replacing the repo-local `roadmap` task of the Neovim configuration repository (its replacement is signalled at the end of this work, with a feature-by-feature parity table in the design).
+  - `mise run openspec:roadmap` prints Done, In progress, Next and Blocked from the records, the archive, `openspec list --json` and git; it writes nothing.
+  - `--write` regenerates the marked sections of `ROADMAP.md`.
+  - `--check` fails when a marked section is out of date, a change has no roadmap fields, a row names no change, a dependency is unknown, or the dependencies form a cycle.
+  - `--json` prints the same state for other tools.
+- **Global task rule.**
+  The `global-mise-tasks` requirement that every file under the tasks directory passes `shellcheck -x` becomes: shell files pass `shellcheck -x`, Python files compile and have unit tests.
+  The change `add-agent-launch-tasks` depends on this amendment.
+- **Adoption in this repository.**
+  - Seed the roadmap fields from the audit's change map (rows 0 to 25), then freeze that section with a pointer to `ROADMAP.md`.
+  - `ROADMAP.md` is listed in the temporary repository-files block of `.chezmoiignore`, removed by `adopt-chezmoiroot` with the rest; the task source under `dot_config/mise/tasks/` needs no entry.
+  - `AGENTS.md` tells a fresh session to run `mise run openspec:roadmap` first, and states that a new change gets its roadmap fields in the same commit and that `--write` follows `openspec archive`.
   - Whether `--check` also runs as a commit hook step is left to the design (see `add-repo-quality-gates`).
-- Seed `ROADMAP.md` from the audit's change map (rows 0 to 24) and from `openspec list`, check each dependency against the proposals, and record the order decisions already taken (for example that `enforce-hook-with-system-git` is suggested before `adopt-chezmoiroot`).
-- `TODO.md` is not retired here: its open items are moved into `ROADMAP.md`'s backlog or into changes, and the file removal stays in `refresh-repo-docs`.
+- **Non-goals.**
+  - Multi-agent orchestration (dispatch, lanes, one agent per change) is studied at fleet level and is not designed here; the roadmap fields only need to be able to carry what such a design later asks for.
+  - `TODO.md` is not removed here: its open items move into the backlog or into changes, and the removal stays in `refresh-repo-docs`.
 
 ## Capabilities
 
 ### New Capabilities
 
-- `repo-roadmap`: the repository's roadmap file and the read-only task that derives the state of every change from the archive and the active changes.
+- `openspec-repo-roadmap`: the roadmap fields of a change, the generated `ROADMAP.md`, and the read-only task that derives the state of every change from the records, the archive and git.
 
 ### Modified Capabilities
 
-None.
+- `global-mise-tasks`: the `openspec:roadmap` task is deployed and listed; Python tasks are allowed, with their own checks.
+- `spec-workflow`: this repository keeps a `ROADMAP.md`, tells sessions to read it first, and records each change's roadmap fields when the change is created.
 
 ## Impact
 
-- New files: `ROADMAP.md`, `.mise/tasks/roadmap`, and tests for the task (a scratch tree with fake changes).
-- `.chezmoiignore` (one line), `AGENTS.md` (read-first and same-commit rule), the audit's section 6 (a pointer and row 24).
-- The task writes nothing; it only reads `openspec/`, `ROADMAP.md` and git.
-- After `adopt-chezmoiroot` the paths move with the rest of the repository files; the change map in the audit must not be edited again once `ROADMAP.md` exists.
-- Other sessions work in the same repository at the same time: a change added by another session without its row is reported by `--check`, which is the intended safety net.
+- New files: the task `dot_config/mise/tasks/openspec/executable_roadmap` (under `home/` after `adopt-chezmoiroot`), its library and unit tests, `ROADMAP.md`, and a roadmap record in every existing change folder.
+- Edited: the audit's section 6 (frozen, with a pointer), `.chezmoiignore` (one line), `AGENTS.md`, `openspec/specs/global-mise-tasks` and `openspec/specs/spec-workflow` through the deltas.
+- Only the marked sections of `ROADMAP.md` are ever written, and only with `--write`; the viewer, `--check` and `--json` write nothing.
+- The task is deployed as a single target with `chezmoi apply --exclude=scripts ~/.config/mise/tasks/openspec`, after the user's go.
+- Other sessions work in the same repository at the same time: a change added by another session without its fields is reported by `--check`, which is the intended safety net.
+- The Neovim configuration repository can drop its `roadmap` task and read the global task's `--json`; that is a signal at the end of this work, not part of it.
 
 <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->
