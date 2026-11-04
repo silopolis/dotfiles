@@ -21,6 +21,7 @@ They are not chezmoi targets (`.chezmoiignore`).
 | `202610301854-harden_sensitive_targets.md` | `ses_e720ce42affen6d11Mjrfbnxpi` | Orchestrator session of the repository. Change `harden-sensitive-targets`: apply, hook probes, verify, archive; then the rtk and system git hook findings, the signal to the project factory, the first export, the hand-over of the git source evaluation, and the state of the other agents' changes. Re-exported in full on 2026-11-03 (a continued session is overwritten, not duplicated) |
 | `202610311807-harden_sensitive-explore_dispatch_rules.md` | `ses_e6d11a624ffePObu4C6kjRjMqm` | Sub-agent: how a fleet repository signals the project factory, and where rtk is configured |
 | `202610311807-harden_sensitive-explore_export_machinery.md` | `ses_e6d11c8cdffe3dVrtrei30j3UH` | Sub-agent: the existing session export machinery |
+| `202611022007-adopt_global_mise_tasks.md` | `ses_e6256e898ffeOM7EdjLhs55t0k` | Session of the agent that received three briefs from the Neovim repository: change `adopt-global-mise-tasks` (review, cleanup fixes, apply, archive), change `fix-prompt-delivery` (proposed, then amended after the sender's real-TUI test), change `add-private-store-external` (proposed); then the hand-over of its pending signals and this export. No sub-agents |
 
 Each file's header states how far it goes (`<!-- session-export: through msg_... -->`).
 The main file stops when it was exported: the commit of the export and anything after it are not in it.
