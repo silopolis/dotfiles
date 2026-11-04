@@ -112,7 +112,7 @@ The apply records the external in `gitRepoExternalState`, and later applies skip
 - [Risk] A stale GitHub CLI login lets the guard pass while the clone fails. → Same as the Neovim external: the failure is visible at apply time.
 - [Risk] `private = true` is silently ignored for `git-repo`. → The scratch-destination test measures the mode; the umask fallback is recorded.
 - [Risk] Two new questions in `chezmoi init` break a non-interactive init. → Same mitigation as the Neovim questions: `chezmoi execute-template --init --promptString ...` first, then `chezmoi init` in a terminal.
-- [Trade-off] The sender's merge of its session S16 waits for two other changes and this one; the user accepted that on 2026-11-03.
+- [Trade-off] The change waits for two others; meanwhile a new machine clones the store by hand (the Neovim session S16 merged without it, the user's choice on 2026-11-03).
 
 ## Migration Plan
 

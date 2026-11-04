@@ -34,7 +34,7 @@
 
 ## 6. Close
 
-- [ ] 6.1 Tell the sender that the change is applied, in this agent's tab, so that its `session:start` can go back to `--prompt` (`herdr agent read <this agent>` shows it)
+- [ ] 6.1 Tell the Neovim repository that the change is applied, so that its `session:start` can go back to `--prompt`: the agent that received the brief (`chezmoi-wtasks`) is closed, so prompt the orchestrator named in its roadmap (`nvim-orch` on 2026-11-03), or ask the user when none runs (`herdr agent get nvim-orch` exits 0; `herdr agent read nvim-orch --source visible` shows the line)
 - [ ] 6.2 `openspec validate fix-prompt-delivery --strict`; `/opsx-verify fix-prompt-delivery`
 - [ ] 6.3 Archive (`openspec archive fix-prompt-delivery --yes`), mark row 22 of the change map as done, and propose commit `docs(chezmoi:spec): archive fix-prompt-delivery`; no cem checklist line exists for this change (`rg -n 'fix-prompt-delivery' ~/Work/cles-en-main/migrations/2026-10-omalap-to-ulap01/checklist.md` prints nothing)
 

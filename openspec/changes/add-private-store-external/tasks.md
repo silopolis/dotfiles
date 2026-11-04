@@ -33,7 +33,7 @@
 
 ## 6. Close
 
-- [ ] 6.1 Tell the sender that the external is applied, so its session S16 can merge (`chezmoi managed | grep -c '^\.local/share/chezmoi-private$'` prints 1; `grep -c 'add.spl' ~/.config/git/ignore` prints 1)
+- [ ] 6.1 Tell the Neovim repository that the external and the ignore are applied, so a new machine no longer clones the store by hand: the agent that received the brief (`chezmoi-wtasks`) is closed, so prompt the orchestrator named in its roadmap (`nvim-orch` on 2026-11-03), or ask the user when none runs (`chezmoi managed | grep -c '^\.local/share/chezmoi-private$'` prints 1; `grep -c 'add.spl' ~/.config/git/ignore` prints 1)
 - [ ] 6.2 `openspec validate add-private-store-external --strict`; `/opsx-verify add-private-store-external`
 - [ ] 6.3 Archive (`openspec archive add-private-store-external --yes`), mark row 23 of the change map as done, and propose commit `docs(chezmoi:spec): archive add-private-store-external`; no cem checklist line exists for this change (`rg -n 'add-private-store-external' ~/Work/cles-en-main/migrations/2026-10-omalap-to-ulap01/checklist.md` prints nothing)
 

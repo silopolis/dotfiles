@@ -34,7 +34,7 @@ It follows the Neovim external of `fix-chezmoi-config-template` (audit `docs/aud
 - `chezmoi init` asks three new questions once on each machine.
 - The first apply that includes the external runs one `git pull --ff-only` in the existing store on this machine, like the Neovim external; it is applied when the store is clean and in sync.
 - Order: after `adopt-chezmoiroot` and `fix-chezmoi-config-template`, whose data pattern and guard it reuses.
-  The sender's merge of its session S16 waits until this change is applied.
+  The Neovim session S16 merged without it (the user's choice, 2026-11-03); until it is applied, a new machine clones the store by hand.
 - Same constraint as the Neovim external: the GitHub CLI login file stays unmanaged (`manage-gh-config`).
 
 <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->
