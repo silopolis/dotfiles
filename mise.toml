@@ -1,3 +1,7 @@
 [tools]
 gitleaks = "8.30.1"
 hk = { version = "2.10.0", workflow = "release.yml" }
+
+[tasks."hooks:install"]
+description = "Install the pre-commit secret scan as a .git/hooks shim, which every git version runs"
+run = "hk install --legacy"

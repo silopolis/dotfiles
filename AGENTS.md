@@ -43,6 +43,7 @@ Not here: Neovim (`~/.config/nvim`, its own repository).
 - `chezmoi managed`, `chezmoi unmanaged <dir>`, `chezmoi doctor`.
 - `zsh -n <file>`, `bash -n <file>`, `shellcheck <file>`: shell checks.
 - `openspec validate --all --strict`: check specs and changes.
+- `mise run hooks:install`: after a fresh clone, install the pre-commit secret scan as a `.git/hooks` shim, which every git version runs.
 - Startup time: `for i in 1 2 3; do /usr/bin/env time -f %e zsh -i -c exit; done` (or `date +%s.%N` around the call when GNU time is missing).
 - chezmoi comes from brew, and minimal non-interactive shells (ssh command, cron, `env -i`) do not load brew, so they do not find it.
   Run `eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"` first, or call `/home/linuxbrew/.linuxbrew/bin/chezmoi`.
