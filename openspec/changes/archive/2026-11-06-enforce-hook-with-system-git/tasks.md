@@ -21,13 +21,13 @@
 
 ## 4. Signal
 
-- [x] 4.1 Add the outcome to darse's record `darse:T-065` (second finding) if still open: the measured table, and that `hk install --legacy` closes the gap for cem and darse too; otherwise record the signal in the change map row 20 (`rg -n 'T-065' docs/audits/2026-10-30-environment.md` or the record shows it)
+- [x] 4.1 Record in the change map row 20 that darse's record `darse:T-065` (open, on its own branch, already pointing at this change) reads the outcome from this change's `design.md`; nothing is written to darse (`rg -n 'T-065' docs/audits/2026-10-30-environment.md`)
 - [x] 4.2 Add to `openspec/changes/rationalize-package-ownership/` (proposal or design) that brew's git stays (soft-serve, `HOMEBREW_GIT`) and that `conda:git` is the only mise source (`rg -n 'conda:git' openspec/changes/rationalize-package-ownership/`)
 - [x] 4.3 Propose commit `docs(chezmoi:spec): record the hook fix for the fleet and package ownership` (`git show --stat HEAD`)
 
 ## 5. Close
 
-- [ ] 5.1 `openspec validate enforce-hook-with-system-git --strict`; `/opsx-verify enforce-hook-with-system-git`
-- [ ] 5.2 Archive (`openspec archive enforce-hook-with-system-git --yes`; `openspec list | grep -c enforce-hook-with-system-git` prints 0); mark row 20 of the change map done and archived, no cem checklist line to tick
+- [x] 5.1 `openspec validate enforce-hook-with-system-git --strict`; `/opsx-verify enforce-hook-with-system-git`
+- [x] 5.2 Archive (`openspec archive enforce-hook-with-system-git --yes`; `openspec list | grep -c enforce-hook-with-system-git` prints 0); mark row 20 of the change map done and archived, no cem checklist line to tick
 
 <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->

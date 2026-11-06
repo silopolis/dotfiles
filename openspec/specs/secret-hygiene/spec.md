@@ -3,9 +3,7 @@
 ## Purpose
 
 How secrets are stored, deployed and kept out of the public history of this repository: encrypted sources deploy as private files, the history and every new commit are scanned for leaks, and one pinned chezmoi binary does the deploying.
-
 ## Requirements
-
 ### Requirement: Decrypted secrets are private
 
 Every target produced from an `encrypted_` source file SHALL be deployed with mode 0600 (directories holding only secrets 0700).
@@ -31,7 +29,7 @@ The git history SHALL be scanned for secrets, and any finding SHALL be triaged w
 
 ### Requirement: Commit-time secret scanning
 
-A pre-commit hook SHALL refuse commits that add secrets or private keys.
+A pre-commit hook SHALL refuse commits that add secrets or private keys, whichever git binary on the machine makes the commit.
 
 #### Scenario: A secret is refused
 
@@ -42,6 +40,11 @@ A pre-commit hook SHALL refuse commits that add secrets or private keys.
 
 - **WHEN** a staged file in a scratch clone contains a private-key header and `hk run pre-commit` runs
 - **THEN** the hook fails and names the file
+
+#### Scenario: Refused with every git binary
+
+- **WHEN** a staged generated token-shaped string is committed in a scratch clone once with `/usr/bin/git commit` and once with the `git` first on `PATH`
+- **THEN** both commits fail, name the file and add no commit
 
 #### Scenario: A partial commit keeps unstaged work
 
@@ -57,6 +60,8 @@ A pre-commit hook SHALL refuse commits that add secrets or private keys.
 
 - **WHEN** `mise ls --current` runs at the repository root
 - **THEN** it lists `hk` and `gitleaks` at the versions pinned in `mise.toml`
+
+<!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->
 
 ### Requirement: One chezmoi binary
 

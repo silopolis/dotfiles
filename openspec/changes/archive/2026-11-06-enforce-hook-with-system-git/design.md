@@ -72,7 +72,8 @@ Git hooks are not versioned, so this task is the only record.
 
 ### Signal the fleet
 
-The outcome goes to darse's record `darse:T-065` (second finding) if it is still open, with the measured table and the one-flag fix.
+Nothing is written to darse: its record `darse:T-065` (second finding, open on its own unmerged branch) already points at this change, and reads the outcome from this `design.md` (the measured table and the one-flag fix, which closes the gap for cem and darse too).
+Row 20 of the audit's change map records that pointer; darse stays the sole judge of what it changes.
 The note that brew's git stays, and why, goes to `rationalize-package-ownership`.
 
 ## Risks / Trade-offs
