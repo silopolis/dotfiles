@@ -229,7 +229,7 @@ MM .config, .local/share/fonts, .local/share/icons, three LXQt theme dirs (modes
 | 17 | `add-repo-quality-gates` | process | | proposal, specs |
 | 18 | `refresh-repo-docs` | F34 | | proposal, specs |
 | 19 | `manage-gh-config` | F01, F31 (gh part) | | proposal, specs; added 2026-10-31 on request |
-| 20 | `enforce-hook-with-system-git` | F12 (regression after archive) | | proposal, specs; added 2026-10-31, suggested early (before order 2) |
+| 20 | `enforce-hook-with-system-git` | F12 (regression after archive) | | full; added 2026-10-31, suggested early (before order 2); applied 2026-11-06 (shim through `hk install --legacy`); darse `T-065` (open, on its own branch) reads the outcome from this change's `design.md`, nothing written to darse |
 | 21 | `adopt-global-mise-tasks` | 2.7 (mise) | | done, archived 2026-11-02; added the same day on request of the Neovim repository |
 | 22 | `fix-prompt-delivery` | 2.7 (mise) | | superseded 2026-11-04 by `add-agent-launch-tasks` (row 25); it was added 2026-11-03 on request of the Neovim repository and never applied; its follow-up (default setting and override flag for the timeouts and limits) moved with it |
 | 23 | `add-private-store-external` | F05, 2.8 | | full; added 2026-11-03 on request of the Neovim repository; after orders 2 and 3; the Neovim session S16 merged without it |

@@ -34,6 +34,8 @@ Each removal from a non-owning manager is listed and approved before it runs; th
 
 - [Risk] Removing brew's node breaks mise `npm:` tools. → Move node to mise first and point mise's npm backend at it; reinstall the npm tools; check each.
 - [Risk] brew formulae are dependencies of others (python versions). → `brew uses --installed <formula>` before any removal.
+- [Risk] Two git binaries (brew 2.55, system 2.53 from apt). → brew's git stays: a dependency of `soft-serve` and used by Homebrew itself (`HOMEBREW_GIT`); the only mise source is `conda:git`, not evaluated.
+  The pre-commit hook no longer depends on the git version, since `enforce-hook-with-system-git` installs it as a `.git/hooks` shim (measured 2026-11-06), so the owner of git can be chosen freely.
 
 ## Open Questions
 

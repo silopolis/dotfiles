@@ -21,9 +21,9 @@
 
 ## 4. Signal
 
-- [ ] 4.1 Add the outcome to darse's record `darse:T-065` (second finding) if still open: the measured table, and that `hk install --legacy` closes the gap for cem and darse too; otherwise record the signal in the change map row 20 (`rg -n 'T-065' docs/audits/2026-10-30-environment.md` or the record shows it)
-- [ ] 4.2 Add to `openspec/changes/rationalize-package-ownership/` (proposal or design) that brew's git stays (soft-serve, `HOMEBREW_GIT`) and that `conda:git` is the only mise source (`rg -n 'conda:git' openspec/changes/rationalize-package-ownership/`)
-- [ ] 4.3 Propose commit `docs(chezmoi:spec): record the hook fix for the fleet and package ownership` (`git show --stat HEAD`)
+- [x] 4.1 Add the outcome to darse's record `darse:T-065` (second finding) if still open: the measured table, and that `hk install --legacy` closes the gap for cem and darse too; otherwise record the signal in the change map row 20 (`rg -n 'T-065' docs/audits/2026-10-30-environment.md` or the record shows it)
+- [x] 4.2 Add to `openspec/changes/rationalize-package-ownership/` (proposal or design) that brew's git stays (soft-serve, `HOMEBREW_GIT`) and that `conda:git` is the only mise source (`rg -n 'conda:git' openspec/changes/rationalize-package-ownership/`)
+- [x] 4.3 Propose commit `docs(chezmoi:spec): record the hook fix for the fleet and package ownership` (`git show --stat HEAD`)
 
 ## 5. Close
 
