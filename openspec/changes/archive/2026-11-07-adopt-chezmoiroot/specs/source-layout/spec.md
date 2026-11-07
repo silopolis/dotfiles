@@ -11,8 +11,8 @@ The chezmoi source state SHALL live in the `home/` directory of the repository, 
 
 #### Scenario: No source entries at the root
 
-- **WHEN** `git ls-files | grep -E '^(dot_|symlink_|empty_|private_|executable_|\.chezmoi[a-z]+)'` runs at the repository root
-- **THEN** it prints nothing
+- **WHEN** `git ls-files | grep -vx '.chezmoiroot' | grep -E '^(dot_|symlink_|empty_|private_|executable_|\.chezmoi[a-z]+)'` runs at the repository root
+- **THEN** it prints nothing (`.chezmoiroot` itself is the one special file that stays at the root)
 
 ### Requirement: Repository files stay outside the source state
 

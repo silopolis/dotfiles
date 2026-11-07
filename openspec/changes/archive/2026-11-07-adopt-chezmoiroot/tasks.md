@@ -32,6 +32,6 @@
 ## 5. Close
 
 - [x] 5.1 `openspec validate adopt-chezmoiroot --strict`; `/opsx-verify adopt-chezmoiroot`
-- [ ] 5.2 Archive (`openspec archive adopt-chezmoiroot --yes`)
+- [x] 5.2 Archive (`openspec archive adopt-chezmoiroot --yes`)
 
 <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->
