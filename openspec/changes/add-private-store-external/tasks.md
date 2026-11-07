@@ -12,7 +12,7 @@
 
 ## 3. Location as data
 
-- [ ] 3.1 Add the three questions (`promptStringOnce` for `private.host` defaulting to `github.com`, `private.owner`, `private.repo`) next to the `nvim` ones and emit `[data.private]` after `[data.nvim]`; render and parse (`chezmoi execute-template --init --promptString email=x,gitemail=x,firstname=x,name=x,nvim.owner=o,nvim.repo=r,private.owner=o,private.repo=r < home/.chezmoi.toml.tmpl | python3 -c 'import sys,tomllib; print(sorted(tomllib.loads(sys.stdin.read())["data"]["private"]))'` prints `['host', 'owner', 'repo']`)
+- [ ] 3.1 Add the three questions (`promptStringOnce` for `private.host` defaulting to `github.com`, `private.owner`, `private.repo`) next to the `nvim` ones and emit `[data.private]` after `[data.nvim]`; render and parse (`chezmoi --override-data '{"email":"x","gitemail":"x","firstname":"x","name":"x","nvim":{"owner":"o","repo":"r"},"private":{"owner":"o","repo":"r"}}' execute-template --init < home/.chezmoi.toml.tmpl | python3 -c 'import sys,tomllib; print(sorted(tomllib.loads(sys.stdin.read())["data"]["private"]))'` prints `['host', 'owner', 'repo']`)
 - [ ] 3.2 Regenerate in a terminal (`chezmoi init`); only the three new questions are asked (`chezmoi data --format=json | jq -c '.private | keys'` prints `["host","owner","repo"]`)
 
 ## 4. External

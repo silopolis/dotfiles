@@ -111,7 +111,7 @@ The apply records the external in `gitRepoExternalState`, and later applies skip
 - [Risk] The first pull, or a later `apply -R`, fails because the store diverged from its remote. → `--ff-only` never merges or discards; chezmoi reports the error; the user reconciles the store by hand, and the union merge of `*.add` keeps word lists easy to merge.
 - [Risk] A stale GitHub CLI login lets the guard pass while the clone fails. → Same as the Neovim external: the failure is visible at apply time.
 - [Risk] `private = true` is silently ignored for `git-repo`. → The scratch-destination test measures the mode; the umask fallback is recorded.
-- [Risk] Two new questions in `chezmoi init` break a non-interactive init. → Same mitigation as the Neovim questions: `chezmoi execute-template --init --promptString ...` first, then `chezmoi init` in a terminal.
+- [Risk] Two new questions in `chezmoi init` break a non-interactive init. → Same mitigation as the Neovim questions: `chezmoi --override-data '{...}' execute-template --init` first (the prompt flags are keyed by prompt text, not by data path, so the data path is given through the override), then `chezmoi init` in a terminal.
 - [Trade-off] The change waits for two others; meanwhile a new machine clones the store by hand (the Neovim session S16 merged without it, the user's choice on 2026-11-03).
 
 ## Migration Plan
