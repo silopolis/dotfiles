@@ -9,19 +9,20 @@
 - [ ] 2.2 Add the `[age]` table with the identity path and the recipient copied from the current config
 - [ ] 2.3 `[diff]`: replace `diff.exclude = ["externals"]` with `exclude = ["externals"]`
 - [ ] 2.4 `[git]`: remove the `commitMessageTemplate` prompt line
-- [ ] 2.5 Render non-interactively and parse (`chezmoi execute-template --init --promptString email=x,gitemail=x,firstname=x,name=x < home/.chezmoi.toml.tmpl | python3 -c 'import sys,tomllib; d=tomllib.loads(sys.stdin.read()); print(d["encryption"], oct(d["umask"]), d["pager"], d["diff"]["exclude"], sorted(d["data"]["github"]))'`)
+- [ ] 2.5 Add the Incus question (`promptBoolOnce . "features.incus" "Install and enable Incus on this machine" false`) above the includes and emit it as a `[data.features]` table after `[data]` (`chezmoi --override-data '{"features":{"incus":true},"email":"x","gitemail":"x","firstname":"x","name":"x"}' execute-template --init < home/.chezmoi.toml.tmpl | python3 -c 'import sys,tomllib; print(tomllib.loads(sys.stdin.read())["data"]["features"]["incus"])'` prints `True`; without the `features` key it prints `False`)
+- [ ] 2.6 Render non-interactively and parse (`chezmoi --override-data '{"email":"x","gitemail":"x","firstname":"x","name":"x"}' execute-template --init < home/.chezmoi.toml.tmpl | python3 -c 'import sys,tomllib; d=tomllib.loads(sys.stdin.read()); print(d["encryption"], oct(d["umask"]), d["pager"], d["diff"]["exclude"], sorted(d["data"]["github"]))'`)
 
 ## 3. Remove the frozen config
 
 - [ ] 3.1 `git rm -r home/dot_config/chezmoi`; check the target is left alone (`chezmoi apply --dry-run --verbose ~/.config/chezmoi 2>&1 | grep -c remove` prints 0)
-- [ ] 3.2 Regenerate in a terminal (`chezmoi init`); diff (`diff /tmp/opencode/chezmoi.toml.before ~/.config/chezmoi/chezmoi.toml`): expected data changes are machine type and cpu counts only, plus the new keys
+- [ ] 3.2 Regenerate in a terminal (`chezmoi init`, which asks the Incus question: answer no); diff (`diff /tmp/opencode/chezmoi.toml.before ~/.config/chezmoi/chezmoi.toml`): expected data changes are machine type and cpu counts only, plus the new keys
 - [ ] 3.3 Effective settings (`chezmoi dump-config --format=json | jq -c '{u: .umask, p: .pager, d: .diff.exclude, e: .encryption}'`)
 - [ ] 3.4 Decryption still works (task 1.2 command); `chezmoi doctor` shows no `suspicious-entries` warning
 - [ ] 3.5 Propose commit `fix(chezmoi:config): configure encryption, umask and diff in the template`
 
 ## 4. Neovim external (F05)
 
-- [ ] 4.1 Add the three questions (`promptStringOnce` for `nvim.host` defaulting to `github.com`, `nvim.owner`, `nvim.repo`) above the includes and emit them as a `[data.nvim]` table after `[data]`; render and parse (`chezmoi execute-template --init --promptString email=x,gitemail=x,firstname=x,name=x,nvim.owner=o,nvim.repo=r < home/.chezmoi.toml.tmpl | python3 -c 'import sys,tomllib; print(sorted(tomllib.loads(sys.stdin.read())["data"]["nvim"]))'` prints `['host', 'owner', 'repo']`)
+- [ ] 4.1 Add the three questions (`promptStringOnce` for `nvim.host` defaulting to `github.com`, `nvim.owner`, `nvim.repo`) above the includes and emit them as a `[data.nvim]` table after `[data]`; render and parse (`chezmoi --override-data '{"email":"x","gitemail":"x","firstname":"x","name":"x","nvim":{"owner":"o","repo":"r"}}' execute-template --init < home/.chezmoi.toml.tmpl | python3 -c 'import sys,tomllib; print(sorted(tomllib.loads(sys.stdin.read())["data"]["nvim"]))'` prints `['host', 'owner', 'repo']`)
 - [ ] 4.2 Regenerate in a terminal (`chezmoi init`); only the three new questions are asked, and the values stay in the local config, outside the repository (`chezmoi data --format=json | jq -c '.nvim | keys'` prints `["host","owner","repo"]`)
 - [ ] 4.3 Write `home/.chezmoiexternals/nvim.toml.tmpl` as in the design (`chezmoi execute-template < home/.chezmoiexternals/nvim.toml.tmpl` renders a `[".config/nvim"]` entry; `chezmoi managed | grep -c '^\.config/nvim$'` prints 1)
 - [ ] 4.4 Prove the skip paths against a scratch destination (`chezmoi --destination /tmp/opencode/nvim-home managed | grep -c '^\.config/nvim$'` prints 0 with no clone and no login file; `chezmoi --override-data '{"nvim":{"owner":""}}' managed | grep -c '^\.config/nvim$'` prints 0)

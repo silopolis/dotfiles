@@ -15,6 +15,7 @@ The same config is the right home for the location of the Neovim repository, so 
 - After the brew hook re-adds the Brewfile, re-apply it so its mode matches the target state (F41).
 - Ask once for the Neovim repository location (`nvim.host`, default `github.com`, `nvim.owner`, `nvim.repo`; an empty owner or repository means no external) and clone it through a `git-repo` external that never pulls over local work (`refreshPeriod = "0"`, `pull.args = ["--ff-only"]`).
   The external exists only when the data is set and the machine either already has the clone or has a GitHub CLI login file, so a machine without GitHub access still applies (F05).
+- Ask once whether Incus is wanted on this machine (`features.incus`, a boolean, default no) and emit it as a `[data.features]` table, so that the opt-in of `add-incus-setup-hook` survives `chezmoi init`; the repository default stays `false`.
 
 ## Capabilities
 
@@ -36,5 +37,6 @@ None.
 - New `.chezmoiexternals/nvim.toml.tmpl`; the first apply that includes it runs one fast-forward-only `git pull` in `~/.config/nvim`, which is applied only when the user's Neovim work is idle.
 - Constraint: the GitHub CLI login file stays unmanaged and untracked, because the external guard reads its presence (roadmap item `manage-gh-config`).
 - `AGENTS.md` notes that `chezmoi apply -R` also pulls into `~/.config/nvim`.
+- `chezmoi init` asks one more question (Incus, default no) on machines whose config lacks the flag; `chezmoi init --promptDefaults` answers it without asking.
 
 <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->

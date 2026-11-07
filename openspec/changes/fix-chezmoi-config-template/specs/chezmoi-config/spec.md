@@ -25,7 +25,7 @@ The template SHALL set `encryption = "age"` and the `[age]` identity and recipie
 
 #### Scenario: Render without a stored config
 
-- **WHEN** `chezmoi execute-template --init --promptString email=x,gitemail=x,firstname=x,name=x < .chezmoi.toml.tmpl` output is parsed as TOML
+- **WHEN** `chezmoi --override-data '{"email":"x","gitemail":"x","firstname":"x","name":"x"}' execute-template --init < home/.chezmoi.toml.tmpl` output is parsed as TOML
 - **THEN** it has `encryption = "age"`, an `age.identity` and an `age.recipient`
 
 #### Scenario: Encrypted targets still decrypt
@@ -51,6 +51,25 @@ Top-level keys SHALL precede all tables and included templates, and each table k
 
 - **WHEN** `chezmoi init` runs on a machine whose config already holds the identity data
 - **THEN** it asks no question
+
+### Requirement: The config records whether Incus is wanted
+
+The template SHALL ask once whether Incus is wanted on the machine, with default no, and SHALL emit the answer as `features.incus` in a `[data.features]` table, so that it survives `chezmoi init`.
+
+#### Scenario: Answer is recorded
+
+- **WHEN** `chezmoi --override-data '{"email":"x","gitemail":"x","firstname":"x","name":"x","features":{"incus":true}}' execute-template --init < home/.chezmoi.toml.tmpl | python3 -c 'import sys,tomllib; print(tomllib.loads(sys.stdin.read())["data"]["features"]["incus"])'` runs
+- **THEN** it prints `True`
+
+#### Scenario: Default is no
+
+- **WHEN** the same command runs without the `features` key in the override data and with standard input not attached to a terminal
+- **THEN** it prints `False`
+
+#### Scenario: Table does not pollute another one
+
+- **WHEN** `chezmoi data --format=json | jq -c '.github | keys'` runs after `chezmoi init`
+- **THEN** it lists only `is_codespaces`
 
 ### Requirement: Restrictive deployment modes
 

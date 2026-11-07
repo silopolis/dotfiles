@@ -98,6 +98,13 @@ The external template builds the URL from them:
   Alternative considered: SSH, as chezmoi's documentation suggests for private repositories; needs a key set up before the first apply.
 - Alternative considered: a `run_once` script that clones; rejected, the external is declarative and visible in `chezmoi managed`.
 
+### Incus feature flag
+
+One boolean question, asked once: `promptBoolOnce . "features.incus" "Install and enable Incus on this machine" false`, emitted as a `[data.features]` table after `[data]`, like `[data.nvim]`.
+The repository default `features.incus: false` (added by `add-incus-setup-hook` in `.chezmoidata/features.yaml`) applies where the config holds no value, and the config value wins when both exist (checked on 2.73.3).
+`promptBoolOnce` returns its default when no terminal is attached, and reads an existing value without asking.
+The prompt flags (`--promptString`, `--promptBool`) are keyed by the prompt text, not by the data path, so the checks below use `--override-data`, keyed by the data path, which the `Once` functions read as existing data.
+
 ### First apply on the existing clone
 
 With no record for `~/.config/nvim` in `gitRepoExternalState`, the first apply runs one `git pull --ff-only` there, and records it; later applies skip it unless `-R` is passed.
@@ -106,7 +113,7 @@ Alternative considered: seeding the state record by hand so chezmoi never touche
 
 ## Risks / Trade-offs
 
-- [Risk] `chezmoi init` prompts or fails in a non-interactive session. → Run it in a terminal; check first with `chezmoi execute-template --init --promptString email=x,gitemail=x,firstname=x,name=x < .chezmoi.toml.tmpl`.
+- [Risk] `chezmoi init` prompts or fails in a non-interactive session. → Run it in a terminal; check first with `chezmoi --override-data '{"email":"x","gitemail":"x","firstname":"x","name":"x"}' execute-template --init < home/.chezmoi.toml.tmpl`.
 - [Risk] Deleting the snapshot source makes chezmoi think it should remove `~/.config/chezmoi/chezmoi.toml`. → It does not: removed sources are only forgotten, never deleted, unless listed in `.chezmoiremove`; verify with `chezmoi apply --dry-run --verbose ~/.config/chezmoi`.
 - [Risk] Wrong recipient breaks decryption of every encrypted file. → Copy the recipient from the working config; check with `chezmoi cat` on one encrypted target before and after.
 - [Risk] umask 027 makes a file unreadable for a service running as another user. → None found on 2026-10-30 (the display manager reads the avatar from its own copy); `reconcile-drift-and-supervised-apply` reviews the full list of mode changes before applying.
