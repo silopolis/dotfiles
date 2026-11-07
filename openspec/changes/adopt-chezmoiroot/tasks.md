@@ -18,6 +18,7 @@
 - [x] 3.4 Fix the path in the comment at `home/.chezmoidata/vscodium.yaml:1`
 - [x] 3.5 Update `AGENTS.md` ("Where things live") and `openspec/config.yaml` (layout paragraph) to the `home/` layout
 - [x] 3.6 Propose commit `chore(chezmoi:layout): fix source paths and ignores for home/`
+- [x] 3.7 `scripts/install.sh`: `--source` is the repository root (parent of `scripts/`), installer from `get.chezmoi.io` (`sh -n scripts/install.sh`; `shellcheck scripts/install.sh`; `chezmoi --config=<empty> --source=<repository> source-path` ends with `/home`)
 
 ## 4. Checks
 
@@ -30,7 +31,7 @@
 
 ## 5. Close
 
-- [ ] 5.1 `openspec validate adopt-chezmoiroot --strict`; `/opsx-verify adopt-chezmoiroot`
+- [x] 5.1 `openspec validate adopt-chezmoiroot --strict`; `/opsx-verify adopt-chezmoiroot`
 - [ ] 5.2 Archive (`openspec archive adopt-chezmoiroot --yes`)
 
 <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->

@@ -22,7 +22,7 @@
 **Non-Goals:**
 
 - Fixing the scripts beyond their source paths (change `make-install-scripts-idempotent`).
-- Changing `scripts/install.sh` behaviour (change `fresh-machine-bootstrap`; note that it passes `--source=<scripts dir>`, already wrong today).
+- Changing `scripts/install.sh` beyond its paths (change `fresh-machine-bootstrap`); its `--source` (the `scripts/` directory, wrong before the move) now points to the repository root, and its installer URL moves from `git.io` to `get.chezmoi.io`, which is that change's task 3.1, done here.
 
 ## Decisions
 

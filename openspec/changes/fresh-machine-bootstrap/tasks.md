@@ -14,7 +14,7 @@
 
 ## 3. Bootstrap scripts
 
-- [ ] 3.1 Fix `scripts/install.sh` (`get.chezmoi.io`, source is the repository root)
+- [x] 3.1 Fix `scripts/install.sh` (`get.chezmoi.io`, source is the repository root); done in `adopt-chezmoiroot`, the end-to-end proof stays with group 4
 - [ ] 3.2 Fix or remove `executable_syssetup.sh`
 - [ ] 3.3 Document the bootstrap command in `README.md`
 

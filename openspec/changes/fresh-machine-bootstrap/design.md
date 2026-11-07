@@ -1,6 +1,6 @@
 ## Context
 
-- `scripts/install.sh:9,11` downloads from `git.io`; line 23 passes `--source=<directory of the script>`, which is `scripts/`, not the repository.
+- `scripts/install.sh` was fixed in `adopt-chezmoiroot` (installer from `get.chezmoi.io`, `--source` is the repository root); it was downloading from `git.io` and passing `--source=<directory of the script>`, which is `scripts/`.
 - `dot_local/sbin/executable_syssetup.sh`: `[ $(type curl &>/dev/null) ]` is always false (lines 8, 14), so curl is never installed and chezmoi's branches are swapped; line 6 fails under `set -u` without an argument.
 - `.chezmoitemplates/os.toml.tmpl` computes `$osid`, WSL and Steam Deck flags but emits nothing; `profile.toml.tmpl` declares unused booleans.
 - Literal paths: `dot_config/git/gitconfig:45,48` (`gh` credential helper), `dot_config/tmux/tmux.conf:199` (TPM), `dot_config/symlink_Joplin` and `symlink_joplin-desktop` (absolute targets under a cloud-synced folder), `dot_config/shell/aliases:293-294` (terraform completion), `dot_config/shell/rc.d/110-pkg_brew.sh:2,17`.
