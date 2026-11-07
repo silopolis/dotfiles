@@ -15,22 +15,27 @@ The GitHub repository is **public**.
 
 ## Where things live
 
-Paths below are the flat layout; after the change `adopt-chezmoiroot`, everything chezmoi reads moves under `home/`.
+`.chezmoiroot` points chezmoi at `home/`: everything chezmoi reads lives there, everything else at the root is repository tooling and needs no ignore entry.
+`chezmoi source-path` prints `<repository>/home`; templates reach source files through `{{ .chezmoi.sourceDir }}`.
+The audit and changes written before `adopt-chezmoiroot` use flat paths: prefix them with `home/`.
 
 | Path | Content |
 | --- | --- |
-| `.chezmoi.toml.tmpl` | Config template: prompts, data, encryption |
-| `.chezmoidata/` | Template data: `packages.yaml`, `vscodium.yaml` |
-| `.chezmoiexternals/` | Downloaded files and repositories (themes, GitAlias, Vundle, bin) |
-| `.chezmoiscripts/` | `run_onchange_` install scripts |
-| `.chezmoitemplates/` | Shared template snippets |
-| `.chezmoiignore`, `.chezmoiremove` | Target ignore and removal lists (patterns match targets, not source paths) |
-| `dot_config/`, `dot_local/`, root `symlink_dot_*` | Managed files; `~/.zshrc`, `~/.bashrc`, `~/.profile`, `~/.gitconfig` are symlinks into `~/.config` |
-| `dot_config/shell/` | Shared bash and zsh startup: `profile`, `shellrc`, `rc.d/NNN-*.sh`, `aliases` |
+| `.chezmoiroot` | Single line `home`: where the source state starts |
+| `home/.chezmoi.toml.tmpl` | Config template: prompts, data, encryption |
+| `home/.chezmoidata/` | Template data: `packages.yaml`, `vscodium.yaml` |
+| `home/.chezmoiexternals/` | Downloaded files and repositories (themes, GitAlias, Vundle, bin) |
+| `home/.chezmoiscripts/` | `run_onchange_` install scripts |
+| `home/.chezmoitemplates/` | Shared template snippets |
+| `home/.chezmoiignore`, `home/.chezmoiremove` | Target ignore and removal lists (patterns match targets, not source paths) |
+| `home/dot_config/`, `home/dot_local/`, `home/symlink_dot_*` | Managed files; `~/.zshrc`, `~/.bashrc`, `~/.profile`, `~/.gitconfig` are symlinks into `~/.config` |
+| `home/dot_config/shell/` | Shared bash and zsh startup: `profile`, `shellrc`, `rc.d/NNN-*.sh`, `aliases` |
+| `home/key.txt.age` | Passphrase-protected age identity, decrypted by a before script |
 | `docs/audits/` | Dated audits; the 2026-10-30 one is the consolidation baseline |
 | `openspec/` | Specs (`specs/`), active and archived changes (`changes/`), `config.yaml` |
 | `memory/sessions/` | Redacted transcripts of agent sessions, public profile; see its `README.md` |
 | `.opencode/` | OpenSpec commands and skills for opencode |
+| `README.md`, `TODO.md`, `scripts/`, `mise.toml`, `hk.pkl`, `.gitleaks.toml` | Repository tooling, outside the source state |
 
 Not here: Neovim (`~/.config/nvim`, its own repository).
 
@@ -58,7 +63,7 @@ Not here: Neovim (`~/.config/nvim`, its own repository).
 - Raw session exports contain private data: keep them in a scratch directory with mode 0700, commit only the redacted copies in `memory/sessions/`, and delete the raw files.
 - Anything that uses sudo, writes outside `$HOME`, uninstalls or deletes needs the user's explicit go.
 - Commits: propose the messages, commit only after the user validates them, never push without being asked.
-- The brew hook (`dot_config/shell/rc.d/110-pkg_brew.sh`) commits the Brewfile by itself after brew changes: expect those commits.
+- The brew hook (`home/dot_config/shell/rc.d/110-pkg_brew.sh`) commits the Brewfile by itself after brew changes: expect those commits.
 
 ## Writing for a public repository
 

@@ -4,7 +4,7 @@
 
 *.log
 
-dot_config/tmux/plugins
+home/dot_config/tmux/plugins
 
 # opencode installs its plugin SDK in project .opencode/ folders
 .opencode/node_modules/

@@ -25,7 +25,8 @@ None.
 ## Impact
 
 - Every source path gains a `home/` prefix; targets, modes, contents and script state do not change.
-- `chezmoi source-path` and `chezmoi cd` now point to `home/`; the brew hook and the `cm*` aliases use `chezmoi source-path`, so they follow.
+- `chezmoi source-path` now points to `home/`; the brew hook and the `cm*` aliases use it, so they follow.
+- `chezmoi cd` keeps opening the working tree (the repository root), so the `cmcd` alias changes to `cd "$(chezmoi source-path)"` to land in `home/`.
 - Open changes and the audit refer to flat paths; readers prefix `home/` (stated in the audit and `AGENTS.md`).
 
 <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->

@@ -15,7 +15,7 @@ ulimit -n 20480
 sudo bash -c "echo '* soft nofile 20480' > /etc/security/limits.d/ulimit.conf"
 sudo bash -c "echo '* hard nofile 40960' >> /etc/security/limits.d/ulimit.conf"
 
-export HOMEBREW_BREWFILE="$HOME/.local/share/chezmoi/dot_config/brewfile/Brewfile"
+export HOMEBREW_BREWFILE="{{ .chezmoi.sourceDir }}/dot_config/brewfile/Brewfile"
 export HOMEBREW_BREWFILE_BACKUP="$HOME/.config/brewfile/Brewfile.backup" # Set brew-file backup file name
 export HOMEBREW_BREWFILE_FULL_NAME=1 # Toggle use of full names (tap/name)
 export HOMEBREW_BREWFILE_LEAVES=0 # Only list leaves
@@ -70,7 +70,7 @@ rustup default stable
 # config.toml hash: {{ include "dot_config/pipx/packages.json" | sha256sum }}"
 # https://github.com/pypa/pipx/issues/359
 # https://github.com/br3ndonland/dotfiles/commit/b133fb84e85cff7989ffd657248618a8edafdf1e
-pipx install-all "$HOME/.local/share/chezmoi/dot_config/pipx/packages.json"
+pipx install-all "{{ .chezmoi.sourceDir }}/dot_config/pipx/packages.json"
 
 vim +PluginInstall +qall
 YCM_INSTALL="$HOME/.vim/bundle/YouCompleteMe/install.py"

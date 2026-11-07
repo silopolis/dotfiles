@@ -4,7 +4,7 @@
 - `.chezmoi.sourceDir` becomes `~/.local/share/chezmoi/home`; `.chezmoi.workingTree` stays `~/.local/share/chezmoi`.
 - Entry state (what chezmoi last wrote) is keyed by target path and script state by script content hash, so a pure move changes neither.
 - Source paths are used by:
-  - `run_onchange_before_decrypt-private-key.sh.tmpl:5` (`{{ .chezmoi.sourceDir }}/key.txt.age`), fine if `key.txt.age` moves too;
+  - `run_onchange_before_decrypt-private-key.sh.tmpl:5` (`{{ .chezmoi.sourceDir }}/key.txt.age`), fine if `key.txt.age` moves too; its rendered path gains `/home`, so its hash changes and it shows as pending once, a no-op while `~/.config/chezmoi/key.age` exists;
   - `run_onchange_before_05-install.sh.tmpl:18,73` (hard-coded `$HOME/.local/share/chezmoi/dot_config/...`), breaks;
   - `include` calls in scripts (relative to the source dir), fine;
   - `dot_config/shell/rc.d/110-pkg_brew.sh:67-89` (brew hook: `chezmoi source-path`, then `git -C "$repo"` with a path relative to it), fine since git resolves paths from the subdirectory;

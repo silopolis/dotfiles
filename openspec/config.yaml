@@ -8,15 +8,20 @@ context: |
   It is the base layer of cles-en-main (cem), a workstation lifecycle tool
   built on chezmoi and mise that will eventually supersede parts of it.
 
-  Layout (flat today; the change adopt-chezmoiroot moves it into home/):
-  - .chezmoi.toml.tmpl: config template (prompts, data, encryption).
-  - .chezmoidata/: template data (packages.yaml, vscodium.yaml).
-  - .chezmoiexternals/: themes, gitalias, kubectl aliases, Vundle, bin.
-  - .chezmoiscripts/: run_onchange before/after scripts (installs).
-  - .chezmoitemplates/: shared template snippets.
-  - dot_config/, dot_local/: managed files; root symlink_dot_* entries
-    point ~/.zshrc, ~/.bashrc, ~/.profile, ~/.gitconfig... into ~/.config.
-  - dot_config/shell/: shared bash/zsh startup (shellrc, profile, rc.d/NNN-*.sh).
+  Layout: .chezmoiroot selects home/ as the source state; everything else at
+  the repository root is tooling and needs no .chezmoiignore entry.
+  Write source paths with the home/ prefix; the audit and changes written
+  before adopt-chezmoiroot use flat paths, read them with home/ in front.
+  - home/.chezmoi.toml.tmpl: config template (prompts, data, encryption).
+  - home/.chezmoidata/: template data (packages.yaml, vscodium.yaml).
+  - home/.chezmoiexternals/: themes, gitalias, kubectl aliases, Vundle, bin.
+  - home/.chezmoiscripts/: run_onchange before/after scripts (installs).
+  - home/.chezmoitemplates/: shared template snippets.
+  - home/dot_config/, home/dot_local/: managed files; home/symlink_dot_*
+    entries point ~/.zshrc, ~/.bashrc, ~/.profile, ~/.gitconfig... into ~/.config.
+  - home/dot_config/shell/: shared bash/zsh startup (shellrc, profile, rc.d/NNN-*.sh).
+  - Templates reach source files through {{ .chezmoi.sourceDir }}, never a
+    literal path.
   - docs/audits/: dated audits; docs/audits/2026-10-30-environment.md is the
     baseline that every consolidation change refers to.
 

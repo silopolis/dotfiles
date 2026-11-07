@@ -1,4 +1,4 @@
-# VSCodium settings and extensions managed by chezmoi (see dot_config/VSCodium/User/modify_settings.json.tmpl).
+# VSCodium settings and extensions managed by chezmoi (see home/dot_config/VSCodium/User/modify_settings.json.tmpl).
 # Public repository: never put keys, tokens or passwords here.
 # settings: merged over the live settings.json at apply time; keys not listed stay local.
 # extensions: installed when missing by .chezmoiscripts/run_onchange_after_20-vscodium-extensions.sh.tmpl; never removed.
