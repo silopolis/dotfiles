@@ -4,42 +4,46 @@
 - `fresh-machine-bootstrap` planned its own podman container test (its design, section "Container test"); with this change it keeps the bootstrap stage and its assertions, and uses this infrastructure to run them.
 - Lifecycle stages come later, each as its own change: fresh bootstrap, second apply is a no-op, update from an older commit to HEAD, rollback to the previous commit, purge.
 - Targets come later too, each as its own change: Kali Rolling and Omarchy first, then Debian stable, Ubuntu stable and LTS, Arch, much later RPM-based distros; development containers (devcontainers, DevPod) are a target of their own, and so may be real machines reached over SSH, with cem.
+- This change is the core, for system containers.
+  Split out on 2026-11-07 because the whole was 23 requirements against 5 to 8 in the other changes of this repository:
+  - `add-incus-host-setup` installs and initialises Incus on a host (production tooling) and decides the access group and storage defaults by acceptance checks on the laptop;
+  - `add-incus-setup-hook` is the opt-in flag and the chezmoi hook;
+  - `add-kali-vm-target` adds the `vm` kind, the imported Kali image and the `kali-vm` target;
+  - `add-machine-smoke-ci` commits the workflow.
 - Host on 2026-11-07:
-  - KVM available (`/dev/kvm`); system `libvirtd` active, QEMU and `virt-install` installed.
-  - The `virsh` first on `PATH` comes from brew and looks for brew's own socket, so it cannot reach the system daemon without an explicit URI and socket path; brew's `libvirt` is only a dependency of an unused Terraform provider and is removed by the change `remove-brew-libvirt`.
+  - KVM available (`/dev/kvm`); system `libvirtd` active, QEMU and `virt-install` installed; the `virsh` first on `PATH` comes from brew and cannot reach the system daemon (`remove-brew-libvirt`).
   - Vagrant 2.4.9 with `vagrant-libvirt` 0.12.2 (linked against the system libvirt); the four local boxes are VirtualBox-only.
   - podman and docker installed; VirtualBox installed, with 37 registered VMs used for other work.
   - 12 CPUs, 15 GB RAM with about 5 GB free in normal use, about 230 GB free disk.
-  - Incus not installed; `incus` 7.0.1 is the apt candidate.
-- Facts checked on 2026-11-07:
+- Images, checked on 2026-11-07:
   - The Incus image server lists `kali/current`, `archlinux/current`, `debian/trixie`, `debian/forky`, `ubuntu/noble`, `ubuntu/resolute`, `fedora/43` to `45`, `almalinux/8` to `10`, most with a `cloud` (cloud-init) variant.
   - For Kali the server has container files only (`rootfs.squashfs`); Arch, Debian and Ubuntu also have a VM disk (`disk.qcow2`).
-  - Kali publishes a generic cloud image with cloud-init (`kali-linux-2026.3-cloud-genericcloud-amd64.tar.xz`, on `kali.download/cloud-images/`); its `kalilinux/rolling` Vagrant box (2026.2.0) ships a `libvirt` provider.
-  - Incus accepts OCI registries as image remotes (`incus remote add <name> <url> --protocol=oci`) and runs their images as application containers; running OCI images as VMs is `lxc/incus#1360`, open and assigned, with no release date.
-  - Incus documents `incus-simplestreams generate-metadata` and `incus-migrate` for importing images and disks that come without Incus metadata.
-  - GitHub-hosted Linux runners expose KVM to the runner user after a udev rule (GitHub changelog, 2024-04-02).
-  - cem pins no chezmoi version in its mise files; `rationalize-package-ownership` still asks whether chezmoi itself moves to mise.
-- CI belongs to cem task `T-013`; this change only has to leave every guest kind it uses runnable there.
+  - Incus accepts OCI registries as image remotes and runs their images as application containers only; running them as VMs is `lxc/incus#1360`, open, no release date.
+  - The `kalilinux/kali-rolling` OCI image has `CMD ["bash"]` and no entry point, so using it as a system container needs an image of our own (devcontainer follow-up).
+- chezmoi 2.73.3 installs from `get.chezmoi.io` with `-t <tag>`; its prompt flags are keyed by prompt text, not by data path.
+- GitHub-hosted Linux runners expose KVM to the runner user after a udev rule (GitHub changelog, 2024-04-02); containers need no KVM.
+- cem pins no chezmoi version in its mise files; `rationalize-package-ownership` still asks whether chezmoi itself moves to mise.
+- CI belongs to cem task `T-013`; the committed workflow is `add-machine-smoke-ci`.
 
 ## Goals / Non-Goals
 
 **Goals:**
 
-- One way, local and on CI, to create a disposable Kali guest as a system container or a VM, give it this repository at a chosen commit, run a stage in it and destroy it.
+- One way, local and on CI, to create a disposable Kali system container, give it this repository at a chosen commit, run a stage in it and destroy it.
 - An engine chosen on stated criteria, with the losing options and the reasons kept here.
 - No real secret ever inside a guest or a CI job.
 - A smoke stage that proves the plumbing without applying anything.
 - Engine-specific code kept in one place, so a fallback engine is a contained change.
-- A target list that already has room for OCI images and for real machines, without code for them yet.
+- A target list that already has room for virtual machines, OCI images and real machines, without code for them yet.
 
 **Non-Goals:**
 
+- Installing Incus (`add-incus-host-setup`), the opt-in flag and hook (`add-incus-setup-hook`).
+- Virtual machines, the Kali image import and the `kali-vm` target (`add-kali-vm-target`).
+- The committed CI workflow and its matrix (`add-machine-smoke-ci`).
 - Any lifecycle stage beyond smoke (each is its own change).
 - Targets other than Kali (each distro is its own change; Omarchy needs an Arch VM plus its installer).
-- Development container targets (devcontainers, DevPod) and real-machine targets (`kind = host`): the target list leaves room for them, nothing here implements them.
-- OCI images as VMs: not supported by Incus today (`lxc/incus#1360`).
-- A CI pipeline beyond one workflow running the smoke stage (cem `T-013`).
-- Removing brew's libvirt (change `remove-brew-libvirt`).
+- Development container targets (devcontainers, DevPod), OCI images as machines, and real-machine targets (`kind = host`): the target list leaves room for them, and the rules that belong to them (OCI references pinned; the harness never creates, resets or deletes a real machine) are written by the changes that implement them.
 - Fixing what the guests reveal (hard-coded `/home/tarax`, prompts, brew): those findings go to the changes that own them.
 
 ## Decisions
@@ -48,31 +52,28 @@
 
 | Criterion | Incus | Vagrant with libvirt | OCI (podman, docker) | libvirt with cloud-init |
 | --- | --- | --- | --- | --- |
-| Hosted CI runner | apt install on the runner; containers need no KVM, VMs need the KVM udev rule | install Vagrant, libvirt and the plugin on every run; VMs only; slow start | preinstalled; fastest | install libvirt; VMs only |
+| Hosted CI runner | apt install (Zabbly on Ubuntu runners); containers need no KVM, VMs need the KVM udev rule | install Vagrant, libvirt and the plugin on every run; VMs only; slow start | preinstalled; fastest | install libvirt; VMs only |
 | Containers and VMs from one tool | yes, same commands and images; also OCI application containers | VMs only | containers only, no real init unless a systemd image is built | VMs only |
 | Distro catalog | official image server: Kali (container only), Arch, Debian, Ubuntu, Fedora, AlmaLinux (containers and VMs) | per-vendor boxes, uneven libvirt coverage; Kali has one | official images for all, none with init or cloud-init | vendor cloud images, downloaded and tracked by hand |
 | Snapshots and restore | native, both kinds | `vagrant snapshot` on libvirt | image commit only, no live state | `virsh snapshot`, by hand |
 | First-boot provisioning | cloud-init from instance config | shell provisioners | Dockerfile | cloud-init seed image |
-| Laptop setup | apt, a group, `incus admin init`; firewall interplay with docker | already installed | already installed | already installed |
+| Laptop setup | apt, a group, `incus admin init` (the task of `add-incus-host-setup`); firewall interplay with docker | already installed | already installed | already installed |
 | Fidelity | system container: real init, sudo, login; VM: full machine | full machine | process container | full machine |
 
-### Engine: Incus, confirmed by a spike
+### Engine: Incus, confirmed by a throwaway run on a hosted runner
 
 Incus is the only option that gives both guest kinds, most of the distro list, cloud-init and snapshots from one tool on the laptop and on a hosted runner.
-The choice stays provisional until a spike shows four things:
+The choice stays provisional until it has passed four checks, split by where they belong:
 
-1. A Kali system container from the image server boots locally with cloud-init and network.
-2. A Kali VM boots locally with cloud-init and network; the server has no Kali VM image, so the spike imports the Kali generic cloud image (metadata from `incus-simplestreams generate-metadata`, or `incus-migrate`) and checks that it boots under Incus's UEFI firmware.
-3. The official Kali OCI image, added as an `oci` remote, starts systemd as its entry command in a system container, with a `tester` user and sudo; this decides whether OCI is usable as a machine image.
-4. A Kali system container boots on a hosted runner.
+1. A guest reaches the network while Docker runs: acceptance of `add-incus-host-setup`.
+2. A Kali VM boots from the imported Kali image, with its fallbacks: `add-kali-vm-target`.
+3. A user in the restricted `incus` group can run containers and VMs and snapshot them: acceptance of `add-incus-host-setup`.
+4. A Kali system container boots on a hosted runner with the Zabbly `lts-7.0` package: the first group of this change's tasks, run as a throwaway workflow on a branch or a fork (public pushes need the user's go), with the setup task's source file doing the install.
 
-Fallbacks if the spike fails:
+Fallbacks if a check fails:
 
-- Check 2: a Debian testing VM from the server switched to the Kali repositories, or Vagrant with libvirt for VMs (the Kali box exists), behind the same interface.
-- Check 3: OCI stays reserved for development container targets, where the image format is the target itself.
-- Checks 1 or 4: Vagrant with libvirt for VMs, podman with a systemd-enabled image for containers.
-
-If check 3 passes, one image format can serve the harness, devcontainers, DevPod and CI; OCI as VMs is revisited when `lxc/incus#1360` ships.
+- Check 4: Vagrant with libvirt for VMs and podman with a systemd-enabled image for containers, behind the same interface; the engine module is the only code that changes.
+- Check 2: contained in `add-kali-vm-target` (Vagrant with libvirt for VMs only).
 
 ### Interface: repository mise tasks over one Python entry point
 
@@ -80,10 +81,11 @@ If check 3 passes, one image format can serve the harness, devcontainers, DevPod
 - The namespace is `machine` and not `test` (the `tests/` directory already holds other suites) or `host` (in virtualization the host is the machine that runs the guests, here the laptop, and cem uses `host` for a remote machine reached over SSH).
   systemd also says "machine" for containers and VMs alike, and a real computer is a machine too.
 - Target kinds are `container`, `vm` and, reserved for later, `host`: an existing machine reached over SSH.
-  A `host` target accepts `machine:run` and refuses `up`, `down`, `snapshot` and `restore`, so the harness can never create, delete or reset a real machine.
-  Nothing implements `host` here; the rule is written so the target list does not change shape later.
+  The file may name `vm` and `host` targets and `oci:` or imported-image references (the rule that the list does not change shape later); every command that would need one exits 2 with "not implemented yet" until the change that implements it, which also writes the rules that belong to it.
 - Managing real machines is cem's domain (`target.host`, cem `DR-005`); the harness may move into cem once cem can drive them, and the target list and stage contract are written to move unchanged.
 - The tasks call one script, `tests/machine/machine.py`, which holds the command line; engine calls live in one module (`tests/machine/engine_incus.py`) and a fallback engine is a second module with the same functions.
+- Every command takes `--targets <file>` (another target list, used by scratch scenarios); `machine:list` takes `--json`; `machine:snapshot` and `machine:restore` take a snapshot name after the target; `MACHINE_ENGINE` names the engine command (default `incus`), so a missing engine is testable.
+- Exit codes follow the fleet: 0 success, 1 failure, 2 usage, target-list error or not-implemented, 127 missing engine command; results go to standard output, messages and logs to standard error.
 - Alternative considered: a bash script; rejected because the target list is TOML and argument handling grows with the stages.
 
 ### Python stack
@@ -99,21 +101,23 @@ If check 3 passes, one image format can serve the harness, devcontainers, DevPod
 `tests/machine/targets.toml`: a `[defaults]` table and one table per target.
 
 - Defaults: `chezmoi_version` (the smoke stage installs this tag with the official installer, `-t <tag>`).
-- Per target: `name`, `kind` (`container`, `vm`, later `host`), `image` (`images:<path>` for the Incus server, `oci:<remote>:<path>` for an OCI registry remote, or a local alias for an imported image), `ci` (`true` or `false`), `cpus`, `memory`, `disk`.
-- First entries: `kali-container` (`images:kali/current/cloud`, `ci = true`) and `kali-vm` (the imported Kali cloud image; `ci` set after the spike).
+- Per target: `name`, `kind` (`container`, `vm`, later `host`), `image` (`images:<path>` for the Incus server; the other forms are reserved: `oci:<remote>:<path>:<tag>` and a local alias for an imported image), `ci` (`true` or `false`), `cpus`, `memory`, `disk`.
+- Optional per target: `config`, a table of Incus instance options passed at launch, and `cloud_init`, the list of cloud-init snippets to merge (default `["base"]`).
+- First entry: `kali-container` (`images:kali/current/cloud`, `ci = true`).
 - The chezmoi pin starts at the version the laptop runs (2.73.3 on 2026-11-07); it is a single value, so a later move of chezmoi to mise (open in `rationalize-package-ownership`) or a pin shared with cem changes one line.
 
 ### Isolation and guards
 
-- Every guest lives in a dedicated Incus project, `dotfiles-test`, created on first use; the script never addresses an instance outside it.
-- Instance names are `<target>-<short id>`; `machine:down` deletes only instances of that project, so a mistake cannot reach the other VMs on the laptop.
+- The harness project is, in this order: the value of `MACHINE_PROJECT` when set; `dotfiles-test`, created on first use, when the user may create projects (`incus-admin`); otherwise the one project the user can see (a user in the restricted `incus` group is confined to a project of their own).
+- Every guest carries the key `user.dotfiles-machine` set to its target name, and a name made of the target name, a dash and a short identifier.
+- `machine:down <target>` prints the names it is going to delete and deletes only guests of the harness project that carry the key, so a mistake cannot reach other instances, whichever access mode is in use.
 - Each command checks the state first (project exists, instance exists, instance running), so every command can run again safely.
 
 ### Guest provisioning
 
 - cloud-init user data in `tests/machine/cloud-init/base.yaml`: a non-root user `tester` with passwordless sudo, and `git`, `curl`, `ca-certificates`, `sudo` installed.
 - A user other than the laptop's is on purpose: it exposes hard-coded user paths (audit F24).
-- The script waits for `cloud-init status --wait` before any stage.
+- The script waits for the agent and then for `cloud-init status --wait` before any stage.
 
 ### Repository delivery
 
@@ -123,49 +127,42 @@ If check 3 passes, one image format can serve the harness, devcontainers, DevPod
 
 ### Secrets
 
-- The script never copies anything from `~/.config/chezmoi`, `~/.ssh` or any key store into a guest, and the CI workflow uses no repository secret.
+- The script never copies anything from `~/.config/chezmoi`, `~/.ssh` or any key store into a guest, and the CI workflow (`add-machine-smoke-ci`) uses no repository secret.
 - The bundle holds `home/key.txt.age`, which is passphrase-protected and already public.
 - Stages that apply run with `--exclude=encrypted`; how a stage keeps the passphrase-prompting decrypt script from blocking (for example a placeholder identity file) is decided by the first applying stage, `fresh-machine-bootstrap`.
 
 ### Stage contract
 
-- A stage is an executable `tests/machine/stages/<name>.sh`, pushed into the guest and run there as `tester` through a login shell, with `EXPECTED_COMMIT` and `CHEZMOI_VERSION` in its environment.
+- A stage is an executable `tests/machine/stages/<name>.sh`, copied to `/home/tester/stages/<name>.sh` and run there as `tester` through a login shell, with `EXPECTED_COMMIT` and `CHEZMOI_VERSION` in its environment.
 - Exit status 0 passes; output goes to the terminal and to a log under `${XDG_STATE_HOME:-~/.local/state}/dotfiles-machine-tests/` on the host (an artifact on CI).
 - `smoke.sh`: init reports running or degraded, `git -C ~/.local/share/chezmoi rev-parse HEAD` equals `EXPECTED_COMMIT`, chezmoi installed from `get.chezmoi.io` at `CHEZMOI_VERSION`, `chezmoi source-path` ends with `/home`.
 
-### CI workflow
-
-One workflow, `.github/workflows/machine-smoke.yml`, on `workflow_dispatch` and on pushes that touch `tests/machine/` or `home/`: install and initialise Incus on `ubuntu-latest`, run `machine:run kali-container smoke`, then the same for `kali-vm` in a job that enables KVM first.
-cem `T-013` may replace it with the shared pipeline later.
-
 ## Risks / Trade-offs
 
-- [Risk] Installing Incus on the laptop uses sudo and writes outside `$HOME` (`apt install incus`, group `incus-admin`, `incus admin init --minimal`). → Run only with the user's go; each step checks first (`command -v incus`, `id -nG`, `incus info`) and is skipped when done.
-- [Risk] Docker's firewall rules drop forwarded traffic from the Incus bridge, so guests have no network. → Follow the Incus documentation's Docker section; the spike checks network from a guest before anything else.
-- [Risk] KVM VMs and running VirtualBox VMs may not coexist. → Stop VirtualBox VMs before VM tests; recorded in the task that runs them.
-- [Risk] Deleting guests is a deletion. → Guarded by the dedicated project and the name prefix; `machine:down` lists what it deletes; `host` targets refuse it.
-- [Risk] Memory: about 5 GB free in normal use. → VMs default to 2 CPUs and 3 GB; one VM at a time locally.
-- [Risk] The Kali VM has no image on the Incus server, so it depends on an imported image that nobody updates for us. → The import is a documented step of `machine:up` for that target, with the image URL and checksum in the target list; the spike checks the UEFI boot; fallback in the engine decision.
-- [Risk] A hosted runner lacks disk or time for a VM. → The VM job may be marked `ci = false` after the spike; the target list says so explicitly.
-- [Risk] The `oci` remote pulls images from a public registry. → Only pinned references (tag or digest) in the target list; no registry credential on CI.
+- [Risk] The throwaway run publishes a branch to the public repository, or uses a fork. → Only with the user's go; the workflow holds no secret; the branch is deleted afterwards.
+- [Risk] The harness runs on an Incus that nobody installed. → Missing or unreachable engines exit 127 or 1 and name `mise run sys:virt:incus:setup`.
+- [Risk] Deleting guests is a deletion. → Only guests of the harness project that carry the `user.dotfiles-machine` key; `machine:down` lists what it deletes.
+- [Risk] Memory: about 5 GB free in normal use. → Containers are light; the VM defaults (2 CPUs, 3 GB, one VM at a time) are set in `add-kali-vm-target`.
+- [Risk] Kali's apt Incus (7.0 LTS) and CI's Zabbly `lts-7.0` can drift apart. → Same release line; `add-machine-smoke-ci` adds an informational `stable` leg to show what is coming.
+- [Risk] A hosted runner lacks disk or time for a Kali container. → The throwaway run measures it; a target may be marked `ci = false`, and the target list says so explicitly.
 - [Trade-off] A new host tool on the laptop and on CI, in exchange for one interface over both guest kinds.
 - [Trade-off] Python dependencies and a lock file for repository tooling, in exchange for a tested command line that follows cem's stack and can move there.
 - [Trade-off] Bundles test only committed state; quick iteration on uncommitted edits needs a commit (a local one is enough).
+- [Trade-off] The core proves containers only; the Kali VM is proven by `add-kali-vm-target`, a change later in the order.
 
 ## Migration Plan
 
-1. With the user's go, install and initialise Incus on the laptop (after `remove-brew-libvirt`, so the `virsh` on `PATH` is unambiguous).
-2. Spike, in this order: network from a Kali system container, the imported Kali VM, the Kali OCI image as a system container, then a Kali system container on a hosted runner (a throwaway branch or a fork is enough).
+1. `remove-brew-libvirt`, then `add-incus-host-setup` applied on the laptop (with its acceptance checks), so that `incus` is the system one and reachable.
+2. Throwaway run (group 1 of the tasks): a Kali container boots on a hosted runner with the Zabbly `lts-7.0` package; with the user's go.
 3. Confirm or switch the engine in this design, then build the script, target list, cloud-init, smoke stage and tasks.
-4. Add the CI workflow.
+4. `add-machine-smoke-ci` commits the workflow; `add-kali-vm-target` adds the VM.
 
-Rollback: `machine:down` for every target, `incus project delete dotfiles-test`, and with the user's go `apt remove incus`; the repository files go with a `git revert`.
+Rollback: `machine:down` for every target, `incus project delete` for the harness project; the repository files go with a `git revert`.
 
 ## Open Questions
 
-- Does the Kali generic cloud image boot under Incus's UEFI firmware, and does cloud-init pick up the instance configuration there?
-- Does Incus start systemd from the official Kali OCI image as a system container?
+- Does a Kali container boot, with cloud-init, on a hosted runner with the Zabbly `lts-7.0` package, and how long does it take?
 - Does cem read the same chezmoi pin as the target list, or keep its own? (cem task `T-012`.)
-- Does `fresh-machine-bootstrap` drive `chezmoi init` with `--promptDefaults` or with explicit `--promptString` and `--promptBool` answers from a per-target answers file? (Its own decision, needed before its stage runs here; the second is the lead: `--promptDefaults` only answers prompts that have a default, and the config template's prompts for email, name and others have none, so a non-interactive run would block.)
+- Does `fresh-machine-bootstrap` drive `chezmoi init` with `--promptDefaults` or with explicit prompt answers from a per-target answers file, keyed by the prompt texts and not by the data paths (checked on 2.73.3)? (Its own decision, needed before its stage runs here; the second is the lead: `--promptDefaults` only answers prompts that have a default, and the config template's prompts for email, name and others have none, so a non-interactive run would block.)
 
 <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->

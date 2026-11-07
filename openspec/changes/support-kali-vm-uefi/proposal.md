@@ -1,9 +1,9 @@
 ## Why
 
 The Incus image server publishes Kali as containers only: the `kali.yaml` recipe of `lxc/lxc-ci` has no VM sections, while `debian.yaml` has 14.
-The change `add-machine-lifecycle-test-infra` therefore boots Kali's published cloud image, imported once, with an unsigned bootloader, no Incus agent and no owner for its updates.
+The change `add-kali-vm-target` therefore boots Kali's published cloud image, imported once, with an unsigned bootloader, no Incus agent and no owner for its updates.
 An image of our own, built from a recipe, gives reproducible UEFI Kali virtual machines that come from the same source as the container, and a candidate to propose upstream.
-Stub: refine at the start of its own session (`/opsx-continue support-kali-vm-uefi`), after `add-machine-lifecycle-test-infra` has proved the plumbing and its spike has shown how the published image behaves.
+Stub: refine at the start of its own session (`/opsx-continue support-kali-vm-uefi`), after `add-kali-vm-target` has proved the plumbing and its spike has shown how the published image behaves.
 
 ## What Changes
 
@@ -26,7 +26,7 @@ None.
 
 - New recipe and build task (location decided by the pipeline decision); building with `distrobuilder` (Kali apt, 3.3.1) needs sudo and several GB of disk.
 - `tests/machine/targets.toml` changes one target.
-- Depends on `add-machine-lifecycle-test-infra`; followed by `support-kali-vm-secure-boot`.
+- Depends on `add-kali-vm-target`; followed by `support-kali-vm-secure-boot`.
 - Public actions (fork, issue, pull request) need the user's go and a drafted text.
 
 <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->
