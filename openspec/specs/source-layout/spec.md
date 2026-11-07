@@ -1,7 +1,9 @@
 # source-layout Specification
 
 ## Purpose
-TBD - created by archiving change adopt-chezmoiroot. Update Purpose after archive.
+
+Where the chezmoi source state lives inside the repository and what stays outside it, so that no repository file can become a target by accident.
+
 ## Requirements
 ### Requirement: Source state under home/
 
