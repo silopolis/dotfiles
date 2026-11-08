@@ -33,7 +33,7 @@ It starts from the audit's change map (`docs/audits/2026-10-30-environment.md`, 
 Lines marked *planned* have no change yet; create each with `/opsx-propose` when it is next.
 Once `add-repo-roadmap` is applied, its generated `ROADMAP.md` replaces this list, the packaging backlog and the older bullets move into its backlog, and this file is removed.
 
-1. [ ] `fix-chezmoi-config-template` (audit 3): the config template, encryption, umask, Neovim external, the `features.incus` question.
+1. [x] `fix-chezmoi-config-template` (audit 3): the config template, encryption, umask, Neovim external, the `features.incus` question.
 2. [ ] `make-install-scripts-idempotent` (audit 4): after it, a full apply is allowed after a reviewed dry run.
 3. [ ] `remove-brew-libvirt`: brew's libvirt, and a ban on it, on `qemu` and on brew's `incus`; first of the Incus group so that `virsh` and `incus` on `PATH` are the system ones.
 4. [ ] `fast-correct-shell-startup` (audit 7).

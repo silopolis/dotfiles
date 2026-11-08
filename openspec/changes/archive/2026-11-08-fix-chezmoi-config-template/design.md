@@ -142,7 +142,17 @@ Alternative considered: seeding the state record by hand so chezmoi never touche
 - [Risk] `chezmoi apply -R` pulls into the Neovim working copy at any later time. → Fast-forward only; it asks for confirmation first because of the mode mismatch (it fails without a terminal, `--force` skips the question); documented in `AGENTS.md`.
 - [Risk] The login file becomes managed by a later change and the guard is meaningless. → `manage-gh-config` states in its proposal and spec that it stays unmanaged.
 - [Risk] Between the first `chezmoi init` from this branch and its merge, the main checkout still carries the old template and the frozen config source. → Its commands warn that the config template has changed (expected); nobody runs `chezmoi init` or applies `~/.config/chezmoi` from there (either would bring back the config without encryption and umask); the branch is merged soon after the archive.
-- [Risk] The `git-repo` external folders (and `~/.config/nvim` once it is an external) stay listed as modified after any apply, because umask 027 expects 0750 and apply only runs git there. → Not fixed here; the list is recorded in this document at the close of the change for `reconcile-drift-and-supervised-apply`.
+- [Risk] The `git-repo` external folders with a refresh period stay listed as modified after any apply, because umask 027 expects 0750 and apply only runs git there. `~/.config/nvim` is not listed: with `refreshPeriod = "0"` and a state record, chezmoi skips the entry, and its mode mismatch only surfaces with `apply -R` (the confirmation). → Not fixed here; the list is recorded in "Measured at close" for `reconcile-drift-and-supervised-apply`.
 - [Risk] A check prints the Neovim location by accident (rendered URL, `remote -v`, an error message). → The checks print verdicts, key names or lengths only, and filter the error output of git commands that reach the remote.
+
+## Measured at close
+
+Taken on 2026-11-08 with the regenerated config (umask 027), `-S` on the worktree, scripts excluded:
+
+- `chezmoi status` lists 838 entries: 833 with a modified second column only (313 directories, 520 files), 4 modified since the last write as well (`.config`, `.config/lazygit/config.yml`, `.local/share/fonts`, `.local/share/icons`), and 1 `AD` (`.bashrc.original`, already there before this change).
+- `chezmoi diff --exclude=scripts,externals` shows 713 blocks: 711 mode only, 1 content only, 1 mode and content.
+- The `git-repo` external folders listed as modified: `.config/vifm/colors`, `.config/vim/bundle/Vundle.vim`, `.local/share/cheat/cheatsheets/community` (mode 0775 against 0750; apply never changes it).
+  `~/.config/nvim` is not listed (see the risk above).
+- `reconcile-drift-and-supervised-apply` reviews these before the first full apply; the difference between the status count and the diff block count is part of that review.
 
 <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->
