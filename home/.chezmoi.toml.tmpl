@@ -3,6 +3,9 @@
 {{- $firstname := promptStringOnce . "firstname" "User firstname" -}}
 {{- $name := promptStringOnce . "name" "User name" -}}
 {{- $incus := promptBoolOnce . "features.incus" "Install and enable Incus on this machine" false -}}
+{{- $nvimHost := promptStringOnce . "nvim.host" "Neovim config repository host" "github.com" -}}
+{{- $nvimOwner := promptStringOnce . "nvim.owner" "Neovim config repository owner (empty: no external)" -}}
+{{- $nvimRepo := promptStringOnce . "nvim.repo" "Neovim config repository name (empty: no external)" -}}
 {{- $username := .chezmoi.username -}}
 {{ if eq .chezmoi.os "windows" }}
 {{- $username = trimPrefix (print (upper .chezmoi.hostname) "\\") $username -}}
@@ -33,6 +36,11 @@ color = "auto"
 
 [data.features]
   incus = {{ $incus }}
+
+[data.nvim]
+  host = {{ $nvimHost | quote }}
+  owner = {{ $nvimOwner | quote }}
+  repo = {{ $nvimRepo | quote }}
 
 [git]
   autoAdd = false  # implied by autoCommit

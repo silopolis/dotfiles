@@ -20,7 +20,7 @@ The Neovim configuration SHALL be cloned from its repository by a chezmoi extern
 
 #### Scenario: Existing clone keeps its work
 
-- **WHEN** `~/.config/nvim` exists with local commits or uncommitted changes and the same apply runs
+- **WHEN** `~/.config/nvim` exists with local commits or uncommitted changes and `chezmoi apply --include=externals --exclude=scripts -R --force ~/.config/nvim` runs
 - **THEN** `git -C ~/.config/nvim status -sb` lists the same changes, and `HEAD` is unchanged or advanced only by a fast-forward
 
 #### Scenario: No data, no external

@@ -1,0 +1,21 @@
+{{- /*
+  Neovim configuration, cloned from its own repository.
+  The location (host, owner, repository) is local data (chezmoi init), never written here.
+  No data, or neither a clone nor a GitHub CLI login file: no external.
+  refreshPeriod 0 and a fast-forward-only pull: local work is never merged over, rebased or discarded.
+*/ -}}
+{{- $nvim := or (get . "nvim") dict -}}
+{{- $owner := get $nvim "owner" -}}
+{{- $repo := get $nvim "repo" -}}
+{{- $host := or (get $nvim "host") "github.com" -}}
+{{- $hasClone := stat (joinPath .chezmoi.destDir ".config" "nvim" ".git") -}}
+{{- $hasLogin := stat (joinPath .chezmoi.destDir ".config" "gh" "hosts.yml") -}}
+{{- if and $owner $repo (or $hasClone $hasLogin) }}
+[".config/nvim"]
+  type = "git-repo"
+  url = {{ printf "https://%s/%s/%s.git" $host $owner $repo | quote }}
+  refreshPeriod = "0"
+  pull.args = ["--ff-only"]
+{{- else if and $owner $repo }}
+{{ warnf "nvim: no clone and no GitHub CLI login, skipping the Neovim external" }}
+{{- end }}

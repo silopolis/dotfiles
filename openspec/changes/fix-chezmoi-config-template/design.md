@@ -128,6 +128,8 @@ With no record for `~/.config/nvim` in `gitRepoExternalState`, the first apply r
 The step is applied once, when the user's Neovim work is merged and idle, after a read-only check that the pull would not move `HEAD`: the clone is clean and on a branch with an upstream, and the upstream's commit on the remote is `HEAD` or an ancestor of it.
 If the remote commit is not present locally, the pull would move `HEAD`: the step stops and the user decides.
 The state record is checked by its exact key (the clone's path in `gitRepoExternalState`), since other externals already have records.
+Checked offline on 2026-11-08 (a clone of a local bare repository, no state record, no terminal): the first plain apply pulls and records without asking; a second plain apply is skipped.
+chezmoi records the folder's expected mode (0750 under umask 027) but git creates it as 0775, so `apply -R` afterwards asks "has changed since chezmoi last wrote it?" and fails without a terminal; `-R --force` runs the pull, and a local commit and an untracked file survive it.
 Alternative considered: seeding the state record by hand so chezmoi never touches the clone; rejected, it relies on chezmoi internals.
 
 ## Risks / Trade-offs
@@ -137,7 +139,7 @@ Alternative considered: seeding the state record by hand so chezmoi never touche
 - [Risk] Wrong recipient breaks decryption of every encrypted file. → Copy the recipient from the working config; check with `chezmoi cat` on one encrypted target before and after.
 - [Risk] umask 027 makes a file unreadable for a service running as another user. → None found on 2026-10-30 (the display manager reads the avatar from its own copy); `reconcile-drift-and-supervised-apply` reviews the full list of mode changes before applying.
 - [Risk] The first pull in `~/.config/nvim` fails or changes `HEAD` while the user is working there. → Applied only when the user says the repository is idle; fast-forward only; `git status -sb` and `rev-parse HEAD` compared before and after.
-- [Risk] `chezmoi apply -R` pulls into the Neovim working copy at any later time. → Fast-forward only; documented in `AGENTS.md`.
+- [Risk] `chezmoi apply -R` pulls into the Neovim working copy at any later time. → Fast-forward only; it asks for confirmation first because of the mode mismatch (it fails without a terminal, `--force` skips the question); documented in `AGENTS.md`.
 - [Risk] The login file becomes managed by a later change and the guard is meaningless. → `manage-gh-config` states in its proposal and spec that it stays unmanaged.
 - [Risk] Between the first `chezmoi init` from this branch and its merge, the main checkout still carries the old template and the frozen config source. → Its commands warn that the config template has changed (expected); nobody runs `chezmoi init` or applies `~/.config/chezmoi` from there (either would bring back the config without encryption and umask); the branch is merged soon after the archive.
 - [Risk] The `git-repo` external folders (and `~/.config/nvim` once it is an external) stay listed as modified after any apply, because umask 027 expects 0750 and apply only runs git there. → Not fixed here; the list is recorded in this document at the close of the change for `reconcile-drift-and-supervised-apply`.
