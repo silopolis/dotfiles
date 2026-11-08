@@ -10,25 +10,25 @@
 
 ## 1. Before
 
-- [ ] 1.1 Save the current config and effective settings (`mkdir -p -m 700 /tmp/opencode/fcct; cp -p ~/.config/chezmoi/chezmoi.toml /tmp/opencode/fcct/chezmoi.toml.before; chezmoi dump-config --format=json > /tmp/opencode/fcct/dump-config.before.json`)
-- [ ] 1.2 Decrypt check baseline: pick one encrypted target (`t=$(chezmoi managed --include=encrypted | head -1); chezmoi cat ~/"$t" >/dev/null; echo $?` prints 0)
+- [x] 1.1 Save the current config and effective settings (`mkdir -p -m 700 /tmp/opencode/fcct; cp -p ~/.config/chezmoi/chezmoi.toml /tmp/opencode/fcct/chezmoi.toml.before; chezmoi dump-config --format=json > /tmp/opencode/fcct/dump-config.before.json`)
+- [x] 1.2 Decrypt check baseline: pick one encrypted target (`t=$(chezmoi managed --include=encrypted | head -1); chezmoi cat ~/"$t" >/dev/null; echo $?` prints 0)
 
 ## 2. Template
 
-- [ ] 2.1 Move `pager` and `color` above the includes and add `encryption = "age"` and `umask = 0o027` there; `color = "auto"` (paths under `home/` after `adopt-chezmoiroot`)
-- [ ] 2.2 Add the `[age]` table with the identity path and the recipient copied from the current config
-- [ ] 2.3 `[diff]`: replace `diff.exclude = ["externals"]` with `exclude = ["externals"]`
-- [ ] 2.4 `[git]`: remove the `commitMessageTemplate` prompt line
-- [ ] 2.5 Add the Incus question (`promptBoolOnce . "features.incus" "Install and enable Incus on this machine" false`) above the includes and emit it as a `[data.features]` table after `[data]` (`chezmoi --override-data '{"features":{"incus":true},"email":"x","gitemail":"x","firstname":"x","name":"x"}' execute-template --init < home/.chezmoi.toml.tmpl | python3 -c 'import sys,tomllib; print(tomllib.loads(sys.stdin.read())["data"]["features"]["incus"])'` prints `True`; without the `features` key it prints `False`)
-- [ ] 2.6 Render non-interactively and parse (`chezmoi --override-data '{"email":"x","gitemail":"x","firstname":"x","name":"x"}' execute-template --init < home/.chezmoi.toml.tmpl | python3 -c 'import sys,tomllib; d=tomllib.loads(sys.stdin.read()); print(d["encryption"], oct(d["umask"]), d["pager"], d["color"], d["diff"]["exclude"], sorted(d["data"]["github"]))'` prints `age 0o27 bat auto ['externals'] ['is_codespaces']`)
-- [ ] 2.7 Preview what `chezmoi init` will write, from the stored values (`chezmoi execute-template --init < home/.chezmoi.toml.tmpl` against `/tmp/opencode/fcct/chezmoi.toml.before`): flatten both to key paths and print only the paths present on one side, plus `data.cpu` and `data.machine` of both sides, never the identity values; expected: `encryption`, `umask`, `color`, `age.*`, `diff.exclude` and `data.features.incus` new, `diff.diff.exclude`, `git.commitMessageTemplate` and the stray `data.github.pager` and `data.github.color` gone, cpu 6 and 12, machine `laptop`
+- [x] 2.1 Move `pager` and `color` above the includes and add `encryption = "age"` and `umask = 0o027` there; `color = "auto"` (paths under `home/` after `adopt-chezmoiroot`)
+- [x] 2.2 Add the `[age]` table with the identity path and the recipient copied from the current config
+- [x] 2.3 `[diff]`: replace `diff.exclude = ["externals"]` with `exclude = ["externals"]`
+- [x] 2.4 `[git]`: remove the `commitMessageTemplate` prompt line
+- [x] 2.5 Add the Incus question (`promptBoolOnce . "features.incus" "Install and enable Incus on this machine" false`) above the includes and emit it as a `[data.features]` table after `[data]` (`chezmoi --override-data '{"features":{"incus":true},"email":"x","gitemail":"x","firstname":"x","name":"x"}' execute-template --init < home/.chezmoi.toml.tmpl | python3 -c 'import sys,tomllib; print(tomllib.loads(sys.stdin.read())["data"]["features"]["incus"])'` prints `True`; without the `features` key it prints `False`)
+- [x] 2.6 Render non-interactively and parse (`chezmoi --override-data '{"email":"x","gitemail":"x","firstname":"x","name":"x"}' execute-template --init < home/.chezmoi.toml.tmpl | python3 -c 'import sys,tomllib; d=tomllib.loads(sys.stdin.read()); print(d["encryption"], oct(d["umask"]), d["pager"], d["color"], d["diff"]["exclude"], sorted(d["data"]["github"]))'` prints `age 0o27 bat auto ['externals'] ['is_codespaces']`)
+- [x] 2.7 Preview what `chezmoi init` will write, from the stored values (`chezmoi execute-template --init < home/.chezmoi.toml.tmpl` against `/tmp/opencode/fcct/chezmoi.toml.before`): flatten both to key paths and print only the paths present on one side, plus `data.cpu` and `data.machine` of both sides, never the identity values; expected: `color`, `pager`, `umask`, `diff.exclude` and `data.features.incus` new (the deployed snapshot already holds `encryption` and `age.*`), `diff.diff.exclude` and `git.commitMessageTemplate` gone, cpu 6 and 12, machine `laptop`, no other path changed
 
 ## 3. Remove the frozen config
 
-- [ ] 3.1 `git rm -r home/dot_config/chezmoi`; check the target is forgotten, not removed (`chezmoi managed | grep -c '^\.config/chezmoi/chezmoi\.toml$'` prints 0; `chezmoi --no-pager status --exclude=scripts,externals ~/.config/chezmoi` prints nothing; `test -f ~/.config/chezmoi/chezmoi.toml` succeeds)
-- [ ] 3.2 The user regenerates in a terminal (`chezmoi -S "$W" init`, which asks the Incus question: answer no); compare with the saved copy as in 2.7: expected data changes are machine type and cpu counts only, plus the new keys; check the mode of the new file (`stat -c %a ~/.config/chezmoi/chezmoi.toml`)
-- [ ] 3.3 Effective settings (`chezmoi dump-config --format=json | jq -c '{u: .umask, p: .pager, c: .color, d: .diff.exclude, e: .encryption}'` prints `{"u":23,"p":"bat","c":"auto","d":["externals"],"e":"age"}`)
-- [ ] 3.4 Decryption still works (task 1.2 command); `chezmoi doctor 2>&1 | grep -c suspicious-entries` prints 0; `chezmoi data --format=json | jq -c '{g: (.github | keys), c: .cpu, m: .machine}'` shows `is_codespaces` only, 6 and 12, `laptop` (compare with `lscpu`)
+- [x] 3.1 `git rm -r home/dot_config/chezmoi`; check the target is forgotten, not removed (`chezmoi managed | grep -c '^\.config/chezmoi/chezmoi\.toml$'` prints 0; `chezmoi --no-pager status --exclude=scripts,externals | grep -c '\.config/chezmoi'` prints 0 (a status on the unmanaged path itself only errors); `test -f ~/.config/chezmoi/chezmoi.toml` succeeds)
+- [x] 3.2 The user regenerates in a terminal (`chezmoi -S "$W" init`, which asks the Incus question: answer no); compare with the saved copy as in 2.7: expected data changes are machine type and cpu counts only, plus the new keys; check the mode of the new file (`stat -c %a ~/.config/chezmoi/chezmoi.toml`)
+- [x] 3.3 Effective settings (`chezmoi dump-config --format=json | jq -c '{u: .umask, p: .pager, c: .color, d: .diff.exclude, e: .encryption}'` prints `{"u":23,"p":"bat","c":"auto","d":["externals"],"e":"age"}`)
+- [x] 3.4 Decryption still works (task 1.2 command); `chezmoi doctor 2>&1 | grep -c '^warning *suspicious-entries'` prints 0 (the `ok` line of that check always mentions its name; run doctor through `chezmoi -S "$W"`, not through `timeout chezmoi`, which skips the shell function); `chezmoi data --format=json | jq -c '{g: (.github | keys), c: .cpu, m: .machine}'` shows `is_codespaces` only, 6 and 12, `laptop` (compare with `lscpu`)
 - [ ] 3.5 Propose commit `fix(chezmoi:config): configure encryption, umask and diff in the template`
 
 ## 4. Neovim external (F05)

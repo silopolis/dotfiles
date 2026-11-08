@@ -2,6 +2,7 @@
 {{- $gitemail := promptStringOnce . "gitemail" "Git email address" -}}
 {{- $firstname := promptStringOnce . "firstname" "User firstname" -}}
 {{- $name := promptStringOnce . "name" "User name" -}}
+{{- $incus := promptBoolOnce . "features.incus" "Install and enable Incus on this machine" false -}}
 {{- $username := .chezmoi.username -}}
 {{ if eq .chezmoi.os "windows" }}
 {{- $username = trimPrefix (print (upper .chezmoi.hostname) "\\") $username -}}
@@ -9,13 +10,20 @@
 {{/*- $userConfig := or (get (or (get $osConfig "users") dict) $username) dict -*/}}
 {{/*- $userExternals := or (get $userConfig "externals") list -*/}}
 
-{{- includeTemplate "cpu.toml.tmpl" . }}
-{{- includeTemplate "machine-type.toml.tmpl" . }}
-{{- includeTemplate "gh-codespaces.toml.tmpl" . }}
-
+# Top-level keys come first: anything after an included [data.*] table would land in that table.
+encryption = "age"
+umask = 0o027
 pager = "bat"
 #pagerArgs = ""
-color = true
+color = "auto"
+
+[age]
+  identity = "~/.config/chezmoi/key.age"
+  recipient = "age16nl7d84gqsd40qwewp7sh5tdfh50hd2ms2ksu6xndluayunrgpdqvs0x0k"
+
+{{ includeTemplate "cpu.toml.tmpl" . }}
+{{- includeTemplate "machine-type.toml.tmpl" . }}
+{{- includeTemplate "gh-codespaces.toml.tmpl" . }}
 
 [data]
   email = {{ $email | quote }}
@@ -23,11 +31,13 @@ color = true
   name = {{ $name | quote }}
   firstname = {{ $firstname | quote }}
 
+[data.features]
+  incus = {{ $incus }}
+
 [git]
   autoAdd = false  # implied by autoCommit
   autoCommit = false  # implied by autoPush
   autoPush = false
-  commitMessageTemplate = "{{ promptString "Commit message" }}"
   #commitMessageTemplateFile = ".commit_message.tmpl"
 
 [env]
@@ -48,7 +58,7 @@ color = true
   #command = "vimdiff"
   pager = "delta"
   #pagerArgs = ""
-  diff.exclude = ["externals"]
+  exclude = ["externals"]
   #reverse = true
 
 [edit]
