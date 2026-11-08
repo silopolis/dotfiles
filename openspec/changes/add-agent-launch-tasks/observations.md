@@ -31,5 +31,24 @@ Each step below is logged with its command, its result and any friction, so that
   Consequence: a brief that names a reporting target must say what to do when `herdr agent get <name>` fails; the roadmap brief now does.
   For the design: `agent:launch` should check the name at the end of the launch and report the pane id next to it, so that a caller can message by pane when the name is gone.
 - 2026-11-08: `herdr agent prompt <pane-id>` works on an unnamed pane (used to send a request to another agent); a name is not required.
+- 2026-11-08, first launch actually done: the lead of `fix-chezmoi-config-template`, not the roadmap agent (still to launch).
+  It exercises the same steps, with `herdr worktree create` in place of `scm:worktree:new` plus `herdr worktree open`.
+  - Rename: `herdr agent rename wN:p1 chezmoi-orch` took effect at once and `herdr agent get chezmoi-orch` found the pane, so the name lost in the first entry above can be set again by hand.
+  - Worktree, first try: `herdr worktree create --workspace wN --branch fix/chezmoi-config-template --base main --path ~/Work/trees/chezmoi-config-template --label chezmoi-config-template --no-focus` failed with `not_git_worktree`.
+    The root pane of that workspace reports a working directory outside any repository (a herdr configuration directory), and `--workspace` resolves the repository from it.
+    For the design: `agent:launch` passes `--cwd <repository>` and never relies on the workspace's pane.
+  - Worktree, second try: the same command with `--cwd <repository>` instead of `--workspace` returned at once with a new workspace labelled as asked (one tab, one root pane in the worktree, not focused) and the branch created from `main`.
+    Because the branch is made by herdr, `herdr worktree open` is not needed in this path.
+  - mise: the new worktree was already trusted (`mise trust --show`), so no `mise trust` was needed; the reason (a trusted parent path or herdr) was not checked.
+    The commit hook is the shared shim in the common git directory (`core.hooksPath` is unset), so it runs in every worktree.
+    `.opencode/` holds the tracked `command/` and `skills/`; its `node_modules` is absent, and the session did not need it.
+  - Agent: `herdr agent start chezmoi-config-lead --kind opencode --pane <root pane> -- --agent plan --model anthropic/claude-opus-5-5` returned in 3.9 s with the agent idle; the TUI was drawn 9 s later (polled every 3 s).
+    The footer showed the plan agent, the requested model and `xhigh` without any variant flag: opencode has no variant option, so the variant comes from state saved by the last use of that model (not checked), and a launch cannot choose it.
+  - First prompt: a single paragraph held in a shell variable (here-document), delivered with `--wait --until working` in 0.7 s; no retry, nothing left in the input box.
+    Sending it after the TUI was drawn avoided the blank-TUI loss.
+  - Blocked after 8 s: the read-only guard asked for approval of the agent's first shell command (`chezmoi -S <worktree> source-path`).
+    The cause is the guard's learning phase, not plan mode: its allowlist is still short (1 learned rule on 2026-11-08, hundreds of "always" answers not yet turned into rules), so commands that are read-only but unknown to it, such as `chezmoi` queries, ask each time.
+    Until the allowlist grows, a plan-mode launch cannot run unattended; the launch result should report `blocked` as a normal outcome and say that the user has to answer in the new pane.
+    Later the same launch should be rechecked, since the prompt count falls as rules are learned.
 
 <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->
