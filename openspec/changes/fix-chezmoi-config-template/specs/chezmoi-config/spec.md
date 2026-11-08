@@ -39,8 +39,8 @@ Top-level keys SHALL precede all tables and included templates, and each table k
 
 #### Scenario: Effective settings
 
-- **WHEN** `chezmoi dump-config --format=json | jq -c '{u: .umask, p: .pager, d: .diff.exclude}'` runs
-- **THEN** umask is 23 (octal 027), pager is `bat`, and diff exclude is `["externals"]`
+- **WHEN** `chezmoi dump-config --format=json | jq -c '{u: .umask, p: .pager, c: .color, d: .diff.exclude}'` runs
+- **THEN** umask is 23 (octal 027), pager is `bat`, color is `"auto"`, and diff exclude is `["externals"]`
 
 #### Scenario: No data pollution
 
@@ -49,7 +49,7 @@ Top-level keys SHALL precede all tables and included templates, and each table k
 
 #### Scenario: Init does not prompt when data exists
 
-- **WHEN** `chezmoi init` runs on a machine whose config already holds the identity data
+- **WHEN** `chezmoi init` runs on a machine whose config already holds every value the template prompts for (identity, Neovim location, Incus flag)
 - **THEN** it asks no question
 
 ### Requirement: The config records whether Incus is wanted

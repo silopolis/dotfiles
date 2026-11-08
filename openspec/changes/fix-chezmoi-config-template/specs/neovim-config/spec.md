@@ -16,7 +16,7 @@ The Neovim configuration SHALL be cloned from its repository by a chezmoi extern
 #### Scenario: Missing directory is cloned
 
 - **WHEN** `~/.config/nvim` does not exist, the data is set, a GitHub CLI login file exists, and `chezmoi apply --include=externals --exclude=scripts ~/.config/nvim` runs
-- **THEN** the repository is cloned there and `git -C ~/.config/nvim remote -v` shows the configured location
+- **THEN** the repository is cloned there and the URL of its `origin` remote equals the one built from the configured host, owner and repository
 
 #### Scenario: Existing clone keeps its work
 
@@ -31,6 +31,6 @@ The Neovim configuration SHALL be cloned from its repository by a chezmoi extern
 #### Scenario: No clone and no GitHub login
 
 - **WHEN** the data is set, `~/.config/nvim` does not exist, `~/.config/gh/hosts.yml` does not exist, and `chezmoi managed | grep -c '^\.config/nvim$'` runs
-- **THEN** it prints 0 and a warning says the Neovim external was skipped
+- **THEN** it prints 0 and one warning says the Neovim external was skipped
 
 <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->
