@@ -67,6 +67,8 @@ if [ -x "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
         repo="$(chezmoi source-path)" || return 1
         src="$(chezmoi source-path "$target" 2>/dev/null)" || return 0
         chezmoi re-add "$target" || return 1
+        # brew-file wrote the Brewfile with its own mode: apply puts back the mode chezmoi expects
+        chezmoi apply --exclude=scripts "$target" || return 1
         [ -n "${BREWFILE_NO_COMMIT:-}" ] && return 0
         rel="${src#"$repo"/}"
         diff="$(git -C "$repo" diff -U0 -- "$rel")"

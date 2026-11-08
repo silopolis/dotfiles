@@ -53,10 +53,11 @@
 
 ## 5. Brew hook mode (F41)
 
-- [ ] 5.1 In `home/dot_config/shell/rc.d/110-pkg_brew.sh`, after `chezmoi re-add "$target" || return 1` and before the `BREWFILE_NO_COMMIT` early return, add `chezmoi apply --exclude=scripts "$target" || return 1` (`zsh -n` and `bash -n` on the file)
-- [ ] 5.2 Prove it
+- [x] 5.1 In `home/dot_config/shell/rc.d/110-pkg_brew.sh`, after `chezmoi re-add "$target" || return 1` and before the `BREWFILE_NO_COMMIT` early return, add `chezmoi apply --exclude=scripts "$target" || return 1` (`zsh -n` and `bash -n` on the file)
+- [x] 5.2 Prove it
   - Replay the hook in a scratch clone (mode 0700): a local clone of the branch with the edited hook copied over, a `chezmoi` function pointing at the clone, a scratch destination and a scratch state, `umask = 0o027`; the function body is extracted from the hook file, a changed Brewfile produces one commit touching only that file (`git -C <clone> show --stat HEAD`), the target is mode 640 and `chezmoi status` on it is empty.
   - Apply the rc file alone: `chezmoi --no-pager apply --dry-run --verbose --exclude=scripts,externals ~/.config/shell/rc.d/110-pkg_brew.sh`, then without `--dry-run`; `stat -c %a` prints 640.
+  - A single-target apply does not create missing parent folders: the scratch home needs `.config/brewfile` first (the live home has it).
   - Run the hook once on the live Brewfile without a commit (`BREWFILE_NO_COMMIT=1 zsh -i -c _post_brewfile_update`): the Brewfile goes from 644 to 640, `chezmoi -S ~/.local/share/chezmoi --no-pager status ~/.config/brewfile/Brewfile` prints nothing, and `git -C ~/.local/share/chezmoi rev-parse HEAD` is unchanged.
 - [ ] 5.3 Propose commit `fix(pkg:brew): re-apply the Brewfile after re-adding it`
 
