@@ -2,7 +2,7 @@
 
 Transcripts of the agent sessions that worked on this repository.
 They are raw memory: not curated, not edited after export, redacted for a public repository.
-They are not chezmoi targets (`.chezmoiignore`).
+They are not chezmoi targets: they sit outside `home/`, the source state selected by `.chezmoiroot`.
 
 ## Naming
 
@@ -23,6 +23,7 @@ They are not chezmoi targets (`.chezmoiignore`).
 | `202610311807-harden_sensitive-explore_export_machinery.md` | `ses_e6d11c8cdffe3dVrtrei30j3UH` | Sub-agent: the existing session export machinery |
 | `202611022007-adopt_global_mise_tasks.md` | `ses_e6256e898ffeOM7EdjLhs55t0k` | Session of the agent that received three briefs from the Neovim repository: change `adopt-global-mise-tasks` (review, cleanup fixes, apply, archive), change `fix-prompt-delivery` (proposed, then amended after the sender's real-TUI test), change `add-private-store-external` (proposed); then the hand-over of its pending signals and this export. No sub-agents |
 | `202611061418-add_mise_app_desktop_entries.md` | `ses_e4efce262ffeS3bDu0gR1sU9xA` | Change `add-mise-app-desktop-entries` (Obsidian from mise: KDE menu entry, icon, `obsidian://` handler for Firefox): all four artifacts; the `modify_` decision for `mimeapps.list` recorded in `manage-xdg-basics`; the Kali menu layout set aside for a later change; this export. No sub-agents |
+| `202611061844-adopt_chezmoiroot_and_test_infra.md` | `ses_e4e09db8cffemmn27kyPyjtsNs` | Change `adopt-chezmoiroot` (move of the source state into `home/`, path and ignore fixes, `install.sh`, verify, archive); then the design of `add-machine-lifecycle-test-infra` (Incus against Vagrant, containers and VMs, OCI images, the Kali cloud image inspected) and its split into `add-incus-host-setup`, `add-incus-setup-hook`, `add-kali-vm-target` and `add-machine-smoke-ci`; `remove-brew-libvirt`, the Kali VM UEFI and Secure Boot stubs, the flag prompt in `fix-chezmoi-config-template`, the packaging backlog and the planned order of changes in `TODO.md`; this export. Redacted with the public profile and sibling repository names masked, plus three extra terms added for this export (a client-looking directory name, a VM name and a hosting provider). No sub-agents |
 
 Each file's header states how far it goes (`<!-- session-export: through msg_... -->`).
 The main file stops when it was exported: the commit of the export and anything after it are not in it.
