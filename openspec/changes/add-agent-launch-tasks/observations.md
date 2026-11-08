@@ -24,4 +24,12 @@ Each step below is logged with its command, its result and any friction, so that
 
 <!-- Entries: time, step, command, result, friction. -->
 
+- 2026-11-08, before the launch: agent names are not durable.
+  The orchestrator pane was renamed on 2026-11-03 so that briefs could name it as the reporting target.
+  By 2026-11-06 herdr listed no agent name at all, and on 2026-11-08 most panes of other workspaces had a name again while the orchestrator pane and the pane of the agent that did the work in between had none.
+  The cause is unknown (a restart of the pane, of herdr, or of the agent session are all candidates).
+  Consequence: a brief that names a reporting target must say what to do when `herdr agent get <name>` fails; the roadmap brief now does.
+  For the design: `agent:launch` should check the name at the end of the launch and report the pane id next to it, so that a caller can message by pane when the name is gone.
+- 2026-11-08: `herdr agent prompt <pane-id>` works on an unnamed pane (used to send a request to another agent); a name is not required.
+
 <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->

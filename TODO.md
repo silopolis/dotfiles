@@ -31,7 +31,7 @@ It starts from the audit's change map (`docs/audits/2026-10-30-environment.md`, 
 * `reconcile-drift-and-supervised-apply` moves behind `test-second-apply-noop` for that reason.
 
 Lines marked *planned* have no change yet; create each with `/opsx-propose` when it is next.
-Once `add-repo-roadmap` is applied, its generated `ROADMAP.md` replaces this list.
+Once `add-repo-roadmap` is applied, its generated `ROADMAP.md` replaces this list, the packaging backlog and the older bullets move into its backlog, and this file is removed.
 
 1. [ ] `fix-chezmoi-config-template` (audit 3): the config template, encryption, umask, Neovim external, the `features.incus` question.
 2. [ ] `make-install-scripts-idempotent` (audit 4): after it, a full apply is allowed after a reviewed dry run.
@@ -42,7 +42,7 @@ Once `add-repo-roadmap` is applied, its generated `ROADMAP.md` replaces this lis
 7. [ ] `cleanup-dead-config` (audit 16): proposal and specs only, needs design and tasks.
 8. [ ] `manage-gh-config` (audit 19): proposal and specs only; its install script step comes after line 2.
 9. [ ] `add-private-store-external` (audit 23): after line 1.
-10. [ ] `add-repo-roadmap` (audit 24): proposal and specs; replaces this list once applied.
+10. [ ] `add-repo-roadmap` (audit 24): proposal and specs; replaces this file once applied.
 11. [ ] `add-incus-host-setup`: the deployed task `sys:virt:incus:setup`, installed on the laptop with its acceptance checks.
 12. [ ] `add-machine-lifecycle-test-infra`: the harness core for system containers; starts with a throwaway run on a hosted runner.
 13. [ ] `add-incus-setup-hook`: the opt-in flag and the chezmoi hook; needs lines 1, 2 and 11.

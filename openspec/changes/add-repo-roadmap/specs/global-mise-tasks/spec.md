@@ -25,17 +25,17 @@ The helper and tasks SHALL be checked by their language: shell files pass `shell
 
 #### Scenario: shellcheck is clean
 
-- **WHEN** `shellcheck -x` runs on `dot_config/mise/lib/scm.sh` and on every shell file under `dot_config/mise/tasks/`
+- **WHEN** `shellcheck -x` runs on `home/dot_config/mise/lib/scm.sh` and on every shell file under `home/dot_config/mise/tasks/`
 - **THEN** it exits 0
 
 #### Scenario: Python compiles and its tests pass
 
-- **WHEN** `python3 -m py_compile` runs on every Python file under `dot_config/mise/lib/` and `dot_config/mise/tasks/`, then `python3 -m unittest discover -s tests/global-mise-tasks` runs
+- **WHEN** `python3 -m py_compile` runs on every Python file under `home/dot_config/mise/lib/` and `home/dot_config/mise/tasks/`, then `python3 -m unittest discover -s tests/global-mise-tasks` runs
 - **THEN** both exit 0
 
 #### Scenario: Nothing machine-specific
 
-- **WHEN** `rg -n -e "$HOME" -e "$USER" dot_config/mise/lib dot_config/mise/tasks` runs
+- **WHEN** `rg -n -e "$HOME" -e "$USER" home/dot_config/mise/lib home/dot_config/mise/tasks` runs
 - **THEN** it prints nothing
 
 <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->

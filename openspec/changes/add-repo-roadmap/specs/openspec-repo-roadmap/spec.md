@@ -82,6 +82,20 @@ The state of a change SHALL be derived from the archive, the active changes, the
 - **WHEN** `ROADMAP.md` holds two backlog entries with the same `B-NNN` id, or an id that is not `B-` and three digits
 - **THEN** `--check` exits 1 and names the entry
 
+### Requirement: Planned changes are listed
+
+`ROADMAP.md` SHALL be able to list a change that has no folder yet as planned, in its hand-kept part, with its dependencies and its place in the order; the task SHALL show it with the state `planned`, and `--check` SHALL accept it until a change with that id exists.
+
+#### Scenario: Planned entry
+
+- **WHEN** the scratch `ROADMAP.md` lists a planned id that depends on an existing change and no folder has that id, and `mise run openspec:roadmap` and `mise run openspec:roadmap --check` run
+- **THEN** the plain run shows the id with the state `planned` after its dependency, and the check exits 0
+
+#### Scenario: Planned entry that became a change
+
+- **WHEN** a change folder is created with the id of a planned entry and `--check` runs
+- **THEN** it exits 1 and names the id, until the planned entry is removed
+
 ### Requirement: Usable by any OpenSpec repository
 
 The task SHALL depend on nothing of this repository except `openspec`, `git` and Python 3 with its standard library, and SHALL hold no path, user name or repository name of this repository.

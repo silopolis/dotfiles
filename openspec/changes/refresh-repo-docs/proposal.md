@@ -6,7 +6,7 @@ Once the consolidation changes have landed, a reader (the user on a new machine,
 ## What Changes
 
 - Rewrite `README.md`: purpose, relation to cem, bootstrap command, layout, how changes are made (OpenSpec, `AGENTS.md`), license.
-- Retire `TODO.md`: open items become OpenSpec changes or cem backlog entries, then the file is removed.
+- `TODO.md` is retired by `add-repo-roadmap`, whose `ROADMAP.md` takes over its planned order and its backlog; this change only keeps the requirement that no stale task list is left.
 - Move the tmux agent guide out of the target state (into `docs/` or merged into `AGENTS.md`) and align it with `tmux.conf`; same check for any other deployed README.
 - Add a short `docs/` index (audits, how-to for bootstrap and supervised apply).
 

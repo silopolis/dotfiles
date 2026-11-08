@@ -33,7 +33,7 @@ Source: request of the Neovim configuration repository (session S19, 2026-11-03)
   - the agent name is taken (refuse).
 - **`agent:dispatch` and `scm:worktree:new --prompt`** keep their interfaces and use the library; both print one JSON line with the delivery outcome; `scm:worktree:new --tab` resolves `--workspace` before it creates anything and names the value it was given; the help of `--prompt` warns that a text ending in `@file` may swallow the Enter.
 - **Tests.**
-  Python unit tests with a fake `herdr` that counts how many times the text reached the input box (`tests/global-mise-tasks/`, not a chezmoi target, listed in the temporary `.chezmoiignore` block and in `adopt-chezmoiroot` task 3.2 while that change is not applied), plus a live check with one throwaway agent, with the user's go.
+  Python unit tests with a fake `herdr` that counts how many times the text reached the input box (`tests/global-mise-tasks/`, at the repository root and so outside the source state: no ignore entry), plus a live check with one throwaway agent, with the user's go.
 - **Replaces `fix-prompt-delivery`.**
   Every requirement of that change moves into the `agent-launch` capability, its directory is deleted (it holds planning only; git keeps the history), and its audit row is marked as superseded.
   Its closing duty moves here: when this change is applied, the Neovim repository is told, so that `session:start` can use the global tasks.
@@ -57,9 +57,10 @@ Source: request of the Neovim configuration repository (session S19, 2026-11-03)
 
 ## Impact
 
-- New: the Python library and the tasks `workspace:open` and `agent:launch` in `dot_config/mise/lib/` and `dot_config/mise/tasks/` (under `home/` after `adopt-chezmoiroot`), and `tests/global-mise-tasks/`.
+- New: the Python library and the tasks `workspace:open` and `agent:launch` in `home/dot_config/mise/lib/` and `home/dot_config/mise/tasks/`, and `tests/global-mise-tasks/`.
 - Changed: `scm.sh` (the prompt helper goes away), `scm:worktree:new` and `agent:dispatch`.
-- Deleted: `openspec/changes/fix-prompt-delivery/`.
+- Deleted: `openspec/changes/fix-prompt-delivery/` (done in the commit that created this change).
+- Archive order: this change modifies only the requirement "Dispatching an agent" of `global-mise-tasks`, which no other open change touches (`add-repo-roadmap` modifies two other requirements and `add-incus-host-setup` adds one), so the archive order is free; the implementation order is not: the Python rule that `add-repo-roadmap` amends must exist before Python tasks are deployed, and `TODO.md` places this change after it.
 - The return status contract of the callers stays: 0 delivered, non-zero not delivered, message on stderr; the first prompt takes longer, about 10 s while opencode draws, plus 1 s.
 - Applying the targets is a single-target apply with `--exclude=scripts`, after the user's go; the live check starts one throwaway agent in a herdr workspace and removes it afterwards.
 - Open questions for the design: the task names; what an existing branch with no checkout does (refuse or attach a worktree); whether the main checkout's workspace counts as a worktree workspace; how plan mode and model settings are passed; whether herdr's own `worktree open` is used or only its listing; the fate of the tab closing in `scm:worktree:done` when a workspace is the unit; a default setting for the delivery timeouts and limits (a mise var or `conf.d` value) with an override flag on the callers, suggested by the user on 2026-11-03 for the superseded change.

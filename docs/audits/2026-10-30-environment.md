@@ -233,7 +233,7 @@ MM .config, .local/share/fonts, .local/share/icons, three LXQt theme dirs (modes
 | 21 | `adopt-global-mise-tasks` | 2.7 (mise) | | done, archived 2026-11-02; added the same day on request of the Neovim repository |
 | 22 | `fix-prompt-delivery` | 2.7 (mise) | | superseded 2026-11-04 by `add-agent-launch-tasks` (row 25); it was added 2026-11-03 on request of the Neovim repository and never applied; its follow-up (default setting and override flag for the timeouts and limits) moved with it |
 | 23 | `add-private-store-external` | F05, 2.8 | | full; added 2026-11-03 on request of the Neovim repository; after orders 2 and 3; the Neovim session S16 merged without it |
-| 24 | `add-repo-roadmap` | F34, process | | proposal, specs, brief; added 2026-11-03 on request, reworked 2026-11-04 (generated `ROADMAP.md`, global task `openspec:roadmap`); once applied, `ROADMAP.md` replaces this table and this section is frozen |
+| 24 | `add-repo-roadmap` | F34, process | | proposal, specs, brief; added 2026-11-03 on request, reworked 2026-11-04 (generated `ROADMAP.md`, global task `openspec:roadmap`); once applied, `ROADMAP.md` replaces this table and `TODO.md`, and this section is frozen |
 | 25 | `add-agent-launch-tasks` | 2.7 (mise), process | | proposal, specs; added 2026-11-04 on request; replaces `fix-prompt-delivery`; after 24 (the language rule for the global tasks) |
 
 Changes 6 to 20 refine their artifacts at the start of their own session (`/opsx-continue`).
