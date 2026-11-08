@@ -1,0 +1,6 @@
+# Settings of the session transcript redaction for this repository (scripts/session_redact.py of the Neovim configuration repository).
+# Settings only: no private term may be written here. The terms live in the private store,
+# in the global directory session-redact/ and in the directory named by `terms` below.
+profile = "public"
+terms = "dotfiles"
+check = ["memory/sessions/*.md"]

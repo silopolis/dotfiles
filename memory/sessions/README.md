@@ -18,7 +18,7 @@ They are not chezmoi targets: they sit outside `home/`, the source state selecte
 
 | File | Session | Notes |
 | --- | --- | --- |
-| `202610301854-harden_sensitive_targets.md` | `ses_e720ce42affen6d11Mjrfbnxpi` | Orchestrator session of the repository. Change `harden-sensitive-targets`: apply, hook probes, verify, archive; then the rtk and system git hook findings, the signal to the project factory, the first export, the hand-over of the git source evaluation, and the state of the other agents' changes. Re-exported in full on 2026-11-03 (a continued session is overwritten, not duplicated) |
+| `202610301854-harden_sensitive_targets.md` | `ses_e720ce42affen6d11Mjrfbnxpi` | Orchestrator session of the repository. Change `harden-sensitive-targets`: apply, hook probes, verify, archive; then the rtk and system git hook findings, the signal to the project factory, the first export, the hand-over of the git source evaluation, and the state of the other agents' changes; then the roadmap and launch changes (`add-repo-roadmap`, `add-agent-launch-tasks`, which replaces `fix-prompt-delivery`), the model of one worktree per branch and one workspace per worktree, the rule on naming sibling repositories, and the fixes to the redaction store. Re-exported in full on 2026-11-08 (a continued session is overwritten, not duplicated), main session only: the sub-agent sessions of the last days are not exported, their summaries are in the main file |
 | `202610311807-harden_sensitive-explore_dispatch_rules.md` | `ses_e6d11a624ffePObu4C6kjRjMqm` | Sub-agent: how a fleet repository signals the project factory, and where rtk is configured |
 | `202610311807-harden_sensitive-explore_export_machinery.md` | `ses_e6d11c8cdffe3dVrtrei30j3UH` | Sub-agent: the existing session export machinery |
 | `202611022007-adopt_global_mise_tasks.md` | `ses_e6256e898ffeOM7EdjLhs55t0k` | Session of the agent that received three briefs from the Neovim repository: change `adopt-global-mise-tasks` (review, cleanup fixes, apply, archive), change `fix-prompt-delivery` (proposed, then amended after the sender's real-TUI test), change `add-private-store-external` (proposed); then the hand-over of its pending signals and this export. No sub-agents |
@@ -38,10 +38,12 @@ The public profile of the redaction tool rewrites each raw export before it ente
 3. identity values (name, e-mail address, login name) become `[redacted:user_...]` markers, and the worktrees root becomes `[redacted:worktrees_root]`;
 4. home directories become `~`; `/home/linuxbrew` (Homebrew's prefix) and the placeholder `/home/user` stay.
 
-The private terms come from a private terms directory selected with the environment variable `SESSION_REDACT_TERMS_DIR`, never from this repository.
-For this public repository the directory used is a throwaway copy of the private store's `dotfiles` terms with the switch that keeps sibling repository names readable removed, so every sibling repository name is masked.
-Details the tool does not know are added to that copy as extra terms before the export, after reading the raw export for them.
-The tool and the directory are recorded in the user's private notes; the tool is transitional.
+The settings are in `.session-redact.toml` at the root of this repository: the public profile, the `dotfiles` terms directory of the private store, and the files that the tool's `--check` covers.
+Run the tool from the repository root; the terms come from the private store, never from this repository.
+The store's `dotfiles` directory sets the switch for sibling repository names to `redact`, so every sibling repository name is masked; it must not go back to `keep` until the tool keeps only public names readable.
+Details the tool does not know are added for one export in a throwaway terms directory with mode 0700, selected with the environment variable `SESSION_REDACT_TERMS_DIR`, after reading the raw export for them.
+Two gaps of the tool are covered the same way until it is fixed: a term right after a literal `\n` (JSON-escaped tool input) and a name next to a hyphen are not matched, so the throwaway directory holds a pattern for each term and name that allows those two contexts.
+The tool and the store are recorded in the user's private notes; the tool is transitional.
 
 Redaction only knows what it is told.
 Before committing, run the tool's `--check` on the redacted files, run the repository's secret scan on `memory/sessions/`, and search the files for what this export is known to be about; none of these is proof on its own.
@@ -50,7 +52,7 @@ Before committing, run the tool's `--check` on the redacted files, run the repos
 
 1. Export the session to a scratch directory with mode 0700, through a file and never through a pipe (the exporter loses its tail when piped), as a full export.
 2. Redact each raw file into this directory, using a neutral slug for the new file name.
-3. Check, scan, read samples, then commit.
+3. Check with the tool's `--check`, scan with your own counts (store terms and sibling names including the contexts above, identity values, credential variable names, private key blocks), read samples, then commit.
 4. Delete the raw files.
 
 These files do not follow the Markdown rules of this repository (one sentence per line, no dashes, modeline): they are verbatim transcripts.

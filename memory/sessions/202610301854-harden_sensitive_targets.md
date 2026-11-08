@@ -1,9 +1,10 @@
 # Implement OpenSpec change tasks
 **Session ID:** ses_e720ce42affen6d11Mjrfbnxpi
 **Created:** 10/30/2026, 6:54:42 PM
-**Updated:** 11/3/2026, 7:09:27 PM
-<!-- session-export: through msg_1a29a0ed7002iK688Podu8o0Y2 -->
-<!-- session-children: ses_e6d11c8cdffe3dVrtrei30j3UH, ses_e6d11a624ffePObu4C6kjRjMqm -->
+**Updated:** 11/8/2026, 7:33:32 AM
+<!-- session-export: through msg_1b9dcb6760029Ogr4JlNUNzX76 -->
+<!-- session-children: ses_e6d11c8cdffe3dVrtrei30j3UH, ses_e6d11a624ffePObu4C6kjRjMqm, ses_e5d4eb5acffeRUqJZnqfA4P79V, ses_e59f634a1ffesueefDocoCa7EX, ses_e59c25af7ffe4pZPkaq4Tu1UDq, ses_e597b7d90ffeW3158tg2BQlOTj -->
+<!-- session-children-skipped -->
 
 ---
 
@@ -7830,7 +7831,7 @@ Edit applied successfully.
 ```json
 {
   "filePath": "~/.local/share/chezmoi/openspec/changes/fresh-machine-bootstrap/proposal.md",
-  "content": "## Why\n\nThe repository only works on a machine that already went through it: the bootstrap scripts are broken, paths are tied to one user and to Homebrew's default prefix, and the distro and profile templates are never used.\ncem will build on this layer to provision and restore machines, so a clean machine must reach a working environment from one command, with machine, distro and profile data available to templates (audit findings F04, F24, F25, F26, F38; [redacted:private] task `T-012`).\n\n## What Changes\n\n- One bootstrap path: `scripts/install.sh` fixed (official `get.chezmoi.io` installer, correct `--source` with `.chezmoiroot`); `dot_local/sbin/executable_syssetup.sh` fixed or removed in its favour.\n- Data computed once in `.chezmoi.toml.tmpl` and used by templates: `os.id`, `os.like`, `machine.type`, `machine.cpu`, `profile` (at least `desktop` and `mobile`, as planned in [redacted:private] `T-012`), `brew.prefix`; the dead `os.toml.tmpl` and `profile.toml.tmpl` either become these includes or are deleted; unused prompts and variables removed.\n- User and prefix independence: `/home/<user>` and `/home/linuxbrew` replaced by `.chezmoi.homeDir` and `brew.prefix` in templates (gitconfig credential helper, tmux TPM path, Joplin symlinks, aliases), turning those files into templates where needed.\n- git identity from data instead of literals.\n- Neovim: the external itself comes from `fix-chezmoi-config-template` (location from the `nvim.host`, `nvim.owner`, `nvim.repo` data); this change proves that a machine without GitHub access still bootstraps, and decides whether the external is skipped by profile and whether more values (branch, SSH transport) deserve a data key.\n- A tested bootstrap: a Debian-family container (and later a VM) reaches a clean `chezmoi status` with encrypted targets excluded.\n\n## Capabilities\n\n### New Capabilities\n\n- `machine-bootstrap`: what a clean machine needs and gets from this repository, and which data describes the machine.\n\n### Modified Capabilities\n\n- `chezmoi-config`: the template gains distro, profile and prefix data (after `fix-chezmoi-config-template` is archived).\n\n## Impact\n\n- Several plain files become `.tmpl` files; outputs on this laptop stay byte-identical (checked with `chezmoi diff`).\n- The Neovim external (`.chezmoiexternals/nvim.toml.tmpl`) may gain a profile condition.\n- Input for [redacted:private] `T-012` (settings layers reading chezmoi data, `DR-005`).\n\n<!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->\n"
+  "content": "## Why\n\nThe repository only works on a machine that already went through it: the bootstrap scripts are broken, paths are tied to one user and to Homebrew's default prefix, and the distro and profile templates are never used.\n[redacted:private] will build on this layer to provision and restore machines, so a clean machine must reach a working environment from one command, with machine, distro and profile data available to templates (audit findings F04, F24, F25, F26, F38; [redacted:private] task `T-012`).\n\n## What Changes\n\n- One bootstrap path: `scripts/install.sh` fixed (official `get.chezmoi.io` installer, correct `--source` with `.chezmoiroot`); `dot_local/sbin/executable_syssetup.sh` fixed or removed in its favour.\n- Data computed once in `.chezmoi.toml.tmpl` and used by templates: `os.id`, `os.like`, `machine.type`, `machine.cpu`, `profile` (at least `desktop` and `mobile`, as planned in [redacted:private] `T-012`), `brew.prefix`; the dead `os.toml.tmpl` and `profile.toml.tmpl` either become these includes or are deleted; unused prompts and variables removed.\n- User and prefix independence: `/home/<user>` and `/home/linuxbrew` replaced by `.chezmoi.homeDir` and `brew.prefix` in templates (gitconfig credential helper, tmux TPM path, Joplin symlinks, aliases), turning those files into templates where needed.\n- git identity from data instead of literals.\n- Neovim: the external itself comes from `fix-chezmoi-config-template` (location from the `nvim.host`, `nvim.owner`, `nvim.repo` data); this change proves that a machine without GitHub access still bootstraps, and decides whether the external is skipped by profile and whether more values (branch, SSH transport) deserve a data key.\n- A tested bootstrap: a Debian-family container (and later a VM) reaches a clean `chezmoi status` with encrypted targets excluded.\n\n## Capabilities\n\n### New Capabilities\n\n- `machine-bootstrap`: what a clean machine needs and gets from this repository, and which data describes the machine.\n\n### Modified Capabilities\n\n- `chezmoi-config`: the template gains distro, profile and prefix data (after `fix-chezmoi-config-template` is archived).\n\n## Impact\n\n- Several plain files become `.tmpl` files; outputs on this laptop stay byte-identical (checked with `chezmoi diff`).\n- The Neovim external (`.chezmoiexternals/nvim.toml.tmpl`) may gain a profile condition.\n- Input for [redacted:private] `T-012` (settings layers reading chezmoi data, `DR-005`).\n\n<!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->\n"
 }
 ```
 
@@ -19671,7 +19672,7 @@ see [redacted:repo]:AGENTS.md and [redacted:repo] and [redacted:envvar]
 
 ---
 
-## Assistant (Build · Claude Sonnet 5.5)
+## Assistant (Build · Claude Sonnet 5.5 · 16.1s)
 
 _Thinking:_
 The fleet repo, private repo, and env var checks are all masked now, so I'm moving on to the raw export. Before that I want to confirm no probe tokens are left behind, and then I'll export from /tmp/opencode.
@@ -19684,6 +19685,10285 @@ The synthetic line shows fleet names, the private repo and the credential variab
 ```json
 {
   "command": "cd /tmp/opencode && python3 [redacted:repo]:scripts/session/export.py ses_e720ce42affen6d11Mjrfbnxpi --out-dir /tmp/opencode/session-raw --slug harden_sensitive_targets --full --force > /tmp/opencode/session-raw.paths 2>/tmp/opencode/session-raw.err; echo \"exit=$?\"\nwhile read -r p; do printf '%9s %s\\n' \"$(stat -c %s \"$p\")\" \"$(basename \"$p\")\"; done < /tmp/opencode/session-raw.paths\necho \"== stderr (info lines)\"; tail -4 /tmp/opencode/session-raw.err | cut -c1-200\necho \"== markers in the main file\"; rg -n '^<!-- session-' /tmp/opencode/session-raw/202610301854-harden_sensitive_targets.md | head -4 | cut -c1-160",
+  "workdir": "/tmp/opencode",
+  "timeout": 300000
+}
+```
+
+**Output:**
+```
+exit=0
+  1129304 202610301854-harden_sensitive_targets.md
+   167485 202610311807-harden_sensitive-find_[redacted:private]_session_export.md
+   143255 202610311807-harden_sensitive-find_how_[redacted:private]_receives.md
+== stderr (info lines)
+[INFO] Export fille (écrite) : /tmp/opencode/session-raw/202610311807-harden_sensitive-find_[redacted:private]_session_export.md (ses_e6d11c8cdffe3dVrtrei30j3UH)
+[INFO] Export fille (écrite) : /tmp/opencode/session-raw/202610311807-harden_sensitive-find_how_[redacted:private]_receives.md (ses_e6d11a624ffePObu4C6kjRjMqm)
+== markers in the main file
+5:<!-- session-export: through msg_1a29a0ed7002iK688Podu8o0Y2 -->
+6:<!-- session-children: ses_e6d11c8cdffe3dVrtrei30j3UH, ses_e6d11a624ffePObu4C6kjRjMqm -->
+11930:<!-- session-child: ses_e6d11c8cdffe3dVrtrei30j3UH -->
+12130:<!-- session-child: ses_e6d11a624ffePObu4C6kjRjMqm -->
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 19.0s)
+
+_Thinking:_
+The main file has grown to 1.13 MB from 880 KB, while the child files are the same size as before. Next I'll redact the content using the copy terms, mapping it to the same neutral names, and then run the checks.
+
+
+The main file is now 1.13 MB, and the two sub-agent files are unchanged in size. Redacting into the neutral file names with the copied terms, then S1's own check.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\nexport SESSION_REDACT_TERMS_DIR=/tmp/opencode/terms-copy/dotfiles\nS=~/.config/nvim/scripts/session_redact.py\nmkdir -p /tmp/opencode/session-new && chmod 700 /tmp/opencode/session-new\nprintf '%s\\n' \\\n  \"202610301854-harden_sensitive_targets.md 202610301854-harden_sensitive_targets.md\" \\\n  \"202610311807-harden_sensitive-find_how_[redacted:private]_receives.md 202610311807-harden_sensitive-explore_dispatch_rules.md\" \\\n  \"202610311807-harden_sensitive-find_[redacted:private]_session_export.md 202610311807-harden_sensitive-explore_export_machinery.md\" |\nwhile read -r raw new; do python3 $S < \"/tmp/opencode/session-raw/$raw\" > \"/tmp/opencode/session-new/$new\" || { echo \"FAILED $raw\"; exit 1; }; done\nls -l /tmp/opencode/session-new | awk 'NR>1{print $5, $9}'\necho \"== S1 --check (counts)\"; python3 $S --check /tmp/opencode/session-new/*.md | tr '\\n' ' '; echo; echo \"exit=${pipestatus[1]}\"\necho \"== idempotent\"; for f in /tmp/opencode/session-new/*.md; do python3 $S < \"$f\" | cmp -s - \"$f\" && echo \"ok $(basename $f | cut -c1-52)\" || echo \"NOT idempotent $(basename $f | cut -c1-52)\"; done",
+  "workdir": "~/.local/share/chezmoi",
+  "timeout": 300000
+}
+```
+
+**Output:**
+```
+1139006 202610301854-harden_sensitive_targets.md
+150276 202610311807-harden_sensitive-explore_dispatch_rules.md
+168410 202610311807-harden_sensitive-explore_export_machinery.md
+== S1 --check (counts)
+profile: public secrets: 0 private terms: 0 user identity: 0 path aliases: 0 fleet absolute paths: 0 home paths: 0 repository names: 0 credential variable names: 0 token scope lines: 0 ip addresses: 0 email addresses: 0 git hosts: 0 
+exit=0
+== idempotent
+ok 202610301854-harden_sensitive_targets.md
+ok 202610311807-harden_sensitive-explore_dispatch_rules
+ok 202610311807-harden_sensitive-explore_export_machine
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 16.1s)
+
+_Thinking:_
+Next I'm running independent scans, and I'm extending the list of patterns to check. That covers the user's full name and email (I'll pull those from identity.txt without printing them), the fleet and host names in any form, private repo names like [redacted:repo], silopolis slugs, chezmoi-private paths, env var names, token shapes, PEM blocks, age keys, IPs, and home paths. I'm also including the details already found earlier, like restic, [redacted:private], [redacted:private], and [redacted:private].
+
+I'm working out how to read the identity details without exposing them, and settling on pulling the name, email, and username from git and the shell rather than from the identity file. Then I'll run the remaining scans for the other patterns.
+
+
+_Thinking:_
+S1's check came back clean, including zero user identity hits. I'm running my own scans for identity values next, reporting only counts.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd /tmp/opencode/session-new\nfull=$(git -C ~/.local/share/chezmoi log -1 --format=%an | sed 's/ (@.*//'); mail=$(git -C ~/.local/share/chezmoi log -1 --format=%ae); usr=$(id -un); first=${full%% *}; last=${full##* }\nscan() { label=\"$1\"; shift; t=0; for f in *.md; do n=$(rg -c \"$@\" \"$f\" 2>/dev/null); n=${n:-0}; t=$((t+n)); done; printf '%-44s %s\\n' \"$label\" \"$t\"; }\necho \"--- identity (values come from git/id, never printed)\"\nscan \"full name\" -i -F -e \"$full\"\nscan \"first / last name as words\" -i -w -F -e \"$first\" -e \"$last\"\nscan \"e-mail address\" -i -F -e \"$mail\"\nscan \"login name (word)\" -w -F -e \"$usr\"\necho \"--- private repositories and stores\"\nscan \"silopolis/<anything> slugs\" -e 'silopolis/[A-Za-z0-9_.-]+'\nscan \"[redacted:repo] / private store names\" -i -e '[redacted:repo]' -e 'chezmoi-private' -e 'nvim-s1-backup'\nscan \"private Neovim repo / [redacted:private] names\" -i -e '[redacted:repo]' -e 'nvim\\.git' -e '[redacted:repo]'\nscan \"fleet names in any form\" -i -e '[redacted:repo]|[redacted:repo]|[redacted:repo]|[redacted:repo]|[redacted:repo]|opencode-readonly-guard'\necho \"--- secrets and credentials\"\nscan \"credential variable names\" -e '[redacted:envvar]' -e '[redacted:envvar]' -e '\\b[A-Z][A-Z0-9_]{2,}_(API_)?(TOKEN|KEY|SECRET)\\b'\nscan \"token shapes\" -e 'gh[pousr]_[A-Za-z0-9]{20,}' -e 'AKIA[0-9A-Z]{16}' -e 'sk-[A-Za-z0-9_-]{16,}' -e 'AGE-SECRET-KEY-[0-9A-Z]{20,}' -e 'eyJ[A-Za-z0-9_-]{10,}\\.[A-Za-z0-9_-]{10,}'\nscan \"private key blocks / age recipients\" -e 'BEGIN [A-Z ]*PRIVATE KEY' -e 'age1[a-z0-9]{50,}'\necho \"--- network, paths, personal details\"\nscan \"IPv4 / e-mail shapes\" -e '\\b([0-9]{1,3}\\.){3}[0-9]{1,3}\\b' -e '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[a-z]{2,}'\nscan \"home paths (non-brew, non-placeholder)\" -P -e '/home/(?!linuxbrew|user\\b)[a-z]'\nscan \"migration / backup specifics\" -i -e '[redacted:private]' -e 'restic' -e '[redacted:private]' -e '[redacted:private]' -e '[redacted:private]' -e '[redacted:private]/poe' -e '[redacted:private]' -e 'Nextcloud'\nscan \"ssh key names / ssh -i\" -e '_ed25519' -e 'ssh +-i'\necho \"--- informational\"\nscan \"[redacted:*] markers\" -e '\\[redacted:[a-z_]+\\]'\necho \"marker kinds:\"; cat *.md | rg -o '\\[redacted:[a-z_]+\\]' | sort | uniq -c | sort -rn | head -14",
+  "workdir": "/tmp/opencode/session-new",
+  "timeout": 180000
+}
+```
+
+**Output:**
+```
+--- identity (values come from git/id, never printed)
+full name                                    0
+first / last name as words                   0
+e-mail address                               0
+login name (word)                            0
+--- private repositories and stores
+silopolis/<anything> slugs                   13
+[redacted:repo] / private store names       59
+private Neovim repo / [redacted:private] names              0
+fleet names in any form                      1
+--- secrets and credentials
+credential variable names                    0
+token shapes                                 0
+private key blocks / age recipients          0
+--- network, paths, personal details
+IPv4 / e-mail shapes                         0
+home paths (non-brew, non-placeholder)       0
+migration / backup specifics                 26
+ssh key names / ssh -i                       6
+--- informational
+[redacted:*] markers                         1816
+marker kinds:
+   2250 [redacted:repo]
+    727 [redacted:private]
+     72 [redacted:worktrees_root]
+     56 [redacted:user_username]
+     34 [redacted:envvar]
+     25 [redacted:user_fullname]
+     17 [redacted:secret]
+     13 [redacted:user_email]
+      5 [redacted:ip]
+      3 [redacted:host]
+      1 [redacted:user_lastname]
+      1 [redacted:user_firstname]
+      1 [redacted:email]
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 5.5s)
+
+_Thinking:_
+Several of the match counts are non-zero, so I'm going through each category by its match text, trimmed, and only pulling full lines when I need the context. That covers the silopolis slugs, the [redacted:repo] store names, the one fleet name, the migration and backup details, and the ssh key names.
+
+
+Several scans have hits, so I'll look at each by match text only, to see which are real and which are expected.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd /tmp/opencode/session-new\nm() { echo \"=== $1\"; shift; cat *.md | rg -o \"$@\" | sort | uniq -c | sort -rn | head -14; }\nm \"silopolis slugs\" -e 'silopolis/[A-Za-z0-9_.-]+'\nm \"private store / backup names\" -i -e '[A-Za-z0-9_./~-]*([redacted:repo]|chezmoi-private|nvim-s1-backup)[A-Za-z0-9_./-]*'\nm \"fleet name left\" -i -e '.{0,30}([redacted:repo]|[redacted:repo]|[redacted:repo]|[redacted:repo]|[redacted:repo]|opencode-readonly-guard).{0,30}'\nm \"migration/backup specifics\" -i -e '.{0,18}([redacted:private]|restic|[redacted:private]|[redacted:private]|[redacted:private]|[redacted:private]/poe|[redacted:private]|Nextcloud).{0,18}'\nm \"ssh\" -e '.{0,30}(_ed25519|ssh +-i).{0,30}'",
+  "workdir": "/tmp/opencode/session-new"
+}
+```
+
+**Output:**
+```
+=== silopolis slugs
+      6 silopolis/dotfiles.git
+      6 silopolis/dotfiles
+      3 silopolis/vim-obsession
+=== private store / backup names
+     17 ~/.local/share/chezmoi-private/dotfiles
+     13 chezmoi-private
+     10 ~/.local/share/chezmoi-private
+      5 ~/.local/state/nvim-s1-backup/
+      5 ~/.local/share/chezmoi-private/dotfiles/redact-terms.txt
+      4 ~/.local/share/chezmoi-private/nvim
+      4 ~/.local/share/chezmoi-private/dotfiles/
+      3 .local/share/chezmoi-private
+      2 nvim-s1-backup
+      2 ~/.local/state/nvim-s1-backup/site-spell/
+      2 ~/.local/share/chezmoi-private/
+      2 chezmoi-private/
+      1 ~/.local/share/chezmoi-private/dotfiles/profile
+      1 ~/.local/share/chezmoi-private/dotfiles/fleet-names.txt
+=== fleet name left
+      1  (dotfiles/path-aliases.txt). opencode-readonly-guard joined the fleet list.
+=== migration/backup specifics
+      4 redacted:private] restic...
+      4 kg:mise): add the restic archive environme
+      3 ted:private]' -e 'restic' -e '[redacted:pr
+      2 swap 20:11; first restic snapshot `[redact
+      2 [redacted:private]
+      2 kup push command, Nextcloud paths, [redacted:
+      2 e_targets.md:9965:restic
+      2 e_targets.md:1378:restic
+      1 _targets.md:11795:restic
+      1 't a concern, but restic snapshot IDs and 
+      1 so weigh whether "restic" itself needs red
+      1  'plan\\.md'\nc \"Nextcloud mentions\" -i -e 
+      1 ntext around the `restic` and `[redacted:p
+      1 'nextcloud'\nc \"[redacted:p
+=== ssh
+      1 ys\" -e 'chezmoi-private' -e '_ed25519' -e 'ssh +-i'\necho \"== emai
+      1 ys\" -e 'chezmoi-private' -e '_ed25519' -e 'ssh +-i'",
+      1 === .ssh path or ssh -i occurrences (file:line:match)
+      1 key names / ssh targets\" -e '_ed25519' -e '_rsa\\b' -e 'ssh +-i'\nc
+      1 ions\necho \"=== .ssh path or ssh -i occurrences (file:line:match)
+      1 a real leak at line 1307: an `ssh -i ~/.ssh/…[redacted:private]` c
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 16.6s)
+
+_Thinking:_
+I'm checking which of the referenced repos are public, and the two project repos are fine to show. The private store paths are the one concern: they reveal that the terms and fleet-name files exist, though their contents aren't secret.
+
+I'm weighing whether the remaining private-store paths and the `opencode-readonly-guard` name need to be masked, and checking whether that repo is actually public before deciding.
+
+I'm going to check whether the `opencode-readonly-guard` repo is public with `gh repo view`, and either way I'll add it to the redaction terms for the scratch copy, since it's a fleet name and should be masked consistently.
+
+I'm checking whether `restic` and the Nextcloud mail line are already public, since `restic` shows up in this repo's own commit history. The Nextcloud sentence looks like it came from private checklist content, so I need to confirm where it originated before deciding whether to mask it.
+
+I'm checking whether the Nextcloud mail line came from private checklist content, and considering masking it with a pattern in the scratch copy, after I look at the surrounding context.
+
+I'm checking the remaining lines that mention Nextcloud, to see whether they come from private content.
+
+
+_Thinking:_
+Most scan hits look expected, but one leftover fleet name and a Nextcloud line that appears to come from [redacted:private]'s private notes need a closer look.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd /tmp/opencode/session-new\necho \"== Nextcloud sentence: file, line, preceding tool, 220 chars\"; rg -n -i '[redacted:private]' *.md | cut -c1-260 | head -4\nf=202610301854-harden_sensitive_targets.md; n=$(rg -n -i '[redacted:private]' $f | head -1 | cut -d: -f1); awk -v n=$n 'NR<=n && /^\\*\\*Tool:|^## /{h=NR\": \"$0} END{print \"nearest heading/tool: \" substr(h,1,90)}' $f\necho \"== is opencode-readonly-guard public?\"; gh repo view silopolis/opencode-readonly-guard --json visibility,url -q '.visibility' 2>&1 | head -1\necho \"== readonly-guard mentions overall (any form)\"; cat *.md | rg -c -i 'readonly-guard|readonly_guard'",
+  "workdir": "/tmp/opencode/session-new"
+}
+```
+
+**Output:**
+```
+== Nextcloud sentence: file, line, preceding tool, 220 chars
+202610311807-harden_sensitive-explore_dispatch_rules.md:1415:120: - [redacted:private]
+202610311807-harden_sensitive-explore_dispatch_rules.md:1500:120:- [redacted:private]
+nearest heading/tool: 
+== is opencode-readonly-guard public?
+PUBLIC
+== readonly-guard mentions overall (any form)
+6
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 13.0s)
+
+_Thinking:_
+I'm noting that the Nextcloud line is a private backlog item quoted by a sub-agent, so it should be masked before anything is pushed. I'm also checking whether the earlier export already contains it, since my scan may have missed it.
+
+I'm checking whether the pushed export already has the Nextcloud mail line, since my earlier scan of the sub-agent file didn't cover that term, and I'll run a grep against origin/main to confirm. The opencode-readonly-guard name stays, since that repo is public. Next I'll mask the B-005 Nextcloud entry as a scratch term, re-redact, and scan the other quoted B-0xx backlog items too.
+
+I'm going through the list of quoted backlog items (B-00N) in the sub-agent file to see which ones are actually sensitive, since the scan tool can't judge that by itself. The [redacted:private] entry is clearly infrastructure detail, but the others look like generic work items, so I want to print each distinct one with its first 90 characters before deciding what to mask.
+
+
+_Thinking:_
+The public `opencode-readonly-guard` repo can stay as is, but the Nextcloud line quotes a private backlog item (B-005) that describes private infrastructure, so I'm checking whether other quoted backlog items need masking too.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd /tmp/opencode/session-new\necho \"== distinct quoted 'B-00N' backlog lines (first 110 chars)\"; cat *.md | rg -o '\\*\\*B-00[0-9]\\*\\* - .{0,100}' | sort -u | head -14\necho \"== was the Nextcloud line already published in the earlier push?\"; cd ~/.local/share/chezmoi; git show origin/main:memory/sessions/202610311807-harden_sensitive-explore_dispatch_rules.md | rtk rg -c -i '[redacted:private]' || echo 0",
+  "workdir": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+== distinct quoted 'B-00N' backlog lines (first 110 chars)
+**B-001** - Register [redacted:repo] in the [redacted:repo] portfolio ...`
+**B-001** - Register [redacted:repo] in the [redacted:repo] portfolio (`[redacted:repo]:spec/01-portfolio.md`); 
+**B-002** - Decide whether to track `[redacted:repo]:ADR-201` and `[redacted:repo]:ADR-202` at their milestone-b
+**B-003** - Propose to [redacted:repo] the \`.agents/\` layout of \`[redacted:repo]:ADR-104\` ([redacted:repo] s
+**B-003** - Propose to [redacted:repo] the `.agents/` layout of `[redacted:repo]:ADR-104` ([redacted:repo] still
+**B-004** - Evaluate trunk-based development as a fleet decision (not adopted here: `DR-001`).
+[redacted:private]
+[redacted:private]
+**B-007** - Before publishing [redacted:repo], separate the tool from personal instance data (migration records,
+**B-008** - Dispatch to [redacted:repo]: `[redacted:repo]:spec/drs/DR-003-methodology_loop.md@1.0.2` defers requ
+**B-008** - Signal [redacted:repo]: ...` line to `[redacted:repo]:project/roadmap.md` §Backlog, one line, in the
+== was the Nextcloud line already published in the earlier push?
+2
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 16.8s)
+
+_Thinking:_
+I've realized the Nextcloud line (B-005) already went out in the earlier push, twice, so my previous export leaked a small piece of private infrastructure detail. It isn't a secret and the sensitivity is low, but the user should know. The new export can mask it, though the original still sits in history at commit cfd74ce, so whether to rewrite history is their decision. Now I'm masking B-005 and B-006 in the new export.
+
+I'm going to mask the rest of the B-006 line too, and I'll add a pattern to the scratch copy that catches the Nextcloud mail-setup line. The B-007 line about separating the tool from personal instance data looks fine as it is. Once I've re-redacted, I'll run the check again.
+
+
+That line was already in the push I made earlier (2 occurrences), so I'll flag it to you. For this export I'm adding the mask to the throwaway terms copy only, then redacting again and re-checking.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\nprintf '%s\\n' '# added for this export: [redacted:private] backlog item quoted by a sub-agent (private infrastructure detail)' 're:[redacted:private]
+  "workdir": "~/.local/share/chezmoi",
+  "timeout": 300000
+}
+```
+
+**Output:**
+```
+profile: public secrets: 0 private terms: 0 user identity: 0 path aliases: 0 fleet absolute paths: 0 home paths: 0 repository names: 0 credential variable names: 0 token scope lines: 0 ip addresses: 0 email addresses: 0 git hosts: 0 
+check exit=0
+Nextcloud server sentence left: 0
+idempotent 202610301854-harden_sensitive_targets.md
+idempotent 202610311807-harden_sensitive-explore_dispatch_r
+idempotent 202610311807-harden_sensitive-explore_export_mac
+== gates on the candidate files
+7:11PM INF no leaks found
+gitleaks exit=0
+detect-private-key exit=0
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 14.2s)
+
+_Thinking:_
+I'm double-checking that the gitleaks scan came back clean, even though the file held synthetic test tokens that were already redacted. Next I plan to re-run a compact privacy scan on the final files, covering identity, secrets, and private repo names, and then spot-check the opening lines and a random sample.
+
+Next I'll read a mid-file sample for readability, then install the files into memory/sessions, update the README, run hk check across everything, and look at the diff stat without committing.
+
+
+All gates pass on the candidate files. I'm re-running the key scans on these exact files, since I changed the terms, and reading a few samples before they replace the pushed versions.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd /tmp/opencode/session-new\nfull=$(git -C ~/.local/share/chezmoi log -1 --format=%an | sed 's/ (@.*//'); mail=$(git -C ~/.local/share/chezmoi log -1 --format=%ae); usr=$(id -un); first=${full%% *}; last=${full##* }\nscan() { label=\"$1\"; shift; t=0; for f in *.md; do n=$(rg -c \"$@\" \"$f\" 2>/dev/null); n=${n:-0}; t=$((t+n)); done; printf '%-40s %s\\n' \"$label\" \"$t\"; }\nscan \"full / first / last name, e-mail, login\" -i -w -F -e \"$full\" -e \"$first\" -e \"$last\" -e \"$mail\" -e \"$usr\"\nscan \"private repos (slug other than public 2)\" -P -e 'silopolis/(?!dotfiles\\b|dotfiles\\.git|vim-obsession)[A-Za-z0-9_.-]+'\nscan \"[redacted:repo] / [redacted:repo] / nvim repo\" -i -e '[redacted:repo]' -e '[redacted:repo]' -e '[redacted:repo]' -e 'nvim\\.git'\nscan \"fleet names (excl. public guard repo)\" -i -P -e '([redacted:repo]|[redacted:repo]|[redacted:repo]|[redacted:repo]|[redacted:repo])'\nscan \"credential variable names\" -e '[redacted:envvar]' -e '[redacted:envvar]' -e '\\b[A-Z][A-Z0-9_]{2,}_(API_)?(TOKEN|KEY|SECRET)\\b'\nscan \"token shapes / key blocks / age\" -e 'gh[pousr]_[A-Za-z0-9]{20,}' -e 'AKIA[0-9A-Z]{16}' -e 'sk-[A-Za-z0-9_-]{16,}' -e 'AGE-SECRET-KEY-[0-9A-Z]{20,}' -e 'eyJ[A-Za-z0-9_-]{10,}\\.[A-Za-z0-9_-]{10,}' -e 'BEGIN [A-Z ]*PRIVATE KEY' -e 'age1[a-z0-9]{50,}'\nscan \"IPv4 / e-mail shapes\" -e '\\b([0-9]{1,3}\\.){3}[0-9]{1,3}\\b' -e '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[a-z]{2,}'\nscan \"home paths non-brew non-placeholder\" -P -e '/home/(?!linuxbrew|user\\b)[a-z]'\nscan \"personal/backup specifics\" -i -e '[redacted:private]' -e '[redacted:private]' -e '[redacted:private]' -e '[redacted:private]' -e '[redacted:private]/poe' -e '[redacted:private]' -e 'Nextcloud' -e '[redacted:private]'\necho \"== readability samples\"; sed -n '1,9p' 202610301854-harden_sensitive_targets.md | cut -c1-110; echo \"...\"; n=$(rg -n '^## Assistant' 202610301854-harden_sensitive_targets.md | sed -n '120p' | cut -d: -f1); sed -n \"${n},$((n+6))p\" 202610301854-harden_sensitive_targets.md | cut -c1-130\necho \"== tail of the main file (last 6 lines)\"; tail -n 6 202610301854-harden_sensitive_targets.md | cut -c1-130",
+  "workdir": "/tmp/opencode/session-new",
+  "timeout": 120000
+}
+```
+
+**Output:**
+```
+full / first / last name, e-mail, login  0
+private repos (slug other than public 2) 0
+[redacted:repo] / [redacted:repo] / nvim repo 0
+fleet names (excl. public guard repo)    0
+credential variable names                0
+token shapes / key blocks / age          0
+IPv4 / e-mail shapes                     0
+home paths non-brew non-placeholder      0
+personal/backup specifics                7
+== readability samples
+# Implement OpenSpec change tasks
+**Session ID:** ses_e720ce42affen6d11Mjrfbnxpi
+**Created:** 10/30/2026, 6:54:42 PM
+**Updated:** 11/3/2026, 7:09:27 PM
+<!-- session-export: through msg_1a29a0ed7002iK688Podu8o0Y2 -->
+<!-- session-children: ses_e6d11c8cdffe3dVrtrei30j3UH, ses_e6d11a624ffePObu4C6kjRjMqm -->
+
+---
+
+...
+## Assistant (Plan · Claude Opus 5.5 · 15.0s)
+
+_Thinking:_
+Following the convention of naming worktrees after the branch tail, I'm thinking the [redacted:repo] worktree should probably be p
+
+I also need to run `mise trust` on the new worktree path, and untrust it on removal per standard practice. I'm weighing whether to
+
+== tail of the main file (last 6 lines)
+}
+```
+
+
+---
+
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 3.7s)
+
+_Thinking:_
+I'm going through the personal and backup details next, checking which specific names turned up, probably "Nextcloud" in my own scan commands, and possibly "[redacted:private]." I'll list the matches quickly.
+
+
+Seven hits remain in the last category, so I'm identifying them before moving on.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd /tmp/opencode/session-new; cat *.md | rg -o -i '.{0,34}([redacted:private]|[redacted:private]|[redacted:private]|[redacted:private]|[redacted:private]/poe|[redacted:private]|Nextcloud|[redacted:private]).{0,22}' | sort | uniq -c | sort -rn",
+  "workdir": "/tmp/opencode/session-new"
+}
+```
+
+**Output:**
+```
+      2 pecifics — a backup push command, Nextcloud paths, [redacted:priv
+      1  session)\nre:[redacted:private]\n[redacted:private]\nre:[0-9.]+ GiB, [0-9
+      1 [redacted:private] and Nextcloud folders are already p
+      1 Nextcloud mentions             
+      1 ecklist\\.md' -e 'plan\\.md'\nc \"Nextcloud mentions\" -i -e 'nex
+      1 24 │ Nextcloud
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 23.1s)
+
+_Thinking:_
+I'm checking the matches from my scan, and the "Nextcloud" entry in `.chezmoiignore` at line 24 is public, so it doesn't need redacting. I also see the regex terms I appended to redact-terms.txt, which I had written in a heredoc.
+
+I'm checking whether the terms I appended to the redaction list actually show up in the transcript, including `[redacted:private]` and a couple of regex patterns. The `[redacted:private]` name is a PHP script from a private migration, so it's low sensitivity, but I want to confirm the export was taken before the newest term was added.
+
+I'm noticing that the term list is still letting `[redacted:private]` through in one spot, because the literal `\n` before it in the escaped output makes the lookbehind fail. I'll add a plain `re:[redacted:private]` pattern to the scratch copy, re-run the redaction, and check it once more before installing.
+
+
+_Thinking:_
+The scan labels are my own, and one real miss is `[redacted:private]` inside a JSON-escaped command, which the word-boundary rule doesn't catch. I'm adding it as a plain pattern in the throwaway copy and redacting again.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\nprintf '%s\\n' 're:[redacted:private]' >> /tmp/opencode/terms-copy/dotfiles/redact-terms.txt\nexport SESSION_REDACT_TERMS_DIR=/tmp/opencode/terms-copy/dotfiles\nS=~/.config/nvim/scripts/session_redact.py\nrm -f /tmp/opencode/session-new/*.md\nprintf '%s\\n' \\\n  \"202610301854-harden_sensitive_targets.md 202610301854-harden_sensitive_targets.md\" \\\n  \"202610311807-harden_sensitive-find_how_[redacted:private]_receives.md 202610311807-harden_sensitive-explore_dispatch_rules.md\" \\\n  \"202610311807-harden_sensitive-find_[redacted:private]_session_export.md 202610311807-harden_sensitive-explore_export_machinery.md\" |\nwhile read -r raw new; do python3 $S < \"/tmp/opencode/session-raw/$raw\" > \"/tmp/opencode/session-new/$new\" || { echo \"FAILED $raw\"; exit 1; }; done\npython3 $S --check /tmp/opencode/session-new/*.md | tr '\\n' ' '; echo; echo \"check exit=${pipestatus[1]}\"\ncd /tmp/opencode/session-new\necho \"[redacted:private] left: $(cat *.md | rg -c -i '[redacted:private]' || echo 0); Mail-setup sentence left: $(cat *.md | rg -c '[redacted:private]' || echo 0)\"\nfor f in *.md; do python3 $S < \"$f\" | cmp -s - \"$f\" && echo \"idempotent\" || echo \"NOT idempotent $f\"; done | sort | uniq -c\nmise -C ~/.local/share/chezmoi x -- gitleaks dir --redact --no-banner /tmp/opencode/session-new 2>&1 | tail -1 | sed 's/\\x1b\\[[0-9;]*m//g'; mise -C ~/.local/share/chezmoi x -- hk util detect-private-key *.md; echo \"private-key detector exit=$?\"",
+  "workdir": "~/.local/share/chezmoi",
+  "timeout": 300000
+}
+```
+
+**Output:**
+```
+profile: public secrets: 0 private terms: 0 user identity: 0 path aliases: 0 fleet absolute paths: 0 home paths: 0 repository names: 0 credential variable names: 0 token scope lines: 0 ip addresses: 0 email addresses: 0 git hosts: 0 
+check exit=0
+[redacted:private] left: 0; Mail-setup sentence left: 0
+      3 idempotent
+7:11PM INF no leaks found
+private-key detector exit=0
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 6.9s)
+
+_Thinking:_
+I'm moving on to install the new files into memory/sessions, replacing the old ones, and then updating the README. I also want to check the diff size against what's already pushed. For the README, I'm looking at the contents table notes, the "stops when exported" line, and the redaction description. That covers the identity values being masked, the worktrees root alias, the fleet repos, and private repo names, and noting that this repo's terms directory is a copy without the "keep readable fleet names" file, since the repo is public.
+
+I'm now going to edit the README minimally: the Contents row for the main file, the sentences about what gets redacted, and the new redaction items, without adding any names.
+
+
+_Thinking:_
+The final files pass `--check`, are idempotent, and come up clean on the secret scans, so I'm installing them over the pushed versions and updating the README.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\ncp /tmp/opencode/session-new/*.md memory/sessions/ && ls -l memory/sessions | awk 'NR>1{print $5, $9}'\necho \"== change vs pushed\"; rtk git diff --stat -- memory | tail -5\necho \"== README current contents block\"; rtk rg -n -e '^\\| `2026' -e 'stops when' -e '^[0-9]\\. ' memory/sessions/README.md | cut -c1-210",
+  "workdir": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+1139016 202610301854-harden_sensitive_targets.md
+150138 202610311807-harden_sensitive-explore_dispatch_rules.md
+168410 202610311807-harden_sensitive-explore_export_machinery.md
+3054 README.md
+== change vs pushed
+ .../202610301854-harden_sensitive_targets.md       | 4077 +++++++++++++++++++-
+ ...1807-harden_sensitive-explore_dispatch_rules.md |   12 +-
+ ...07-harden_sensitive-explore_export_machinery.md |    2 +-
+ 3 files changed, 3997 insertions(+), 94 deletions(-)
+== README current contents block
+21:| `202610301854-harden_sensitive_targets.md` | `ses_e720ce42affen6d11Mjrfbnxpi` | Change `harden-sensitive-targets`: apply, hook probes, verify, archive; then the rtk and system git hook findings, the signal
+22:| `202610311807-harden_sensitive-explore_dispatch_rules.md` | `ses_e6d11a624ffePObu4C6kjRjMqm` | Sub-agent: how a fleet repository signals the project factory, and where rtk is configured |
+23:| `202610311807-harden_sensitive-explore_export_machinery.md` | `ses_e6d11c8cdffe3dVrtrei30j3UH` | Sub-agent: the existing session export machinery |
+26:The main file stops when it was exported: the commit of the export and the push are not in it.
+32:1. secrets (API keys, tokens, age secret keys, private key blocks) become `[redacted:secret]`;
+33:2. private terms, repository names, credential variable names, token scope lines, IP addresses, e-mail addresses and non-public git hosts become `[redacted:private]`, `[redacted:repo]`, `[redacted:ip]` and s
+34:3. home directories become `~`; `/home/linuxbrew` (Homebrew's prefix) and the placeholder `/home/user` stay.
+44:1. Export the session to a scratch directory with mode 0700, through a file and never through a pipe (the exporter loses its tail when piped), as a full export.
+45:2. Redact each raw file into this directory, using a neutral slug for the new file name.
+46:3. Check, scan, read samples, then commit.
+47:4. Delete the raw files.
+
+```
+
+**Tool: read**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/memory/sessions/README.md",
+  "offset": 14,
+  "limit": 28
+}
+```
+
+**Output:**
+```
+<path>~/.local/share/chezmoi/memory/sessions/README.md</path>
+<type>file</type>
+<content>
+14: - Sub-agent sessions sit next to their parent; their slug starts with the parent's slug.
+15: - Slugs are neutral on purpose: a file name is not redacted, so it must not carry a name that the text masks.
+16: 
+17: ## Contents
+18: 
+19: | File | Session | Notes |
+20: | --- | --- | --- |
+21: | `202610301854-harden_sensitive_targets.md` | `ses_e720ce42affen6d11Mjrfbnxpi` | Change `harden-sensitive-targets`: apply, hook probes, verify, archive; then the rtk and system git hook findings, the signal to the project factory, and this export |
+22: | `202610311807-harden_sensitive-explore_dispatch_rules.md` | `ses_e6d11a624ffePObu4C6kjRjMqm` | Sub-agent: how a fleet repository signals the project factory, and where rtk is configured |
+23: | `202610311807-harden_sensitive-explore_export_machinery.md` | `ses_e6d11c8cdffe3dVrtrei30j3UH` | Sub-agent: the existing session export machinery |
+24: 
+25: Each file's header states how far it goes (`<!-- session-export: through msg_... -->`).
+26: The main file stops when it was exported: the commit of the export and the push are not in it.
+27: 
+28: ## Redaction
+29: 
+30: The public profile of the redaction tool rewrites each raw export before it enters this repository:
+31: 
+32: 1. secrets (API keys, tokens, age secret keys, private key blocks) become `[redacted:secret]`;
+33: 2. private terms, repository names, credential variable names, token scope lines, IP addresses, e-mail addresses and non-public git hosts become `[redacted:private]`, `[redacted:repo]`, `[redacted:ip]` and similar markers;
+34: 3. home directories become `~`; `/home/linuxbrew` (Homebrew's prefix) and the placeholder `/home/user` stay.
+35: 
+36: The private terms come from a private terms directory selected with the environment variable `SESSION_REDACT_TERMS_DIR`, never from this repository.
+37: The tool and the directory are recorded in the user's private notes; the tool is transitional.
+38: 
+39: Redaction only knows what it is told.
+40: Before committing, run the tool's `--check` on the redacted files, run the repository's secret scan on `memory/sessions/`, and search the files for what this export is known to be about; none of these is proof on its own.
+41: 
+
+(Showing lines 14-41 of 52. Use offset=42 to continue.)
+</content>
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 7.6s)
+
+**Tool: edit**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/memory/sessions/README.md",
+  "oldString": "| `202610301854-harden_sensitive_targets.md` | `ses_e720ce42affen6d11Mjrfbnxpi` | Change `harden-sensitive-targets`: apply, hook probes, verify, archive; then the rtk and system git hook findings, the signal to the project factory, and this export |",
+  "newString": "| `202610301854-harden_sensitive_targets.md` | `ses_e720ce42affen6d11Mjrfbnxpi` | Orchestrator session of the repository. Change `harden-sensitive-targets`: apply, hook probes, verify, archive; then the rtk and system git hook findings, the signal to the project factory, the first export, the hand-over of the git source evaluation, and the state of the other agents' changes. Re-exported in full on 2026-11-03 (a continued session is overwritten, not duplicated) |"
+}
+```
+
+**Output:**
+```
+Edit applied successfully.
+```
+
+**Tool: edit**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/memory/sessions/README.md",
+  "oldString": "The main file stops when it was exported: the commit of the export and the push are not in it.",
+  "newString": "The main file stops when it was exported: the commit of the export and anything after it are not in it.\nThe session keeps going after an export, so the file is replaced by a longer one at each re-export."
+}
+```
+
+**Output:**
+```
+Edit applied successfully.
+```
+
+**Tool: edit**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/memory/sessions/README.md",
+  "oldString": "3. home directories become `~`; `/home/linuxbrew` (Homebrew's prefix) and the placeholder `/home/user` stay.\n\nThe private terms come from a private terms directory selected with the environment variable `SESSION_REDACT_TERMS_DIR`, never from this repository.\nThe tool and the directory are recorded in the user's private notes; the tool is transitional.",
+  "newString": "3. identity values (name, e-mail address, login name) become `[redacted:user_...]` markers, and the worktrees root becomes `[redacted:worktrees_root]`;\n4. home directories become `~`; `/home/linuxbrew` (Homebrew's prefix) and the placeholder `/home/user` stay.\n\nThe private terms come from a private terms directory selected with the environment variable `SESSION_REDACT_TERMS_DIR`, never from this repository.\nFor this public repository the directory used is a throwaway copy of the private store's `dotfiles` terms with the switch that keeps sibling repository names readable removed, so every sibling repository name is masked.\nDetails the tool does not know are added to that copy as extra terms before the export, after reading the raw export for them.\nThe tool and the directory are recorded in the user's private notes; the tool is transitional."
+}
+```
+
+**Output:**
+```
+Edit applied successfully.
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 14.6s)
+
+_Thinking:_
+I'm checking that the README passes the redaction and dash checks, running `hk check --all`, and scanning the memory directory for secrets with gitleaks and the tool. After that I'll look at git status and clear out the scratch files, without committing, and then update the todo.
+
+
+Now the README gets the same checks as the exports, then the repo-wide gates, and then I delete all the scratch material.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\nexport SESSION_REDACT_TERMS_DIR=/tmp/opencode/terms-copy/dotfiles\npython3 ~/.config/nvim/scripts/session_redact.py --check memory/sessions/*.md | tr '\\n' ' '; echo; echo \"redaction check (all 4 files) exit=${pipestatus[1]}\"\nrtk rg -n '[—–]' memory/sessions/README.md || echo \"no dashes in README\"\necho -n \"gitleaks dir memory: \"; mise x -- gitleaks dir --redact --no-banner memory 2>&1 | tail -1 | sed 's/\\x1b\\[[0-9;]*m//g'\necho -n \"hk check --all: \"; mise x -- hk check --all >/dev/null 2>&1; echo \"exit=$?\"\necho -n \"openspec validate: \"; openspec validate --all --strict 2>&1 | tail -1\necho -n \"chezmoi managed under memory: \"; chezmoi managed | rtk grep -c '^memory' || true\necho \"== scratch cleanup\"\nrm -rf /tmp/opencode/session-raw /tmp/opencode/session-new /tmp/opencode/terms-copy /tmp/opencode/session-raw.paths /tmp/opencode/session-raw.err\nfor d in session-raw session-new terms-copy; do test ! -e /tmp/opencode/$d && echo \"deleted $d\"; done\necho \"== user's private store untouched\"; git -C ~/.local/share/chezmoi-private status --short | wc -l\necho \"== repo status\"; rtk git status --short; git rev-list --count origin/main..HEAD | xargs echo \"ahead of origin:\"",
+  "workdir": "~/.local/share/chezmoi",
+  "timeout": 240000
+}
+```
+
+**Output:**
+```
+profile: public secrets: 0 private terms: 0 user identity: 0 path aliases: 0 fleet absolute paths: 0 home paths: 0 repository names: 0 credential variable names: 0 token scope lines: 0 ip addresses: 0 email addresses: 0 git hosts: 0 
+redaction check (all 4 files) exit=0
+no dashes in README
+gitleaks dir memory: 7:12PM INF no leaks found
+hk check --all: exit=0
+openspec validate: Totals: 24 passed, 0 failed (24 items)
+chezmoi managed under memory: 0
+== scratch cleanup
+deleted session-raw
+deleted session-new
+deleted terms-copy
+== user's private store untouched
+0
+== repo status
+ M memory/sessions/202610301854-harden_sensitive_targets.md
+ M memory/sessions/202610311807-harden_sensitive-explore_dispatch_rules.md
+ M memory/sessions/202610311807-harden_sensitive-explore_export_machinery.md
+ M memory/sessions/README.mdahead of origin: 0
+
+```
+
+**Tool: todowrite**
+
+**Input:**
+```json
+{
+  "todos": [
+    {
+      "content": "Check what OpenSpec and this repo offer as a global view (for the answer)",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "content": "Prepare redaction: scratch copy of the terms dir without fleet-names.txt (keep user's store untouched)",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "content": "Raw export (0700 scratch), redact, check, independent scans",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "content": "Update memory/sessions README, stage, propose commit (no commit/push without go)",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "content": "Delete raw exports and scratch copies",
+      "status": "completed",
+      "priority": "high"
+    }
+  ]
+}
+```
+
+**Output:**
+```
+[
+  {
+    "content": "Check what OpenSpec and this repo offer as a global view (for the answer)",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "content": "Prepare redaction: scratch copy of the terms dir without fleet-names.txt (keep user's store untouched)",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "content": "Raw export (0700 scratch), redact, check, independent scans",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "content": "Update memory/sessions README, stage, propose commit (no commit/push without go)",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "content": "Delete raw exports and scratch copies",
+    "status": "completed",
+    "priority": "high"
+  }
+]
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 9.9s)
+
+The re-export is done and sitting in the working tree. I haven't committed it, because `AGENTS.md` says commits wait for your approval. Nothing is pushed and the raw files are deleted.
+
+## Export
+
+- **Files:** the main file and the two sub-agent files in `memory/sessions/` are replaced by their redacted versions. The main file grows from 886 KB to 1.14 MB and goes through your latest message. I also updated the README.
+- **Redaction:** the Neovim agent's `--check` reports 0 in every category, including `user identity`. The files are idempotent, and gitleaks, the private-key detector, `hk check --all` and `openspec validate` pass.
+- **Independent scans:** my own counts of your name, e-mail, login, private repo names, sibling repo names, credential variable names, token shapes, IPs and non-brew home paths are all 0. I took the identity values from git and the system, not from the redaction files.
+- **Safety measures:**
+  - I used a temporary copy of your terms without `fleet-names.txt`, so sibling repo names stay masked.
+  - Your private store is untouched, with 0 changes.
+  - I deleted the copy.
+
+## Two things the re-export turned up
+
+1. **One private detail is already public.** [redacted:private]'s backlog item B-005 (a Nextcloud mail problem) was quoted by a sub-agent and is in the version I pushed earlier, in commit `cfd74ce`. The new export masks it.
+2. **The full name is masked in the new export** and was already left alone in the pushed one (your option 1). The commit authorship shows it anyway.
+
+## Proposed commit
+
+`docs(chezmoi:memory): re-export the orchestrator session` (59 characters)
+
+Say go and I commit it. I won't push without your word.
+
+## Your roadmap question
+
+You're right that there's no single view. What exists, and why it falls short:
+- **`openspec list`** shows active changes with task counts, and **`openspec view`** is an interactive dashboard of specs and changes. Neither shows past or future work in order.
+- **Past work** sits in `openspec/changes/archive/`, with no index.
+- **Order and priority** exist only in the change map, a table in section 6 of the audit (rows 0 to 23). It is dated, hard to find, and I kept it by hand.
+- **Other repos have one:** [redacted:repo] has `project/roadmap.md` plus `TODO.md`, [redacted:private] has `project/roadmap.md`, and the Neovim repo has `ROADMAP.md`.
+
+For the agent you want to dispatch, a good brief is a root `ROADMAP.md` with Done, Now, Next and Later sections, generated from `openspec list --json`, the archive and the change map. A mise task could regenerate it, like the Neovim repo's `roadmap` task, so it can't drift. Whether the change map stays as the source or moves into the roadmap is a design choice for that agent's first step.
+
+I've kept three open items from before:
+- launching `enforce-hook-with-system-git`;
+- merging [redacted:repo] `T-065`;
+- the order of `adopt-chezmoiroot` and `fix-chezmoi-config-template` versus `enforce-hook-with-system-git`.
+
+---
+
+## User
+
+commit
+compact session
+create a new change to add a roadmap to this repository, taking from fleet and [redacted:repo], as well as nvim's roadmap task
+create a new herdr workspace and dispatch a new agent to build that change
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 1344.4s)
+
+_Thinking:_
+Plan mode is on, so I'm limited to researching and planning rather than executing anything. The user wants a commit, a session compaction, a new roadmap change, and a new herdr workspace with an agent dispatched. I can't run compaction myself, since in opencode that's a user action with `/compact`, so I'm considering whether herdr offers another route to it.
+
+I'm weighing whether herdr could send `/compact` to a pane, but sending keys to my own running pane seems off, so the user will likely run it. Compaction would drop detail, so the plan needs to be saved before it happens. I'll commit first, and then decide whether the user compacts before the next steps or at the end.
+
+Keeping the commit and the compaction separate matters here, since the compaction summary will carry whatever plan I've reached by then. The next thinking treats running `/compact` from my own pane as too risky, because the keys would only queue behind my current work. So the plan is to commit now, have the user run compaction, and carry out the change creation and agent dispatch afterward.
+
+Next I'm checking the roadmap formats in the [redacted:repo], [redacted:private], and [redacted:repo] projects, plus the nvim roadmap task, to see how a change should be structured before anything gets created.
+
+I'm checking whether there's a worktree task that also opens a herdr tab, since that would cover both the isolated checkout and the new workspace in one step. I'll also recheck git status, because the pending memory-export commit may have changed.
+
+I'm checking the change-map entry for `add-roadmap`, since the new change would supersede the outdated TODO.md. Next I'll look at the herdr workspace-create and worktree commands to plan the dispatch.
+
+
+Plan mode is on, so this pass is read-only. Four things to research: the commit state, compaction, the fleet's roadmap formats ([redacted:repo], [redacted:private], [redacted:repo], nvim's `roadmap` task), and how to create a herdr workspace with the global tasks.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; echo \"== repo\"; git status --short; echo \"ahead/behind (cached): $(git rev-list --count origin/main..HEAD)/$(git rev-list --count HEAD..origin/main)\"; git log -1 --format='%h %s'\necho \"== herdr workspace create help\"; herdr workspace create --help 2>&1 | sed -n '1,30p'\necho \"== global worktree task usage\"; for t in new rm ls; do f=$(fd -t f \"^executable_$t$|^$t$\" ~/.config/mise/tasks/scm/worktree 2>/dev/null | head -1); echo \"--- scm:worktree:$t ($f)\"; [ -n \"$f\" ] && rg -n '^#(MISE|USAGE)' \"$f\" | cut -c1-200; done",
+  "workdir": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+== repo
+ M memory/sessions/202610301854-harden_sensitive_targets.md
+ M memory/sessions/202610311807-harden_sensitive-explore_dispatch_rules.md
+ M memory/sessions/202610311807-harden_sensitive-explore_export_machinery.md
+ M memory/sessions/README.md
+ahead/behind (cached): 0/0
+2546d17 docs(chezmoi:spec): add the add-private-store-external change
+== herdr workspace create help
+Create a workspace
+
+Usage: herdr workspace create [OPTIONS]
+
+Options:
+      --cwd <PATH>
+          
+
+      --label <TEXT>
+          
+
+      --env <KEY=VALUE>
+          Set an environment variable for the launched process
+
+      --focus
+          
+
+      --no-focus
+
+== global worktree task usage
+--- scm:worktree:new (~/.config/mise/tasks/scm/worktree/new)
+2:#MISE description="Create a git worktree for a new branch, optionally with a herdr tab and an agent"
+3:#MISE alias="scm:wt:new"
+4:#USAGE arg "<branch>" help="New branch, <type>/<name>; the worktree directory is <prefix>-<name>"
+5:#USAGE flag "--base <ref>" default="origin/main" help="Commit the branch starts from"
+6:#USAGE flag "--path <dir>" help="Worktree directory (default: $WORKTREES_ROOT or [redacted:worktrees_root], then <prefix>-<name>)"
+7:#USAGE flag "--prefix <prefix>" help="Name prefix (else $WORKTREES_PREFIX, var scm_worktrees_prefix, {repo})"
+8:#USAGE flag "--tab" help="Open a herdr tab in the worktree"
+9:#USAGE flag "--workspace <label>" help="herdr workspace label or id for --tab (default: $HERDR_WORKSPACE_ID)"
+10:#USAGE flag "--label <text>" help="Tab label (default: the worktree name)"
+11:#USAGE flag "--env <kv>" var=#true help="KEY=VALUE for the tab and the post-create hook (repeatable)"
+12:#USAGE flag "--agent-kind <kind>" help="Start this herdr agent kind (for example opencode) in the tab"
+13:#USAGE flag "--agent-name <name>" help="herdr agent name, [a-z][a-z0-9_-]{0,31}, server-wide"
+14:#USAGE flag "--prompt <text>" help="First prompt sent to the agent"
+15:#USAGE flag "--generic" help="Run even in a repository that defines its own worktree:new or worktree:rm"
+16:#USAGE flag "--json" help="Print the result as JSON on stdout"
+17:#USAGE arg "[agent_args]..." var=#true help="Arguments passed to the agent, after -- (they may use flags of their own, such as --agent plan)"
+--- scm:worktree:rm (~/.config/mise/tasks/scm/worktree/rm)
+2:#MISE description="Remove a git worktree and its local branch (low-level; scm:worktree:done checks the merge first)"
+3:#MISE alias="scm:wt:rm"
+4:#USAGE arg "<target>" help="Stem, name, branch or path of the worktree"
+5:#USAGE flag "--force" help="Remove a dirty worktree and discard an unmerged branch"
+6:#USAGE flag "--keep-tab" help="Do not close the herdr tab"
+7:#USAGE flag "--reason <why>" default="rm" hide=#true help="Passed to the hook: rm or done"
+--- scm:worktree:ls (~/.config/mise/tasks/scm/worktree/ls)
+2:#MISE description="List git worktrees: branch, ahead/behind origin/main, dirty state, pull request, herdr tab and agent"
+3:#MISE alias="scm:wt:ls"
+4:#USAGE flag "--all" help="Every worktree under WORKTREES_ROOT (default [redacted:worktrees_root]), grouped by repository"
+5:#USAGE flag "--json" help="Print JSON instead of a table"
+6:#USAGE flag "--no-pr" help="Skip the GitHub lookup"
+
+```
+
+**Tool: task**
+<!-- session-child: ses_e5d4eb5acffeRUqJZnqfA4P79V -->
+
+**Input:**
+```json
+{
+  "description": "Survey fleet roadmap formats",
+  "subagent_type": "explore",
+  "prompt": "Research only, do NOT modify any file, do not run commands that write anything (no git fetch, no mise install, no task runs that write files). Thoroughness: medium.\n\nGoal: I will write an OpenSpec change for a PUBLIC dotfiles repository (~/.local/share/chezmoi) that adds a roadmap: a single global view of the repository's OpenSpec changes, past (archived), present (active) and future (planned order). I need the existing roadmap conventions and tooling of sibling repositories so the change can reuse them.\n\nInspect these repositories (read-only):\n1. ~/.config/nvim: `ROADMAP.md` (structure: section headings, tables, how sessions/changes are listed, status vocabulary, how ordering and dependencies are shown) and its mise `roadmap` task (look in `.mise/tasks/`, `.mise.toml`, `mise.toml`; find the file implementing `roadmap`). For the task: exact file path, #MISE/#USAGE header lines, what it reads (openspec list --json? ROADMAP.md? git?), what it prints or writes, language (bash/python), dependencies, and whether it is a generator (writes a file) or a viewer (prints a summary). Quote the key logic briefly (up to ~40 lines total).\n2. [redacted:repo]: `project/roadmap.md` and `project/TODO.md` structure; the decision records that define them (`spec/drs/DR-021-piloting_and_index_formats.md`, and DR-010/DR-018 sections on roadmap/TODO/kanban); any checker that keeps them coherent (`scripts/check/index.py`, mise task `check:index`): what it checks. Quote the key format rules (status symbols, sections, Timeline table, Backlog format, one-line-per-record rule).\n3. [redacted:repo]: `project/roadmap.md` structure (sections, status symbols) and how it differs from [redacted:repo].\n4. [redacted:repo]: its roadmap/piloting files (look for `project/roadmap.md`, `projet/`, `ROADMAP.md`, `TODO.md`, kanban) and any mise task or script that generates or checks a roadmap or board (grep for `roadmap` in `.mise/tasks/`, `scripts/`). Also check [redacted:repo]'s decision records about piloting (grep -il 'roadmap' specs/). Report paths, the generator/checker entry points and their outputs. [redacted:repo] docs may be in French; report in English.\n5. Whether any of these repositories uses OpenSpec (openspec/ directory) together with a roadmap, and how they map OpenSpec changes to roadmap entries.\n\nReturn a concise structured report: for each repo, paths, structure (headings, columns), status vocabulary, tooling (exact command, inputs, outputs, generator vs viewer vs checker), and anything reusable for an OpenSpec-based repository. Do not copy private content beyond headings, column names, status symbols and short rule quotes. Note which repositories are public vs private only if visible from their own files (e.g. a LICENSE or README statement); do not guess."
+}
+```
+
+**Output:**
+```
+<task id="ses_e5d4eb5acffeRUqJZnqfA4P79V" state="completed">
+<task_result>
+# Roadmap conventions and tooling in the sibling repositories
+
+I inspected the four repositories read-only. Nothing was written, fetched or run beyond reads.
+
+Short version: only nvim uses OpenSpec, and it is the only one with a roadmap viewer that classifies work. [redacted:repo] and [redacted:repo] have checkers that keep their roadmap and kanban coherent, but they are not viewers.
+
+## 1. ~/.config/nvim
+
+It is probably public. The `LICENSE` file is Apache 2.0. `git remote` is `github.com/[redacted:repo]`. Decision D1 says it was created private and goes public in S14, and the README talks about "this repository (public)" for the spell lists. I could not confirm the current visibility from its own files.
+
+### `ROADMAP.md`
+
+It is 1403 lines and is hand-written. It is the master plan and also a runbook for a multi-agent experiment. The top-level sections are:
+- Intro and "How to use it"
+- Workflow settings
+- Global context (a dated snapshot, with a "TODO.md mapping" table)
+- Decisions: table `| ID | Decision |`, with D1..Dn contiguous
+- Gate types and ordering: `| Type | What the user does | Ordering rule |`
+- Validation gates: `| Gate | Command | Available |`
+- Experiment telemetry
+- Session protocol (Start, Develop, Close, Cleanup, Rules, Log template)
+- **Sessions overview**: the core table
+- One `## S<N>: <change-id>` section per session
+- Session 0 log
+- Backlog (a free bullet list)
+
+The Sessions overview table has these columns:
+
+`| S | Change ID | Branch | Lane | Depends on | Touches | Gates | Size |`
+
+- `S` is `S1`..`S19`, and each session maps to exactly one OpenSpec change (decision D3: "Every session is an OpenSpec change").
+- `Change ID` is the kebab-case change name in backticks.
+- `Branch` is `<type>/<change-id>`.
+- `Lane` is a letter code such as M, P, W, X or boot.
+- `Depends on` lists session ids, or `-`.
+- `Touches` lists paths and globs, used to detect overlap.
+- `Gates` is a list of typed user gates.
+- `Size` is S, M or L.
+
+The doc states that there is no status column. Status is derived (quoted):
+
+> There is no status column: status comes from git and GitHub (an archived change `openspec/changes/archive/*-<change-id>` on `origin/main` means done; a worktree, remote branch or open PR means in progress).
+
+Below the table, free prose covers parallelism, external triggers, and ordering rationale with dated user decisions. Each `## S<N>` section has the fields Branch, Goal, Spec delta, Context and a `- [x]` Checklist. Ordering is therefore the table's `Depends on` column plus prose. There is no separate order column.
+
+Status vocabulary:
+- Computed states are `done | in-progress | startable | blocked`, plus a `cleanup` flag.
+- Gate types are `decision`, `cross-repo`, `interactive`, `merge` and `post-merge:live`.
+- The only stored marks are `[x]` boxes inside session checklists.
+
+### The `roadmap` task
+
+- **File:** `~/.config/nvim/.mise/tasks/roadmap` (179 lines, executable, python3).
+- **Header:** there is only one directive, and it has no `#USAGE` lines. Options are parsed by argparse and documented in the docstring.
+  ```
+  #!/usr/bin/env python3
+  #MISE description="Roadmap status from git, GitHub and herdr; --check validates ROADMAP.md; --metrics summarises the experiment"
+  ```
+- **Command:** `mise run roadmap [--check] [--metrics] [--no-gh]`.
+- **Libraries:** it imports `.mise/lib/workflow/{roadmap,gitinfo,herdr,livesync,metrics,settings,telemetry}.py`. The module `roadmap.py` has 297 lines.
+- **Role:** it is a viewer and a checker. It never writes ROADMAP.md. The docstring says "Read-only", and it opens no file for writing.
+
+The default mode prints these sections, in order:
+1. Done
+2. In progress (worktree, ahead/behind, PR state, checklist boxes done/total, herdr tab and agent)
+3. Startable
+4. Blocked ("waiting for ...")
+5. Pending gates in recommended order
+6. Ready for cleanup
+7. Touches overlaps between running sessions
+8. Live editor sync
+
+The inputs for the status are:
+- The parsed Sessions overview table.
+- `git ls-tree --name-only origin/main openspec/changes/archive/` (`gitinfo.archived_changes`).
+- Remote and local branches.
+- Worktrees.
+- `gh` pull requests (`--no-gh` skips this).
+- A telemetry JSONL file.
+- herdr.
+
+It does not call `openspec list --json`, and it uses no OpenSpec CLI at all.
+
+`--check` validates the file and exits 1 on problems. It checks that:
+- Each table row has a matching `## S<N>: <change-id>` section.
+- The section's Branch equals the table's Branch.
+- Branch is `<type>/<change-id>` with a type in (feat, fix, refactor, chore, docs, test).
+- Every dependency exists.
+- There are no dependency cycles.
+- Decision ids run D1..Dn contiguously.
+- Every gate type has a rule row.
+- Required mise vars are present.
+
+The core classification logic is `classify` in `.mise/lib/workflow/roadmap.py`, lines 263-286, which I read:
+```python
+merged = sid in assume_done or gitinfo.is_archived(s.change_id, facts.archived) or s.branch in facts.merged_prs
+...
+active = (s.branch in facts.worktree_branches or s.branch in facts.remote_branches
+          or s.branch in facts.open_prs or s.branch == facts.current_branch)
+if active: result[sid] = Status("in-progress"); continue
+unmet = [d for d in s.depends if d not in result or result[d].state != "done"]
+result[sid] = Status("blocked" if unmet else "startable", unmet=unmet)
+```
+
+`is_archived` matches the regex `\d{4}-\d{2}-\d{2}-<change-id>` against archive directory names.
+
+The table parser is `parse_overview` (lines 80-113). It finds `## Sessions overview`, reads the first contiguous table, and requires the exact `OVERVIEW_HEADER`.
+
+### Reusable for the chezmoi repository
+
+- The table-derived status model: no stored status, with "archived means done" and "active branch means in progress". Chezmoi can do this more simply with `openspec list --json` and `openspec/changes/archive/YYYY-MM-DD-<id>`.
+- The `--check` pattern: every roadmap row maps to a change directory or archive entry, dependencies exist, and there are no cycles.
+- A `Depends on` column with ids, and `Touches` overlap as an optional extra.
+- The OpenSpec `config.yaml` there is just `schema: spec-driven`, with no roadmap-specific rules.
+- nvim's `openspec/changes/` has 19 archived entries.
+
+## 2. [redacted:repo]
+
+It is probably public, or about to be. `LICENSE` is MIT. The README says its upstream citations point to a repository that is "currently private". I cannot say more from its own files. It has no OpenSpec.
+
+### Files
+
+- `project/roadmap.md` is 101 KB. It is structural: which task belongs to which milestone, in which order, with which dependencies.
+- `project/TODO.md` is 6.5 KB. It is the kanban for operational status.
+- `project/milestones/M-NNN-slug.md` and `project/tasks/T-NNN-slug.md` are the records. Each has an index `README.md`.
+
+### Decision records
+
+- **DR-021** (`spec/drs/DR-021-piloting_and_index_formats.md`, v1.5.2) fixes the formats of the roadmap and the index READMEs. Its rules include:
+  - The `## Phases` table is `| Phase | Objective | Period | Status |`, and "exactly one row carries `in progress` at any time".
+  - Each phase section has a sequencing table `| Order | Milestone | Status | Depends on | Plan |`.
+  - `Depends on` renders a front-matter `depends_on` field, which is canonical. The column is "never a second, independently maintained copy".
+  - Each milestone gets `### Milestone M-NNN-slug: title`, with an Objective, a `**Plan**:` pointer and a task checklist. The section order follows the table order.
+  - The checklist line format is `- [status] **T-NNN** - Title`, optionally followed by `- *depends on: T-XXX*`.
+  - `## Timeline` is a flat `| Date | Event |` table, ascending.
+  - `## Backlog` entries are `- **B-NNN** - prose`. Ids are sequential and never reassigned, and a resolved entry is removed and recorded in History.
+  - `## History` is prose, dated, citing the task that made the change.
+  - Kanban completeness: every task and milestone record has exactly one TODO.md line in the section matching its status.
+  - The one-line-per-record rule applies to the index README rows.
+- **DR-010** gives the status vocabulary: draft, ready, in-progress, blocked, review, done, cancelled. The kanban symbols are `[ ]` (draft or ready), `[~]`, `[!]`, `[?]`, `[x]` and `[-]`.
+- **DR-018** (milestone record format): the record's `depends_on` is the canonical edge, and the roadmap renders it.
+
+### TODO.md structure
+
+- Sections in order: Convention, Draft, Ready, In Progress, Blocked, Review, Done, (Cancelled).
+- Lines are `- [x] **id** - Title`.
+- `§Done` is chronological by close date. The other sections are ordered by execution priority, never by bare id.
+
+### Checker
+
+- **Task:** `mise run check:index`, file `[redacted:repo]:.mise/tasks/check/index`. It is bash, with `#MISE depends=["setup:python"]`, and it runs `python scripts/check/index.py`.
+- **Role:** it is a report-only checker. There is no fix mode, no generation and no summary view.
+- **Rules:** 15 requirements, `CT-007.R01..R15`, specified in `spec/contracts/CT-007-index_coherence_requirements.md`:
+  - R01: every record has exactly one index row.
+  - R02-R04: Status, Version and Title cells equal the front matter. Titles are compared case-folded with punctuation stripped.
+  - R05 and R06: derived columns.
+  - R07: each roadmap sequencing row matches its record's status and plan.
+  - R08: milestone sections are in table order.
+  - R09: roadmap checklist lines resolve to task records, with matching status symbols.
+  - R10: TODO lines resolve to records and sit in the section that matches the record's status.
+  - R11: version matches the changelog.
+  - R12: exactly one in-progress phase, and at most one in-progress milestone.
+  - R13: AST-first parsing (`markdown-it-py` and front matter), never regexes on raw markdown.
+  - R14: milestone heading titles match.
+  - R15: kanban completeness.
+- **Tooling:** the parsers are in `scripts/lib/py/markdown_reader.py` and `front_matter.py`.
+
+### Reusable
+
+- The `Order | Milestone | Status | Depends on | Plan` shape, which suits a past, present and future view.
+- The "table renders, record is canonical" principle.
+- AST-first checking.
+- The Backlog `B-NNN` convention and the single-in-progress invariant.
+- The Timeline table for dated history.
+
+## 3. [redacted:repo]
+
+Its `LICENSE` is a placeholder saying no license is chosen yet, so I cannot tell if it is public. It has no OpenSpec as a process. The word appears only in session memory and in a task mention.
+
+`project/roadmap.md` is 7.1 KB. It was bootstrapped from [redacted:repo] v0.1.0 and updated to v0.2.0. Its sections are:
+- Convention
+- Phases (the same 4-column table)
+- Sequencing (a single table across all phases)
+- Milestones and tasks
+- Backlog
+- Changelog
+
+Differences from [redacted:repo]:
+- There is one flat `## Sequencing` table, with no per-phase sections.
+- The Order table has the same columns: `| Order | Milestone | Status | Depends on | Plan |`. It uses `none` for no dependency, and its status values are `in progress` and `ready`.
+- It has no `## Timeline` or `## History`. It has a `## Changelog` with semver-style entries instead.
+- It has no `project/TODO.md`, so there is no kanban.
+- There is no `check:index`. `.mise/tasks/` holds only the archive, nextcloud, opencode and sync domains plus a test. There is no `scripts/` directory.
+- Its operational checklist is a migration file, `migrations/2026-10-[redacted:private]-to-[redacted:private]/checklist.md`, mentioned in the roadmap header.
+- It has the same status symbols as [redacted:repo].
+
+## 4. [redacted:repo]
+
+I could not tell if it is public. There is no LICENSE file. The README is a French course index. Docs are in French, and I report in English.
+
+### Files
+
+- `project/roadmap.md` is 438 KB.
+- `project/TODO.md` is 60 KB.
+- `project/milestones/` and `project/tasks/` hold the records.
+- The contract is `specs/contracts/CT-006-conventions_de_pilotage.md`, with piloting rules R18 through R46. R32-R34 define the structures, R28 the ordering, and R39 the one-line rule.
+- Related notes are in `memory/lessons/pilotage-*.md`, plus `.agents/skills/{project-management,task-management}` and the matching slash commands.
+
+### Roadmap structure
+
+It has no tables, per CT-006.R34. It is made of:
+- A header with the doctrine, then Convention.
+- `## Phases`, a checklist: `- [status] **Phase N : Title** (period) - *entry lock: ...*`. The symbols are `[ ]`, `[~]` and `[x]`, with at most one `[~]`.
+- One `## Phase N : Title` section per phase. It has an Objective, a flat checklist, and a `` ### `M-NNN` : title `` subsection per decomposed milestone.
+- Then `## Lots hors file active` (items taken out of the active queue, not cancelled).
+- Then `## Jalons`, `## Backlog / idées` and `## Historique`.
+
+The line format is: `- [status] [**ID**](path) [Pri] - Title (N/M) - *dependency: ID,...*`.
+
+TODO.md has the same line format plus an `[M-NNN]` segment. Its sections are Draft, Ready, In Progress, Blocked, Review, Done, Cancelled. The ordering within a section is by execution priority (R28).
+
+### Tooling
+
+All of it is mise tasks wrapping Python in `scripts/` (run with `uv run python`):
+
+| Task | Role |
+| --- | --- |
+| `check:kanban` | Checker for `(N/M)` counters and R28 order in TODO.md. |
+| `check:tasks-index` | Checker for front matter, kanban and roadmap consistency per task record. |
+| `check:milestone-index` | Same triangulation per milestone record. |
+| `check:projections` | Checker for the R33/R34 structures, heading spacing, and the R39 one-line rule. It detects only. `--fix` joins continuation lines for R39. |
+| `milestone:open`, `task:new`, `task:status`, `milestone:close` and so on | Writers. They update records, kanban and roadmap in one gesture. |
+| `milestone:next`, `task:next` | Read-only viewers. They resolve which milestone or task the `open --next` command would open, and are allowed in plan mode. |
+
+All `check:*` tasks are wired through `check`, then `validate`. The `milestone/next` and `task/next` scripts are the closest existing thing to a "what is next" view. They read `project/roadmap.md` and the records and print a resolution report.
+
+### Reusable
+
+- The "read-only next" resolver pattern. It exists because a plan-mode agent cannot run mutating commands.
+- The idea that status is projected from the records into two files, with a checker that triangulates them.
+- The one-physical-line rule for list entries, so a roadmap can be grepped and parsed line by line.
+- The invariant "at most one phase in progress".
+
+## 5. OpenSpec and roadmap together
+
+Only nvim has `openspec/` (with `changes/`, `changes/archive/`, `specs/` and `config.yaml`). The mapping from change to roadmap entry in nvim is:
+- A row in Sessions overview, `S<N>` ↔ `Change ID` (the change name) ↔ `Branch <type>/<change-id>`.
+- A `## S<N>: <change-id>` section carrying a **Spec delta** line.
+- Done is detected from the archive directory name `YYYY-MM-DD-<change-id>` on `origin/main`.
+- The roadmap file is edited by hand, and sessions are told to edit "only its own section".
+
+The OpenSpec mentions in the other three repositories are not a roadmap integration. [redacted:repo], [redacted:repo] and [redacted:repo] keep their own `M-NNN` and `T-NNN` records and do not use OpenSpec. [redacted:repo] has `dev/ai/openspec.md`, which I did not open.
+
+## What I would reuse for the dotfiles repository
+
+- From nvim, the mise task `roadmap` as a read-only viewer plus `--check`. It would sit at `.mise/tasks/roadmap` in the repository. In the dotfiles repository the tree is flat until `adopt-chezmoiroot`, so `.mise/` must be ignored by chezmoi. I did not check how the repository currently handles that.
+- From nvim, the derived-status rule using archive directory names. For OpenSpec, `openspec list --json` also gives active changes and task counts, and nvim does not use it, so there is no precedent to copy there.
+- From [redacted:repo], the `| Order | ... | Status | Depends on | Plan |` table, the `[ ] [~] [!] [?] [x] [-]` symbols, the single-in-progress invariant, and `## Backlog` with permanent `B-NNN` ids.
+- From the sibling conventions, the markdown rule "one sentence per line" conflicts with the [redacted:repo] and [redacted:repo] R39/one-line rule only for table and checklist rows. Tables are allowed in [redacted:repo] and nvim but forbidden in [redacted:repo].
+- From [redacted:repo], a short flat form: Convention, Phases, Sequencing, Backlog, Changelog.
+
+Gaps I found: none of these tools generates a roadmap file. They are all checkers or viewers over hand-written files. No sibling has a "past, present, future" view built from OpenSpec archive dates. The nearest is nvim's Done list, which has no dates.
+</task_result>
+</task>
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 1359.9s)
+
+_Thinking:_
+I can't start compaction myself, since it's a command the user has to run in the opencode TUI (via the command palette or `/compact`). What I can do is end my turn after committing, so the user can compact and then tell me to continue. The plan has to be in the summary so I can pick it up afterward.
+
+I'm weighing whether to do everything myself and let the user compact at the end, but that goes against their order: they want the session compacted first to tidy up context. The cleaner route is to commit, stop so they can compact, and resume with the plan once they say go. The risk is that the plan needs to survive the summary, so I might write the change proposal to the repo before compacting, leaving only the dispatch for afterward.
+
+I'm laying out two options for the user: either I commit and create the change first so the plan persists in the repo, then they compact, or I commit, they compact, and I create the change and dispatch afterward with the plan carried by the summary. I also need to settle where the roadmap lives, either at root as `ROADMAP.md` or under `project/roadmap.md`, and since this is a chezmoi repo I'd have to add a root file to the ignore list after adopting chezmoiroot. On the design side, I'm leaning toward a hand-maintained roadmap file plus a `mise run roadmap` checker that derives status from `openspec list --json` and the archive, with the audit's change map moving into the roadmap while the audit itself stays dated.
+
+I'm settling on the repo-local tooling: the roadmap checker will go in `.mise/tasks/roadmap`, and chezmoi already ignores dot-directories in the source, so nothing needs adding to `.chezmoiignore` for it. The checker itself will be Python.
+
+I'm weighing whether the nvim checker's Python can be reused or whether I should write a fresh script that reads `openspec list --json` and the archive alongside a ROADMAP.md table. The workspace setup is next: a new herdr workspace with a worktree on a feature branch, opencode as the agent, and a brief to execute.
+
+I'm considering whether the worktree route makes sense here, since the other agents run in the main checkout and merging a feature branch back adds a step. I'll ask the user whether they want a worktree on `feat/add-repo-roadmap` or to work directly on main, and also how the dispatch should be set up.
+
+I'm working out how to set up the new workspace: create it with a root pane, start opencode there and send the prompt once, then check the pane. That avoids the prompt-delivery retry problem. I'm also comparing that with `scm:worktree:new`, which handles the worktree, tab, agent and prompt in one step.
+
+I'm settling how the workspace gets set up: a new workspace with its root pane pointed at the worktree or main checkout, the agent started by hand there, and one prompt sent with the pane read back afterward. I'm also deciding who builds the change, leaning toward me creating the proposal and specs as I did for manage-gh-config, then a fresh agent carrying out the rest under the name `add-repo-roadmap`.
+
+I'm checking whether `mise.toml` already defines tasks and whether a `.mise` directory exists, along with the field shape of `openspec list --json` for the viewer. I also want to rule out any `ROADMAP` name conflicts in `.chezmoiignore`.
+
+I'm checking whether `ROADMAP.md` needs adding to the root ignore list, since `README.md` and `TODO.md` are already there. Next I'll run a few read-only checks on the repo.
+
+
+Research is mostly done. A few read-only checks on this repo before I ask the open questions.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\necho \"== repo-local mise tasks dir?\"; rtk ls -d .mise 2>&1; rtk read mise.toml\necho \"== root names chezmoi ignores today (first block)\"; sed -n '1,12p' .chezmoiignore\necho \"== would ROADMAP.md / .mise be targets? (chezmoi ignores dot-prefixed source names)\"; chezmoi managed | rtk grep -cE '^(ROADMAP\\.md|\\.mise)' || true\necho \"== openspec list --json fields\"; openspec list --json 2>/dev/null | jq -c '.changes[0]'\necho \"== archive dir names\"; rtk ls openspec/changes/archive\necho \"== refresh-repo-docs scope (TODO.md overlap)\"; rtk rg -n -i 'todo' openspec/changes/refresh-repo-docs/proposal.md | head -5 | cut -c1-160\necho \"== nvim roadmap task size and libs\"; rtk wc -l ~/.config/nvim/.mise/tasks/roadmap ~/.config/nvim/.mise/lib/workflow/roadmap.py 2>/dev/null | tail -3",
+  "workdir": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+== repo-local mise tasks dir?
+ls: cannot access '.mise': No such file or directory
+[tools]
+gitleaks = "8.30.1"
+hk = { version = "2.10.0", workflow = "release.yml" }
+== root names chezmoi ignores today (first block)
+README.md
+TODO.md
+# Repository files, not dotfiles.
+# Temporary block: the openspec change adopt-chezmoiroot moves the source state
+# into home/ and removes it.
+AGENTS.md
+docs
+openspec
+memory
+mise.toml
+hk.pkl
+
+== would ROADMAP.md / .mise be targets? (chezmoi ignores dot-prefixed source names)
+0
+== openspec list --json fields
+{"name":"add-private-store-external","completedTasks":2,"totalTasks":19,"lastModified":"2026-11-03T14:00:37.149Z","status":"in-progress"}
+== archive dir names
+2026-10-30-bootstrap-spec-workflow/
+2026-10-31-harden-sensitive-targets/
+2026-11-02-adopt-global-mise-tasks/
+== refresh-repo-docs scope (TODO.md overlap)
+3:The README is a stub, `TODO.md` lists items that are done or obsolete, and the tmux `AGENTS.md` is deployed into `~/.config/tmux` and no longer matches the co
+9:- Retire `TODO.md`: open items become OpenSpec changes or [redacted:private] backlog entries, then the file is removed.
+== nvim roadmap task size and libs
+179 tasks/roadmap
+297 lib/workflow/roadmap.py
+Σ 476
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 312.0s)
+
+_Thinking:_
+I'm checking whether ROADMAP.md is currently managed by chezmoi; it isn't yet, but once I create it at the root it would be picked up as `~/ROADMAP.md` unless I add it to the temporary block in .chezmoiignore. The `.mise/` directory is ignored automatically since it's dot-prefixed.
+
+Next I'm working out the questions to ask the user, starting with compaction, which I can't trigger myself so I'll need to lay out options.
+
+I'm weighing whether the agent should pick the work location, either a worktree branch or the main checkout, and whether the roadmap lives at the root as `ROADMAP.md` or under `project/roadmap.md`. I'm leaning toward making ROADMAP.md the canonical change map, freezing the audit's section 6 with a pointer to it, and letting the agent revisit that in design. I'll keep to three questions at most.
+
+
+Before I write the plan, I need your answers on three points.
+**Tool: question**
+
+**Input:**
+```json
+{
+  "questions": [
+    {
+      "header": "Compaction",
+      "question": "I can't compact my own session: opencode only does it on your `/compact` (or the command palette). How should we order it?",
+      "options": [
+        {
+          "label": "Commit, change, then you compact (Recommended)",
+          "description": "I commit the export and write the new change (proposal and spec, committed, so nothing depends on my memory), then stop; you run /compact; then you say go and I create the workspace and dispatch"
+        },
+        {
+          "label": "Commit, you compact, then the rest",
+          "description": "Your order exactly: I commit and stop; you run /compact; then I write the change and dispatch from the compacted summary"
+        },
+        {
+          "label": "Everything, then you compact",
+          "description": "I commit, write the change, create the workspace and dispatch in one go; you compact at the end"
+        }
+      ]
+    },
+    {
+      "header": "Where the roadmap agent works",
+      "question": "Other agents (chezmoi-wtasks, later chezmoi-hookfix) work in the main checkout on main. Where should the roadmap agent work?",
+      "options": [
+        {
+          "label": "Own worktree and branch (Recommended)",
+          "description": "`[redacted:worktrees_root]/chezmoi-add-repo-roadmap` on branch `feat/add-repo-roadmap` from origin/main; the new workspace's cwd is the worktree; it merges back into main at the end with your go (`scm:worktree:done` checks the merge)"
+        },
+        {
+          "label": "Main checkout, like the others",
+          "description": "Same tree as chezmoi-wtasks; it stages only its own files by name, commits on main, never pushes"
+        }
+      ]
+    },
+    {
+      "header": "Roadmap shape",
+      "question": "What should the change ask for? (The agent refines it in its design step.)",
+      "options": [
+        {
+          "label": "ROADMAP.md + mise roadmap task (Recommended)",
+          "description": "Hand-kept root `ROADMAP.md` (order, dependencies, rationale, backlog; takes over the audit's change map and TODO.md) plus a repo-local `.mise/tasks/roadmap`, read-only like nvim's: status derived from `openspec list --json` and the archive (done with date, in progress with task counts, next, blocked), and `--check` (every row maps to a change or archive entry, dependencies exist, no cycles)"
+        },
+        {
+          "label": "Generated roadmap file",
+          "description": "The task writes ROADMAP.md from openspec data and a small ordering file; nothing is hand-kept except the order"
+        },
+        {
+          "label": "Viewer only, no new file",
+          "description": "Only `mise run roadmap` printing past, present and future from openspec and the audit's change map, which stays where it is"
+        }
+      ]
+    }
+  ]
+}
+```
+
+**Output:**
+```
+User has answered your questions: "I can't compact my own session: opencode only does it on your `/compact` (or the command palette). How should we order it?"="Commit, change, then you compact (Recommended)", "Other agents (chezmoi-wtasks, later chezmoi-hookfix) work in the main checkout on main. Where should the roadmap agent work?"="Own worktree and branch (Recommended)", "What should the change ask for? (The agent refines it in its design step.)"="ROADMAP.md + mise roadmap task (Recommended)". You can now continue with the user's answers in mind.
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 61.2s)
+
+_Thinking:_
+I'm checking the worktree details: the branch argument takes the form type/name, and the directory is the prefix followed by the name. The prefix defaults to the WORKTREES_PREFIX environment variable or the scm_worktrees_prefix setting, with the repo name filling in. The chezmoi repo lives in ~/.local/share/chezmoi, so the repo name is "chezmoi", which puts the new worktree at [redacted:worktrees_root]/chezmoi-add.
+
+I'm weighing whether to use local `main` as the base, since origin/main won't include the uncommitted export and change. I'll also check whether the repo defines any worktree post-create hooks and whether mise needs trusting for the new worktree. Next I'm planning the workspace and agent setup: create the workspace, then start the worktree in a tab with the agent and prompt.
+
+I'm weighing the two ways to start the agent: creating the worktree with a tab and prompt in one command, which leaves an extra empty root tab, or creating the worktree separately and then starting the agent in a fresh workspace. The second option avoids the duplicate-paste bug, so it looks like the better choice, and I'll keep the prompt free of a trailing `@file` reference.
+
+I'm checking whether the worktree's own artifacts and wiring need attention, then working out how to get the agent running without losing the prompt. The plan is to wait for the opencode UI to draw before sending anything, since prompts sent in the first few seconds get lost. Next I'll confirm the change name, `add-repo-roadmap`, and the files it needs: a proposal and a repo-roadmap spec.
+
+I'm laying out the proposal's rationale: there's no global view of changes, past work sits only in archive directories with no index, and priority lives only in the audit's dated, hand-kept section 6 table. I'm also noting that the fleet repos already keep their own roadmaps, so this should fit that pattern.
+
+I'm sketching out the root ROADMAP.md: a hand-kept sequencing table, derived status, and a backlog, which would take over the audit's change map and absorb TODO.md.
+
+I'm planning the roadmap's contents: a sequencing table, a backlog, and a `--check` mode that confirms every row maps to a change and that dependencies hold. Status stays derived rather than stored, and the task is adapted from nvim's roadmap task. I'll also need to decide whether wiring the check into hk belongs here or in the quality-gates change.
+
+I'm noting what the proposal should cover: the AGENTS.md read-first pointer and a rule that each new change adds its ROADMAP row in the same commit. I'm also listing the capability, a new repo-roadmap spec, and the files the change touches, including the audit's section 6 pointer and the TODO.md retirement, with a stdlib-only Python task.
+
+I'm now listing the spec requirements for the roadmap task: the Done, In progress, Next and Blocked sections, the `--check` failures for a missing row, an unknown dependency or a cycle, and that status is derived from archives instead of stored. I'm also noting the two negative checks, that chezmoi doesn't manage the roadmap files and that the task writes nothing.
+
+I'm drafting the brief for the agent: the chezmoi-orch provenance, the worktree and branch to use, and the reference repos to read first. Then the OpenSpec steps, from design through to archive, with the usual rules on pushing and committing. I'm still deciding how to refer to the other repos in a public repo without copying private content.
+
+I'm settling how to name the sibling repos in this public repo: only as already named here ([redacted:private], [redacted:repo]), with the Neovim configuration referred to generically and no private repo details or content copied. I'm also noting that the merge waits for the user's go-ahead and that nothing gets pushed, and that the agent reports back to chezmoi-orch when done.
+
+I'm weighing whether the commit message should be a second, separate one for the change itself, since the user's "create a new change" might also mean a commit. I'll also hold a note to add row 24 to the audit's change map in the same commit.
+
+I'm going to hold off on pushing, since the user hasn't asked for that, and the worktree needs to branch from local `main` because `origin/main` doesn't have the change yet. Before committing I'll re-check the status, since other work may have touched the repo. Once the plan is approved, I'll compact and then write the brief for the agent.
+
+Next I'm setting up the worktree: running the worktree task from local `main` to branch `feat/add-repo-roadmap`, then opening a workspace for it and starting the opencode agent in the root pane.
+
+Next I'm checking whether the agent's opencode session will pick up the worktree's tracked `.opencode/` commands, and whether the global worktree task already trusts the new directory before any project task runs. I also want to confirm that the `chezmoi-roadmap` workspace name is free before creating it.
+
+I'm noting the leftover open items and the post-compaction steps, so the plan carries them forward, and I'll keep the plan complete enough to survive compaction. I also want to confirm I'm not running anything that writes, since plan mode is still on.
+
+
+Plan mode is still on, so nothing has been changed. Here is the plan, including what I'll do after you compact.
+
+## Before compaction
+1. **Commit the export.** First a fresh `git status` (only my 4 files under `memory/sessions/` may be modified). Then commit them with brew's git, so the hook output stays visible: `docs(chezmoi:memory): re-export the orchestrator session`.
+2. **Create the change `add-repo-roadmap`** (`openspec new change`), then write:
+   - **`proposal.md`:**
+     - **Why:** you can't see past, current and future changes in one place. `openspec list` and `openspec view` show only active changes and specs. The archive has no index. The order lives only in the audit's change map (§6, rows 0 to 23), which is hand-kept. [redacted:repo], [redacted:private], [redacted:repo] and the Neovim configuration repository each have a roadmap. Source: your request of 2026-11-03, plus F34 (`TODO.md` is out of date).
+     - **What changes:**
+       - A hand-kept root `ROADMAP.md` with order, dependencies, rationale and a backlog (permanent `B-NNN` ids, the [redacted:repo] convention). It takes over the change map, so the audit's §6 becomes a frozen snapshot with a pointer. It also absorbs `TODO.md`, coordinated with `refresh-repo-docs`.
+       - **No stored status:** an archived change is done, and active changes come from `openspec list --json`, as in the Neovim repo.
+       - A repo-local `.mise/tasks/roadmap`, in python with the standard library only, adapted from the Neovim repo's `roadmap` task. It is read-only and prints Done (with archive date), In progress (with task counts and worktree or branch), Next (dependencies done) and Blocked.
+       - `--check` fails if a change is missing from `ROADMAP.md` or is listed twice, a row has no change, a dependency is unknown, or there is a cycle.
+       - Wiring: `ROADMAP.md` goes into the temporary block of `.chezmoiignore`; `.mise/` is ignored by chezmoi anyway because its name starts with a dot. `AGENTS.md` gets "Read first: `mise run roadmap`" and the rule "every new change gets its ROADMAP row in the same commit".
+       - Hooking `--check` into `hk.pkl` is a decision for the design.
+   - **Spec `specs/repo-roadmap/spec.md`**, one command per scenario:
+     - `mise run roadmap` exits 0 and lists every archived change under Done with its date, and every active change exactly once.
+     - `--check` exits 0 on the real tree, and fails on a missing row, an unknown dependency or a cycle (each tested on a scratch copy).
+     - Archiving a change moves it to Done without editing `ROADMAP.md`.
+     - Running the task leaves `git status --short` unchanged.
+     - `chezmoi managed | grep -cE '^(ROADMAP\.md|\.mise)'` prints 0.
+   - **Audit:** a change-map row 24 for `add-repo-roadmap`.
+   - Run `openspec validate --all --strict`, then commit: `docs(chezmoi:spec): add the add-repo-roadmap change`.
+3. **Stop**, so you can run `/compact`. Nothing is pushed: the branch will be 2 commits ahead of `origin/main`.
+
+## After compaction (on your go)
+4. **Brief** at `/tmp/opencode/brief-chezmoi-roadmap.md`:
+   - **Provenance:** `chezmoi-orch`.
+   - **Workplace:** the worktree, on branch `feat/add-repo-roadmap`.
+   - **Read first:**
+     - `AGENTS.md` and the change.
+     - The references:
+       - the Neovim configuration repo's `ROADMAP.md`, `.mise/tasks/roadmap` and `.mise/lib/workflow/roadmap.py`;
+       - [redacted:repo] `DR-021` and `project/roadmap.md`;
+       - [redacted:private] `project/roadmap.md`;
+       - [redacted:repo] `CT-006` (R28, R32 to R34, R39), its `check:*` tasks and `task:next`.
+   - **Order of work:** `/opsx-continue` (design, shown to you), tasks, `/opsx-apply`, `/opsx-verify`, archive on your go.
+   - **Rules:**
+     - Merge `main` into the branch before merging back, because other sessions keep adding changes.
+     - Public writing: name sibling repos only as this repo already does ([redacted:private], [redacted:repo]), refer to "the Neovim configuration repository" generically, and copy no private content.
+     - Commits only after your validation, no push, and merge into `main` only on your go (with `scm:worktree:done`).
+   - **Report:** short messages to `chezmoi-orch` through herdr.
+5. **Worktree:** `mise run scm:worktree:new feat/add-repo-roadmap --base main --json`, expected at `[redacted:worktrees_root]/chezmoi-add-repo-roadmap`. It must be based on `main`, because `origin/main` won't have the change.
+6. **Workspace:** `herdr workspace create --label chezmoi-roadmap --cwd <worktree> --no-focus`, after checking the label and the agent name are free.
+7. **Agent, launched by hand** rather than through the dispatch helper, which can paste the first prompt twice:
+   - `herdr agent start chezmoi-roadmap --kind opencode --pane <root pane>`.
+   - Wait until opencode has drawn its screen (it shows nothing for about 10 s at start).
+   - Send one prompt: `Read and execute the brief at /tmp/opencode/brief-chezmoi-roadmap.md`. It doesn't end with an `@` path, which would open the autocomplete popup.
+   - Read the pane to confirm it started. If the prompt was lost, I send it once more by hand after checking the input box is empty.
+
+## Still open
+- Launching `enforce-hook-with-system-git`.
+- Merging [redacted:repo] `T-065`.
+- The order of `enforce-hook-with-system-git` versus `adopt-chezmoiroot`.
+
+Leave plan mode and I'll run steps 1 to 3, then stop for your `/compact`.
+
+---
+
+## User
+
+go
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 23.6s)
+
+_Thinking:_
+I'm starting on step 1, the commit export, and checking git status first so I know what's actually changed.
+
+
+Build mode is on. Starting with the export commit, after a fresh look at the tree.
+**Tool: todowrite**
+
+**Input:**
+```json
+{
+  "todos": [
+    {
+      "content": "1. Commit the re-export (brew git, hook output visible)",
+      "status": "in_progress",
+      "priority": "high"
+    },
+    {
+      "content": "2. Create change add-repo-roadmap: proposal, spec, audit row 24, validate, commit",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "content": "3. Stop for user's /compact",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "content": "4. After compaction: brief, worktree, workspace, agent launch by hand",
+      "status": "pending",
+      "priority": "high"
+    }
+  ]
+}
+```
+
+**Output:**
+```
+[
+  {
+    "content": "1. Commit the re-export (brew git, hook output visible)",
+    "status": "in_progress",
+    "priority": "high"
+  },
+  {
+    "content": "2. Create change add-repo-roadmap: proposal, spec, audit row 24, validate, commit",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "content": "3. Stop for user's /compact",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "content": "4. After compaction: brief, worktree, workspace, agent launch by hand",
+    "status": "pending",
+    "priority": "high"
+  }
+]
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; git status --short; echo \"ahead/behind: $(git rev-list --count origin/main..HEAD)/$(git rev-list --count HEAD..origin/main)\"; git log --format='%h %s' -3\necho \"== other agent working in this checkout?\"; herdr agent list 2>&1 | jq -r '.result.agents[] | select(.cwd|test(\"share/chezmoi$\")) | \"\\(.pane_id) \\(.name // \"-\") \\(.agent_status)\"'",
+  "workdir": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+ M memory/sessions/202610301854-harden_sensitive_targets.md
+ M memory/sessions/202610311807-harden_sensitive-explore_dispatch_rules.md
+ M memory/sessions/202610311807-harden_sensitive-explore_export_machinery.md
+ M memory/sessions/README.md
+ahead/behind: 0/0
+2546d17 docs(chezmoi:spec): add the add-private-store-external change
+d5d27b7 docs(chezmoi:spec): compare git sources first in enforce-hook-with-system-git
+6ca4aa9 docs(chezmoi:spec): wait for the TUI to draw in fix-prompt-delivery
+== other agent working in this checkout?
+wN:p5 chezmoi-wtasks idle
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 8.6s)
+
+Only my four files are modified and the other agent is idle. Committing with brew's git so the hook output is visible.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\nsubject=\"docs(chezmoi:memory): re-export the orchestrator session\"; echo \"subject length: ${#subject}\"\ngit add memory/sessions/202610301854-harden_sensitive_targets.md memory/sessions/202610311807-harden_sensitive-explore_dispatch_rules.md memory/sessions/202610311807-harden_sensitive-explore_export_machinery.md memory/sessions/README.md\ngit diff --cached --name-status\n/home/linuxbrew/.linuxbrew/bin/git commit -m \"$subject\" -m \"- Full re-export of the orchestrator session through 2026-11-03 (a continued session is overwritten, not duplicated), public redaction profile\n- Sibling repository names stay masked: the terms directory used was a throwaway copy without the switch that keeps them readable\n- Two extra terms added for details the tool does not know; README updated for the identity markers and the re-export rule\n- Checks: redaction check 0 in every category, gitleaks and private-key detector clean, 0 hits for identity, private repository and credential variable names\" 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | tail -16\necho \"commit exit=${pipestatus[1]}\"; git log -1 --format='%h %s'; git status --short | wc -l",
+  "workdir": "~/.local/share/chezmoi",
+  "timeout": 240000
+}
+```
+
+**Output:**
+```
+subject length: 56
+M	memory/sessions/202610301854-harden_sensitive_targets.md
+M	memory/sessions/202610311807-harden_sensitive-explore_dispatch_rules.md
+M	memory/sessions/202610311807-harden_sensitive-explore_export_machinery.md
+M	memory/sessions/README.md
+  files - Fetching git status
+  files - Fetching staged files
+  files - Fetching staged files (4 files)
+✔ files - Fetching staged files (4 files)
+✔ files - No unstaged changes to stash (4 files)
+❯ gitleaks
+  gitleaks – 4 files –  – gitleaks git --pre-commit --redact --staged --verbose --no-banner
+❯ detect_private_key
+  detect_private_key – 4 files –  – hk util detect-private-key memory/sessions/202610301854-harden_sensitive_targets.md …
+✔ detect_private_key
+  gitleaks – 8:31PM INF 0 commits scanned.
+  gitleaks – 8:31PM INF scanned ~275318 bytes (275.32 KB) in 358ms
+  gitleaks – 8:31PM INF no leaks found
+✔ gitleaks
+[main afc7eb2] docs(chezmoi:memory): re-export the orchestrator session
+ 4 files changed, 4004 insertions(+), 97 deletions(-)
+commit exit=0
+afc7eb2 docs(chezmoi:memory): re-export the orchestrator session
+0
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 45.7s)
+
+Committed as `afc7eb2`, with both hook steps passing. Now the new change.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; openspec new change add-repo-roadmap 2>&1 | tail -2; fd -H . openspec/changes/add-repo-roadmap; echo \"== audit row 23 (format to follow) and trailer\"; rg -n '^\\| 23 \\||^Changes 6 to' docs/audits/2026-10-30-environment.md | cut -c1-230; echo \"== refresh-repo-docs (TODO.md retirement, F34)\"; sed -n '5,14p' openspec/changes/refresh-repo-docs/proposal.md | cut -c1-200",
+  "workdir": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+- Creating change 'add-repo-roadmap'...
+✔ Created change 'add-repo-roadmap' at openspec/changes/add-repo-roadmap/ (schema: spec-driven)
+openspec/changes/add-repo-roadmap/.openspec.yaml
+== audit row 23 (format to follow) and trailer
+235:| 23 | `add-private-store-external` | F05, 2.8 | | full; added 2026-11-03 on request of the Neovim repository; after orders 2 and 3; the Neovim session S16 merges after it |
+237:Changes 6 to 20 refine their artifacts at the start of their own session (`/opsx-continue`).
+== refresh-repo-docs (TODO.md retirement, F34)
+
+## What Changes
+
+- Rewrite `README.md`: purpose, relation to [redacted:private], bootstrap command, layout, how changes are made (OpenSpec, `AGENTS.md`), license.
+- Retire `TODO.md`: open items become OpenSpec changes or [redacted:private] backlog entries, then the file is removed.
+- Move the tmux agent guide out of the target state (into `docs/` or merged into `AGENTS.md`) and align it with `tmux.conf`; same check for any other deployed README.
+- Add a short `docs/` index (audits, how-to for bootstrap and supervised apply).
+
+## Capabilities
+
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 137.5s)
+
+_Thinking:_
+I'm drafting the proposal and spec now, and deciding how to refer to the repository and its fleet names. The Neovim repository is already named in earlier proposals, and [redacted:private] and [redacted:repo] appear in AGENTS.md, so those can stay. I'm checking whether [redacted:repo] should be left out, since the earlier decision was to mask fleet names in transcripts.
+
+I'm leaving [redacted:repo] out of the repo files and keeping the proposal to "sibling repositories ([redacted:private], [redacted:repo] and others)," since the stricter profile flags fleet names. The brief in /tmp can still name [redacted:repo] because the agent needs it, and that file isn't committed. I'll also leave the audit trailer as it is and write the proposal.
+
+
+**Tool: write**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/openspec/changes/add-repo-roadmap/proposal.md",
+  "content": "## Why\n\nThere is no single place that shows this repository's work as a whole: what is done, what is in progress, what comes next and why in that order.\n`openspec list` shows only the active changes with task counts, `openspec view` is a dashboard of the current specs and changes, and the archive is a folder of dated directories with no index.\nThe order and the priorities live in one hand-kept table, the change map in section 6 of the audit (`docs/audits/2026-10-30-environment.md`), which is a dated baseline and not meant to be maintained; its rows 21 to 23 were added by other sessions without the rest of the document following.\nThe sibling repositories ([redacted:private], [redacted:repo] and others) each keep a roadmap and the Neovim configuration repository has a task that reports the state of its roadmap, so the practice and the tooling already exist in the fleet.\n`TODO.md` is out of date and is to be retired (audit finding F34, change `refresh-repo-docs`).\nSource: request of the user on 2026-11-03, audit finding F34 and section 6 of `docs/audits/2026-10-30-environment.md`.\n\n## What Changes\n\n- A root `ROADMAP.md`, kept by hand: one sequencing table with the order, the dependencies and the reason for the order of each change, plus a backlog of ideas that are not changes yet (permanent `B-NNN` ids, never reassigned, as in [redacted:repo]).\n  It takes over the role of the audit's change map; section 6 of the audit becomes a frozen snapshot that points to `ROADMAP.md`.\n- No stored status: a change is done when its directory is in `openspec/changes/archive/`, in progress when it has ticked tasks or an open branch or worktree, startable when everything it depends on is done, blocked otherwise.\n  This is the rule the Neovim configuration repository uses; here the active changes and their task counts come from `openspec list --json`.\n- A repo-local mise task `roadmap` (file `.mise/tasks/roadmap`, standard library only), adapted from the Neovim configuration repository's `roadmap` task and read-only: it prints Done (with the archive date), In progress (task counts, worktree or branch), Next, and Blocked (with what it waits for).\n- `mise run roadmap --check` fails when a change directory (active or archived) has no row, a row names no change, a change appears twice, a dependency is unknown, or the dependencies form a cycle.\n- Wiring:\n  - `ROADMAP.md` is listed in the temporary repository-files block of `.chezmoiignore` (removed by `adopt-chezmoiroot` with the rest); `.mise/` needs no entry, chezmoi ignores names starting with a dot.\n  - `AGENTS.md` tells a fresh session to run `mise run roadmap` first, and states the rule that a new change gets its `ROADMAP.md` row in the same commit.\n  - Whether `--check` also runs as a commit hook step is left to the design (see `add-repo-quality-gates`).\n- Seed `ROADMAP.md` from the audit's change map (rows 0 to 24) and from `openspec list`, check each dependency against the proposals, and record the order decisions already taken (for example that `enforce-hook-with-system-git` is suggested before `adopt-chezmoiroot`).\n- `TODO.md` is not retired here: its open items are moved into `ROADMAP.md`'s backlog or into changes, and the file removal stays in `refresh-repo-docs`.\n\n## Capabilities\n\n### New Capabilities\n\n- `repo-roadmap`: the repository's roadmap file and the read-only task that derives the state of every change from the archive and the active changes.\n\n### Modified Capabilities\n\nNone.\n\n## Impact\n\n- New files: `ROADMAP.md`, `.mise/tasks/roadmap`, and tests for the task (a scratch tree with fake changes).\n- `.chezmoiignore` (one line), `AGENTS.md` (read-first and same-commit rule), the audit's section 6 (a pointer and row 24).\n- The task writes nothing; it only reads `openspec/`, `ROADMAP.md` and git.\n- After `adopt-chezmoiroot` the paths move with the rest of the repository files; the change map in the audit must not be edited again once `ROADMAP.md` exists.\n- Other sessions work in the same repository at the same time: a change added by another session without its row is reported by `--check`, which is the intended safety net.\n\n<!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->\n"
+}
+```
+
+**Output:**
+```
+Wrote file successfully.
+```
+
+**Tool: write**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/openspec/changes/add-repo-roadmap/specs/repo-roadmap/spec.md",
+  "content": "## ADDED Requirements\n\n### Requirement: One roadmap file\n\nThe repository SHALL keep one hand-maintained `ROADMAP.md` at its root that lists every OpenSpec change, active or archived, exactly once, with its order, its dependencies and the reason for its place.\n\n#### Scenario: Every change has a row\n\n- **WHEN** `mise run roadmap --check` runs at the repository root\n- **THEN** it exits 0 and reports no change without a row and no row without a change\n\n#### Scenario: Backlog ids are permanent\n\n- **WHEN** `ROADMAP.md` is searched for backlog entries (`B-NNN`)\n- **THEN** each id appears once, and an entry that became a change is replaced by a pointer to that change, never renumbered\n\n### Requirement: State is derived, not stored\n\nThe state of a change SHALL be derived from the archive, the active changes and git, never written in `ROADMAP.md`.\n\n#### Scenario: Archiving moves a change to done\n\n- **WHEN** a change is archived with `openspec archive` and `mise run roadmap` runs again, with no edit to `ROADMAP.md`\n- **THEN** the change is listed under Done with its archive date\n\n#### Scenario: No status column\n\n- **WHEN** the header of the sequencing table in `ROADMAP.md` is read\n- **THEN** it has no status column\n\n### Requirement: Read-only view of past, present and future\n\n`mise run roadmap` SHALL print the changes grouped as Done, In progress, Next and Blocked, and SHALL NOT write any file.\n\n#### Scenario: Groups\n\n- **WHEN** `mise run roadmap` runs on the repository\n- **THEN** every archived change is under Done with its date, every active change with ticked tasks or an open branch is under In progress with its task counts, and every other active change is under Next when all its dependencies are done and under Blocked, naming what it waits for, otherwise\n\n#### Scenario: Nothing is written\n\n- **WHEN** `git status --short` is compared before and after `mise run roadmap` and `mise run roadmap --check`\n- **THEN** it is identical, and no file under `openspec/` or `ROADMAP.md` has a newer modification time\n\n### Requirement: The check catches a broken roadmap\n\n`mise run roadmap --check` SHALL exit non-zero and name the problem when the roadmap and the changes disagree.\n\n#### Scenario: Change without a row\n\n- **WHEN** a scratch copy of the repository has a new change directory with no row and `--check` runs\n- **THEN** it exits 1 and names the change\n\n#### Scenario: Unknown dependency\n\n- **WHEN** a scratch copy has a row whose dependency names no change and `--check` runs\n- **THEN** it exits 1 and names the row and the unknown dependency\n\n#### Scenario: Dependency cycle\n\n- **WHEN** a scratch copy has two rows that depend on each other and `--check` runs\n- **THEN** it exits 1 and names the cycle\n\n### Requirement: Roadmap files are not targets\n\n`ROADMAP.md` and the task directory SHALL never be deployed to the home directory.\n\n#### Scenario: Managed list excludes them\n\n- **WHEN** `chezmoi managed | grep -cE '^(ROADMAP\\.md|\\.mise)'` runs\n- **THEN** it prints 0\n\n### Requirement: A fresh session finds the roadmap\n\n`AGENTS.md` SHALL tell a session to run `mise run roadmap` first and to add a change's `ROADMAP.md` row in the same commit that creates the change.\n\n#### Scenario: Read-first pointer\n\n- **WHEN** `grep -c 'mise run roadmap' AGENTS.md` runs\n- **THEN** it prints at least 1\n\n<!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->\n"
+}
+```
+
+**Output:**
+```
+Wrote file successfully.
+```
+
+**Tool: edit**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/docs/audits/2026-10-30-environment.md",
+  "oldString": "| 23 | `add-private-store-external` | F05, 2.8 | | full; added 2026-11-03 on request of the Neovim repository; after orders 2 and 3; the Neovim session S16 merges after it |",
+  "newString": "| 23 | `add-private-store-external` | F05, 2.8 | | full; added 2026-11-03 on request of the Neovim repository; after orders 2 and 3; the Neovim session S16 merges after it |\n| 24 | `add-repo-roadmap` | F34, process | | proposal, specs; added 2026-11-03 on request; once applied, `ROADMAP.md` replaces this table and this section is frozen |"
+}
+```
+
+**Output:**
+```
+Edit applied successfully.
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; openspec validate --all --strict 2>&1 | tail -3; echo \"== dashes\"; rtk rg -n '[—–]' openspec/changes/add-repo-roadmap || echo none\necho \"== public-writing scan (private names, credential vars, ips, sibling names beyond [redacted:private]/[redacted:repo])\"; rtk rg -c -i -e 'silopolis/' -e '[redacted:envvar]' -e '\\b([0-9]{1,3}\\.){3}[0-9]{1,3}\\b' -e '[redacted:repo]|[redacted:repo]|[redacted:repo]|[redacted:repo]' openspec/changes/add-repo-roadmap || echo 0\necho \"== status\"; rtk git status --short",
+  "workdir": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+✓ spec/secret-hygiene
+✓ spec/spec-workflow
+Totals: 25 passed, 0 failed (25 items)
+== dashes
+none
+== public-writing scan (private names, credential vars, ips, sibling names beyond [redacted:private]/[redacted:repo])
+0
+== status
+ M docs/audits/2026-10-30-environment.md
+?? openspec/changes/add-repo-roadmap/
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 8.0s)
+
+All 25 items validate, and the files are clean. Committing, again with brew's git.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\nsubject=\"docs(chezmoi:spec): add the add-repo-roadmap change\"; echo \"subject length: ${#subject}\"\ngit add openspec/changes/add-repo-roadmap docs/audits/2026-10-30-environment.md\ngit diff --cached --name-status\n/home/linuxbrew/.linuxbrew/bin/git commit -m \"$subject\" -m \"- Proposal and spec for a root ROADMAP.md plus a read-only mise roadmap task: state derived from the archive and openspec list, --check for missing rows, unknown dependencies and cycles\n- Audit change map: row 24; the table is to be frozen once ROADMAP.md exists\n- Source: request of 2026-11-03, audit finding F34\" 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | tail -12\necho \"commit exit=${pipestatus[1]}\"; git log --format='%h %s' -3; git status --short | wc -l; echo \"ahead of origin: $(git rev-list --count origin/main..HEAD)\"",
+  "workdir": "~/.local/share/chezmoi",
+  "timeout": 240000
+}
+```
+
+**Output:**
+```
+subject length: 51
+M	docs/audits/2026-10-30-environment.md
+A	openspec/changes/add-repo-roadmap/.openspec.yaml
+A	openspec/changes/add-repo-roadmap/proposal.md
+A	openspec/changes/add-repo-roadmap/specs/repo-roadmap/spec.md
+❯ detect_private_key
+  detect_private_key – 4 files –  – hk util detect-private-key docs/audits/2026-10-30-environment.md …
+✔ detect_private_key
+  gitleaks – 8:34PM INF 0 commits scanned.
+  gitleaks – 8:34PM INF scanned ~7785 bytes (7.78 KB) in 236ms
+  gitleaks – 8:34PM INF no leaks found
+✔ gitleaks
+[main 9d12aa4] docs(chezmoi:spec): add the add-repo-roadmap change
+ 4 files changed, 128 insertions(+)
+ create mode 100644 openspec/changes/add-repo-roadmap/.openspec.yaml
+ create mode 100644 openspec/changes/add-repo-roadmap/proposal.md
+ create mode 100644 openspec/changes/add-repo-roadmap/specs/repo-roadmap/spec.md
+commit exit=0
+9d12aa4 docs(chezmoi:spec): add the add-repo-roadmap change
+afc7eb2 docs(chezmoi:memory): re-export the orchestrator session
+2546d17 docs(chezmoi:spec): add the add-private-store-external change
+0
+ahead of origin: 2
+
+```
+
+**Tool: todowrite**
+
+**Input:**
+```json
+{
+  "todos": [
+    {
+      "content": "1. Commit the re-export (brew git, hook output visible)",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "content": "2. Create change add-repo-roadmap: proposal, spec, audit row 24, validate, commit",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "content": "3. Stop for user's /compact",
+      "status": "in_progress",
+      "priority": "high"
+    },
+    {
+      "content": "4. After compaction: brief, worktree (base main) feat/add-repo-roadmap, workspace chezmoi-roadmap, agent started by hand + one prompt, read pane",
+      "status": "pending",
+      "priority": "high"
+    }
+  ]
+}
+```
+
+**Output:**
+```
+[
+  {
+    "content": "1. Commit the re-export (brew git, hook output visible)",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "content": "2. Create change add-repo-roadmap: proposal, spec, audit row 24, validate, commit",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "content": "3. Stop for user's /compact",
+    "status": "in_progress",
+    "priority": "high"
+  },
+  {
+    "content": "4. After compaction: brief, worktree (base main) feat/add-repo-roadmap, workspace chezmoi-roadmap, agent started by hand + one prompt, read pane",
+    "status": "pending",
+    "priority": "high"
+  }
+]
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 14.9s)
+
+Both commits are in, so I'm stopping here for you to compact.
+
+## Done
+- **Export:** `afc7eb2 docs(chezmoi:memory): re-export the orchestrator session`. The hook ran and both steps passed.
+- **New change:** `9d12aa4 docs(chezmoi:spec): add the add-repo-roadmap change`. It has a proposal and a `repo-roadmap` spec with scenarios that each run as a command. The audit's change map has row 24 for it. `openspec validate --all --strict` passes for all 25 items, and the public-writing scan finds nothing.
+- **Sibling names:** the committed files name [redacted:private] and [redacted:repo] only, as the rest of the repo already does. [redacted:repo] and the other sibling repos appear only in the brief, which stays in `/tmp`.
+- **Push state:** nothing is pushed. `main` is 2 commits ahead of `origin/main`, the working tree is clean, and the worktree will branch from local `main`.
+
+## Now: your `/compact`
+I can't compact myself. Run `/compact` in this tab, then say go.
+
+## After compaction (what the summary has to carry)
+1. **Brief** at `/tmp/opencode/brief-chezmoi-roadmap.md`:
+   - **Provenance:** `chezmoi-orch`.
+   - **Workplace:** the worktree on branch `feat/add-repo-roadmap`.
+   - **Read first:**
+     - `AGENTS.md` and the change.
+     - The Neovim configuration repo's `ROADMAP.md`, `.mise/tasks/roadmap` and `.mise/lib/workflow/roadmap.py`.
+     - [redacted:repo] `DR-021` and `project/roadmap.md`.
+     - [redacted:private] `project/roadmap.md`.
+     - [redacted:repo] `CT-006` (R28, R32 to R34, R39), its `check:*` tasks and `task:next`.
+   - **Order of work:** `/opsx-continue` (design shown to you), tasks, `/opsx-apply`, `/opsx-verify`, archive on your go.
+   - **Rules:**
+     - Merge `main` into the branch before merging back.
+     - Commits only after your validation, no push.
+     - Merge into `main` only on your go, with `scm:worktree:done`.
+     - Report to `chezmoi-orch` by herdr.
+2. **Worktree:** `mise run scm:worktree:new feat/add-repo-roadmap --base main --json`, expected at `[redacted:worktrees_root]/chezmoi-add-repo-roadmap`.
+3. **Workspace:** `herdr workspace create --label chezmoi-roadmap --cwd <worktree> --no-focus`, after checking the label and the agent name `chezmoi-roadmap` are free.
+4. **Agent, started by hand** to avoid the helper's double paste:
+   - `herdr agent start chezmoi-roadmap --kind opencode --pane <root pane>`.
+   - Wait about 10 s until opencode has drawn.
+   - Send one prompt, `Read and execute the brief at /tmp/opencode/brief-chezmoi-roadmap.md`, which does not end with an `@` path.
+   - Read the pane back. If the prompt was lost, resend it once.
+
+## Still open
+- Launching `enforce-hook-with-system-git` (the brief is at `/tmp/opencode/brief-chezmoi-enforce-hook.md`, name `chezmoi-hookfix`).
+- Merging [redacted:repo] `T-065`, still unmerged on its local branch.
+- The order of `enforce-hook-with-system-git` versus `adopt-chezmoiroot`.
+- The 2 unpushed commits.
+
+---
+
+## User
+
+
+---
+
+## Assistant (Compaction · Claude Sonnet 5.5 · 46.1s)
+
+## Objective
+- Orchestrate the chezmoi dotfiles repo's OpenSpec changes as agent `chezmoi-orch` (herdr pane `wN:p1`, session `ses_e720ce42affen6d11Mjrfbnxpi`). Latest request, in order: (1) commit the re-exported session, (2) compact the session, (3) create a new change adding a roadmap (global past/present/future view of changes), (4) create a new herdr workspace and dispatch an agent to build that change.
+
+## Important Details
+- Repo `~/.local/share/chezmoi` is PUBLIC (`github.com/silopolis/dotfiles`). Public-writing rule (AGENTS.md): no secret values, no names of secret variables, no private hosts/IPs, no private repo names (e.g. the private Neovim repo name, `[redacted:repo]`), no employer/client details.
+- AGENTS.md rules: one change per session; no full `chezmoi apply`; single targets with `--exclude=scripts`; propose commit messages, commit only after user approval; never push without word. Commit grammar `type(domain:subject): summary`, English, subject ≤80 chars (count it). Markdown: one sentence per line, no em/en dashes, no emoji, sentence-case headings, vim modeline `<!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->` as last line.
+- I am running in opencode; plan mode was active in the last turn, so the final request was only researched. Plan mode blocks even `git fetch` (readonly-guard).
+- Agent shells rewrite `git commit` through rtk (`rtk git commit`), which prints only `ok <sha>` on a passing commit. To see hook output commit with `/home/linuxbrew/.linuxbrew/bin/git commit` (also use it for push). `/usr/bin/git` (2.53) ignores config hooks; brew git is 2.55.
+- Commit hook: hk 2.10.0 + gitleaks 8.30.1 pinned in `mise.toml` (pre-commit staged scan + detect_private_key).
+- User decisions: brew keeps chezmoi (mise move deferred to `rationalize-package-ownership`); option 1 on the full name leaked in the pushed export (leave it, no history rewrite); `enforce-hook-with-system-git` was made its own change (fleet-wide impact); rtk fix lives in `manage-ai-tool-configs`; [redacted:repo] `T-065` registered as a Lane A signal.
+- Session export procedure (memory/sessions): raw export `cd /tmp/opencode && python3 [redacted:repo]:scripts/session/export.py ses_e720ce42affen6d11Mjrfbnxpi --out-dir /tmp/opencode/session-raw --slug harden_sensitive_targets --full --force` (0700 dir, never via pipe); redact with `SESSION_REDACT_TERMS_DIR=<scratch copy of ~/.local/share/chezmoi-private dotfiles terms WITHOUT fleet-names.txt, dereferenced, no .git> python3 ~/.config/nvim/scripts/session_redact.py < raw > redacted` and `--check`; neutral slugs for sub-agent files (`explore_dispatch_rules`, `explore_export_machinery`); extra terms are added to the scratch copy only (never the user's store); run own independent scans (counts only); delete raw + scratch afterwards. Do not re-export without asking, and never use the user's real terms dir with `fleet-names.txt` present (it would publish private repo names).
+- `/compact` is a user action in opencode; do not send keys to my own pane. Compaction loses detail, so state the plan before it.
+- Sibling roadmap research (explore sub-agent, result truncated): nvim `ROADMAP.md` is hand-written (1403 lines; Sessions overview table `| S | Change ID | Branch | Lane | Depends on | Touches | Gates | Size |`, one session per OpenSpec change, a mise `roadmap` task is a viewer/classifier); [redacted:repo] has `project/roadmap.md` + `project/TODO.md` (status symbols `[ ]` draft/ready, `[~]` in-progress, `[!]` blocked, `[?]` review, `[x]` done, `[-]` cancelled; Backlog `- **B-NNN** - prose`; `scripts/check/index.py`/`check:index` keeps them coherent per DR-021); [redacted:repo] and [redacted:private] also have roadmap/piloting files. Only nvim uses OpenSpec. The new change must still read the full sub-agent report/files (nvim `.mise` roadmap task path not captured).
+- Existing global view today: `openspec list`, `openspec view` (interactive dashboard), archive dir without an index, and the "Change map" table (section 6 of `docs/audits/2026-10-30-environment.md`, rows 0-23, hand-kept). Old `TODO.md` at repo root is outdated (slated for `refresh-repo-docs`).
+- herdr: workspace create `herdr workspace create --cwd <PATH> --label <TEXT> [--env K=V] [--focus|--no-focus]`; global mise tasks `scm:worktree:new <branch> [--base] [--tab --workspace --agent-kind --agent-name --prompt ...]`, `scm:worktree:rm`, and `mise run agent:dispatch --workspace <label> --cwd <path> --name <agent-name> --brief <abs file>` (name regex `[a-z][a-z0-9_-]{0,31}`, server-wide, prefix with sender repo; brief must be an absolute existing path). `fix-prompt-delivery` (not applied) means dispatch may paste the first prompt twice after a stall: read the new pane afterwards and fix by hand. Briefs live in `/tmp/opencode/` (transient). `herdr agent prompt <name> "<text>"` messages another agent. Use `HERDR_ENV=1` check before herdr control.
+- Existing herdr agents in chezmoi workspace `wN`: `chezmoi-orch` (me, `wN:p1`), `chezmoi-wtasks` (`wN:p5`, idle, owns `fix-prompt-delivery` 3/22 and `add-private-store-external` 2/19; both queued behind `adopt-chezmoiroot` 0/20 and `fix-chezmoi-config-template` 0/26). nvim orchestrator is `nvim-orch`.
+- Open fleet facts: [redacted:repo] `T-065` is on local [redacted:repo] branch `task/T-065-signal_rtk_hook_output` (commit `83e4cae`), unpushed, not merged into [redacted:repo] `dev`, [redacted:repo] agent not told. Redaction script lives on nvim `main` (PR #2 merged); its command may change with nvim S17/S18.
+- A private [redacted:private] backlog item (B-005, Nextcloud mail) was published in earlier push `cfd74ce` memory export (twice); new export masks it; history not rewritten.
+
+## Work State
+### Completed
+- `harden-sensitive-targets` implemented, verified, archived (`18c5841`); `secret-hygiene` main spec created; all earlier commits pushed.
+- Added `manage-gh-config` (row 19), `enforce-hook-with-system-git` (row 20) and rtk hook-output requirement in `manage-ai-tool-configs` (row 13); [redacted:repo] Lane A `T-065` registered (branch `task/T-065-signal_rtk_hook_output`, `83e4cae`, worktree removed).
+- Session export pushed (`cfd74ce`); `enforce-hook-with-system-git` proposal reworked to compare git sources first (A remove brew git, B git via mise `conda:git`, C legacy hook shims `hk install --legacy --mise`, D wait for distro) (`d5d27b7`); pushed through `d5d27b7`; `origin/main` was at `2546d17` (wtasks's `add-private-store-external`), local main 0/0.
+- Renamed my agent to `chezmoi-orch`. Dispatch brief written at `/tmp/opencode/brief-chezmoi-enforce-hook.md` (not launched; launch command: `mise run agent:dispatch --workspace chezmoi --cwd ~/.local/share/chezmoi --name chezmoi-hookfix --brief /tmp/opencode/brief-chezmoi-enforce-hook.md`).
+- Confirmed chezmoi-wtasks work is all committed and clean tree; its two changes are only proposed.
+- Re-exported this session into the working tree (1.14 MB main file, redacted, all checks 0, README updated); raw/scratch deleted; not committed.
+
+### Active
+- Research for the roadmap change (read-only, plan mode): fleet/[redacted:repo]/nvim roadmap conventions partially gathered; herdr workspace-create and `scm:worktree:new` usage gathered.
+
+### Blocked
+- (none) The compaction step needs the user to run `/compact`.
+
+## Next Move
+1. Once plan mode is off: commit the staged-pending re-export with `/home/linuxbrew/.linuxbrew/bin/git` (message `docs(chezmoi:memory): re-export the orchestrator session`, 59 chars; 4 modified files under `memory/sessions/`); do not push without the user's word. User approved "commit" in the latest message.
+2. Ask the user to run `/compact`, then: `openspec new change add-roadmap` (name TBD) with proposal/spec (Done/Now/Next/Later `ROADMAP.md` at repo root, generated from `openspec list --json`, archive and change map, with a mise task like nvim's `roadmap`; decide whether the change map stays the source; add to `.chezmoiignore` temporary block; add a change-map row; mention supersedes `TODO.md`), validate with `openspec validate --all --strict`, propose commit. Then create a new herdr workspace (`herdr workspace create --cwd ... --label ...`), write a brief in `/tmp/opencode/`, and `agent:dispatch` an agent (name prefixed `chezmoi-`, e.g. `chezmoi-roadmap`) after confirming the brief with the user; check the pane for a duplicated prompt.
+
+## Relevant Files
+- `docs/audits/2026-10-30-environment.md`: audit and section 6 change map (rows 0-23); update when adding a change.
+- `openspec/changes/`: active changes (`enforce-hook-with-system-git`, `manage-ai-tool-configs`, `manage-gh-config`, `fix-prompt-delivery`, `add-private-store-external`, `fix-chezmoi-config-template`, `adopt-chezmoiroot`, ...); `openspec/changes/archive/`; `openspec/specs/` (`secret-hygiene`, `spec-workflow`, `global-mise-tasks`).
+- `memory/sessions/` (3 transcripts + `README.md`): modified, uncommitted re-export.
+- `AGENTS.md`, `.chezmoiignore`, `mise.toml`, `hk.pkl`, `.gitleaks.toml`: repo rules and hook setup.
+- `/tmp/opencode/brief-chezmoi-enforce-hook.md`: prepared, unlaunched dispatch brief.
+- `~/.config/nvim/ROADMAP.md`, `~/.config/nvim/scripts/session_redact.py`: nvim roadmap model and redaction tool (do not edit; changes go via branch/PR there).
+- `[redacted:repo]:project/roadmap.md`, `[redacted:repo]:spec/drs/DR-021-piloting_and_index_formats.md`, `[redacted:repo]:scripts/check/index.py`: roadmap/TODO format and checker reference.
+- `[redacted:repo]:scripts/session/export.py`: session exporter.
+- `~/.config/mise/tasks/agent/dispatch`, `~/.config/mise/tasks/scm/worktree/*`: dispatch/worktree tasks.
+- `~/.local/share/chezmoi-private/dotfiles/`: private terms store (do not modify; never expose contents).
+
+---
+
+## User
+
+next
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 14.2s)
+
+_Thinking:_
+I'm trying to pin down where the conversation actually stands. The earlier "What did we do so far?" got answered with a summary, which was the compaction output. Since then I did the research, asked questions, wrote the plan, and after the user said "go" I completed steps 1 through 3 before stopping for compaction. Now the user has said "next" with plan mode on, and I'm wondering whether they ran /compact, since the conversation still seems to carry the earlier context.
+
+Since plan mode is on, I can only do read-only checks for step 4: whether the label, agent name, and worktree path are free, and whether the `--json` flag and `herdr agent start` syntax exist. I'm not going to assume a compaction happened, because the earlier messages are still in context.
+
+I'm going to check the remaining pieces for step 4 with read-only steps, since plan mode is on. That means reading the sibling roadmap files and the task definitions rather than running anything that changes state. I'll look at the task file instead of invoking `--help` on the worktree command, which may not be allowed here.
+
+
+Plan mode is on, so I'm only checking that step 4 is ready to run.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\necho \"== HERDR_ENV=$HERDR_ENV\"\necho \"== label / name free?\"; herdr workspace list 2>&1 | jq -r '.result.workspaces[] | \"\\(.id) \\(.label)\"' 2>/dev/null; herdr agent list 2>&1 | jq -r '.result.agents[] | \"\\(.pane_id) \\(.name // \"-\") \\(.agent_status)\"' | rtk rg -n 'roadmap|chezmoi' || echo \"no chezmoi/roadmap agents besides above\"\necho \"== worktree path / branch free?\"; rtk ls -d [redacted:worktrees_root]/chezmoi-add-repo-roadmap 2>&1; rtk git branch --list 'feat/add-repo-roadmap'; rtk git worktree list\necho \"== repo state\"; rtk git log --format='%h %s' -2; git status --short | wc -l\necho \"== reference files for the brief\"; for f in ~/.config/nvim/ROADMAP.md ~/.config/nvim/.mise/tasks/roadmap ~/.config/nvim/.mise/lib/workflow/roadmap.py [redacted:repo]:spec/drs/DR-021-piloting_and_index_formats.md [redacted:repo]:project/roadmap.md [redacted:repo]:project/roadmap.md; do [ -e \"$f\" ] && echo \"ok $f\" || echo \"MISSING $f\"; done; fd -t f 'CT-006' [redacted:repo] 2>/dev/null | head -3",
+  "workdir": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+== HERDR_ENV=1
+== label / name free?
+null [redacted:repo]
+null ~
+null [redacted:repo]
+null [redacted:repo]
+null 2026-05-01-obsidian
+null 2026-01-18-opencode
+null [redacted:private]-[redacted:private]-study
+null [redacted:repo]
+null [redacted:private]-km-study
+null plannotator
+null chezmoi
+null neovim
+null opencode-readonly-guard
+null rog-rules
+null rog-loading
+null rog-testenv
+10:wN:p1 chezmoi-orch working
+11:wN:p5 chezmoi-wtasks idle
+== worktree path / branch free?
+ls: cannot access '[redacted:worktrees_root]/chezmoi-add-repo-roadmap': No such file or directory
+
+~/.local/share/chezmoi 9d12aa4 [main]
+== repo state
+9d12aa4 docs(chezmoi:spec): add the add-repo-roadmap change
+afc7eb2 docs(chezmoi:memory): re-export the orchestrator session
+0
+== reference files for the brief
+ok ~/.config/nvim/ROADMAP.md
+ok ~/.config/nvim/.mise/tasks/roadmap
+ok ~/.config/nvim/.mise/lib/workflow/roadmap.py
+ok [redacted:repo]:spec/drs/DR-021-piloting_and_index_formats.md
+ok [redacted:repo]:project/roadmap.md
+ok [redacted:repo]:project/roadmap.md
+[redacted:repo]:specs/contracts/CT-006-conventions_de_pilotage.md
+
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "echo \"== scm:worktree:new usage\"; rg -n '^#(MISE|USAGE)' ~/.config/mise/tasks/scm/worktree/new | cut -c1-200; echo \"== path rule\"; rg -n 'trees|path=|worktree_path' ~/.config/mise/tasks/scm/worktree/new | head -8 | cut -c1-200\necho \"== herdr agent start / workspace create\"; herdr agent start --help 2>&1 | head -20; herdr workspace create --help 2>&1 | head -14"
+}
+```
+
+**Output:**
+```
+== scm:worktree:new usage
+2:#MISE description="Create a git worktree for a new branch, optionally with a herdr tab and an agent"
+3:#MISE alias="scm:wt:new"
+4:#USAGE arg "<branch>" help="New branch, <type>/<name>; the worktree directory is <prefix>-<name>"
+5:#USAGE flag "--base <ref>" default="origin/main" help="Commit the branch starts from"
+6:#USAGE flag "--path <dir>" help="Worktree directory (default: $WORKTREES_ROOT or [redacted:worktrees_root], then <prefix>-<name>)"
+7:#USAGE flag "--prefix <prefix>" help="Name prefix (else $WORKTREES_PREFIX, var scm_worktrees_prefix, {repo})"
+8:#USAGE flag "--tab" help="Open a herdr tab in the worktree"
+9:#USAGE flag "--workspace <label>" help="herdr workspace label or id for --tab (default: $HERDR_WORKSPACE_ID)"
+10:#USAGE flag "--label <text>" help="Tab label (default: the worktree name)"
+11:#USAGE flag "--env <kv>" var=#true help="KEY=VALUE for the tab and the post-create hook (repeatable)"
+12:#USAGE flag "--agent-kind <kind>" help="Start this herdr agent kind (for example opencode) in the tab"
+13:#USAGE flag "--agent-name <name>" help="herdr agent name, [a-z][a-z0-9_-]{0,31}, server-wide"
+14:#USAGE flag "--prompt <text>" help="First prompt sent to the agent"
+15:#USAGE flag "--generic" help="Run even in a repository that defines its own worktree:new or worktree:rm"
+16:#USAGE flag "--json" help="Print the result as JSON on stdout"
+17:#USAGE arg "[agent_args]..." var=#true help="Arguments passed to the agent, after -- (they may use flags of their own, such as --agent plan)"
+== path rule
+6:#USAGE flag "--path <dir>" help="Worktree directory (default: $WORKTREES_ROOT or [redacted:worktrees_root], then <prefix>-<name>)"
+7:#USAGE flag "--prefix <prefix>" help="Name prefix (else $WORKTREES_PREFIX, var scm_worktrees_prefix, {repo})"
+51:path=${usage_path:-$(scm_worktrees_root)/$name}
+52:path=${path/#\~/$HOME}
+== herdr agent start / workspace create
+Start a supported interactive agent in an existing pane
+
+Usage: herdr agent start <NAME> --kind <KIND> --pane <ID> [OPTIONS] [-- [AGENT_ARG]...]
+
+Arguments:
+  <NAME>
+          
+
+  [AGENT_ARG]...
+          
+
+Options:
+      --kind <KIND>
+          Supported agent kind and canonical executable
+          
+          [possible values: pi, claude, codex, gemini, cursor, devin, agy, cline, omp, mastracode, opencode, copilot, kimi, kiro, droid, amp, grok, hermes, kilo, qodercli, qwen, letta, maki, muse]
+
+      --pane <ID>
+          Existing pane at an interactive shell prompt
+
+Create a workspace
+
+Usage: herdr workspace create [OPTIONS]
+
+Options:
+      --cwd <PATH>
+          
+
+      --label <TEXT>
+          
+
+      --env <KEY=VALUE>
+          Set an environment variable for the launched process
+
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 9.9s)
+
+_Thinking:_
+I'm checking whether the worktree path prefix works out: the repo basename is "chezmoi", so the default {repo} prefix gives the expected path. Next I'm wondering whether `scm:worktree:new` runs a post-create hook, and whether this repo has one.
+
+Next I'm checking whether the worktree setup needs `mise trust` for its own mise.toml, since an untrusted config could stop mise and the hk hooks from loading there. I'll look at how the `worktree:new` task handles trust and whether any global worktree hooks apply.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "echo \"== trust / post-create handling in worktree:new\"; rg -n -i 'trust|post.create|hook' ~/.config/mise/tasks/scm/worktree/new | cut -c1-180 | head -12\necho \"== is the chezmoi checkout's mise.toml trusted by path (worktree would be a new path)?\"; mise trust --show 2>/dev/null | rtk rg -n 'chezmoi|trees' || echo \"(no listing)\"; rg -n 'trusted_config_paths' ~/.config/mise/config.toml 2>/dev/null | cut -c1-200\necho \"== hook wiring (config-based hooks travel with the repo config, shared by worktrees)\"; git -C ~/.local/share/chezmoi config --show-origin --get-regexp '^hook\\.' 2>/dev/null | cut -c1-160"
+}
+```
+
+**Output:**
+```
+== trust / post-create handling in worktree:new
+11:#USAGE flag "--env <kv>" var=#true help="KEY=VALUE for the tab and the post-create hook (repeatable)"
+19:# with the tasks scm:worktree:hook:post-create and scm:worktree:hook:incident.
+20:# Hook protocol: post-create runs inside the new worktree with WT_PATH, WT_BRANCH,
+38:scm_require_trusted "$main" "so its project hooks and settings cannot be found"
+77:# Trust the new worktree only when the source checkout is trusted, before any project task.
+78:if scm_trusted "$main"; then
+79:  mise trust "$path" >&2
+82:# Project hook: may write KEY=VALUE lines to WT_ENV_FILE (tab environment).
+85:hook_env=("WT_PATH=$path" "WT_BRANCH=$branch" "WT_NAME=$name" "WT_STEM=$stem" "WT_REPO=${repo:-$(basename "$main")}" "WT_ENV_FILE=$env_file")
+86:((${#env_pairs[@]})) && hook_env+=("${env_pairs[@]}")
+87:if ! scm_run_hook "$path" scm:worktree:hook:post-create "${hook_env[@]}"; then
+88:  scm_die "post-create hook failed; the worktree is left at $path (remove it with: mise run scm:worktree:rm $stem --force)"
+== is the chezmoi checkout's mise.toml trusted by path (worktree would be a new path)?
+1:~/.local/share/chezmoi: trusted
+== hook wiring (config-based hooks travel with the repo config, shared by worktrees)
+file:.git/config	hook.hk-pre-commit.command test "${HK:-1}" = "0" || mise x -- hk run pre-commit --from-hook
+file:.git/config	hook.hk-pre-commit.event pre-commit
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 30.8s)
+
+_Thinking:_
+I'm confirming the worktree setup is fine: the hooks live in the shared .git/config, and running `mise x -- hk` there picks up the trusted worktree mise.toml. Now I'm weighing whether to compact the context, since my last turn is still fully visible, and the user's "next" might mean they chose to skip it.
+
+Now I'm drafting the brief for the roadmap agent and planning to show the outline to the user, with the full text in the plan so they can check it before I write it out.
+
+Now I'm finishing the list of files to read for the brief: the project's AGENTS.md and the OpenSpec change folder, plus the environment audit's change map, which seeds the roadmap. I'll also check the current OpenSpec state and the archive, and look at the reference roadmaps from the other projects, read-only and without copying private content.
+
+I'm laying out the brief for the roadmap agent: the Neovim and [redacted:repo] references, the decisions already settled (hand-kept ROADMAP.md with derived state, read-only roadmap task), and the public-repo naming rules. The rules and the open design questions are still being set down.
+
+Now I'm writing the roadmap brief's remaining rules: other sessions keep adding changes on main, so before the final verify I'll merge main into the branch and add rows for any new changes, with `--check` passing. Commit messages get proposed first and only committed once the user validates them, using the brew git binary so the hook output shows, and nothing is pushed or merged back without the user's go. The brief ends with a one-line report to chezmoi-orch at each milestone.
+
+Now I'm drafting the brief for the roadmap agent, a short outline with the task, the reference files to read, the settled decisions, and the reporting rule, so the user can check it before I write it out.
+
+Next I'm setting up the worktree for the roadmap change: creating feat/add-repo-roadmap from local main with the worktree helper, then opening a dedicated workspace there so the agent gets its own pane.
+
+I'm checking whether the context was compacted, and I don't see a compaction since my earlier turns are still fully visible. That's a single-line note for the user, and it doesn't block setting up the worktree, so I'll mention it and continue unless they want to compact first. Next I'm finishing the plan details, including confirming the agent started and resending the prompt once if it got lost, then reporting back. I also need to exit plan mode before doing this.
+
+
+The checks pass, so step 4 can go ahead.
+
+My earlier turns are still in context in full, so I don't think `/compact` ran. Step 4 doesn't depend on it, so I'll carry on unless you want to compact first.
+
+## Checks (read-only)
+- **Names:** herdr is reachable. The workspace label `chezmoi-roadmap` and the agent name `chezmoi-roadmap` are both free; the only chezmoi agents are `chezmoi-orch` and `chezmoi-wtasks` (idle).
+- **Repo:** the clean `main` is at `9d12aa4`, 2 commits ahead of origin. The branch `feat/add-repo-roadmap` and the path `[redacted:worktrees_root]/chezmoi-add-repo-roadmap` don't exist yet.
+- **Worktree setup:** `scm:worktree:new` trusts the new worktree because this checkout is trusted. The commit hook (`hook.hk-pre-commit` in `.git/config`) is shared with worktrees, so the agent's commits get gitleaks too.
+- **Brief references:** all exist:
+  - Neovim: `ROADMAP.md`, `.mise/tasks/roadmap`, `.mise/lib/workflow/roadmap.py`.
+  - [redacted:repo]: `DR-021` and `project/roadmap.md`.
+  - [redacted:private]: `project/roadmap.md`.
+  - [redacted:repo]: `specs/contracts/CT-006-conventions_de_pilotage.md`.
+
+## Plan (once plan mode is off)
+1. **Write `/tmp/opencode/brief-chezmoi-roadmap.md`:**
+   - **Identity:** `chezmoi-roadmap`, started by `chezmoi-orch`. It works only in `[redacted:worktrees_root]/chezmoi-add-repo-roadmap`, on branch `feat/add-repo-roadmap`.
+   - **Task:**
+     - `/opsx-continue add-repo-roadmap` to write the design. It shows you the design before writing the tasks.
+     - Then the tasks, `/opsx-apply` and `/opsx-verify`.
+     - It archives only on your go.
+   - **Read first:**
+     - `AGENTS.md` and the change.
+     - Audit §6 (rows 0 to 24) and F34.
+     - `openspec list --json` and the archive.
+     - The reference files above, read-only, with no private content copied.
+   - **Already decided:**
+     - `ROADMAP.md` is hand-kept and has no status column.
+     - State is derived from the archive and `openspec list --json`.
+     - The `roadmap` task is read-only, has a `--check`, and is written in standard-library python.
+     - Removing `TODO.md` stays in `refresh-repo-docs`.
+   - **Left to its design:** the hook step for `--check` (see `add-repo-quality-gates`), the table columns and the test layout.
+   - **Rules:**
+     - Public repo: name only [redacted:private] and [redacted:repo], and say "the Neovim configuration repository".
+     - Before verifying, merge `main` into the branch and add rows for any new changes; `--check` must pass.
+     - Propose commit messages, commit with brew git after your validation, and never push.
+     - Merge back only on your go, with `scm:worktree:done`.
+     - No `chezmoi apply`.
+   - **Reporting:** one line each through `herdr agent prompt chezmoi-orch`, at four points: design ready, apply done, verify result, and when blocked.
+2. **Worktree:** from this checkout, `mise run scm:worktree:new feat/add-repo-roadmap --base main --json`. I'll check the path it prints.
+3. **Workspace:** `herdr workspace create --label chezmoi-roadmap --cwd <path> --no-focus`, and note its root pane id.
+4. **Agent:**
+   - `herdr agent start chezmoi-roadmap --kind opencode --pane <id>`.
+   - Read the pane until opencode has drawn (about 10 s).
+   - Send one prompt: `Read and execute the brief at /tmp/opencode/brief-chezmoi-roadmap.md`.
+   - Read the pane back. If the prompt was lost, resend it once after checking the input box is empty.
+5. Report the worktree, the pane and the agent's first actions to you.
+
+Turn off plan mode and say go to run it.
+
+---
+
+## User
+
+Brief should also reference [redacted:repo]'s roadmap and its orchestration study, as well as consider how this work could be some preliminary implementation on the path to multi-agent orchestration support in the fleet; for which architecture and design of integration into the fleet's stack and domains still has to be studied, decided and specified.
+But I realise I'm probably mixing two things:
+- adding a roadmap to a project temporarily managed by openspec while [redacted:repo]/greffe aren't available
+- trying (too?) early to make the first steps on the path to multi-agent orchestration support in the fleet, while [redacted:repo]/[redacted:repo] has just started the work leading to extraction and availability for the fleet and external projects.
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 6.2s)
+
+_Thinking:_
+The user wants [redacted:repo]'s roadmap and orchestration study folded into the brief as groundwork for multi-agent orchestration, but they're blending two separate concerns, so I should help pull those apart. This is plan mode, so everything stays read-only. I'm going to look up [redacted:repo]'s roadmap, the orchestration study, and where [redacted:repo] and greffe stand, and I'm weighing whether to hand that to an explore sub-agent or just skim it myself since it could be large.
+
+Now I'm checking the files on [redacted:repo]'s roadmap and orchestration study, along with what's been noted about [redacted:repo] and greffe. These names stay out of the public repo, so I'll keep the brief in /tmp.
+
+
+The two goals are different, so I'll separate them before rewriting the brief. First a read-only look at [redacted:repo]'s roadmap, its orchestration study, and where [redacted:repo] and greffe stand.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd [redacted:repo]\necho \"== roadmap / piloting files\"; fd -t f -i 'roadmap|pilotage|todo' -E node_modules -E .git . | head -20\necho \"== orchestration study candidates\"; fd -t f -i 'orchestr' -E node_modules -E .git . | head -20\necho \"== [redacted:repo] / greffe mentions (files)\"; rg -l -i '[redacted:repo]|greffe' -g '!**/node_modules/**' -g '!**/memory/**' . 2>/dev/null | head -20"
+}
+```
+
+**Output:**
+```
+== roadmap / piloting files
+./TODO.md
+./memory/lessons/pilotage-ordonnancement_files.md
+./memory/lessons/pilotage-outillage_mecanise.md
+./memory/notes/pilotage-articulation_creation_planification_ouverture.md
+./memory/notes/pilotage-ordre_des_lots_et_statut.md
+./memory/sessions/202607231830-verify_todo_md_task_order_and_priority.md
+./memory/sessions/202607291828-purger_todo_md_en_lots.md
+./memory/sessions/202608171826-briefs_m_001_et_roadmap_[redacted:private].md
+./memory/sessions/202608201913-T-036-contrat_pilotage_gouvernance.md
+./memory/sessions/202608250914-T-056-session_pilotage_promotion_b017.md
+./memory/sessions/202608261022-reordonnancer_todo_par_dependances.md
+./memory/sessions/202609091208-convergence_migration_kanban_roadmap.md
+./memory/sessions/202609091208-migration_roadmap.md
+./memory/sessions/202609091710-gardes_index_kanban_roadmap.md
+./memory/sessions/202609101611-gabarits_pilotage_task_milestone_new.md
+./memory/sessions/202609151718-bornage_slug_records_pilotage.md
+./memory/sessions/202609161611-convergence_outillage_pilotage_flotte.md
+./memory/sessions/202609232037-attache_d_export_de_session_sur_commit_de_pilotage.md
+./memory/sessions/202609281317-verifier_le_pilotage_sur_l_index_stage.md
+./memory/sessions/202609291511-serialiser_les_ecrivains_de_pilotage_verrou_meme.md
+== orchestration study candidates
+./memory/sessions/202607291257-orchestration_kubernetes_jsonpath_jq_yq.md
+./memory/sessions/202611021607-etude_orchestration_sessions_herdr.md
+== [redacted:repo] / greffe mentions (files)
+./AGENTS.md
+./project/roadmap.md
+./project/TODO.md
+./project/tasks/T-015-inscription_portefeuille.md
+./specs/drs/DR-014-regime_sessions_exports.md
+./project/tasks/T-003-outillage_validate.md
+./specs/drs/DR-013-memoire_depot.md
+./specs/drs/DR-012-architecture_de_l_outillage_python.md
+./specs/drs/DR-006-regime_des_skills.md
+./specs/drs/DR-005-visibilite_du_depot.md
+./project/tasks/T-020-dr_003_memoire_de_session.md
+./specs/drs/DR-003-memoire_de_session.md
+./project/tasks/T-018-dr_001_articulation_portefeuille.md
+./specs/drs/DR-001-articulation_portefeuille_silopolis.md
+./project/tasks/T-017-registre_specs_drs_contracts.md
+./specs/drs/DR-000-conventions_des_artefacts_de_registre.md
+./project/milestones/M-026-regime_sessions_exports.md
+./project/milestones/M-021-convergence_outillage_pilotage_flotte.md
+./project/milestones/M-020-convergence_branches_flotte.md
+./infrastructure/shell/zsh/_zsh_config-notes.md
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 3.4s)
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd [redacted:repo]\necho \"== project/roadmap.md size + headings\"; rtk wc -l project/roadmap.md; rtk rg -n '^#{1,3} ' project/roadmap.md | head -40\necho \"== orchestration study: where it lives beyond the session transcript\"; rg -l -i 'orchestrat' -g '!memory/sessions/**' -g '!**/node_modules/**' . | head -20\necho \"== study session file size\"; rtk wc -l memory/sessions/202611021607-etude_orchestration_sessions_herdr.md; rtk rg -n '^#{1,3} ' memory/sessions/202611021607-etude_orchestration_sessions_herdr.md | head -20"
+}
+```
+
+**Output:**
+```
+== project/roadmap.md size + headings
+4097
+32 matches in 1 files:
+
+1:# Roadmap : [redacted:repo]
+12:## Convention
+38:## Phases
+49:## Phase 0 : Socle
+57:## Phase 1 : Articulation à la flotte et outillage
+95:### `M-001` : articulation au portefeuille Silopolis
+118:### `M-012` : remédiation de la revue M-001
+143:### `M-013` : outillage et articulation opérationnelle
+156:### `M-014` : squelettes des types de lab
+175:### `M-017` : amorçage de l'import HAProxy
+194:### `M-018` : gabarits instanciables
+204:### `M-016` : ancrage cross-repo et identité
+216:### `M-019` : maintenance d'ancrage et signaux
+232:### `M-002` : promotions vers [redacted:repo] et [redacted:repo]
+246:### `M-020` : convergence du modèle de branches
+258:### `M-021` : convergence de l'outillage de pilotage
+316:### `M-022` : transition de phase : support des phases, clôture de la phase 1...
+331:## Phase 2 : Balayages mécaniques
+384:### `M-023` : release engineering : fusion retour post-tag, mécanisation rele...
+429:### `M-025` : correctifs post M-023
+474:### `M-026` : régime des sessions et des exports
+517:### `M-024` : écrivain de projection unique des surfaces de pilotage
+542:## Phase 3 : Notes brutes
+549:## Phase 4 : Conformité cours et labs
+561:## Phase 5 : Dette héritée
+  +7 more in project/roadmap.md [+7 hidden: rtk recall 434283ced12b0beb]
+== orchestration study: where it lives beyond the session transcript
+./CONTRIBUTING.md
+./AGENTS.md
+./cloud/introduction.md
+./cncf.md
+./README.md
+./cicd/tools.md
+./cicd/questions.md
+./cicd/introduction.md
+./tests/test_review_resume_t261.py
+./tests/test_projection_repair_t257.py
+./specs/repo_map.md
+./specs/drs/DR-014-regime_sessions_exports.md
+./specs/contracts/README.md
+./specs/drs/DR-004-stockage_distribution_code_lab.md
+./specs/contracts/CT-006-conventions_de_pilotage.md
+./specs/drs/DR-003-memoire_de_session.md
+./assets/templates/README.md
+./specs/contracts/CT-005-conventions_de_commit.md
+./specs/contracts/CT-004-lab.md
+./specs/drs/DR-000-conventions_des_artefacts_de_registre.md
+== study session file size
+8876
+129 matches in 1 files:
+
+1:# Étude : orchestration de sessions par herdr
+10:## User
+16:## Your work
+31:## Constraints ([redacted:repo]'s real state)
+40:## Protocol
+63:## Assistant (Plan · Claude Opus 5.5 · 1692.2s)
+374:## Assistant (Plan · Claude Opus 5.5 · 4.2s)
+714:## Assistant (Plan · Claude Opus 5.5 · 1.9s)
+1234:## Assistant (Plan · Claude Opus 5.5 · 2.3s)
+1661:## Assistant (Plan · Claude Opus 5.5 · 4.7s)
+1961:## Assistant (Plan · Claude Opus 5.5 · 30.5s)
+2150:## Assistant (Plan · Claude Opus 5.5 · 2.3s)
+2287:## Assistant (Plan · Claude Opus 5.5 · 3.9s)
+2478:## Assistant (Plan · Claude Opus 5.5 · 5.5s)
+2536:## Assistant (Plan · Claude Opus 5.5 · 4.0s)
+2633:## Assistant (Plan · Claude Opus 5.5 · 1.9s)
+2776:## Assistant (Plan · Claude Opus 5.5 · 2.7s)
+2908:## Assistant (Plan · Claude Opus 5.5 · 7.5s)
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 94.1s)
+
+_Thinking:_
+I'm checking whether a study document already exists under docs/studies, and I'm thinking of a delegated explore agent to read the study's conclusion and the [redacted:repo]/greffe status in the [redacted:repo] roadmap, since the transcript is too long to read directly.
+
+
+The study is an 8,900-line session transcript and the roadmap is 4,100 lines, so I'm delegating the reading to keep my context small.
+**Tool: task**
+<!-- session-child: ses_e59f634a1ffesueefDocoCa7EX -->
+
+**Input:**
+```json
+{
+  "description": "Read [redacted:repo] orchestration study",
+  "subagent_type": "explore",
+  "prompt": "Research only, read-only: do NOT edit, create, or delete any file, and do not run git commands that change state. Thoroughness: medium.\n\nRepository: [redacted:repo] (French-language docs). I need facts to decide how a small repository (a chezmoi dotfiles repo using OpenSpec temporarily) should relate to the fleet's future multi-agent orchestration work.\n\nRead and report on:\n\n1. The orchestration study: [redacted:repo]:memory/sessions/202611021607-etude_orchestration_sessions_herdr.md (8876 lines; it is a session transcript). Read the opening brief (lines 1-62) and then find the study's conclusions/recommendations (search for headings or words like \"Recommandation\", \"Conclusion\", \"Synthèse\", \"décision\", \"architecture\", \"[redacted:repo]\", \"greffe\", \"herdr\", \"roadmap\", \"file\", \"lane\", \"dispatch\", \"orchestrateur\"; read the last ~600 lines carefully). Also check whether the study produced a standalone document elsewhere in the repo (search for files referencing \"etude_orchestration\" or \"orchestration de sessions\", e.g. under docs/, specs/, project/, memory/notes/, memory/lessons/). Report: the question studied, the main findings, the recommended architecture and phases, what was decided vs. left open, and where the durable outputs live (exact paths).\n\n2. [redacted:repo] and greffe: what they are, their current status, and any timeline. Search [redacted:repo]:project/roadmap.md, [redacted:repo]:project/TODO.md, [redacted:repo]:AGENTS.md, [redacted:repo]:specs/drs/DR-001-articulation_portefeuille_silopolis.md and DR-012, project/milestones/ (M-021, M-024, M-026 and any milestone mentioning [redacted:repo], greffe, extraction, orchestration). Report: what [redacted:repo] is, what greffe is, what \"extraction\" means (extraction of what, from where, to where), which milestone/task carries it, its status, and what availability \"for the fleet and external projects\" depends on.\n\n3. [redacted:repo]'s roadmap conventions: [redacted:repo]:project/roadmap.md lines 1-60 (Convention and Phases sections) and how milestone status is represented; the piloting contract [redacted:repo]:specs/contracts/CT-006-conventions_de_pilotage.md (summarise requirements R28, R32, R33, R34, R39 if present); and which mise tasks check or view the roadmap (search .mise/ or mise.toml for tasks named check:*, task:next, roadmap, index).\n\n4. Any explicit statement on how non-[redacted:private] repositories ([redacted:private] / [redacted:repo], [redacted:repo], dotfiles/chezmoi, nvim) should keep roadmaps or adopt orchestration before [redacted:repo]/greffe are available (search for \"chezmoi\", \"dotfiles\", \"openspec\", \"nvim\", \"[redacted:repo]\", \"flotte\" in roadmap.md, TODO.md, milestones, and the study).\n\nReturn a structured report in English, at most ~900 words, with exact file paths and line numbers for every claim, and quote short key sentences (French is fine in quotes). Clearly separate facts found from your inferences. Do not include any secret values, hostnames or IP addresses if you encounter them."
+}
+```
+
+**Output:**
+```
+<task id="ses_e59f634a1ffesueefDocoCa7EX" state="completed">
+<task_result>
+# Report: the herdr orchestration study, [redacted:repo]/greffe, and [redacted:repo]'s roadmap conventions
+
+Everything below was read-only. All paths are under `[redacted:repo]`.
+
+## 1. The orchestration study
+
+**Facts**
+- **The transcript is not the deliverable.**
+  - `memory/sessions/202611021607-etude_orchestration_sessions_herdr.md` (lines 1-62) is the brief.
+  - It asks for four things:
+    - a study in `memory/studies/`, with `index.md`, `log.md` and `rapport.md`;
+    - annotations on `B-075` and `B-079`;
+    - a dated entry in `D-008`'s history;
+    - a note in `T-315`.
+  - The transcript ends (lines 8780-8876) with two commits: `90d95a3` (study) and `14cb041` (annotations and `D-008`).
+  - The last visible step is a session-export dry run. The transcript contains no recommendations or conclusions section, only the execution of the brief.
+- **Durable outputs**
+  - `memory/studies/orchestration_sessions_herdr/{index.md,log.md,rapport.md}` is the study.
+  - `memory/studies/README.md:15` lists it.
+  - `project/roadmap.md:1886-1891` annotates `B-075`.
+  - `project/roadmap.md:1938-1944` annotates `B-079`.
+  - `project/roadmap.md:4094` records the change as `v0.46.60`.
+  - `project/milestones/D-008-execution_multi_agent_des_taches.md:122-129` carries the `D-008` history entry.
+  - No `T-315` note was written. The record is being rewritten on the `T-315a` spike branch (`roadmap.md:4094`).
+- **Question studied** (`rapport.md:9`)
+  - One orchestrator opencode session drove eight target-rooted child sessions through herdr.
+  - The children ran in `[redacted:repo]`, `[redacted:repo]` and `[redacted:repo]`, from 2026-10-30 to 2026-11-02.
+  - The children planned first, with supervised approvals.
+- **Main findings** (`rapport.md:14-25`, `84-95`)
+  - The eight children produced 1,160 messages for 119.29 $.
+  - The orchestrator's own cost is 293 messages and 81.66 $, not separable from its parallel `T-004` work.
+  - Plan-first with supervised approval worked for all seven execution children.
+  - Context handoff by self-sufficient records worked. Review gates before irreversible steps worked.
+  - Two children ran in parallel in independent repositories without interference.
+  - The friction is in the channel, not the protocol (`rapport.md:97-141`):
+    - lost first prompts;
+    - the agent variant dropped after switching from plan to build;
+    - `herdr agent read` limits;
+    - notifications unanswered for more than an hour;
+    - parallel sessions sharing a checkout;
+    - `--resolve-last` picking a foreign session.
+- **Architecture and phases**
+  - The study recommends no architecture.
+  - `rapport.md:10` says "le verdict n'y vit pas, il reste porté par les entrées qui la consomment".
+  - `rapport.md:229` says "Le verdict reste dans l'entrée".
+  - What it describes is the protocol as practised (`rapport.md:26-49`):
+    - one tab per child;
+    - plan on Opus, then build on Sonnet;
+    - supervised approval;
+    - status blocks and return signals read through `opencode export`;
+    - a review gate before merge.
+- **Decided**
+  - The user's rule of 2026-10-31: every task starts in plan mode, plan is draft→ready, and supervised approval gates the switch to build (`rapport.md:41`, `D-008:128`).
+- **Left open**
+  - `B-075` verdict: "non tranché" (`roadmap.md:1889-1890`).
+    - No worktree was used, bare `tmux` was not compared, and restart-resume was not exercised.
+  - Open questions (`rapport.md:251-272`):
+    - escalation threshold for unanswered dialogs;
+    - worktree-per-child isolation;
+    - a harness-independent read channel (`opencode export` ties the orchestrator to opencode);
+    - batch confirmation of sibling commits against `DR-001` point 7;
+    - traceability of target commits, which carry no `Session-ID:` trailer;
+    - the home of the launcher script: "outillage de `[redacted:repo]` (`B-075`) ou de flotte (`[redacted:repo]`, `[redacted:repo]`)" (`rapport.md:262-263`).
+- **Planned home for this topic**
+  - The multi-agent execution milestone `D-008` is a draft anticipated milestone (`status: draft`, line 6).
+  - In `T-314`'s proposed ordering it sits at position 13, after `D-007` (`T-314:191`).
+  - `B-078` describes a future "DR régime d'exécution parallèle multi-agent" (`roadmap.md:1912-1918`).
+
+## 2. [redacted:repo] and greffe
+
+**Facts**
+- **Definitions**
+  - Greffe is "le *sous-système de records* de `[redacted:repo]`: tâches, jalons, décisions et mémoire" (`specs/drs/DR-014-regime_sessions_exports.md:93`).
+  - [redacted:repo] is the L2 fleet component (`T-311:241`, via `DR-001`).
+  - `T-311:208` flags that "la pile de l'utilisateur la place en dessous" (greffe below [redacted:repo]), still "à vérifier".
+  - Whether the distinction survives is an open study subject (`T-311:124`).
+- **Status**
+  - The fleet's [redacted:repo]/greffe preselection study lives in a repo (`[redacted:repo]`) that is not itself part of the fleet.
+  - It sits on an unmerged branch and is non-normative (`DR-014:94`, `roadmap.md:2700`).
+  - `[redacted:repo]`'s own `D-002` ("[redacted:repo] extraction") plans to port `[redacted:repo]`'s machinery (`roadmap.md:2693`).
+  - L2 is "parqué" until the fleet decides to lift it (`DR-001:186`, `T-311:122`).
+  - I found no dates for [redacted:repo] or greffe.
+- **"Extraction" means** (`T-310:28`, `roadmap.md:2693`)
+  - Extracting [redacted:repo] and greffe from `[redacted:repo]` (now carrying records, memory, sessions, harness and configuration machinery) rather than from `[redacted:repo]`.
+  - `T-311:110` suggests a fork followed by pruning rather than exfiltration.
+  - It is explicitly "hypothèse à étudier par la flotte, pas une décision d'`[redacted:repo]`".
+- **Carriers**
+  - `T-310` is a draft signal task, P2 (`T-310:5`, `TODO.md:49`).
+  - The study milestone is `D-016` (formerly `B-174`), but `D-016` is not created yet (no file in `project/milestones/`).
+  - `T-314` (draft, `TODO.md:45`) would restructure the roadmap into:
+    - Phase 8 "Refondation du moteur";
+    - Phase 9 "Séparation du moteur", locked on "sortie de Phase 8, décision de la flotte (levée du parcage de L2)" (`T-314:57`);
+    - Phase 10 "Réadoption du moteur", locked on "moteur extrait disponible" (`T-314:58`).
+  - `D-016` is slot 1 in the ordering (`T-314:179`, `201`), and `D-019` is the closing "préparation à l'extraction" milestone.
+- **Availability "for the fleet and external projects"**
+  - I found no such wording in the files searched.
+  - The nearest facts are the Phase 9 and Phase 10 locks above, `DR-001:203-218` (transitional autonomy clause), and `AGENTS.md:54` ("en attendant `[redacted:repo]`/`[redacted:repo]`").
+
+**Inferences**
+- Nothing in [redacted:repo] commits to a [redacted:repo] or greffe delivery date.
+- Availability depends on: `T-314` execution, the `D-016` study, `[redacted:repo]`'s decision, lifting the L2 park, and then Phase 9.
+- Realistically that is several months away.
+
+## 3. [redacted:repo] roadmap conventions
+
+**Facts**
+- **Roadmap structure**
+  - `roadmap.md:3-6`: the roadmap holds structure, and `project/TODO.md` holds operational status.
+  - `roadmap.md:12-36` is the Convention section:
+    - line format `- [statut] [**ID**](chemin) [Pri] - Titre (N/M) - *dépendance : ...*`;
+    - at most one `[~]` phase;
+    - checklists ordered per `CT-006.R28`;
+    - `B-NNN` backlog entries without front matter.
+  - `roadmap.md:38-47` is the Phases checklist: `[x]`, `[~]` or `[ ]`, each with a "verrou d'entrée".
+  - Phase 2 is the only `[~]` phase today.
+  - Phases 8-10 exist only as proposals in `T-314`, which would also add `[!]` for a suspended phase.
+- **Milestone and task status symbols**
+  - They appear in TODO lines: `[.]` (ready or draft), `[!]` (blocked), `[x]` (done).
+  - The record's front matter carries `status: draft|ready|in-progress|blocked|review|done|cancelled`.
+- **CT-006 requirements** (`specs/contracts/CT-006-conventions_de_pilotage.md`)
+  - `R28` (line 597): ordering within sections, by:
+    - dependency topology;
+    - P0 preemption;
+    - engaged-lot continuity;
+    - fan-out;
+    - ordinary priority;
+    - cross-repo obligation;
+    - coupling cost.
+  - `R32` (line 920): the roadmap holds structure and TODO holds status. A lot is born in the roadmap, lives in the kanban, and each transition is mirrored in both.
+  - `R33` (line 927): canonical TODO.md layout, sections Draft/Ready/In Progress/Blocked/Review/Done/Cancelled, no tables.
+  - `R34` (line 946): canonical roadmap.md layout, no tables, at most one `[~]` phase.
+  - `R39` (line 976): each projection entry is a single physical line.
+- **Mise tasks**
+  - Under `.mise/tasks/`:
+    - `check:projections` checks R33 and R34 structure;
+    - `check:kanban` checks counters and R28 order;
+    - `check:tasks-index` and `check:milestone-index` check front matter against TODO against roadmap;
+    - `task:next` and `milestone:next` are read-only resolvers.
+  - The aggregate task is `validate`.
+
+## 4. Guidance for non-[redacted:private] repositories
+
+**Facts**
+- I found no explicit statement on how [redacted:private], [redacted:repo], dotfiles or nvim should keep roadmaps or adopt orchestration before [redacted:repo] and greffe exist.
+- **What exists:**
+  - `DR-001:181-186`: machinery goes to the `[redacted:repo]` backlog (L1); generic governance goes to the L2 backlog, "parqué jusqu'à la phase C0".
+  - `DR-001:188-214`: [redacted:repo] keeps its own minimal governance and tooling locally while waiting for `[redacted:repo]` and `[redacted:repo]`.
+    - That clause is scoped to [redacted:repo]'s own self-consumed machinery ("pas un blanc-seing").
+  - `roadmap.md:1919-1926` (`B-079`) names the candidate homes for mechanised cross-repo commits: target-repo tooling, a `scm` skill, or future fleet tooling (`[redacted:repo]`/`[redacted:repo]`).
+  - `T-318` (`T-318:32`) and `roadmap.md:2717` treat `[redacted:repo]` as "hors flotte". It uses OpenSpec change names as its `dispatch_origin`: the form `repo:id`, with the change name as id (`T-318:35`).
+    - So OpenSpec-based repos already signal to [redacted:repo] by `repo:id`.
+  - The study shows cross-repo work running through self-sufficient records plus status and return blocks (`rapport.md:88`).
+  - `[redacted:repo]` and `[redacted:repo]` participated as targets using their own records (`rapport.md:150-160`).
+- I found no mention of chezmoi or dotfiles in the files searched.
+
+**Inferences**
+- An OpenSpec or chezmoi repo needs no [redacted:private]-specific roadmap format today. Dispatch is by self-sufficient briefs with a `repo:id` origin.
+- Any shared orchestration launcher is unresolved, and the question of where it belongs ([redacted:repo] or fleet) is explicitly open (`rapport.md:262-263`).
+</task_result>
+</task>
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 26.6s)
+
+_Thinking:_
+Now I'm working out how to split this into two separate things. The first is `add-repo-roadmap`: a small, local, disposable roadmap for this repo while it's temporarily on OpenSpec, and I should keep its vocabulary matched to the fleet's conventions so moving to greffe later stays cheap.
+
+Now I'm weighing whether this roadmap should be trimmed: the mise task with --check feels like machinery, though adapting the nvim one is cheap. I'll keep it transitional, with an exit criterion tied to greffe and ids shaped so migration stays easy.
+
+Next I'm checking whether the dispatch and worktree tasks are already deployed by chezmoi, since that would make the dotfiles repo part of the orchestration layer today.
+
+Now I'm weighing whether the second thing, multi-agent orchestration, should be treated as an observation rather than a change: this repo's own run, with an orchestrator and children on worktrees, is a live test of the isolation question the [redacted:repo] study leaves open, so I'd record what it shows and let it feed the fleet study instead of building it now.
+
+I'm thinking about where the signal back to the fleet should go, either the [redacted:repo] backlog or the [redacted:repo] open items, and I'll hold off on registering it for now. For the brief, I want to point to the [redacted:repo] roadmap and orchestration study as reading for format and conventions, and mark orchestration design as an explicit non-goal, noting in design.md that the roadmap is transitional until greffe exists. I also need to decide whether fleet names can appear in the public repo, since I'd earlier settled on masking them except [redacted:private] and [redacted:repo], and the /tmp brief can carry them.
+
+I'm weighing whether to ask the user to confirm the split: keep `add-repo-roadmap` narrow and transitional with a greffe exit criterion, leave orchestration out of scope, and handle the observations from this run separately. I'm also checking whether fleet names belong in the public repo, and leaning toward keeping that layer generic.
+
+Now I'm considering whether the mise task with --check is overkill for a transitional roadmap, since adapting the nvim one is cheap but still adds upkeep. I'm leaning toward keeping it, with a transitional note and a greffe exit criterion added to the proposal.
+
+I'm drafting a short edit for proposal.md: calling the roadmap transitional until the fleet's records system exists, keeping its format close to the fleet's so migration is mechanical, and listing multi-agent orchestration as a non-goal while the fleet study is open. Before settling that wording, I want to check whether chezmoi already manages the agent dispatch tasks, since that would mean this repo already hosts part of the channel layer.
+
+
+Before I give a recommendation, one fact to check: whether this repo already deploys the dispatch tooling.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; chezmoi managed 2>/dev/null | rtk rg -n 'mise/tasks/(agent|scm)' | head; echo \"== spec\"; rtk rg -n '^### Requirement' openspec/specs/global-mise-tasks/spec.md | cut -c1-120\necho \"== [redacted:repo] study open question on worktrees, and launcher home\"; sed -n '251,272p' [redacted:repo]:memory/studies/orchestration_sessions_herdr/rapport.md | cut -c1-220"
+}
+```
+
+**Output:**
+```
+729:.config/mise/tasks/agent
+730:.config/mise/tasks/agent/dispatch
+731:.config/mise/tasks/scm
+732:.config/mise/tasks/scm/worktree
+733:.config/mise/tasks/scm/worktree/done
+734:.config/mise/tasks/scm/worktree/ls
+735:.config/mise/tasks/scm/worktree/new
+736:.config/mise/tasks/scm/worktree/rm
+== spec
+11:### Requirement: Global tasks are deployed and listed
+30:### Requirement: Tasks are generic and clean
+44:### Requirement: Creating a worktree
+65:### Requirement: Source checkout integrity
+74:### Requirement: Merge test
+95:### Requirement: Removing a worktree
+109:### Requirement: Cleaning merged worktrees
+130:### Requirement: Listing worktrees
+139:### Requirement: Dispatching an agent
+148:### Requirement: Project hooks
+== [redacted:repo] study open question on worktrees, and launcher home
+- **Remise d'un dialogue en attente** : comment garantir qu'un dialogue bloquant atteint l'utilisateur, quand trois cas de notifications sont restés sans réponse plus d'une heure.
+  Quel seuil d'escalade ?
+- **Isolation** : un enfant tourne sur le checkout du dépôt cible, partagé avec des sessions que l'orchestrateur ne voit pas.
+  Un worktree par enfant (`worktree:new`, `T-194`) lèverait-il la friction, au prix de la création de la session dans le répertoire du worktree ?
+- **Variante après bascule** : la perte de la variante est-elle un défaut de herdr, d'opencode ou de la configuration par onglet ?
+  À reproduire avant tout signal.
+- **Canal de lecture indépendant du harnais** : `opencode export` lie l'orchestrateur à opencode.
+  Quel équivalent pour les autres harnais visés par `CT-007` ?
+- **Confirmation d'un lot de commits frères** : une confirmation pour un lot suffit-elle au regard de `DR-001` point 7 (commit de record de signal comme geste distinct sous confirmation humaine) ?
+- **Traçabilité des commits cibles** : en l'absence de `Session-ID:` sur les commits cibles, le lien repose sur `Refs:` et `dispatch_origin`.
+  Suffit-il ?
+- **Siège du lanceur** : le lanceur d'onglet (démarrage, attente d'invite, prompt avec `--wait`, renommage, configuration d'onglet) est un script de l'orchestrateur, dont plusieurs défauts ont été rencontrés (§5).
+  Est-il de l'outillage de `[redacted:repo]` (`B-075`) ou de flotte (`[redacted:repo]`, `[redacted:repo]`) ?
+- **Permissions de répertoire externe** : préautoriser par la configuration d'onglet les lectures des dépôts frères en mode plan, ou garder la supervision ?
+- **Coût d'orchestration** : l'orchestrateur coûte 81,66 $ contre 119,29 $ pour les enfants, mais son travail de `T-004` n'est pas séparé.
+  Le surcoût d'orchestration n'est pas mesuré.
+- **Temps actif** : la durée mesurée est dominée par l'attente de l'utilisateur.
+  Une mesure du temps actif de l'agent manque.
+- **Tâche enfant devenue autre chose** : `[redacted:private]-t015` a enregistré `T-016` en cours de plan.
+  Le titre de session et la tâche pointée par l'orchestrateur divergent.
+- **Persistance de l'observation** : le journal d'expérience vit dans `/tmp`.
+  La session orchestratrice n'était pas exportée à la date de ce versement.
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 1970.5s)
+
+_Thinking:_
+I'm separating the two concerns: the add-repo-roadmap feature stays narrow and transitional, using vocabulary the fleet's records system can absorb later, with no orchestration fields. Multi-agent orchestration isn't something to change in this repo now, since its design belongs to the fleet's draft decision (D-008).
+
+I'm looking at what this repo already does at the channel layer: it deploys the dispatch and worktree tasks and has a prompt-delivery fix queued. So its part of the orchestration question is keeping that channel working and feeding observations back to the fleet study, and this dispatch itself could serve as a test of worktree isolation per child.
+
+I'm now drafting the changes for the add-repo-roadmap proposal: a transitional paragraph, an exit criterion, and a non-goal, with generic wording since this is a public repo. I'm also planning the brief to reference the fleet's roadmap format and the orchestration study's open questions, and to have the agent record friction observations in its final report.
+
+I'm weighing whether to ask the user to keep the orchestration observations in a log and signal the fleet study at the end, or to keep it simpler and skip the signal. I'm also considering the three separation options for the user to choose from, and whether the --check task should stay in scope given the transitional framing, since the viewer is cheap to adapt.
+
+I'm keeping both the viewer and the --check task, since the check guards against drift when sessions run in parallel and the viewer is cheap to adapt. I'll limit the questions to two.
+
+
+Your two goals are different, and I recommend separating them:
+
+- **Roadmap (keep it narrow):** a transitional stand-in while OpenSpec and this repo's records wait for [redacted:repo] and greffe.
+- **Orchestration (not a change here):** the design belongs to the fleet and isn't settled yet.
+
+Here is what I found, then three decisions for you.
+
+## Where orchestration stands in the fleet
+- **[redacted:repo]'s study** (`[redacted:repo]:memory/studies/orchestration_sessions_herdr/rapport.md`) only describes the protocol as practised, and its verdict is deliberately left to the entries that use it.
+  - What worked: plan first, approval before building, self-sufficient briefs, and a review gate before merging.
+  - The friction was in the herdr channel, not the protocol: lost first prompts, notifications left unanswered, and a checkout shared between sessions.
+- **Not decided yet:**
+  - [redacted:repo]'s orchestration tooling item `B-075` has no verdict.
+  - The multi-agent milestone `D-008` is a draft, 13th in the proposed order.
+  - The [redacted:repo] and greffe study `D-016` doesn't exist yet.
+  - The fleet layer meant for shared tooling is parked.
+  - The study leaves open whether the dispatch launcher belongs to [redacted:repo] or to the fleet ([redacted:repo], [redacted:repo]).
+  - Extracting [redacted:repo] and greffe out of [redacted:repo] comes in later phases (9 and 10 of the proposed restructuring) and has no date.
+- **What this repo already does:** it deploys the channel layer, meaning `agent:dispatch` and `scm:worktree:*` (spec `global-mise-tasks`). `fix-prompt-delivery` fixes the lost-prompt problem the study describes.
+- **Free data point:** starting the roadmap agent in its own worktree tests one of the study's open questions ("one worktree per child?").
+
+## What I'd change
+1. **Amend `add-repo-roadmap`** (a small commit, with generic wording because the repo is public):
+   - State that it is transitional and give an exit rule: it is replaced when the fleet's records system is available.
+   - Keep a vocabulary that is easy to migrate: permanent `B-NNN` ids, dependencies named by change id (the `repo:id` form the Neovim repo already uses to signal [redacted:repo]), and no stored status.
+   - Add a non-goal: multi-agent orchestration (dispatch, lanes, agent per change) is studied at fleet level.
+2. **Brief:**
+   - **Format references** for compatibility:
+     - [redacted:repo]'s `project/roadmap.md`, its Convention section and its `B-NNN` backlog;
+     - the piloting contract `CT-006` (R28, R32 to R34, R39);
+     - [redacted:repo] `DR-021`, [redacted:private]'s roadmap, and the Neovim repo's roadmap task.
+   - **Context only:** [redacted:repo]'s study, with the non-goal stated: do not design orchestration.
+     - In `design.md` (generic wording), note which roadmap fields would map to fleet records.
+   - **Report back:** its friction observations (prompt delivery, worktree isolation, reporting through herdr).
+3. **Orchestration as observation, not a change:** I keep a log of this dispatch as a worktree-per-child trial. At the end I'd propose a signal to [redacted:repo] on `B-075` or `D-008`, only with your go.
+**Tool: question**
+
+**Input:**
+```json
+{
+  "questions": [
+    {
+      "header": "Separate the two goals",
+      "question": "How should the two goals be separated?",
+      "options": [
+        {
+          "label": "Narrow roadmap + observation (Recommended)",
+          "description": "add-repo-roadmap stays a transitional stand-in (exit rule, fleet-compatible vocabulary, orchestration as an explicit non-goal); this dispatch runs as a worktree-per-child trial whose observations go to [redacted:repo]'s study as a signal at the end"
+        },
+        {
+          "label": "Second change here for orchestration",
+          "description": "Also open a local exploratory change on this repo's role in fleet orchestration (channel layer: dispatch, worktrees). Risk: deciding locally what [redacted:repo]'s study leaves open"
+        },
+        {
+          "label": "Drop the roadmap, wait for greffe",
+          "description": "Cancel add-repo-roadmap; keep openspec list and the audit's change map until the fleet's records system exists"
+        }
+      ]
+    },
+    {
+      "header": "Roadmap task scope",
+      "question": "Given that the roadmap is transitional, how much tooling should it get?",
+      "options": [
+        {
+          "label": "File + viewer + --check (Recommended)",
+          "description": "As proposed: adapting the Neovim repo's task is cheap, and --check catches rows that other sessions working in parallel forget to add"
+        },
+        {
+          "label": "File + --check only",
+          "description": "No viewer; openspec list stays the view, the task only checks coherence"
+        },
+        {
+          "label": "File only",
+          "description": "Hand-kept ROADMAP.md, no task; the cheapest option, but nothing catches drift"
+        }
+      ]
+    },
+    {
+      "header": "Signal to [redacted:repo]",
+      "question": "Should the orchestration observations from this dispatch be sent to [redacted:repo]?",
+      "options": [
+        {
+          "label": "Yes, at the end, on your go (Recommended)",
+          "description": "I draft a signal for B-075/D-008 (isolation by worktree, prompt delivery, reporting) once the roadmap agent has finished; you approve it before it is sent"
+        },
+        {
+          "label": "No, keep them in this session",
+          "description": "The observations stay in this session's export only"
+        }
+      ]
+    }
+  ]
+}
+```
+
+**Output:**
+```
+User has answered your questions: "How should the two goals be separated?"="Narrow roadmap + observation (Recommended)", "Given that the roadmap is transitional, how much tooling should it get?"="option 1; ideally it would become available for any repo using openspec", "Should the orchestration observations from this dispatch be sent to [redacted:repo]?"="Yes, at the end, on your go (Recommended)". You can now continue with the user's answers in mind.
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 16.3s)
+
+_Thinking:_
+I'm weighing whether this should be a general tool for any OpenSpec repo, and a global mise task in chezmoi fits that, since this repo already deploys generic global tasks like the worktree and dispatch ones.
+
+I'm now treating the roadmap task as a global mise task that chezmoi deploys, so any OpenSpec repo can use it, and I'm checking whether that drifts into fleet tooling that belongs in [redacted:repo]'s backlog. The existing global tasks in this repo are the precedent, and the nvim repo's own copy is a possible duplicate it could later adopt.
+
+I'm checking the naming and precedence next. A repo-local `roadmap` task would override a global one, so I'm leaning toward `openspec:roadmap` to avoid the clash, and I'm thinking the spec change belongs in a new capability covering both the task and the roadmap file format.
+
+I'm now checking the existing global mise tasks and the spec rule that tasks stay generic and clean. I'm also weighing whether this belongs in [redacted:repo]'s fleet machinery instead, and I'll flag that as a design question for the user to weigh in on, since chezmoi's global tasks already fit the precedent.
+
+I'm checking the existing global mise tasks and the source layout to see where the new one would go.
+
+
+You'd like the roadmap tooling to work for any OpenSpec repo, so the task's home changes. I'm checking how the existing global tasks are built, since that's the precedent.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\necho \"== source layout of global tasks\"; fd . dot_config/mise/tasks -d 3 | head -30\necho \"== global-mise-tasks spec: generic/clean + project hooks + listing\"; sed -n '1,43p' openspec/specs/global-mise-tasks/spec.md | cut -c1-220; sed -n '148,175p' openspec/specs/global-mise-tasks/spec.md | cut -c1-220\necho \"== other repos using openspec\"; fd -H -t d -d 3 '^openspec$' ~/Work ~/.config 2>/dev/null | head\necho \"== namespace in use?\"; mise tasks ls --global 2>/dev/null | rtk rg -n -i 'openspec|roadmap' || echo \"none\"",
+  "workdir": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+== source layout of global tasks
+dot_config/mise/tasks/agent/
+dot_config/mise/tasks/agent/executable_dispatch
+dot_config/mise/tasks/scm/
+dot_config/mise/tasks/scm/worktree/
+dot_config/mise/tasks/scm/worktree/executable_done
+dot_config/mise/tasks/scm/worktree/executable_ls
+dot_config/mise/tasks/scm/worktree/executable_new
+dot_config/mise/tasks/scm/worktree/executable_rm
+== global-mise-tasks spec: generic/clean + project hooks + listing
+# global-mise-tasks Specification
+
+## Purpose
+
+The global mise tasks this repository deploys for any git repository: creating, removing, cleaning and listing worktrees (`scm:worktree:*`), and dispatching an agent into another repository's herdr workspace (`agent:disp
+
+Unless stated otherwise, scenarios run in a scratch repository whose `origin` is a bare repository on branch `main`, both under `/tmp/opencode`, with `WORKTREES_ROOT` pointing inside the same scratch directory and `HERDR
+
+## Requirements
+
+### Requirement: Global tasks are deployed and listed
+
+The repository SHALL deploy the helper `~/.config/mise/lib/scm.sh` and the global file tasks `scm:worktree:new`, `scm:worktree:rm`, `scm:worktree:done`, `scm:worktree:ls` (aliases `scm:wt:new`, `scm:wt:rm`, `scm:wt:done`
+
+#### Scenario: Tasks are listed
+
+- **WHEN** `mise tasks ls --global` runs from a directory with no project config
+- **THEN** it lists `agent:dispatch`, `scm:worktree:done`, `scm:worktree:ls`, `scm:worktree:new` and `scm:worktree:rm`
+
+#### Scenario: Aliases resolve
+
+- **WHEN** `mise run scm:wt:ls --no-pr` runs in the scratch repository
+- **THEN** it exits 0 and prints the same table as `mise run scm:worktree:ls --no-pr`
+
+#### Scenario: Targets match the source
+
+- **WHEN** `chezmoi diff --exclude=externals,scripts ~/.config/mise/lib ~/.config/mise/tasks` runs
+- **THEN** it prints nothing, and `stat -c '%a' ~/.config/mise/tasks/scm/worktree/*` shows an executable mode for each task
+
+### Requirement: Tasks are generic and clean
+
+The helper and tasks SHALL pass `shellcheck -x` and SHALL hold no home path, user name, host name or credential, since they ship in a public repository.
+
+#### Scenario: shellcheck is clean
+
+- **WHEN** `shellcheck -x` runs on `dot_config/mise/lib/scm.sh` and every file under `dot_config/mise/tasks/`
+- **THEN** it exits 0
+
+#### Scenario: Nothing machine-specific
+
+- **WHEN** `rg -n -e "$HOME" -e "$USER" dot_config/mise/lib dot_config/mise/tasks` runs
+- **THEN** it prints nothing
+
+### Requirement: Project hooks
+
+The tasks SHALL run the project tasks `scm:worktree:hook:post-create` (inside the new worktree, with `WT_PATH`, `WT_BRANCH`, `WT_NAME`, `WT_STEM`, `WT_REPO`, `WT_ENV_FILE`), `scm:worktree:hook:post-remove` (with `WT_REAS
+
+#### Scenario: post-create hook runs
+
+- **WHEN** the scratch repository has a trusted `mise.toml`, committed and pushed to `main`, with a task `scm:worktree:hook:post-create` that writes `$WT_STEM` to a file in `/tmp/opencode`, and `mise run scm:worktree:new
+- **THEN** that file contains `hooked`
+
+<!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->
+
+== other repos using openspec
+~/.config/nvim/openspec/
+~/.config/openspec/
+[redacted:worktrees_root]/nvim-add-markdown-image-rendering/openspec/
+[redacted:worktrees_root]/nvim-adopt-avante-extra/openspec/
+[redacted:worktrees_root]/nvim-audit-markdown-format-chain/openspec/
+[redacted:worktrees_root]/nvim-cleanup-plugin-specs/openspec/
+[redacted:worktrees_root]/nvim-consolidate-ltex-integration/openspec/
+[redacted:worktrees_root]/nvim-harden-fixture-runner/openspec/
+[redacted:worktrees_root]/nvim-layer-spell-dictionaries/openspec/
+[redacted:worktrees_root]/nvim-normalize-ordered-list-markers/openspec/
+== namespace in use?
+none
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 32.2s)
+
+_Thinking:_
+The global tasks are written in bash, since the spec requires shellcheck -x on every file under dot_config/mise/tasks/, and a Python task would break that. So I need to either limit shellcheck to shell files, write this one in bash with jq, or change the requirement for Python. The repo-local nvim task is Python and its ROADMAP.md uses a different sessions table, so a generic task needs a format both can share, or
+
+I'm weighing whether a generic task should also read nvim's roadmap format or whether nvim should adopt the new one later through its own change. I'm leaning toward defining a single format, with nvim keeping its own repo-local task for now. Next I'm working through the proposal amendments: a transitional period with an exit rule, orchestration kept out of scope, and the new `openspec:roadmap` task deployed from this repo as the first adopter.
+
+I'm settling the proposal details: the new `openspec:roadmap` task gets deployed from this repo as the first adopter, the spec changes switch the commands to `mise run openspec:roadmap` and add scenarios for a scratch repo and for global listing, and the commit message comes in at 66 characters.
+
+Next I'm planning the brief updates: adding the [redacted:repo] roadmap, CT-006 and study references, a non-goal on orchestration, and an observations report. The open design questions for the generic `openspec:roadmap` task are the name, the language (bash with jq, Python, or a shellcheck rule change), and whether its format can read nvim's ROADMAP. I'll test it in a scratch OpenSpec repo under /tmp/opencode and deploy only that single target, with `--exclude=scripts`, once the user gives the go. I'll also leave the design.md free of the fleet's internal names.
+
+I'm checking whether the name [redacted:repo] is private, and I recall keeping only [redacted:private] and [redacted:repo] named, so I'll leave it out. The observation log lives in /tmp while the run goes on, and its contents will reach the [redacted:repo] signal and the next session export. Next I'll amend the proposal and spec, then validate them and scan for leaks.
+
+I'll propose the commit message to the user and wait for approval before committing, since this is an amendment. The last round I committed on the messages in the plan after a "go," so I'll put the message in the plan and treat "go" as the approval. After that come the brief, the worktree and workspace, launching the agent by hand and reading its pane, then starting the observation log and writing the report. Everything gets committed before step 2, so compacting the context at that point is safe if it's needed.
+
+
+You chose: a narrow roadmap plus observation; the file, viewer and `--check`, usable by any OpenSpec repo; and a signal to [redacted:repo] at the end. Making it work for any repo moves the task's home, so here is the updated plan. Plan mode is still on, so nothing has been changed.
+
+## The roadmap task becomes a global task for any OpenSpec repo
+- **Precedent:** this repo already deploys generic global tasks (`agent:dispatch`, `scm:worktree:*`, spec `global-mise-tasks`). The new task follows them:
+  - name `openspec:roadmap`, which no other task uses;
+  - source file `dot_config/mise/tasks/openspec/executable_roadmap`.
+- **What it reads:** `openspec list --json`, the archive and the repo's `ROADMAP.md`. It writes nothing. This repo is its first user.
+- **Language conflict:** the spec currently requires `shellcheck -x` on every file under `dot_config/mise/tasks/`, so a python task breaks that rule. The design must choose: bash with jq, or python plus an amended rule.
+- **Neovim repo:** it keeps its own `roadmap` task, under a different name, so there is no conflict. Whether it moves to the global task later is a separate signal, not part of this change, and I won't edit it.
+- **Home later:** the fleet may move this tooling to [redacted:repo] or [redacted:repo]. That is out of scope here, as with the worktree tasks.
+
+## Steps (on your go)
+1. **Amend `add-repo-roadmap`.** The repo is public, so [redacted:repo], [redacted:repo] and greffe are not named.
+   - **`proposal.md`:**
+     - Transitional: it stands in until the fleet's records system exists.
+     - Fleet-compatible vocabulary: permanent `B-NNN` ids, dependencies by change id (the `repo:id` form), no stored status.
+     - Non-goal: multi-agent orchestration, which is studied at fleet level.
+     - The task is global and generic.
+     - Capabilities: new `repo-roadmap` (file format, adoption here), and `global-mise-tasks` modified (deploy and list `openspec:roadmap`, generic rules).
+   - **Spec:**
+     - Commands become `mise run openspec:roadmap [--check]`.
+     - New scenarios:
+       - It works in a scratch OpenSpec repo under `/tmp/opencode`.
+       - `mise tasks ls --global` lists it.
+       - Nothing machine-specific (no `$HOME` or `$USER`).
+       - Deployment matches the source (`chezmoi diff`).
+   - **Audit:** update row 24's note.
+   - Run `openspec validate --all --strict` and the public-writing scan, then commit with brew git: `docs(chezmoi:spec): make add-repo-roadmap transitional and generic` (66 characters).
+2. **Brief** `/tmp/opencode/brief-chezmoi-roadmap.md`, adding to the earlier outline:
+   - **Format references:**
+     - [redacted:repo] `project/roadmap.md` (Convention section, lines 12 to 47, and the `B-NNN` backlog);
+     - [redacted:repo] `CT-006` R28, R32 to R34 and R39;
+     - [redacted:repo] `DR-021`, [redacted:private]'s roadmap, and the Neovim repo's `ROADMAP.md` and its task.
+     - Goal: a format the Neovim repo could adopt later.
+   - **Context only:** [redacted:repo]'s `memory/studies/orchestration_sessions_herdr/rapport.md`.
+     - The non-goal stated in the brief: do not design orchestration.
+     - In `design.md`, with generic wording, map the roadmap fields to future fleet records.
+   - **Design questions:** the task's language versus the shellcheck rule, how the file format is documented, and tests in a scratch OpenSpec repo.
+   - **Deployment:** only after your go, as the single target `chezmoi apply --exclude=scripts ~/.config/mise/tasks/openspec`.
+   - **Report:** a friction report at the end (prompt delivery, worktree isolation, reporting through herdr), plus short herdr messages at each step.
+3. **Launch:**
+   - Worktree: `mise run scm:worktree:new feat/add-repo-roadmap --base main --json`.
+   - Workspace: `herdr workspace create --label chezmoi-roadmap --cwd <path> --no-focus`.
+   - Agent: `herdr agent start chezmoi-roadmap --kind opencode --pane <id>`, wait until it has drawn, send one prompt, then read the pane back.
+4. **Observation:** I keep an experiment log, starting at launch, of this worktree-per-child trial:
+   - prompt delivery;
+   - isolation, and whether the other agent in `main` interfered;
+   - how reports come back;
+   - the merge.
+   
+   At the end I draft the signal to [redacted:repo] (`B-075`/`D-008`) for your approval.
+
+Nothing is pushed, and `main` will be 3 commits ahead of origin. If you want to `/compact`, the best moment is after step 1, once everything decided is committed.
+
+Turn off plan mode and say go to run steps 1 to 4.
+
+---
+
+## User
+
+Language confict: python plus an amended rule
+Neovim repo: the global task should replace it and the replacement signal should hapen at the end of this work
+Launch:
+- maybe create a new change to add (a) global task(s) for workspace creation and agent dispatch
+- I believe we already have fixed a number of workspace creation and agent dispatching in nvim and/or opencode-readonly-guard repos
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 10.7s)
+
+_Thinking:_
+I've got the user's decisions: Python plus the amended rule, and the global task should replace nvim's. They're unsure whether a new change is needed for workspace creation and agent dispatch, since they think fixes may already exist in the nvim or opencode-readonly-guard repos. So I need to check what's already there for those two things.
+
+I'm checking the nvim and opencode-readonly-guard repos, plus what this repo already does. `agent:dispatch` may already create the workspace if it's missing, and the `fix-prompt-delivery` change overlaps with this work, so I need to see how much of this is already covered.
+
+
+Before planning the launch, I need to know what's already been fixed elsewhere. I'm reading the local dispatch side myself and sending an explore agent to the nvim and opencode-readonly-guard repos.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\necho \"== agent:dispatch header\"; rg -n '^#(MISE|USAGE)|workspace create|agent start|agent prompt|wait' dot_config/mise/tasks/agent/executable_dispatch | cut -c1-200 | head -40\necho \"== fix-prompt-delivery proposal\"; sed -n '1,60p' openspec/changes/fix-prompt-delivery/proposal.md | cut -c1-240\necho \"== its tasks progress\"; rtk rg -c '^- \\[x\\]' openspec/changes/fix-prompt-delivery/tasks.md; rtk rg -c '^- \\[ \\]' openspec/changes/fix-prompt-delivery/tasks.md\necho \"== repo locations\"; fd -H -t d -d 3 -i 'readonly-guard' ~/Work ~/.config ~/.local/share 2>/dev/null | head -5",
+  "workdir": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+== agent:dispatch header
+2:#MISE description="Start an agent in another repository's herdr workspace and point it at a brief"
+3:#USAGE flag "--workspace <label>" required=#true help="Label (or id) of the target herdr workspace"
+4:#USAGE flag "--cwd <path>" required=#true help="Working directory of the new tab (the target repository)"
+5:#USAGE flag "--name <agent-name>" required=#true help="herdr agent name, [a-z][a-z0-9_-]{0,31}, server-wide: prefix it with the sender repository"
+6:#USAGE flag "--brief <file>" required=#true help="Absolute path of the brief the agent must read and execute"
+7:#USAGE flag "--label <text>" help="Tab label (default: the agent name)"
+8:#USAGE flag "--kind <kind>" default="opencode" help="herdr agent kind"
+9:#USAGE flag "--json" help="Print the result as JSON"
+== fix-prompt-delivery proposal
+## Why
+
+`scm_prompt_agent`, the helper of the global mise tasks that sends a new agent its first prompt, treats every stalled or timed-out `herdr agent prompt --wait` as a lost prompt and pastes the same text again, up to six times.
+herdr's own help says a stall does not prove that nothing was delivered.
+In the Neovim repository's sessions, a prompt ending in a file reference (`@file`) opened the opencode autocomplete popup, which took the Enter; the helper then filled the input box with copies of the prompt.
+Any slow TUI can cause the same thing, and both callers are affected: `agent:dispatch` and `scm:worktree:new --prompt`.
+A real-TUI test by the sender showed a second way to lose the first prompt: herdr reports the agent ready and idle as soon as `agent start` returns, but opencode draws nothing for about 10 s, and every prompt sent in that window is lost.
+`scm:worktree:new --json` also prints its JSON over several lines and says nothing about the prompt, so a caller that reads the last line gets `}` and cannot tell whether the agent got its prompt.
+With an unknown `--workspace`, `scm:worktree:new --tab` dies with `herdr workspace '' not found`, after creating the worktree.
+Source: request of the Neovim repository (session S19), 2026-11-03, following `adopt-global-mise-tasks`; the mise config is a managed application config (audit `docs/audits/2026-10-30-environment.md`, section 2.7; change map row 22).
+
+## What Changes
+
+- Before the first submission, the helper waits up to 15 s for the agent to be idle (a failure is not fatal).
+  It then reads the visible screen every second, up to 60 times, until the TUI is drawn (at least 5 lines with something besides frame characters), and pauses for 1 s; a screen that never draws does not stop the submission.
+- After a submission that herdr does not confirm, the helper inspects the agent before any retry:
+  - status `working` or `done`: delivered;
+  - `blocked`: stop;
+  - prompt still on screen: press Enter, at most twice, and never paste it again;
+  - prompt not on screen: submit again, at most 5 submissions in all (a lost prompt is safe to resend);
+  - screen cannot be read: stop.
+- When the helper stops, it returns non-zero, prints the outcome and the last 15 lines of the screen on stderr, and leaves the outcome for its caller: `working`, `unsent`, `lost`, `blocked` or `unreadable`.
+- Every herdr call runs under a timeout.
+- Each caller's message names the next step for that outcome; `agent:dispatch` no longer says "send the prompt by hand" when the text may already be in the input.
+- `scm:worktree:new --json` prints one line and adds `"prompt"`, which is one of those outcomes or `none`; `agent:dispatch --json` also prints one line.
+- The help of `--prompt` warns that a text ending in a file reference such as `@file` opens the TUI's autocomplete and may swallow the Enter.
+- `scm:worktree:new --tab` resolves `--workspace` before it creates anything, and an unknown workspace is named in the error.
+- A committed test harness with a fake `herdr` checks the delivery cases by counting how many times the text reached the input.
+
+## Capabilities
+
+### New Capabilities
+
+None.
+
+### Modified Capabilities
+
+- `global-mise-tasks`: new requirements for first prompt delivery, for the outcome reported by the callers, for bounded herdr calls, for the `--prompt` help and for the `--workspace` check.
+
+## Impact
+
+- `dot_config/mise/lib/scm.sh` (`scm_prompt_agent` and new helpers), `dot_config/mise/tasks/scm/worktree/executable_new`, `dot_config/mise/tasks/agent/executable_dispatch` (under `home/` after `adopt-chezmoiroot`).
+- New repository directory `tests/global-mise-tasks/`, not a chezmoi target: listed in the temporary `.chezmoiignore` block, and in `adopt-chezmoiroot` task 3.2, while that change is not applied.
+- The return status contract stays: 0 delivered, non-zero not delivered, message on stderr.
+  The first prompt takes longer: about 10 s while opencode draws, plus 1 s.
+- `--json` of both tasks stays one JSON object, now compact.
+- The Neovim repository's `session:start` delivers its first prompt with its own helper; it can switch back to `--prompt` once this change is applied.
+- Live check, with the user's go: one throwaway opencode agent in a herdr tab of the chezmoi workspace, removed afterwards.
+
+<!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->
+== its tasks progress
+3
+19
+== repo locations
+~/.local/share/opencode/readonly-guard/
+[redacted:repo]
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 2278.1s)
+
+**Tool: task**
+<!-- session-child: ses_e59c25af7ffe4pZPkaq4Tu1UDq -->
+
+**Input:**
+```json
+{
+  "description": "Find workspace/dispatch fixes elsewhere",
+  "subagent_type": "explore",
+  "prompt": "Research only, read-only: do NOT edit, create or delete files, do not run any git command that changes state (no checkout, fetch, commit, stash). Read-only git (log, show, branch -a, worktree list, grep) is fine. Thoroughness: very thorough.\n\nContext: the chezmoi dotfiles repo (~/.local/share/chezmoi) deploys global mise tasks `agent:dispatch` (dot_config/mise/tasks/agent/executable_dispatch) and `scm:worktree:new|rm|done|ls` (dot_config/mise/tasks/scm/worktree/), with a shared helper dot_config/mise/lib/scm.sh (function scm_prompt_agent sends the first prompt to a new herdr agent). An unapplied change there, openspec/changes/fix-prompt-delivery/, plans to fix: double/multiple paste of the first prompt after a stalled `herdr agent prompt --wait`, opencode drawing nothing for ~10 s after `herdr agent start` (prompts sent in that window are lost), an `@file` ending opening the autocomplete popup, multi-line --json, and unknown --workspace handling. There is NO global task that creates a herdr workspace (today one runs `herdr workspace create --cwd --label` by hand).\n\nThe user believes workspace creation and agent dispatching have already been fixed or built in other repositories. Find out what exists, in:\n\n1. ~/.config/nvim (Neovim config repo, uses OpenSpec; also its worktrees under [redacted:worktrees_root]/nvim-*). Look at .mise/tasks/ (e.g. session:start, session:*, agent:*, workspace:*, dispatch), .mise/lib/, scripts/, openspec/changes/ and openspec/changes/archive/ and openspec/specs/ for anything about herdr, workspace creation, agent start, first prompt delivery, dispatch, tabs, panes. Check git log (all branches: `git -C ~/.config/nvim log --all --oneline -i --grep=herdr --grep=dispatch --grep=workspace --grep=prompt` and similar) and ROADMAP.md for the related sessions (S16-S20 etc.).\n2. [redacted:repo] (and ~/.local/share/opencode/readonly-guard if it is a checkout). Same: tasks, scripts, docs, specs, git log about herdr, workspace, dispatch, agent start, prompt delivery, plan mode / agent variants.\n3. Quick check of [redacted:repo]:.mise/tasks and [redacted:repo] (tasks or scripts named like session, launch, dispatch, herdr, workspace, tab) since [redacted:repo]'s study (memory/studies/orchestration_sessions_herdr/rapport.md) used a \"lanceur d'onglet\" script.\n\nFor each finding report: exact path (and branch/commit if not on the default branch), what it does (workspace creation? agent start? first prompt delivery with readiness wait? retry/no-double-paste? agent variant/plan-mode selection? reading the pane? naming?), the herdr commands it uses, whether it is generic (usable by any repo) or repo-specific, its language (bash/python/...), whether it has tests, and its status (merged on main, on an unmerged branch, proposed only). Quote the usage/header lines of each task. Also note any documented herdr pitfalls they work around (with file:line).\n\nFinally, compare against the chezmoi repo's fix-prompt-delivery proposal (openspec/changes/fix-prompt-delivery/proposal.md and design.md, tasks.md if present): which of those fixes are already implemented elsewhere, and what elsewhere goes beyond it (in particular workspace creation and agent dispatch into a new workspace).\n\nReturn a structured report in English, at most ~1000 words, with exact paths and line numbers. Separate facts from inferences. Do not include secret values, hostnames or IP addresses."
+}
+```
+
+**Output:**
+```
+<task id="ses_e59c25af7ffe4pZPkaq4Tu1UDq" state="completed">
+<task_result>
+# Report: existing herdr workspace creation and agent dispatch outside the chezmoi repo
+
+**Bottom line (inference):** nothing creates a herdr workspace anywhere. I searched `herdr workspace create` in executable scripts across nvim, the guard, [redacted:repo], [redacted:repo], [redacted:repo], `/tmp/opencode/*.sh` and chezmoi. The only hits are permission rules (`rules/ask.json:201` in the guard) and session transcripts. The fixes for prompt delivery do exist, in nvim, in Python. Dispatch into a new workspace does not exist.
+
+## 1. Neovim repo (`~/.config/nvim`)
+
+All of this is merged on `main`. Both `fix/session-start-delivery` and `docs/schedule-session-start-fix` are ancestors of `main`.
+
+**Fact: `session:start`**
+- Path: `.mise/tasks/session/start`, Python 3, line 1 `#!/usr/bin/env python3`.
+- Header, lines 2-3: `#MISE description="Start a roadmap session in its own worktree, herdr tab and plan-mode agent"` and `Usage: mise run session:start S<N> [--dry-run] [--force] [--assume-done S#...] [--no-pull] [--base REF]`.
+- Lines 6-11: it "runs the global scm:worktree:new … a tab labelled S<N>-plan, the plan agent, the model policy in OPENCODE_CONFIG_CONTENT … It then delivers the first prompt itself, once, and checks that the agent is working".
+- Exit codes (lines 18-20): 0 started and working; 1 refused or failed before anything was created; 2 incomplete start; 3 the `core.worktree` incident.
+- It is repo-specific. It reads ROADMAP.md, checks dependencies, and logs telemetry.
+- Workspace: it never creates one. `startplan.build_command` (`.mise/lib/workflow/startplan.py:131-161`) passes `--tab --workspace <herdr_workspace>`, and the setting is `neovim` (`.mise.toml:25`). That workspace must already exist.
+- Agent variant and plan mode: `-- --agent plan` (`startplan.py:159`) plus `OPENCODE_CONFIG_CONTENT` with model and variant for the plan and build agents (`startplan.py:84-92`).
+- It calls the global `scm:worktree:new --tab --agent-kind opencode --agent-name …`, with no `--prompt` (`startplan.py:141`).
+
+**Fact: first prompt delivery**
+- Path: `.mise/lib/workflow/delivery.py`, function `deliver` (lines 88-167). `herdr.py` holds the wrapper `Api` (lines 97-124).
+- It does what `fix-prompt-delivery` plans:
+  - It waits for idle (`herdr agent wait --until idle`, 15 s, not fatal).
+  - It polls `herdr agent read --source visible` up to 60 times, 1 s apart, until at least 5 lines are drawn, then pauses 1 s (lines 117-125).
+  - It submits with `herdr agent prompt … --wait --until working --timeout 20000`.
+  - On failure it inspects the agent first: `working` or `done` counts as taken up, `blocked` stops, and the prompt visible in the input gets `herdr agent send-keys enter` at most twice (line 161), with no re-paste.
+  - It resubmits at most 5 times only when the text is not on screen.
+- The marker is the first 24 characters with frame characters (U+2500-U+259F) and all whitespace removed (lines 62-77).
+- Outcomes are `working|unsent|lost|blocked|unreadable`, with a timed trace.
+- Every call is bounded: `herdr.run` has a timeout (lines 55-63), and `wait`/`prompt` get their wait time plus 10 s.
+- Tests: `tests/workflow/test_delivery.py` has 20 tests with a `FakeTui` that counts pastes (line 11 onward). `test_startrun.py` covers the failure report. Run with `python3 -m unittest discover -s tests/workflow`.
+- A real-TUI test was run on 2026-11-03 (`ROADMAP.md:1282-1284`).
+
+**Fact: the nvim hooks**
+- `.mise/tasks/scm/worktree/hook/{post-create,post-remove,incident}` exist.
+- The other tasks are `gate`, `roadmap`, `exp/log` and `session/export`. There is no workspace or dispatch task.
+
+**Fact: spec and history**
+- `openspec/specs/session-workflow/spec.md:101-122` (Agent start and dispatch) and `:232-275` (Session start delivery, 5 scenarios).
+- Archive: `openspec/changes/archive/2026-11-03-session-start-delivery/`.
+- Commits `a0a17bc`, `f0db113`, `4a44c73`, `f584bf5`; the S19 log is at `ROADMAP.md:1272-1294`.
+- Outbound briefs sit in `archive/*-setup-session-workflow/`: `chezmoi-request-global-worktree-tasks.md` (the original request for the global tasks), `guard-request-plan-mode-tasks.md` and `chezmoi-request-prompt-delivery.md` (48 lines, the origin of `fix-prompt-delivery`).
+
+**Documented herdr pitfalls**
+- `delivery.py:3-4`: `interactive_ready` and `idle` are reported at once, but the TUI is blank for about 10 s (more in a fresh worktree), and a prompt sent then is lost.
+- `delivery.py:7-8`: a stall or timeout does not prove non-delivery.
+- `delivery.py:15`: a tab opened without focus shows `done` after a fast answer.
+- `startplan.py:95-96`: a trailing `@ROADMAP.md` opens the autocomplete popup, which takes the Enter. The start prompt avoids any `@` (line 97).
+- `ROADMAP.md:446`: `agent_pane_busy`, empty tabs left by `agent:dispatch`, and the `--agent` flag collision with the passthrough (renamed `--agent-kind`).
+- `ROADMAP.md:450`: lessons (verify delivery, test against a real TUI).
+- `ROADMAP.md:1246`: `herdr pane current --current` has a null `agent_name`, whereas `herdr agent get <pane-id>` has it.
+- `ROADMAP.md:1250`, `:1314`, `:1316-1317`: backlog items, including the `herdr workspace '' not found` message.
+- `ROADMAP.md:385`: `herdr worktree create` opens a whole workspace, so nvim does not use it.
+- Worktrees `[redacted:worktrees_root]/nvim-*` carry the same `.mise` tree. I found no extra task in any of them. The unmerged branch `fix/stabilize-sidebar-layout` is 7 commits ahead of `origin/main`, but I did not read it for herdr work.
+
+## 2. opencode-readonly-guard (`[redacted:repo]`)
+
+- **Fact:** it is a TypeScript permission plugin (bun, hk, `mise.toml` build/test tasks). It has no workspace, dispatch or session task, no `scripts/` and no `openspec/`.
+- Its herdr work is permission rules only:
+  - `rules/allow.json:215-276` allows reads such as `herdr workspace list *` and `herdr agent read *`.
+  - `rules/ask.json:173-202` asks on `agent prompt`, `send-keys`, `agent start`, `tab create`, `tab close` and `workspace create`.
+  - `herdr tab rename` and `herdr notification show` are allowed by the `herdr-ui` preset (README.md:136-147).
+- It treats `plan` and `explore` as read-only agents (README.md:113).
+- Plan-mode variants are not handled there. `mise run` always asks in plan mode, and a per-project allowlist is open in `TODO.md`.
+- `~/.local/share/opencode/readonly-guard` is not a checkout. It holds only `events.jsonl` and a backup directory.
+- Branches `feat/herdr-rules` and `feat/herdr-ui-preset` are remote-only and contain the same rules work.
+
+## 3. [redacted:repo] and [redacted:repo]
+
+- **Fact:** `.mise/tasks` in [redacted:repo] has `worktree/{new,rm}` and `session/{id,export}`. [redacted:repo] has only `session/export`. A grep for `herdr` in `.mise` and `scripts` of both returns nothing.
+- The "lanceur d'onglet" is not in [redacted:repo] or [redacted:repo]. The report says it is an orchestrator script (`memory/studies/orchestration_sessions_herdr/rapport.md:262`), and it is not tracked in [redacted:repo].
+- I found the scratch copies it describes, outside any repo and not versioned:
+  - `/tmp/opencode/launch-child.sh` (26 lines, bash). Its usage line: `# Usage: launch-child.sh <workspace-id> <cwd> <agent-name> <brief-file> <session-title>`.
+  - `/tmp/opencode/go.sh` (23 lines, bash). Usage: `go.sh <agent-name> [extra-text]`.
+- What `launch-child.sh` does:
+  - It runs `herdr tab create --workspace --cwd --label --env OPENCODE_CONFIG_CONTENT=… --no-focus`, then `herdr pane wait-output --match '➜'`.
+  - It starts opencode with `herdr agent start --kind opencode --pane … -- --agent plan`.
+  - It waits for `pane wait-output "Ask anything"`, sleeps 3 s, then sends the brief with `agent prompt --wait --timeout 600000`, and renames the session.
+  - It takes an existing workspace id and does not create one. It has no retry loop and no tests, and it is not generic.
+- What `go.sh` does: it presses Tab to switch from plan to build, then Ctrl+T to cycle variants (lines 13-18), then sends "go" with `--wait`.
+- Pitfalls in the [redacted:repo] report: lines 99-104 (lost prompts, the `agent prompt --timeout` without `--wait` syntax error, `pipefail` plus `grep`) and line 105 (the variant is not always applied after the plan to build switch). Also lines 190-193 on `agent start` returning before the TUI renders.
+
+## Comparison with `fix-prompt-delivery`
+
+| Item in the chezmoi change | Elsewhere |
+|---|---|
+| No re-paste after a stall; inspect before retry | Done in `delivery.py` (nvim), Python and tested |
+| Wait for idle and a drawn TUI | Done in `delivery.py:114-125` |
+| Whitespace-free marker, `done` counts as delivered, `unreadable`, bounded calls | Done in `delivery.py`; the sender adopted them from the chezmoi review |
+| Autocomplete popup from a trailing `@file` | Worked around by prompt text (`startplan.py:95-97`), not fixed in the global helper |
+| `--json` on one line with `"prompt"`; unknown `--workspace` | Not implemented elsewhere (backlog `ROADMAP.md:1316-1317`) |
+| Shell fake-herdr harness | Not elsewhere; only the nvim Python `FakeTui` exists |
+
+**Beyond the proposal:**
+- A start report listing leftovers (`startrun.py`).
+- Plan-mode and variant selection through `-- --agent plan` and `OPENCODE_CONFIG_CONTENT`.
+- Tab labelling and orchestrator reporting.
+- A pre-check that the agent name is free.
+
+**Not found anywhere:** workspace creation, and dispatch into a newly created workspace. Both remain open for the chezmoi tasks. `session:start` and `launch-child.sh` need the workspace to exist already.
+
+**Inference:** a shell port of `delivery.deliver` is the intent of `fix-prompt-delivery`. The nvim repo says it can go back to `--prompt` once that change is applied (`ROADMAP.md:1316`).
+</task_result>
+</task>
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 44.5s)
+
+_Thinking:_
+I'm noting that the prompt delivery fixes already exist in nvim as a tested Python module, and that the shell port is planned separately under the chezmoi-wtasks work. I also see that nothing creates herdr workspaces during a task, so there's no dispatch into a new workspace to account for.
+
+I'm checking how mode and variant selection already work in nvim, through the `-- --agent plan` flag and `OPENCODE_CONFIG_CONTENT`. I'm also weighing two ways to add workspace creation and dispatch: folding it into fix-prompt-delivery, which chezmoi-wtasks owns and has already reviewed, or opening a new change for it.
+
+I'm weighing whether to build the launcher here or wait, since its home is still open in [redacted:repo]'s study. Extending the existing agent:dispatch in the same channel layer looks consistent with the repo's scope, though I'd flag the overlap to [redacted:repo]. The open question is how to launch the roadmap agent before that new change exists.
+
+I'm weighing whether to launch the roadmap agent by hand now or wait for the new change to exist first. Launching by hand keeps the roadmap moving, since fix-prompt-delivery is queued behind other work, and those hand steps become the design input for the new workspace and dispatch change. I'd also amend the global-mise-tasks rule so Python task files are checked with `py_compile` rather than only `shellcheck -x`.
+
+I'm checking whether ruff is available for the Python task, and where a shared Python lib should live alongside scm.sh under `~/.config/mise/lib/`. I'm also noting that the global roadmap task has to cover everything nvim's roadmap task does, since it will eventually replace it.
+
+I'm now checking how nvim's roadmap task parses its Sessions table, since the global task has to read that same format or nvim has to move to a shared one before it can drop its own copy. I also need to confirm whether `session:start` imports the roadmap lib directly, because removing the nvim task could break that path.
+
+I'm checking whether session:start imports roadmap.py directly, since that decides whether nvim can drop the lib or only the task. I also want to see what options nvim's roadmap task takes, like a check mode or JSON output, and whether ruff is available.
+
+
+_Thinking:_
+Nobody builds herdr workspaces from a task yet, while nvim already has tested Python prompt delivery. Next I'm checking whether nvim's tooling depends on its roadmap code, what the roadmap task offers, and which Python linters exist.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.config/nvim\necho \"== who imports roadmap.py\"; rg -n 'import.*roadmap|from .*roadmap|roadmap\\.' .mise/tasks .mise/lib --type py -g '!**/roadmap.py' 2>/dev/null | cut -c1-160 | head; rg -ln 'roadmap' .mise/tasks | head\necho \"== nvim roadmap task usage\"; sed -n '1,30p' .mise/tasks/roadmap | cut -c1-200\necho \"== nvim tests for roadmap\"; fd -t f roadmap tests 2>/dev/null\necho \"== python tooling available\"; for t in ruff pyright mypy python3; do command -v $t >/dev/null && echo \"$t: $($t --version 2>&1 | head -1)\" || echo \"$t: missing\"; done\necho \"== nvim python lint config\"; rg -n 'ruff|py_compile|pyright' .mise.toml mise.toml hk.pkl 2>/dev/null | head"
+}
+```
+
+**Output:**
+```
+== who imports roadmap.py
+.mise/lib/workflow/startplan.py:12:from .roadmap import Roadmap, Status, overlaps
+.mise/lib/workflow/startplan.py:49:    if session_id not in roadmap.sessions:
+.mise/lib/workflow/startplan.py:52:    target = roadmap.sessions[session_id]
+.mise/lib/workflow/startplan.py:65:        dep_session = roadmap.sessions.get(dep)
+.mise/lib/workflow/startplan.py:75:        pairs = overlaps(target, roadmap.sessions[sid])
+.mise/lib/workflow/startplan.py:143:    target = roadmap.sessions[session_id]
+.mise/lib/workflow/metrics.py:1:"""Experiment metrics from the telemetry file, GitHub and git (D19, `roadmap --metrics`).
+.mise/tasks/session/start
+.mise/tasks/roadmap
+.mise/tasks/gate
+.mise/tasks/session/export
+== nvim roadmap task usage
+#!/usr/bin/env python3
+#MISE description="Roadmap status from git, GitHub and herdr; --check validates ROADMAP.md; --metrics summarises the experiment"
+"""Usage: mise run roadmap [--check] [--metrics] [--no-gh]
+
+Read-only. Without options: done, in progress, startable, blocked (and why), pending
+gates in recommended order with their hints, ready for cleanup, Touches overlaps and
+the live editor sync. Status is never stored in ROADMAP.md: it comes from git
+(an archived change on origin/main, worktrees, remote branches), GitHub (pull
+requests) and the telemetry file. Run `git fetch` first for fresh refs.
+
+--check   validate the file format and the required settings (gate G7); exit 1 on problems
+--metrics time per session, gate waits, concurrency, syncs, incidents (telemetry + GitHub + git)
+--no-gh   do not call GitHub
+"""
+
+import argparse
+import os
+import sys
+from datetime import datetime
+from pathlib import Path
+
+for parent in Path(__file__).resolve().parents:
+    if (parent / "lib" / "workflow").is_dir():
+        sys.path.insert(0, str(parent / "lib"))
+        break
+
+from workflow import gitinfo, herdr, livesync, metrics, roadmap, settings, telemetry  # noqa: E402
+
+
+def load(root: Path) -> roadmap.Roadmap:
+== nvim tests for roadmap
+tests/workflow/test_roadmap.py
+== python tooling available
+ruff: mise ERROR No version is set for shim: ruff
+pyright: missing
+mypy: missing
+python3: Python 3.14.8
+== nvim python lint config
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 25.9s)
+
+_Thinking:_
+Nvim's roadmap task does much more than the generic version would: it handles gates, Touches overlaps, live editor sync, telemetry metrics, GitHub PRs, and herdr. So a global task can only replace it if the global one covers the shared pieces, like status from git, openspec and archive, plus `--check`, while nvim keeps its own repo-specific parts.
+
+I'm weighing whether a generic global task can fully replace nvim's roadmap task, since nvim's version also handles gates and live sync. The shared core could move to the global task, but nvim's specific pieces would stay put or become hooks, which means the format has to support nvim's Sessions table and expose `--json` for session:start and gate.
+
+Now I'm weighing the launch change against the roadmap work. nvim's delivery.py already covers most of what fix-prompt-delivery plans as a shell port, and since Python is now allowed in global tasks, porting it as a shared library could re-scope that queued change, which affects chezmoi-wtasks.
+
+I'm sketching a new change for the launch work, maybe called `add-agent-launch-tasks`, and I'm leaning toward extending `agent:dispatch` with flags for creating a workspace, a worktree, and plan mode.
+
+I'm laying out the rest of the launch change: a workspace-creation step that's idempotent and refuses a label that already exists elsewhere, starting an agent in a worktree in plan mode with the robust prompt delivery and a one-line JSON result, a name pre-check, and reporting the pane id. The open question is whether this depends on the shell fix-prompt-delivery change or absorbs nvim's Python delivery and cancels it, and I still need to flag the fleet-versus-launcher tension.
+
+I'm weighing whether to launch the roadmap agent by hand right now, feeding what I learn into the new change, or to wait. Using `scm:worktree:new` with `--tab` and plan mode would open an extra empty tab, since a fresh workspace already has a root tab, so the manual route needs to account for that.
+
+I'm now weighing a manual launch of the roadmap agent: create a workspace by hand, which gives a root pane, then start the agent in plan mode. Plan mode fits the rule that every task starts that way and moves to build only after approval, though it would block file writes during the design step I want from it first.
+
+I'm settling on the design for the launch change, which means deciding how it relates to fix-prompt-delivery before drafting the plan. The plan will end by asking the user two questions: the scope of the new change and whether it replaces that queued shell port.
+
+I'm laying out three options for the launch change and a choice on how far nvim's replacement goes, then recommending starting the roadmap agent by hand in plan mode. Before deciding on re-scoping fix-prompt-delivery, I want to check what its three finished tasks actually are, so I don't throw away real work.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; rg -n '^- \\[x\\]' openspec/changes/fix-prompt-delivery/tasks.md | cut -c1-200; rg -n '^## ' openspec/changes/fix-prompt-delivery/tasks.md | cut -c1-120; rtk ls tests 2>&1 | head -3; rtk git log --oneline -3 -- openspec/changes/fix-prompt-delivery | cat",
+  "workdir": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+3:- [x] 1.1 Write the proposal, design, delta spec and tasks; add row 22 to the audit change map (`openspec validate --all --strict`)
+4:- [x] 1.2 Propose commit `docs(chezmoi:spec): add the fix-prompt-delivery change`; reply to the sender in this tab with the change id (`git show --stat HEAD` lists only `openspec/` and `docs/audits/
+5:- [x] 1.3 Amend the artifacts after the sender's real-TUI correction (wait for the TUI to draw, 5 submissions, `--workspace` resolved before anything is created); propose commit `docs(chezmoi:spec):
+1:## 1. Plan
+7:## 2. Harness first
+15:## 3. Helper
+20:## 4. Callers
+28:## 5. Live check (user's go at this step)
+35:## 6. Close
+ls: cannot access 'tests': No such file or directory
+6ca4aa9 docs(chezmoi:spec): wait for the TUI to draw in fix-prompt-delivery
+46c9ba4 docs(chezmoi:spec): add the fix-prompt-delivery change
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 597.2s)
+
+_Thinking:_
+Since no code has been written yet, only the planning, rescoping costs just the artifacts. Next I'm drafting the plan as a set of questions, using the question tool for each decision and keeping it brief.
+
+
+_Thinking:_
+Prompt delivery already exists in nvim's Python code (`delivery.py`, merged, with tests), and nothing here creates a herdr workspace yet, so the three decisions below are still open; plan mode is on, so nothing has been changed.
+
+
+**Tool: question**
+
+**Input:**
+```json
+{
+  "questions": [
+    {
+      "header": "Launch change vs fix-prompt-delivery",
+      "question": "Now that global tasks may be written in Python, how should the new launch change relate to fix-prompt-delivery (planning only, owned by chezmoi-wtasks)?",
+      "options": [
+        {
+          "label": "New change absorbs delivery (Recommended)",
+          "description": "New change `add-agent-launch-tasks`: port nvim's tested Python delivery as a shared global lib, add workspace creation, plan-mode start and dispatch into a new workspace; fix-prompt-delivery is cancelled and its requirements move over (only planning is lost); chezmoi-wtasks is told"
+        },
+        {
+          "label": "New change on top of fix-prompt-delivery",
+          "description": "fix-prompt-delivery stays a shell port as planned; the new change only adds workspace creation and the launch flow and depends on it"
+        },
+        {
+          "label": "Extend fix-prompt-delivery",
+          "description": "No new change: add workspace creation and the launch flow to fix-prompt-delivery's scope"
+        }
+      ]
+    },
+    {
+      "header": "Replacing nvim's roadmap task",
+      "question": "How far should the global roadmap task go to replace nvim's?",
+      "options": [
+        {
+          "label": "Core + --json, nvim keeps extras (Recommended)",
+          "description": "Global `openspec:roadmap`: state from openspec, archive, git and optionally GitHub; `--check`; `--json`; a format that covers nvim's sessions table. nvim keeps gates, metrics and live sync as its own tasks, and session:start/gate read the global --json; the signal at the end proposes that migration"
+        },
+        {
+          "label": "Full parity",
+          "description": "The global task takes over gates, metrics and herdr status too, with project hooks for nvim-specific parts; much larger change"
+        }
+      ]
+    },
+    {
+      "header": "Launching the roadmap agent",
+      "question": "When should the roadmap agent be launched, given that the launch tooling isn't built yet?",
+      "options": [
+        {
+          "label": "Now, by hand, plan mode (Recommended)",
+          "description": "Worktree via scm:worktree:new, workspace by hand, agent started with `-- --agent plan` (your rule: plan first, build after your approval), one prompt by hand following delivery.py's protocol; every step logged as input for the launch change and the [redacted:repo] signal"
+        },
+        {
+          "label": "Now, by hand, build mode",
+          "description": "Same, but in build mode; the brief makes it stop for your approval after the design"
+        },
+        {
+          "label": "After the launch change",
+          "description": "Write the launch change first, have it implemented, then use it for the roadmap agent (dogfooding; delays the roadmap)"
+        }
+      ]
+    }
+  ]
+}
+```
+
+**Output:**
+```
+User has answered your questions: "Now that global tasks may be written in Python, how should the new launch change relate to fix-prompt-delivery (planning only, owned by chezmoi-wtasks)?"="New change absorbs delivery (Recommended)", "How far should the global roadmap task go to replace nvim's?"="By principle, we may seek full parity, but this probably deserves a feat by feat arbitration", "When should the roadmap agent be launched, given that the launch tooling isn't built yet?"="Now, by hand, plan mode (Recommended)". You can now continue with the user's answers in mind.
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 40.4s)
+
+_Thinking:_
+I'm putting together the final plan now, starting with amending the `add-repo-roadmap` change: the proposal, spec, and a delta for the global-mise-tasks rule, keeping the vocabulary transitional and fleet-compatible while leaving orchestration out of scope. I'm also planning a Python `openspec:roadmap` task and tightening the "Tasks are generic and clean" requirement so shell files pass `shellcheck -x` and Python files pass `python3 -m py_compile`.
+
+I'm laying out the rest of the amendment: the Python roadmap task, the stdlib-only rule, and a feature-by-feature parity table against nvim's roadmap, with a `--json` output covering the sessions table. Once that's settled, I'll propose the nvim migration. Then I'll move on to the second change, `add-agent-launch-tasks`, which is about why launching an agent by hand keeps repeating.
+
+I'm now weighing how to sequence the second change, since the Python rule amendment is shared between it and `add-repo-roadmap`. Making the launch change depend on the roadmap change would couple them, so I'm considering whichever lands first carrying the rule, or some other way to avoid ordering the two.
+
+I'm settling on the dependency: the launch change will declare that it depends on `add-repo-roadmap` for the Python rule amendment, rather than duplicating the rule in both deltas. I'm also keeping its scope to the channel layer, with the orchestration architecture left for the fleet study, and drawing its inputs from the observation log of this launch. The launch change gets a proposal and a global-mise-tasks spec delta only, with the design deferred. I still need to work out how to cancel `fix-prompt-delivery` within openspec, since I'm not sure there's a dedicated command for it.
+
+I'm weighing how to cancel `fix-prompt-delivery`, since removing its directory is a deletion that needs an explicit go. My plan is to list that removal, along with marking row 22 as superseded, in the proposal so that the user's approval covers it. I'll also tell the chezmoi-wtasks agent that its queue is losing that change, since it is currently idle.
+
+I'm also planning to tell nvim-orch, the agent that originally requested fix-prompt-delivery, that its request now moves to add-agent-launch-tasks, since its backlog still points at that change. That message needs the user's go, so I'll include it in the same approval as the cancellation. I'll also mark audit row 25 and row 22 as superseded.
+
+I'm counting the length of the commit message, which comes to 77 characters and fits under the 80 limit, and I'm weighing a single atomic commit against splitting the add and the removal into two.
+
+I'm laying out the launch steps by hand: create a worktree for the roadmap branch, open a labeled workspace in it, start an agent there in plan mode, then deliver the first prompt following the same wait-and-read protocol the delivery code uses.
+
+I'm working through the last steps: once the roadmap work is in place, I'll log each prompt delivery with timings in the `/tmp/opencode` experiment file, and fold that record into the [redacted:repo] signal and the nvim replacement signal, both sent only on the user's go.
+
+I'm also noting that the brief should flag that plan mode makes `mise run` prompt for approval under the readonly guard, so the agent will need sign-off on those calls.
+
+
+You chose: the new change takes over prompt delivery, the roadmap task targets full parity with nvim's but feature by feature, and I launch the roadmap agent now, by hand, in plan mode. Here is the full plan; plan mode is still on.
+
+## 1. Amend `add-repo-roadmap`
+- **Transitional:** it stands in until the fleet's records system exists.
+- **Fleet-compatible vocabulary:** permanent `B-NNN` ids, dependencies named by change id, no stored status.
+- **Non-goal:** multi-agent orchestration.
+- **Global task `openspec:roadmap`, in Python with the standard library only.**
+  - The `global-mise-tasks` rule changes: shell files pass `shellcheck -x`, and Python files pass `py_compile` and `unittest`.
+  - Whether to add ruff to the repo's `mise.toml` (not installed now) is a design question.
+- **Replacing nvim's task:** the aim is full parity, decided feature by feature in `design.md`.
+  - Features to rule on: view, `--check`, `--json`, worktrees and branches, GitHub, gates, `Touches` overlaps, live sync, metrics, herdr status.
+  - Each one is marked core, project hook, stays in nvim, or later.
+  - Required whatever the ruling: `--json` output, and a format that covers nvim's sessions table.
+  - At the end of the work, a replacement signal to nvim, on your go.
+- **Capabilities:** new `repo-roadmap`; modified `global-mise-tasks` (deploy and list the task, the Python rule).
+- Validate and scan, then commit: `docs(chezmoi:spec): make add-repo-roadmap transitional and generic` (66 characters).
+
+## 2. New change `add-agent-launch-tasks`; `fix-prompt-delivery` cancelled
+- **Why:**
+  - Nothing creates a herdr workspace.
+  - A launch is done by hand every time: worktree, workspace, plan mode, prompt.
+  - nvim already has delivery solved in Python and tested.
+- **What changes:**
+  1. A shared global Python library, ported from nvim's `delivery.py` and its herdr wrapper. `agent:dispatch` and `scm:worktree:new --prompt` both use it.
+  2. Workspace creation:
+     - reuses a workspace when the label and cwd match;
+     - refuses when the label exists with another cwd.
+  3. A launch flow: worktree, new workspace, agent in plan mode (`-- --agent plan`, with optional `OPENCODE_CONFIG_CONTENT`), first prompt, and the outcome as one line of JSON. It checks first that the agent name is free.
+  4. It takes over all of `fix-prompt-delivery`'s requirements:
+     - one-line `--json`;
+     - `--workspace` resolved before anything is created;
+     - the `@file` warning;
+     - bounded herdr calls;
+     - a test harness with a fake herdr.
+- **Depends on:** `add-repo-roadmap`, for the Python rule.
+- **Non-goal:** the fleet orchestration architecture. Inputs include the observation log from this launch.
+- **Artifacts:** proposal and `global-mise-tasks` delta only; the design is written in its own session.
+- **Cancelling `fix-prompt-delivery`:**
+  - Its directory is deleted (it holds only planning; git keeps the history). This needs your go.
+  - Audit row 22 is marked "superseded by `add-agent-launch-tasks`", and row 25 is added.
+- **Messages, on your go:**
+  - one to `chezmoi-wtasks`: `fix-prompt-delivery` leaves its queue;
+  - one to `nvim-orch`: its request now lives in `add-agent-launch-tasks`.
+- Commit: `docs(chezmoi:spec): add add-agent-launch-tasks, supersede fix-prompt-delivery` (77 characters).
+
+## 3. Your `/compact`
+Everything decided so far will then be committed. `main` will be 4 commits ahead of origin, and nothing is pushed.
+
+## 4. Launch the roadmap agent by hand, plan mode
+1. **Brief** `/tmp/opencode/brief-chezmoi-roadmap.md`, as planned, plus:
+   - the parity arbitration table and the Python rule;
+   - the nvim signal at the end;
+   - **plan mode:**
+     - it presents the design in chat and you switch it to build after approving;
+     - `mise run` will ask for approval, because of readonly-guard.
+2. **Worktree:** `mise run scm:worktree:new feat/add-repo-roadmap --base main --json`.
+3. **Workspace:** `herdr workspace create --label chezmoi-roadmap --cwd <path> --no-focus`, then wait for the shell in the root pane.
+4. **Agent:** `herdr agent start chezmoi-roadmap --kind opencode --pane <id> -- --agent plan`.
+5. **First prompt**, following nvim's `delivery.py` protocol by hand:
+   - Wait for idle (15 s).
+   - Read the screen until at least 5 lines are drawn, then pause 1 s.
+   - Run `herdr agent prompt … --wait --until working --timeout 20000`.
+   - If herdr doesn't confirm, check the agent first:
+     - `working` or `done`: delivered;
+     - prompt still in the input: Enter, at most twice;
+     - prompt gone: send it again.
+6. **Log:** timings and incidents go to `/tmp/opencode/exp-chezmoi-roadmap.md`, then into the [redacted:repo] signal and this session's export.
+
+## 5. End of the work (later)
+- The signal to [redacted:repo] on `B-075` and `D-008`.
+- The replacement signal to nvim.
+- Both only on your go.
+
+Turn off plan mode and say go to run 1 and 2. The "go" also approves deleting the `fix-prompt-delivery` directory and sending the two messages. Then I stop for your `/compact`, and run 4 on your next go.
+
+---
+
+## User
+
+1. add-repo-roadmap
+Aligned with fleet roadmaps, it should the roadmap content should (almost?) fully be mechanized
+capabilities: {,openspec-}repo-roadmap
+
+2. add-agent-launch-task
+   1. Same as roadmap, any repos should be able to use this and nvim should adopt it
+   2. Workspace reuse when branch and/or cwd and/or label match:
+      - in principle there should be only one r/w checkout/worktree of a branch at any time, which implies a path/cwd
+      - my vision, only based on my current knowledge, is that a workspace should be linked/attached/built out of a worktree and serve as a home for agents and sessions working into it; possibly as well as their orchestration and communication, but those may also happen a "step" above for project level orchestration, synchronization and communication
+   3. Should also check if worktree/branch checkout and workspace already exists
+
+I believe chezmoi-wtasks was only ment to register new changes and can be considered done
+
+4. launch
+   1. I'd rather have it written in the repo, maybe in it change dir if openspec allows it
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 65.8s)
+
+_Thinking:_
+I'm in plan mode, so this is research and planning only. I'm reading through the user's first point about the roadmap: they want the content aligned with the fleet roadmaps and mostly generated rather than hand-kept in ROADMAP.md, and I'm checking which fleet repos already generate theirs.
+
+I'm checking whether OpenSpec lets me store roadmap metadata like dependencies and lane in each change's `.openspec.yaml`, so ROADMAP.md can be generated from those records instead of kept by hand.
+
+I'm working out how the capability names split: `{,openspec-}repo-roadmap` reads as two capabilities, a repo-specific `repo-roadmap` and a generic `openspec-repo-roadmap`, which fits the earlier separation.
+
+I'm sorting the second item, add-agent-launch-tasks: any repo should be able to use it, with nvim adopting it as a closing signal. I'm modeling a workspace as a 1:1 link to a read-write worktree identified by branch, with its label taken from the worktree name and reused whenever that branch is already checked out.
+
+I'm checking whether herdr's own worktree command already opens a workspace bound to a worktree, since the nvim notes say it does and that could match the one-workspace-per-branch model I'm sketching. I'll look at its help output to confirm before settling the design.
+
+I'm going to check whether herdr's worktree and workspace commands already cover the one-workspace-per-branch model, so I'll look at their help output and the fields `herdr workspace list` returns. I'm also noting that chezmoi-wtasks was only meant to register changes and is now done, so I'm considering closing its tab once I've confirmed its session is saved.
+
+I'm weighing whether to close chezmoi-wtasks's tab once its session is saved, and I'd ask before doing it. The fix-prompt-delivery message goes away since that agent's job is done. The nvim-orch message about moving its request stays, but only after the go-ahead.
+
+I'm checking whether OpenSpec's extra files inside a change directory, like a brief, get ignored by validation, and whether anything in its source handles them. The nvim archive already keeps briefs in change folders alongside the other artifacts, so I'm weighing whether the launch experiment log could live there too.
+
+I'm checking whether the brief can sit inside the change directory, since the nvim archive already keeps briefs there, but the log has to avoid naming the private sibling repos. Anything that lands in the repo has to stay clear of those names.
+
+I'm checking the fleet names rule before the brief goes anywhere near the repo: sibling repo names are masked by default in the public profile, and the fleet-names switch is what keeps them readable.
+
+I'm weighing a committed brief in the public repo against the references to [redacted:repo]'s roadmap and orchestration study, which I'd rather keep out of tracked files. A generic pointer to the sibling roadmap, resolved through local notes, looks like the cleaner option.
+
+I'm weighing whether a committed brief can name the sibling roadmap and orchestration study, since those references would expose private repo names in the public repo. A generic pointer resolved through local notes or the first prompt looks safer, and I'd rather ask the user whether those names can go public than guess.
+
+I'm weighing whether the committed brief can name [redacted:repo], [redacted:repo] and greffe, since the public-writing rule masks sibling repo names apart from [redacted:private] and [redacted:repo]. A generic pointer in the repo with the specific references kept out of tracked files looks safer, and I'd rather ask the user whether those names can go public than assume.
+
+I'm checking whether the repo already names the sibling projects, and I'll grep for them to see what's committed. I'm also weighing where the launch observation log should live, since I'd rather keep it in the repo's change directory like the brief.
+
+I'm checking whether OpenSpec's validation tolerates extra files in a change directory, since the nvim archive already keeps briefs there next to the other artifacts. I'd rather confirm that from its source than test it in /tmp, because plan mode rules out writing scratch files.
+
+I'm going to check whether OpenSpec tolerates extra files in a change directory by reading its source rather than writing scratch files. I'm also starting to look at how the [redacted:repo] fleet mechanizes its roadmap, where milestone and task records feed a single projection.
+
+I'm comparing how the other fleet repos build their roadmaps: [redacted:repo] treats roadmap.md as a projection of milestone and task records, [redacted:repo] checks its index formats with a script, and nvim keeps ROADMAP.md by hand. That suggests the OpenSpec roadmap should be generated from change metadata, and I want to confirm which of these projections actually exist before relying on them.
+
+I'm weighing whether the roadmap could be generated from change metadata the way [redacted:repo] builds its roadmap from records, with ROADMAP.md as a projection checked for drift. The missing pieces are priority, dependencies and backlog items, so I'm considering where those would live, whether in `.openspec.yaml` or in separate backlog records.
+
+I'm checking how `.openspec.yaml` is parsed, whether the schema is strict about extra keys, and how the other fleet repos build their roadmaps, starting with [redacted:repo]'s milestone records and whether its projection writer exists yet.
+
+I'm checking how `scm:worktree:new` handles a branch that already exists or is checked out somewhere else, and I'll read the relevant lines before deciding whether the launch task has to guard against that. I'm also looking at whether `chezmoi-wtasks` leaves anything behind that needs cleaning up.
+
+I'm checking how openspec reads `.openspec.yaml` and whether it rejects extra keys, then looking at herdr's worktree help.
+
+I'm going to look at the next few things at once: how herdr lists workspaces and whether its worktree command fits, how the worktree script handles a branch that already exists or is checked out elsewhere, and whether the public repo already names the sibling projects. I also want an explore pass on how the other fleet repos mechanize their roadmaps.
+
+
+Plan mode is on, so I'll only read. Four things to check: whether OpenSpec tolerates extra files and metadata in a change directory, herdr's own model linking worktrees and workspaces, how the fleet generates its roadmaps, and which sibling names already appear publicly here.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\necho \"== .openspec.yaml content\"; cat openspec/changes/add-repo-roadmap/.openspec.yaml\noroot=$(dirname \"$(dirname \"$(readlink -f \"$(command -v openspec)\")\")\"); echo \"== openspec pkg: $oroot ($(openspec --version 2>/dev/null))\"\necho \"== metadata schema (strict? extra keys?)\"; rg -n -i 'openspec\\.yaml|ChangeMetadata|\\.strict\\(\\)|passthrough' \"$oroot/dist\" -g '*.js' 2>/dev/null | rg -v test | cut -c1-200 | head -20",
+  "workdir": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+== .openspec.yaml content
+schema: spec-driven
+created: 2026-11-03
+== openspec pkg: /home/linuxbrew/.linuxbrew/lib/node_modules/@fission-ai/openspec (1.2.0)
+== metadata schema (strict? extra keys?)
+/home/linuxbrew/.linuxbrew/lib/node_modules/@fission-ai/openspec/dist/commands/spec.js:41: * Raw-first behavior ensures text mode is a passthrough for deterministic output.
+/home/linuxbrew/.linuxbrew/lib/node_modules/@fission-ai/openspec/dist/commands/change.js:19:     * - Text mode: raw markdown passthrough (no filters)
+/home/linuxbrew/.linuxbrew/lib/node_modules/@fission-ai/openspec/dist/utils/index.js:4:export { readChangeMetadata, writeChangeMetadata, resolveSchemaForChange, validateSchemaName, ChangeMetadataError
+/home/linuxbrew/.linuxbrew/lib/node_modules/@fission-ai/openspec/dist/utils/change-utils.js:3:import { writeChangeMetadata, validateSchemaName } from './change-metadata.js';
+/home/linuxbrew/.linuxbrew/lib/node_modules/@fission-ai/openspec/dist/utils/change-utils.js:115:    writeChangeMetadata(changeDir, {
+/home/linuxbrew/.linuxbrew/lib/node_modules/@fission-ai/openspec/dist/utils/change-metadata.js:4:import { ChangeMetadataSchema } from '../core/artifact-graph/types.js';
+/home/linuxbrew/.linuxbrew/lib/node_modules/@fission-ai/openspec/dist/utils/change-metadata.js:7:const METADATA_FILENAME = '.openspec.yaml';
+/home/linuxbrew/.linuxbrew/lib/node_modules/@fission-ai/openspec/dist/utils/change-metadata.js:11:export class ChangeMetadataError extends Error {
+/home/linuxbrew/.linuxbrew/lib/node_modules/@fission-ai/openspec/dist/utils/change-metadata.js:18:        this.name = 'ChangeMetadataError';
+/home/linuxbrew/.linuxbrew/lib/node_modules/@fission-ai/openspec/dist/utils/change-metadata.js:37: * Writes change metadata to .openspec.yaml in the change directory.
+/home/linuxbrew/.linuxbrew/lib/node_modules/@fission-ai/openspec/dist/utils/change-metadata.js:42: * @throws ChangeMetadataError if validation fails or write fails
+/home/linuxbrew/.linuxbrew/lib/node_modules/@fission-ai/openspec/dist/utils/change-metadata.js:44:export function writeChangeMetadata(changeDir, metadata, projectRoot) {
+/home/linuxbrew/.linuxbrew/lib/node_modules/@fission-ai/openspec/dist/utils/change-metadata.js:49:    const parseResult = ChangeMetadataSchema.safeParse(metadata);
+/home/linuxbrew/.linuxbrew/lib/node_modules/@fission-ai/openspec/dist/utils/change-metadata.js:51:        throw new ChangeMetadataError(`Invalid metadata: ${parseResult.error.message}`, metaPath);
+/home/linuxbrew/.linuxbrew/lib/node_modules/@fission-ai/openspec/dist/utils/change-metadata.js:60:        throw new ChangeMetadataError(`Failed to write metadata: ${ioError.message}`, metaPath, ioErro
+/home/linuxbrew/.linuxbrew/lib/node_modules/@fission-ai/openspec/dist/utils/change-metadata.js:64: * Reads change metadata from .openspec.yaml in the change directory.
+/home/linuxbrew/.linuxbrew/lib/node_modules/@fission-ai/openspec/dist/utils/change-metadata.js:69: * @throws ChangeMetadataError if the file exists but is invalid
+/home/linuxbrew/.linuxbrew/lib/node_modules/@fission-ai/openspec/dist/utils/change-metadata.js:71:export function readChangeMetadata(changeDir, projectRoot) {
+/home/linuxbrew/.linuxbrew/lib/node_modules/@fission-ai/openspec/dist/utils/change-metadata.js:82:        throw new ChangeMetadataError(`Failed to read metadata: ${ioError.message}`, metaPath, ioError
+/home/linuxbrew/.linuxbrew/lib/node_modules/@fission-ai/openspec/dist/utils/change-metadata.js:90:        throw new ChangeMetadataError(`Invalid YAML in metadata file: ${parseError.message}`, metaPath
+
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "echo \"== herdr worktree\"; herdr worktree --help 2>&1 | head -30; herdr worktree create --help 2>&1 | sed -n '1,40p'\necho \"== workspace list fields\"; herdr workspace list 2>&1 | jq -c '.result.workspaces[0]' 2>/dev/null"
+}
+```
+
+**Output:**
+```
+== herdr worktree
+Manage Git worktree-backed workspaces
+
+Usage: herdr worktree [COMMAND]
+
+Commands:
+  list    List worktree workspaces
+  create  Create and open a Git worktree
+  open    Open an existing Git worktree
+  remove  Remove a worktree checkout
+
+Are you an AI? Use these resources ONLY IF your task specifically asks you to:
+  Help a human understand or set up Herdr for the first time:
+    https://herdr.dev/agent-guide.md
+  Debug or investigate a problem with Herdr:
+    https://herdr.dev/llms.txt
+  Control Herdr panes, agents, or workspaces:
+    SKIP if a Herdr skill is already in your context. Otherwise run: herdr --skill
+
+Create and open a Git worktree
+
+Usage: herdr worktree create [OPTIONS]
+
+Options:
+      --workspace <ID>
+          
+
+      --cwd <PATH>
+          
+
+      --branch <NAME>
+          
+
+      --base <REF>
+          
+
+      --path <PATH>
+          
+
+      --label <TEXT>
+          
+
+      --focus
+          
+
+      --no-focus
+          
+
+      --trust-repository
+
+== workspace list fields
+{"active_tab_id":"w6558a2c3a6c122:t9","agent_status":"idle","focused":false,"label":"[redacted:repo]","number":1,"pane_count":7,"tab_count":7,"workspace_id":"w6558a2c3a6c122"}
+
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\necho \"== sibling names already public in committed files (counts per name)\"; for n in [redacted:repo] [redacted:repo] [redacted:private] [redacted:repo] [redacted:repo] greffe [redacted:repo] [redacted:repo]; do printf '%s: ' \"$n\"; git grep -l -i -w \"$n\" -- . ':!memory/sessions' | wc -l; done\necho \"== in memory/sessions (redacted exports)\"; for n in [redacted:repo] [redacted:repo] greffe; do printf '%s: ' \"$n\"; git grep -c -i -w \"$n\" -- memory/sessions | awk -F: '{s+=$2} END{print s+0}'; done\necho \"== redaction rules in sessions README\"; rg -n -i 'fleet|sibling|mask' memory/sessions/README.md | cut -c1-220 | head -8",
+  "workdir": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+== sibling names already public in committed files (counts per name)
+[redacted:repo]: 1
+[redacted:repo]: 3
+[redacted:private]: 36
+[redacted:repo]: 6
+[redacted:repo]: 0
+greffe: 0
+[redacted:repo]: 0
+[redacted:repo]: 0
+== in memory/sessions (redacted exports)
+[redacted:repo]: 0
+[redacted:repo]: 0
+greffe: 1
+== redaction rules in sessions README
+15:- Slugs are neutral on purpose: a file name is not redacted, so it must not carry a name that the text masks.
+22:| `202610311807-harden_sensitive-explore_dispatch_rules.md` | `ses_e6d11a624ffePObu4C6kjRjMqm` | Sub-agent: how a fleet repository signals the project factory, and where rtk is configured |
+39:For this public repository the directory used is a throwaway copy of the private store's `dotfiles` terms with the switch that keeps sibling repository names readable removed, so every sibling repository name is maske
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 6.8s)
+
+_Thinking:_
+I'm checking which committed file contains "[redacted:repo]", and looking at where "greffe" shows up in the memory sessions, since it might just be a French word or might be a leak. Next I want the ChangeMetadataSchema strictness in core/artifact-graph/types.js, plus the herdr worktree list and open help, to see whether a workspace records its cwd or worktree binding. I'm also planning to look at the `herdr worktree create` options.
+
+I'm also checking the `herdr worktree create` options, specifically whether `--workspace <ID>` names the parent repo the worktree gets created from.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\necho \"== where [redacted:repo] is named\"; git grep -n -i -w [redacted:repo] -- . ':!memory/sessions' | cut -c1-200; echo \"== greffe in sessions\"; git grep -n -i -w greffe -- memory/sessions | cut -c1-200\noroot=/home/linuxbrew/.linuxbrew/lib/node_modules/@fission-ai/openspec/dist\necho \"== ChangeMetadataSchema\"; rg -n -A8 'ChangeMetadataSchema =' $oroot/core/artifact-graph/types.js | cut -c1-160\necho \"== does openspec read every file in a change dir? (validator/list)\"; rg -n 'readdir' $oroot/core/validation/*.js $oroot/core/list.js 2>/dev/null | cut -c1-180 | head",
+  "workdir": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+== where [redacted:repo] is named
+openspec/changes/enforce-hook-with-system-git/proposal.md:7:The hk hook installer is shared by the whole fleet: [redacted:repo], [redacted:repo] and [redacted:private] install their hooks the same way (config hooks, no script shims), so
+== greffe in sessions
+memory/sessions/202610311807-harden_sensitive-explore_export_machinery.md:2191:  Line 88: ### Harnais visés et greffe
+== ChangeMetadataSchema
+32:export const ChangeMetadataSchema = z.object({
+33-    // Required: which workflow schema this change uses
+34-    schema: z.string().min(1, { message: 'schema is required' }),
+35-    // Optional: creation timestamp (ISO date string)
+36-    created: z
+37-        .string()
+38-        .regex(/^\d{4}-\d{2}-\d{2}$/, {
+39-        message: 'created must be YYYY-MM-DD format',
+40-    })
+== does openspec read every file in a change dir? (validator/list)
+/home/linuxbrew/.linuxbrew/lib/node_modules/@fission-ai/openspec/dist/core/list.js:14:        const entries = await fs.readdir(dir, { withFileTypes: true });
+/home/linuxbrew/.linuxbrew/lib/node_modules/@fission-ai/openspec/dist/core/list.js:75:            const entries = await fs.readdir(changesDir, { withFileTypes: true });
+/home/linuxbrew/.linuxbrew/lib/node_modules/@fission-ai/openspec/dist/core/list.js:141:        const entries = await fs.readdir(specsDir, { withFileTypes: true });
+/home/linuxbrew/.linuxbrew/lib/node_modules/@fission-ai/openspec/dist/core/validation/validator.js:100:            const entries = await fs.readdir(specsDir, { withFileTypes: true 
+
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "herdr worktree list --help 2>&1 | sed -n '1,20p'; echo \"== list\"; herdr worktree list 2>&1 | jq -c '.' 2>/dev/null | cut -c1-600; herdr worktree open --help 2>&1 | sed -n '1,25p'; herdr worktree remove --help 2>&1 | sed -n '1,22p'; herdr --version"
+}
+```
+
+**Output:**
+```
+List worktree workspaces
+
+Usage: herdr worktree list [OPTIONS]
+
+Options:
+      --workspace <ID>
+          
+
+      --cwd <PATH>
+          
+
+      --trust-repository
+
+== list
+{"id":"cli:worktree:list","result":{"source":{"repo_key":"~/.config/nvim/.git","repo_name":"nvim","repo_root":"~/.config/nvim","source_checkout_path":"~/.config/nvim","source_workspace_id":"wP"},"type":"worktree_list","worktrees":[{"branch":"main","is_bare":false,"is_detached":false,"is_linked_worktree":false,"is_prunable":false,"label":"nvim","open_workspace_id":"wP","path":"~/.config/nvim"},{"branch":"feat/add-markdown-image-rendering","is_bare":false,"is_detached":false,"is_linked_worktree":true,"is_prunable":false,"label":"nvim","path":"~/W
+Open an existing Git worktree
+
+Usage: herdr worktree open [OPTIONS]
+
+Options:
+      --workspace <ID>
+          
+
+      --cwd <PATH>
+          
+
+      --path <PATH>
+          
+
+      --branch <NAME>
+          
+
+      --label <TEXT>
+          
+
+      --focus
+          
+
+      --no-focus
+          
+Remove a worktree checkout
+
+Usage: herdr worktree remove [OPTIONS]
+
+Options:
+      --workspace <ID>
+          
+
+      --force
+          
+
+      --trust-repository
+
+herdr 0.9.5
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 1515.9s)
+
+_Thinking:_
+Herdr turns out to have worktree-backed workspaces built in: `herdr worktree list` shows each worktree and its open workspace ID, and `herdr worktree open` can open a workspace for an existing one. That's close to exactly what the user described. It also lists the source workspace, so checking whether a worktree, branch, or workspace already exists comes almost for free, starting with `herdr worktree list --cwd`.
+
+I'm checking herdr's docs next to see how worktree creation sets its default path and whether it runs any trust or hook steps.
+
+I'm now checking whether the zod schema for the change metadata is strict. If it strips unknown keys rather than rejecting them, extra keys in `.openspec.yaml` would be tolerated on read, though a rewrite could drop them, so I want to see how archiving moves that file.
+
+I'm checking whether the zod schema for the change metadata forbids extra keys, and I still need to see the rest of the schema lines to confirm there's no `.strict()`. Extra files in a change directory seem to be ignored by the validator, which only looks at the proposal and spec deltas. I also want to check whether the archive step validates files, looking at an existing nvim archive directory to see whether briefs survive there.
+
+I'm weighing whether the name [redacted:repo], and possibly [redacted:repo] and greffe, can appear in a committed brief, since the user's rule is no private repo names. I'm not sure whether [redacted:repo] counts as private, so that's a question for the user. I also noticed that [redacted:repo] already appears in a commit, which I'll flag.
+
+I'm going to have an explore agent map the roadmap tooling across the repos: how [redacted:repo]'s projection writer generates roadmap.md and TODO.md from records, whether [redacted:repo]'s DR-021 and index.py generate or only check, and whether [redacted:private]'s roadmap is generated. I also want the record format and the writer and check task names. Then I'll see what an OpenSpec equivalent would need. Meanwhile I'll look at the rest of the zod schema and what extra files the nvim archive keeps.
+
+
+**Tool: task**
+<!-- session-child: ses_e597b7d90ffeW3158tg2BQlOTj -->
+
+**Input:**
+```json
+{
+  "description": "Fleet roadmap mechanization survey",
+  "subagent_type": "explore",
+  "prompt": "Research only, read-only: do NOT edit, create or delete files; no state-changing git commands (read-only git log/show/grep are fine). Thoroughness: medium.\n\nQuestion: in the user's \"fleet\" of repositories, how mechanized are the roadmaps? I need to design a generated roadmap for OpenSpec-based repositories that is aligned with the fleet's practice. Repositories:\n- [redacted:repo] (French; project/roadmap.md, project/TODO.md, project/tasks/T-*.md, project/milestones/M-*.md and D-*.md, specs/contracts/CT-006-conventions_de_pilotage.md, .mise/tasks/)\n- [redacted:repo] (project/roadmap.md, project/TODO.md, spec/drs/DR-021-piloting_and_index_formats.md, scripts/check/index.py, mise tasks)\n- [redacted:repo] (project/roadmap.md and whatever piloting files/tasks it has)\n- ~/.config/nvim (ROADMAP.md, .mise/tasks/roadmap, .mise/lib/workflow/roadmap.py) for contrast: it uses OpenSpec and a hand-written sessions table.\n\nFor each repo report, with exact paths and line numbers:\n1. The source of truth: are there per-item records (files with YAML front matter)? List the front matter fields of a task record and a milestone record (quote one example of each, fields only).\n2. Which parts of roadmap.md and TODO.md are generated (written by a tool) vs hand-written vs hand-written-but-checked. Name the writer task/script (e.g. [redacted:repo] milestone M-024 \"écrivain de projection unique des surfaces de pilotage\": is it implemented? which task writes the projections? status of M-024) and the check tasks (check:projections, check:kanban, check:tasks-index, check:milestone-index, [redacted:repo] check:index...). Quote their #MISE description lines.\n3. How order and dependencies are represented (front matter field names like depends_on/blocked_by/priority/phase/lane; CT-006 R28 ordering rule) and how status is represented (front matter `status:` values; the checklist symbols).\n4. How backlog items (B-NNN) are stored (inline in roadmap.md vs records) and how one becomes a task/milestone.\n5. Templates/creation tasks (e.g. task:new, milestone:new) and \"next\" resolvers (task:next, milestone:next).\n6. Anything in [redacted:repo]/[redacted:repo] that is explicitly meant to be generic for the fleet (shared engine, extraction plans) vs repo-local.\n\nThen give a short synthesis (inference, clearly labelled): what an OpenSpec repo's equivalent would be: which data would live in the OpenSpec change directories (proposal.md, tasks.md, .openspec.yaml, archive dir names) and what extra per-change metadata would be needed (order, dependencies, priority, phase, backlog) to generate ROADMAP.md (almost) fully, and which parts are inevitably hand-written (e.g. phase descriptions, rationale).\n\nReturn a structured English report, at most ~900 words. Separate facts (with path:line) from inferences. Do not include secret values, hostnames or IP addresses."
+}
+```
+
+**Output:**
+```
+<task id="ses_e597b7d90ffeW3158tg2BQlOTj" state="completed">
+<task_result>
+# Roadmap mechanization across the fleet: report
+
+Mechanization is highest in [redacted:repo] and drops sharply in [redacted:repo] and [redacted:repo]. nvim takes a different route: it reads the roadmap but never writes it. No repo has a tool that generates `roadmap.md` whole from per-item records. The closest is [redacted:repo], where writers update the roadmap line by line.
+
+## Facts
+
+### [redacted:repo] (`[redacted:repo]`)
+
+**1. Source of truth**
+- Per-item records exist: `project/tasks/T-*.md` (333 files) and `project/milestones/{M,D}-*.md` (36 files).
+- `CT-006.R18` (`specs/contracts/CT-006-conventions_de_pilotage.md:468`) says the record's front matter `status` makes the call. TODO.md, roadmap.md and the milestone's `## Lots` section are "projections".
+- Task fields (`project/tasks/T-003-outillage_validate.md:2-16`): `id, title, slug, status, priority, tags, created, updated, related_decisions, related_specs, depends_on, blocked_by, parent_task, milestone, dispatch_origin`.
+  - The CT-006 template (`CT-006:1686-1706`) adds `phase, sessions, pilotage, micro, closed`.
+- Milestone fields (`project/milestones/M-024-*.md:2-15`): `id, former_id, title, slug, status, created, updated, lead, branch, since, phase, dispatch_origin, sessions, no_closure`, plus `closed` (`D-015:15`).
+- `CT-006.R9` (`:93-101`): a milestone has no `depends_on` and no `priority`. Its dependencies stay in prose.
+
+**2. Generated, hand-written, checked**
+- **Writers.** `task:new`, `task:open`, `task:status`, `task:close`, `milestone:new`, `milestone:open` and `milestone:close` mutate the record and the three projections in the same action (`R18`, `:468`; `R47`, `:498`).
+- **M-024 is not implemented.** Its goal is a single projection writer. It is `status: ready`, its whole task list is `[!]` blocked (`project/milestones/M-024-*.md:6,47-65`), and it is placed last in the phase order (`project/roadmap.md:339,347`).
+  - No generator rebuilds a whole file. `check:projections` is "détection seule" (detection only).
+  - Only `check:tasks-index --fix` and `check:milestone-index --fix` repair projections.
+- **Check tasks** (`#MISE description` lines, all line 2):
+  - `.mise/tasks/check/kanban`: "Compteurs (N/M) et ordre CT-006.R28 de project/TODO.md (scripts/check/kanban.py, T-123)".
+  - `.mise/tasks/check/tasks-index`: "Triangulation front matter <-> kanban <-> roadmap par task-record (scripts/check/tasks_index.py, T-123)".
+  - `.mise/tasks/check/milestone-index`: "Triangulation front matter <-> kanban <-> roadmap par milestone-record, ordre R28 étendue (...)".
+  - `.mise/tasks/check/projections`: "Structures canoniques CT-006.R33/R34 de TODO.md/roadmap.md, espacement des titres compris, détection seule (...)".
+  - `.mise/tasks/check/_default:3` runs all of these.
+- **Hand-written parts of roadmap.md:**
+  - The phase list and each `## Phase N` objective and prose (`project/roadmap.md:38-48,331-339`).
+  - The `### M-NNN` objectives.
+  - `## Jalons`, a dated register (`:607`).
+  - `## Backlog / idées` (`:1145`).
+  - `## Historique` (`:2732`).
+- **Phase order cannot be encoded:** milestones have no `priority` or `depends_on`, so the order is prose (`:339`, `:2262-2285`, backlog items `B-116` and `B-118`). `milestone:open --next` cannot honor it.
+
+**3. Order, dependencies, status**
+- Fields: `depends_on` is a DAG (`R10`, `:107`). `blocked_by` takes the form `"categorie: détail"` (`R11`, `:134`). `milestone` and `phase` are exclusive of each other (`R42`, `:169`), and `priority` is P0-P3.
+- Ordering rule `R28` (`:597-616`), applied in this order:
+  1. dependency topology
+  2. P0 preemption
+  3. continuity of an engaged milestone
+  4. fan-out
+  5. P1-P3 priority
+  6. cross-repo obligations
+  7. coupling cost
+- Criteria 6 and 7 are not mechanized. The ordering of `## Lots` is the source, and the roadmap checklist is a projection of it (`:691`).
+- The order of a phase checklist is `R46` (`:855`): terminal items first, sorted by `closed:`, then the active queue.
+- Status values (`R15`, `:245`): `draft [.]`, `ready [ ]`, `in-progress [~]`, `blocked [!]`, `review [?]`, `done [x]`, `cancelled [-]`.
+- A task's birth status is computed from its `depends_on`, its DoR (Definition of Ready) checkboxes and its milestone's status (`R16`, `:250`).
+- Line format `R19` (`:528`): `- [s] [**ID**](path) [Pri] - Title (N/M) [M-NNN] - *dépendance : ...*`.
+
+**4. Backlog**
+- `B-NNN` entries are inline prose in `roadmap.md` (`:1145`). They have no file or front matter (`R3`, `:42`).
+- A backlog item becomes tasks, a milestone or a phase by hand, and the `B-NNN` id is then retired. The trace goes into `## Historique`.
+
+**5. Templates and resolvers**
+- Templates: `assets/templates/{task,milestone}.md` (derived from the CT-006 `## Gabarit` section, `:1666`).
+- Creation: `.mise/tasks/task/new` and `.mise/tasks/milestone/new`.
+- Resolvers: `task:next` and `milestone:next`, both read-only; the doctrine is `R43` (`:1011`). `task:next` reads `## Lots`, not the roadmap.
+- `milestone/open` and `task/open` also take `--next`.
+
+**6. Generic versus local**
+- [redacted:repo]'s code is ported from `[redacted:repo]` (for example `scripts/task/next.py:1-25`).
+- Extraction towards a shared fleet tool is planned but not done. These are backlog item `B-174` (`project/roadmap.md:2687-2700`), signal task `T-310` (`:367`) and `D-015` (`project/milestones/D-015-*.md:20,58`).
+
+### [redacted:repo] (`[redacted:repo]`)
+- **Records exist.**
+  - Tasks, with `depends_on` and `milestone` (`project/tasks/T-030-*.md`). `priority` is deliberately not adopted (`spec/drs/DR-010:164`).
+  - Milestones, with `depends_on`, `dispatch_origin`, `related_decisions` and `related_specs` (`project/milestones/M-009-*.md:2-25`).
+  - Task fields are `id, title, status, created, updated, depends_on, milestone, related_decisions, related_specs`, plus `dispatch_origin` and `blocked_by` on some records.
+- **Everything is hand-written but checked.**
+  - `project/roadmap.md` has a phase table (`:22`), a sequencing table (`:35`), `### Milestone` sections (`:52`), a `## Timeline` (`:168`), `## Backlog` (`:256`) and `## History` (`:462`).
+  - TODO.md is a flat kanban (`project/TODO.md:12-36`).
+- **Checker.**
+  - `.mise/tasks/check/index:2`: "Index-coherence check (CT-007, B-002): title/status/version/derived-column drift ... plus roadmap/TODO checklist and single-in-progress coherence. AST-first (DR-013), scripts/check/index.py. Wired into validate."
+  - `scripts/check/index.py:20-21` says "Report-only, no `--fix`". Its docstring also says it is "not yet wired into validate", which contradicts the task description.
+- **Formats.** `DR-021:47-96` defines the roadmap anatomy, kanban completeness and the index tables.
+- **No tooling.**
+  - There is no `task:new`, `milestone:new` or `next`.
+  - DR-018 says milestone tooling is "dropped entirely ... may never" be built (`DR-018:106`).
+  - Hand-written index READMEs in `project/tasks/` and `project/milestones/` are checked against the records.
+- **Intent to port.** `DR-021:43` plans a future port of [redacted:repo]'s tooling (`D-000`, Phase B).
+- `spec/drs/DR-010:165` mentions record-format convergence "ahead of [redacted:repo]".
+
+### [redacted:repo] (`[redacted:repo]`)
+- A copier descendant of [redacted:repo] v0.1.0 (`.copier-answers.yml`).
+- The roadmap is hand-written: phase table (`project/roadmap.md:16`), sequencing table (`:28`), milestone checklists (`:42-109`), `## Backlog` (`:115`) and `## Changelog` (`:128`).
+- There is no `TODO.md` and no `check:index`; port task `T-003` is still open (`:49`).
+- `mise.toml` has only generic `validate` and `hk` steps.
+- Records have `depends_on` and `milestone` (`project/tasks/T-016-*.md`, `project/milestones/M-003-*.md`).
+- The operational checklist lives outside the piloting files, in `migrations/2026-10-[redacted:private]-to-[redacted:private]/checklist.md`.
+
+### nvim (`~/.config/nvim`)
+- There are no per-session records. The source is a hand-written table, `## Sessions overview`, in ROADMAP.md (`:277-297`). Its header is `S | Change ID | Branch | Lane | Depends on | Touches | Gates | Size` (`roadmap.py:18`). There is also one `## S<N>: <change-id>` prose and checklist section per session.
+- The file stores no status. `classify()` (`roadmap.py:263-286`) derives it from git, GitHub and worktrees:
+  - done: an archived change `openspec/changes/archive/*-<id>` exists on `origin/main`, or the branch's PR was merged
+  - in-progress: a worktree, remote branch or open PR exists
+  - blocked: dependencies are not done
+  - startable: otherwise
+- `.mise/tasks/roadmap:2`: "Roadmap status from git, GitHub and herdr; --check validates ROADMAP.md; --metrics summarises the experiment".
+  - `--check` (`roadmap.py:189`) validates the file format and the settings. It does not generate anything.
+- The `## Backlog` section is inline prose (`ROADMAP.md:1346`).
+- OpenSpec change directories hold `.openspec.yaml` (`schema` and `created` only), `proposal.md`, `design.md`, `tasks.md` and `specs/`.
+- Archive directories are named `YYYY-MM-DD-<change-id>`.
+
+## Inference
+
+- **From OpenSpec directories, a generator can already derive:**
+  - Done and active status, from `archive/*` versus `changes/*`.
+  - The completion date, from the directory name prefix.
+  - The change id.
+  - The progress count, from `tasks.md` checkboxes.
+  - The title, from `proposal.md`.
+- **Per-change metadata still missing.** There is no order, dependency, priority, phase or lane. A small front matter file or additions to `.openspec.yaml` could carry `depends_on`, `phase`, `priority`, `lane`, `touches`, `gates`, `size` and `blocked_by`. That would mirror [redacted:repo]'s fields and nvim's table columns. Parts of this metadata would need a file that is not an OpenSpec artifact.
+- **Backlog.** Two options fit the fleet: keep `B-NNN` inline in the roadmap, as all four repos do, or give each item a small record. Hand-written inline is the fleet practice.
+- **Always hand-written:**
+  - phase objectives and rationale
+  - milestone objectives
+  - the historical register and the changelog
+  - backlog prose
+  - the order of items that cannot be derived from a dependency, which [redacted:repo] has not solved either (`B-116`)
+- **Recommended shape.**
+  - Mirror [redacted:repo]'s projection model, not [redacted:repo]'s.
+  - Make the OpenSpec changes the records.
+  - Generate the status and order columns and the checklist lines.
+  - Check the rest with a `--check` task like nvim's.
+  - Emit generated content between markers, so the hand-written prose stays outside the generated blocks.
+</task_result>
+</task>
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "oroot=/home/linuxbrew/.linuxbrew/lib/node_modules/@fission-ai/openspec/dist\nsed -n '32,50p' $oroot/core/artifact-graph/types.js\necho \"== archive: rename or copy?\"; rg -n 'rename|cp\\(|copy' $oroot/core/archive.js | cut -c1-160 | head -6\necho \"== nvim: extra files inside change dirs (active and archived)\"; cd ~/.config/nvim && fd -t f -d 2 . openspec/changes -E archive | rg -v '/(proposal|design|tasks)\\.md$|\\.openspec\\.yaml$|/specs/' | head; fd -t f -d 2 . openspec/changes/archive | rg -v '/(proposal|design|tasks)\\.md$|\\.openspec\\.yaml$' | head -8\necho \"== nvim .openspec.yaml with extra keys?\"; rg -l -v '^(schema|created):' -g '.openspec.yaml' --hidden openspec/changes | head -3"
+}
+```
+
+**Output:**
+```
+export const ChangeMetadataSchema = z.object({
+    // Required: which workflow schema this change uses
+    schema: z.string().min(1, { message: 'schema is required' }),
+    // Optional: creation timestamp (ISO date string)
+    created: z
+        .string()
+        .regex(/^\d{4}-\d{2}-\d{2}$/, {
+        message: 'created must be YYYY-MM-DD format',
+    })
+        .optional(),
+});
+//# sourceMappingURL=types.js.map== archive: rename or copy?
+8: * Recursively copy a directory. Used when fs.rename fails (e.g. EPERM on Windows).
+10:async function copyDirRecursive(src, dest) {
+17:            await copyDirRecursive(srcPath, destPath);
+20:            await fs.copyFile(srcPath, destPath);
+25: * Move a directory from src to dest. On Windows, fs.rename() often fails with
+27: * file watcher, antivirus). Fall back to copy-then-remove when rename fails
+== nvim: extra files inside change dirs (active and archived)
+openspec/changes/archive/2026-11-02-export-bootstrap-sessions/[redacted:private]-request-license-mise-adoption.md
+openspec/changes/archive/2026-11-02-export-bootstrap-sessions/[redacted:private]-note-xrepo-notation.fr.md
+openspec/changes/archive/2026-11-02-setup-session-workflow/chezmoi-request-global-worktree-tasks.md
+openspec/changes/archive/2026-11-02-setup-session-workflow/[redacted:private]-request-license-mise-adoption.md
+openspec/changes/archive/2026-11-02-setup-session-workflow/guard-request-plan-mode-tasks.md
+openspec/changes/archive/2026-11-02-setup-session-workflow/[redacted:private]-note-xrepo-notation.fr.md
+openspec/changes/archive/2026-11-02-setup-session-workflow/[redacted:private]-signal-worktree-naming.fr.md
+openspec/changes/archive/2026-11-03-layer-spell-dictionaries/chezmoi-request-private-store.md
+== nvim .openspec.yaml with extra keys?
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 40.5s)
+
+_Thinking:_
+I'm checking whether OpenSpec's `.openspec.yaml` schema rejects unknown keys or quietly strips them. It appears to strip them, and archiving only renames the directory, so extra keys and files would survive. I'm weighing whether storing extra data inside that file is safe, or whether a separate sidecar file would be the sturdier choice.
+
+I'm comparing three places to store per-change roadmap metadata: extra keys in `.openspec.yaml`, a separate `roadmap.yaml` sidecar in each change directory, or front matter in `proposal.md`. Front matter there could break OpenSpec's parsing of the `## Why` section, so that option looks risky. The sidecar file seems safest, since OpenSpec ignores it and it survives archiving, and I'd lean toward it or the in-file keys as the design choice to raise with the user.
+
+I'm weighing whether backlog items should live as their own records, like `openspec/backlog/B-NNN-slug.md`, or stay inline, since the user wants it almost fully mechanized. I'm treating `repo-roadmap` as the generic format and `openspec-repo-roadmap` as the OpenSpec adapter, and I'll leave the backlog placement as a design question for the brief.
+
+I'm settling on a split: `repo-roadmap` as the generic model, and `openspec-repo-roadmap` as the OpenSpec adapter. This repo's own adoption, meaning ROADMAP.md, the AGENTS.md rule, and the chezmoiignore entry, probably belongs as a modification to `spec-workflow`. I'll check that spec's current content and ask the user to confirm this reading.
+
+I'm looking at herdr's native worktree support: it can list, create, and open worktree-backed workspaces, and its list reports each worktree's branch, path, label, and open workspace. That fits the goal of building a workspace out of a worktree. My open question is whether the launch flow should keep our `scm:worktree:new` for naming, trust, hooks, and incident checks and then call `herdr worktree open`, or swap herdr's create in for part of it. nvim put its work in tabs inside one workspace, which goes against what the user is picturing.
+
+I'm checking whether git and herdr already enforce one checkout per branch and one open workspace per worktree, since the launch flow's reuse-or-refuse rules depend on that. Git blocks a branch from being checked out in two worktrees, so the branch-to-path mapping is settled; whether herdr caps workspaces per worktree is still unknown and something the design has to verify.
+
+I'm settling on a new `agent-launch` capability for the workspace-per-worktree behavior, which fits since it stays generic, and I'm considering whether `global-mise-tasks` should also be modified for deployment.
+
+I'm settling on the capability names: a new `agent-launch` for the launch tasks, and a modification to `global-mise-tasks` for the existing dispatch requirement. The brief itself should live in the change directory as `brief.md`, since OpenSpec ignores extra files there and archiving keeps them with the change.
+
+I'm weighing whether the brief can name [redacted:repo] and its paths, since [redacted:repo] already appears in a committed proposal and the sibling repos don't. The home-directory paths are already public in AGENTS.md, so the real question is whether naming the sibling repos is acceptable.
+
+I'm weighing a third option: keep the brief generic and move the sibling repo paths into the first prompt, which stays out of the committed record. That fits the user's wish for a durable brief, but the brief would then be missing a few paths the agent needs, and the prompt only survives unless it's exported, where names get masked anyway. I'm also considering a private addendum in the private terms store, though that doesn't seem like the right home for it.
+
+I'm working out how to present the [redacted:repo] question: whether a generic brief with sibling paths kept in the first prompt is the right split, or whether naming [redacted:repo] publicly is acceptable given it already shows up in a committed proposal. I'm also thinking the observation log could live in the change directory, with the same naming constraint applied.
+
+I'm planning to offer the user three choices for the chezmoi-wtasks pane: export its session and close it, close it without exporting, or leave it open. It registered fix-prompt-delivery and add-private-store-external at nvim's request, so export would fit our practice, but closing needs their go-ahead. Its add-private-store-external change stays queued for a later implementer, while fix-prompt-delivery is superseded and should be deleted. I also want to tell nvim-orch that fix-prompt-delivery has moved into add-agent-launch-tasks, with nvim adopting both.
+
+I'm planning to rewrite the roadmap as a mostly generated projection, with a per-change metadata sidecar seeded from the audit's change map, and I'm weighing which parts stay hand-written.
+
+I'm checking how the spec-workflow spec is laid out, to see whether the repo adoption fits there as a modification. The roadmap parity question is already settled in the design. I'll write the launch change's proposal and delta myself before compacting, and leave the roadmap agent to be launched by hand in plan mode.
+
+Checking spec-workflow's requirement headings and the AGENTS.md workflow lines before I lay out the plan and questions.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; rg -n '^### Requirement|^## Purpose' -A1 openspec/specs/spec-workflow/spec.md | cut -c1-200 | head -30",
+  "workdir": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+3:## Purpose
+4-
+--
+8:### Requirement: Dated audit baseline
+9-
+--
+17:### Requirement: One OpenSpec change per unit of work
+18-
+--
+31:### Requirement: Agent guide with safety rules
+32-
+--
+40:### Requirement: Public writing
+41-
+--
+49:### Requirement: Repository files are not targets
+50-
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 424.7s)
+
+_Thinking:_
+I'm noting that spec-workflow already covers this repo's process, so adopting the roadmap here fits as a modification to it. Next I'm putting together the plan and the questions, starting with how to name the capabilities.
+
+I'm settling the questions for the user: whether to name the capabilities `repo-roadmap` plus `openspec-repo-roadmap` or fold it into one, whether the naming in the public brief needs confirming, and whether to export and close chezmoi-wtasks. The per-change metadata and workspace model are design decisions I'll leave to the proposal.
+
+
+**Tool: question**
+
+**Input:**
+```json
+{
+  "questions": [
+    {
+      "header": "Roadmap capabilities",
+      "question": "I read `{,openspec-}repo-roadmap` as two capabilities. Is this split right?",
+      "options": [
+        {
+          "label": "Two + spec-workflow (Recommended)",
+          "description": "`repo-roadmap`: the generic, fleet-aligned model (changes as records, projection with generated blocks, B-NNN backlog, derived status). `openspec-repo-roadmap`: the OpenSpec adapter and the global `openspec:roadmap` task (`--write`, `--check`, `--json`). This repo's adoption (ROADMAP.md here, read-first, metadata in the same commit) modifies the existing `spec-workflow` spec"
+        },
+        {
+          "label": "Two, adoption inside repo-roadmap",
+          "description": "Same two capabilities, but this repo's adoption is written into `repo-roadmap`"
+        },
+        {
+          "label": "Only openspec-repo-roadmap",
+          "description": "One capability; the generic model waits for the fleet"
+        }
+      ]
+    },
+    {
+      "header": "Sibling names in the committed brief",
+      "question": "The brief will be committed in a public repo. [redacted:repo] already appears once (enforce-hook-with-system-git/proposal.md:7, written by me); [redacted:repo], greffe, [redacted:repo] and [redacted:repo] appear nowhere; session exports mask every sibling name. How should the brief refer to [redacted:repo]'s roadmap and study?",
+      "options": [
+        {
+          "label": "Generic brief, paths in first prompt (Recommended)",
+          "description": "Committed brief says 'the fleet piloting repository's roadmap, piloting contract and orchestration study'; the exact paths go in the first prompt only (it reaches the agent's session, whose export masks them)"
+        },
+        {
+          "label": "[redacted:repo] may be named",
+          "description": "You declare [redacted:repo] public: the brief names it and its paths; [redacted:repo] and greffe stay generic ('the fleet's records system')"
+        },
+        {
+          "label": "[redacted:repo] is private: fix the old mention too",
+          "description": "Generic brief, plus a small commit making enforce-hook-with-system-git's proposal generic"
+        }
+      ]
+    },
+    {
+      "header": "chezmoi-wtasks",
+      "question": "chezmoi-wtasks is done. What should happen to its tab?",
+      "options": [
+        {
+          "label": "Export its session, then close (Recommended)",
+          "description": "Export and redact its session into memory/sessions (same procedure, neutral slug), then close its tab with your go"
+        },
+        {
+          "label": "Close without export",
+          "description": "Its work is in the committed changes; just close the tab"
+        },
+        {
+          "label": "Leave it open",
+          "description": "Keep it idle for now"
+        }
+      ]
+    }
+  ]
+}
+```
+
+**Output:**
+```
+User has answered your questions: "I read `{,openspec-}repo-roadmap` as two capabilities. Is this split right?"="I only meant to rename the capability, but option 1 seem interesting. briefly explicit its pros and cons", "The brief will be committed in a public repo. [redacted:repo] already appears once (enforce-hook-with-system-git/proposal.md:7, written by me); [redacted:repo], greffe, [redacted:repo] and [redacted:repo] appear nowhere; session exports mask every sibling name. How should the brief refer to [redacted:repo]'s roadmap and study?"="option 1 as, if [redacted:repo]/greffe/[redacted:repo]/dotfiles/nvim/rog are already/meant to be public, this remains to be decided for [redacted:repo]/[redacted:repo] and other training/content related repos.", "chezmoi-wtasks is done. What should happen to its tab?"="Export its session, then close (Recommended)". You can now continue with the user's answers in mind.
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 47.7s)
+
+_Thinking:_
+I'm weighing the trade-offs of splitting this into two capabilities versus renaming it to a single `openspec-repo-roadmap`. The user has confirmed that [redacted:repo], greffe, [redacted:repo], dotfiles, nvim, and rog are already public or meant to be, while [redacted:repo], [redacted:repo], and the training and content repos are still undecided. So the brief can name [redacted:repo], greffe, nvim, and rog as well as [redacted:repo].
+
+I'm now comparing the two-capability option against the single-capability rename, weighing how well the roadmap model stays separate from the OpenSpec-specific pieces.
+
+I'm laying out the case for the single-capability rename: it keeps the scope honest as a transitional, OpenSpec-only tool and avoids claiming a fleet-wide model before the fleet decides. The cost is that if the model is wanted elsewhere later, it would have to be pulled out. I'm leaning toward the rename plus a spec-workflow change for adoption.
+
+Now I'm settling on the final plan: amend `add-repo-roadmap`, and pair the single `openspec-repo-roadmap` capability with a `spec-workflow` change for adoption. The rename keeps the generic spec free of repo-specific detail without committing to a fleet model before the fleet decides, so I'll present that recommendation with the trade-offs and let the user confirm with "go."
+
+I'm sketching how the roadmap metadata would live: either a sidecar file or extra keys in `.openspec.yaml`, leaning toward the sidecar since OpenSpec may strip unknown keys. ROADMAP.md would become a projection, with generated blocks regenerated by a write command and hand-written prose kept outside the markers, plus a check that fails on stale output, missing metadata, unknown dependencies, or cycles. That goes a step further than the fleet repos, which either update projections by hand or are still planning a single writer.
+
+I'm working out the rest of the plan for `add-repo-roadmap`: the per-change metadata, the generated roadmap projection with its check, and the global task, which has to match what the nvim tool does. I'm also settling which names can appear publicly in the brief and committing it alongside the change, with a commit message that's still being drafted.
+
+I'm sketching the commit message for the amended proposal and checking its length, and I'm deciding that the brief should land in the same commit as the change.
+
+I'm moving on to the second change, `add-agent-launch-tasks`, which would be generic and usable by any repo, with the old `fix-prompt-delivery` change deleted as superseded. The model ties one read-write worktree to each branch, so a branch maps to a path, and each worktree gets its own herdr workspace that hosts its agents and sessions. herdr already exposes worktree-backed workspaces, so the launch checks can be built on its listing of branch, path, and open workspace.
+
+I'm mapping out the rest of the second change: a shared worktree-and-workspace check that decides between reusing, creating, or refusing a launch, along with how the existing worktree command fits in. Adopting it would also change how nvim runs its sessions today, which I'll note as a signal for later. The prompt-delivery work folds into this change, and plan mode gets a start flag with optional model settings.
+
+I'm wrapping up the second change by adding its observations file and marking row 22 as superseded and row 25 as added in the audit. The commit message would be `docs(chezmoi:spec): add add-agent-launch-tasks, supersede fix-prompt-delivery`. I'll also send a message to nvim-orch on the go, since the go may already cover that approval.
+
+I'm thinking about starting the worktree and workspace for the launch by hand, in plan mode. The plan is to create the worktree through the existing command, then open its workspace with herdr's native worktree binding rather than a plain workspace create, which also tests the model. I'll start the agent with the plan flag and log what I observe in the observations file.
+
+Next I'm wrapping up the plan: the [redacted:repo] mention in enforce-hook-with-system-git stays as an open item until [redacted:repo]'s status is decided, and the commit count comes to five ahead of origin. Then I'll write a concise final response and ask to leave plan mode and proceed.
+
+
+Plan mode is still on, so nothing has been changed yet. Two things I found change the plan:
+
+- **OpenSpec allows extra files and metadata in a change folder.** It quietly ignores extra keys in a change's `.openspec.yaml` (version 1.2.0), and archiving moves the whole folder. The Neovim repo already keeps its briefs inside its archived changes.
+- **herdr can already tie a workspace to a worktree** (`herdr worktree list|create|open|remove`, version 0.9.5). Its list gives each worktree's branch, path and the workspace open on it, which is the model you described.
+
+## Your capability rename: one capability or two
+Option 1 splits the generic model (`repo-roadmap`) from the OpenSpec tool (`openspec-repo-roadmap`).
+
+**Pros of splitting:**
+- When greffe and [redacted:repo] arrive, the model is what you migrate to, and only the OpenSpec part is retired.
+- A repo without OpenSpec could use the same model.
+
+**Cons of splitting:**
+- This repo would define a fleet model before the fleet decides, which is the "too early" risk you raised.
+- With only one tool using it, the split is speculative and means more spec text.
+
+**My recommendation:** just the rename, a single `openspec-repo-roadmap`. This repo's own use of it (its `ROADMAP.md`, the read-first rule) goes in the existing `spec-workflow` spec.
+
+## Steps, on your go
+1. **Rework `add-repo-roadmap` and write its brief into the change folder.**
+   - **Generated roadmap:** each OpenSpec change is a record, with a few roadmap fields of its own (dependencies, phase or lane, priority, size, origin).
+     - Where those fields live is for the design to decide: a separate small file in the change folder, or extra keys in `.openspec.yaml`.
+   - **How `ROADMAP.md` is built:**
+     - `mise run openspec:roadmap --write` writes the generated sections between markers.
+     - Hand-written text (intro, phase goals, backlog, history) stays outside the markers. That is the "almost" in "almost fully mechanized".
+     - `--check` fails when the generated part is out of date, a change has no roadmap fields, a dependency is unknown, or there is a cycle.
+     - No fleet repo generates its roadmap whole yet; [redacted:repo]'s single writer is still only planned.
+   - **The global task:** Python, a `--json` output, and feature-by-feature parity with the Neovim repo's task. The replacement signal to that repo comes at the end.
+   - **Seeding:** the roadmap fields for every existing change come from the audit's change map, which is then frozen.
+   - **Brief:** `openspec/changes/add-repo-roadmap/brief.md`. It may name [redacted:repo], [redacted:private], the Neovim repo, [redacted:repo] and greffe. [redacted:repo] is called "the fleet piloting repository", and its paths go only in the first prompt.
+   - Commit: `docs(chezmoi:spec): mechanize add-repo-roadmap and add its brief` (64 characters).
+2. **New change `add-agent-launch-tasks`, which replaces `fix-prompt-delivery`.**
+   - **Generic:** any repo can use it, and the Neovim repo should adopt it.
+   - **Model:**
+     - One read-write worktree per branch; git already enforces this.
+     - One herdr workspace per worktree, as the home of the agents and sessions working in it.
+     - Orchestration across the project stays one level up, in the main checkout's workspace.
+   - **Checks before creating anything:**
+     - Does the branch exist, and where is it checked out?
+     - Is a workspace already open on that path?
+     - Is the agent name free?
+     - Each answer leads to reuse, create or refuse.
+   - **Prompt delivery:** a Python port of the Neovim repo's tested delivery code, plus everything `fix-prompt-delivery` had planned. Agents start in plan mode.
+   - **Impact on the Neovim repo:** it runs sessions as tabs in a single workspace and chose not to use `herdr worktree create`. Adopting this changes its model, so the signal will say so.
+   - **Logging:** this launch is recorded in the change folder as `observations.md`.
+   - **Specs and audit:** new capability `agent-launch`; `global-mise-tasks` modified. Delete `fix-prompt-delivery` (planning only), and update audit rows 22 and 25.
+   - Commit: `docs(chezmoi:spec): add add-agent-launch-tasks, supersede fix-prompt-delivery` (77 characters).
+   - A short message to `nvim-orch` that its request moved.
+3. **Export the `chezmoi-wtasks` session and close its tab.**
+   - The export uses the usual redaction procedure, with a neutral file name.
+   - Commit: `docs(chezmoi:memory): export the change registration session`.
+4. **Stop for your `/compact`.** `main` will be 5 commits ahead of origin, with nothing pushed.
+5. **On your next go, launch the roadmap agent by hand.**
+   - Worktree with `scm:worktree:new`.
+   - Workspace with `herdr worktree open --path <worktree> --label chezmoi-roadmap --no-focus`, which tests the worktree-workspace model.
+   - Agent with `-- --agent plan`, then the first prompt (with the [redacted:repo] paths), sent with the careful delivery steps.
+   - Everything goes into `observations.md`.
+
+**Still open:**
+- Whether [redacted:repo] and [redacted:repo] may be named publicly. [redacted:repo] already appears once, in `enforce-hook-with-system-git/proposal.md:7`; I'll leave that until you decide.
+- The signals to [redacted:repo] and to the Neovim repo at the end, each on your go.
+
+Turn off plan mode and say go, and tell me which capability option you want.
+
+---
+
+## User
+
+3. already done, replace with a push
+
+Still open:
+- [redacted:repo] and [redacted:repo] still private
+- ok
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 8.0s)
+
+_Thinking:_
+Step 3 is already done, so I'm swapping it for a push. The [redacted:repo] mention in the proposal still needs to be made generic, since [redacted:repo] and [redacted:repo] are still private, and "ok" seems to cover the signals. On the capability question they didn't answer directly, so I'm treating that as still open.
+
+I'm weighing whether the single `openspec-repo-roadmap` capability counts as accepted, since they never objected but never confirmed it either. I'll likely state that assumption and proceed unless they say otherwise. Next I want to confirm step 3 is really finished by checking for the chezmoi-wtasks session export and whether its tab is closed, using read-only git and herdr checks. I also need to know what the push would contain, so I'll look at `git log origin/main..HEAD` locally, since plan mode rules out fetching and other pushes may have landed in the meantime.
+
+
+The user says step 3 is already done. I'm checking that read-only, and that the push will be clean.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\necho \"== local vs origin\"; git log --format='%h %an %s' origin/main..HEAD; echo \"behind (last fetched origin): $(git rev-list --count HEAD..origin/main)\"; git status --short\necho \"== last fetch time\"; stat -c '%y' .git/FETCH_HEAD 2>/dev/null\necho \"== wtasks export present?\"; git log --format='%h %s' -5 -- memory/sessions | cat; rtk ls memory/sessions\necho \"== wtasks agent/tab still there?\"; herdr agent list 2>&1 | jq -r '.result.agents[] | \"\\(.pane_id) \\(.name // \"-\") \\(.agent_status)\"' | rg -n 'chezmoi' || echo \"no other chezmoi agent\"\necho \"== [redacted:repo] mention to make generic\"; git grep -n -i -w -e [redacted:repo] -e [redacted:repo] -- . ':!memory/sessions' | cut -c1-260",
+  "workdir": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+== local vs origin
+behind (last fetched origin): 0
+== last fetch time
+2026-11-04 13:50:11.237949514 +0100
+== wtasks export present?
+6c0e388 docs(chezmoi:memory): export the adopt-global-mise-tasks session
+afc7eb2 docs(chezmoi:memory): re-export the orchestrator session
+cfd74ce docs(chezmoi:memory): export the harden-sensitive-targets session
+202610301854-harden_sensitive_targets.md  1.1M
+202610311807-harden_sensitive-explore_dispatch_rules.md  146.6K
+202610311807-harden_sensitive-explore_export_machinery.md  164.5K
+202611022007-adopt_global_mise_tasks.md  769.6K
+README.md  4.2K
+== wtasks agent/tab still there?
+10:wN:p1 chezmoi-orch working
+== [redacted:repo] mention to make generic
+openspec/changes/enforce-hook-with-system-git/proposal.md:7:The hk hook installer is shared by the whole fleet: [redacted:repo], [redacted:repo] and [redacted:private] install their hooks the same way (config hooks, no script shims), so they have the same gap on this machine.
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 5.0s)
+
+_Thinking:_
+Local and origin match now, with nothing ahead or behind, so it looks like someone already pushed. I'm checking the recent commit log to see whether my commits made it up, and wondering whether the user meant that the push should replace step 3.
+
+Origin already seems to contain everything, so I'm checking whether my commits are actually on it.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; rtk git log --format='%h %ad %s' --date=format:'%m-%d %H:%M' -8 | cat; echo \"== origin/main\"; git rev-parse --short origin/main HEAD; rtk git log -1 --format='%h %s' origin/main\necho \"== wtasks session file header (provenance, no content)\"; sed -n '1,8p' memory/sessions/202611022007-adopt_global_mise_tasks.md | cut -c1-160; rg -n 'adopt_global_mise_tasks' memory/sessions/README.md | cut -c1-220",
+  "workdir": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+6c0e388 11-04 13:50 docs(chezmoi:memory): export the adopt-global-mise-tasks session
+ef9e33d 11-04 13:45 docs(chezmoi:spec): send the pending signals to the Neovim orchestrator
+9d12aa4 11-03 20:34 docs(chezmoi:spec): add the add-repo-roadmap change
+afc7eb2 11-03 20:31 docs(chezmoi:memory): re-export the orchestrator session
+2546d17 11-03 15:00 docs(chezmoi:spec): add the add-private-store-external change
+d5d27b7 11-03 14:52 docs(chezmoi:spec): compare git sources first in enforce-hook-with-system-git
+6ca4aa9 11-03 14:09 docs(chezmoi:spec): wait for the TUI to draw in fix-prompt-delivery
+46c9ba4 11-03 14:03 docs(chezmoi:spec): add the fix-prompt-delivery change
+== origin/main
+fatal: Needed a single revision
+6c0e388 docs(chezmoi:memory): export the adopt-global-mise-tasks session
+== wtasks session file header (provenance, no content)
+# Execute chezmoi global worktree tasks brief
+**Session ID:** ses_e6256e898ffeOM7EdjLhs55t0k
+**Created:** 11/2/2026, 8:07:46 PM
+**Updated:** 11/4/2026, 1:45:36 PM
+<!-- session-export: through msg_1a697ec31001lemDIiSWT7AJua -->
+<!-- session-children: -->
+
+---
+24:| `202611022007-adopt_global_mise_tasks.md` | `ses_e6256e898ffeOM7EdjLhs55t0k` | Session of the agent that received three briefs from the Neovim repository: change `adopt-global-mise-tasks` (review, cleanup fixes, app
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 6.0s)
+
+_Thinking:_
+Checking whether origin/main matches HEAD: both point at 6c0e388, and the log shows nothing ahead or behind, so everything is already pushed, including my two commits.
+
+Next I'm checking the commit ef9e33d, "send the pending signals to the Neovim orchestrator," since it might bear on the fix-prompt-delivery plan. I'll look at its stat to see what changed.
+
+
+Everything is already on `origin/main` (`6c0e388`), and the `chezmoi-wtasks` tab is gone. One new commit, `ef9e33d`, touches what I'm planning, so I'm reading it.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; git show --stat --format='%h %s%n%b' ef9e33d | cut -c1-220 | head -30",
+  "workdir": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+ef9e33d docs(chezmoi:spec): send the pending signals to the Neovim orchestrator
+
+
+ docs/audits/2026-10-30-environment.md                   | 2 +-
+ openspec/changes/add-private-store-external/design.md   | 2 +-
+ openspec/changes/add-private-store-external/proposal.md | 2 +-
+ openspec/changes/add-private-store-external/tasks.md    | 2 +-
+ openspec/changes/fix-prompt-delivery/tasks.md           | 2 +-
+ 5 files changed, 5 insertions(+), 5 deletions(-)
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 2.5s)
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; git show ef9e33d -- openspec/changes/fix-prompt-delivery/tasks.md docs/audits/2026-10-30-environment.md | rg '^[-+][^-+]' | cut -c1-300",
+  "workdir": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+-| 23 | `add-private-store-external` | F05, 2.8 | | full; added 2026-11-03 on request of the Neovim repository; after orders 2 and 3; the Neovim session S16 merges after it |
++| 23 | `add-private-store-external` | F05, 2.8 | | full; added 2026-11-03 on request of the Neovim repository; after orders 2 and 3; the Neovim session S16 merged without it |
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 1.8s)
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; git show ef9e33d -- openspec/changes/fix-prompt-delivery/tasks.md | rg -n '^[-+]' | cut -c1-400",
+  "workdir": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+9:--- a/openspec/changes/fix-prompt-delivery/tasks.md
+10:+++ b/openspec/changes/fix-prompt-delivery/tasks.md
+15:-- [ ] 6.1 Tell the sender that the change is applied, in this agent's tab, so that its `session:start` can go back to `--prompt` (`herdr agent read <this agent>` shows it)
+16:+- [ ] 6.1 Tell the Neovim repository that the change is applied, so that its `session:start` can go back to `--prompt`: the agent that received the brief (`chezmoi-wtasks`) is closed, so prompt the orchestrator named in its roadmap (`nvim-orch` on 2026-11-03), or ask the user when none runs (`herdr agent get nvim-orch` exits 0; `herdr agent read nvim-orch --source visible` shows the line)
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 35.9s)
+
+_Thinking:_
+Since the reply-to-sender task now goes to nvim-orch, the new change has to carry that obligation when it supersedes the old one. The capability option went unanswered; the user only said "ok" on the signals point. I'll go with my recommendation of a rename only, to a single `openspec-repo-roadmap`, and say so, though I'm also considering asking first.
+
+I'm going to run through the plan now: first reworking the add-repo-roadmap change and its brief, then adding the agent launch tasks and superseding fix-prompt-delivery while carrying over its nvim-orch obligation. After that I'll make the [redacted:repo] mention in the enforce-hook proposal generic, and I'll note that the pushed history keeps the old name.
+
+I'm going through the rest of the plan: after the pushed-history point, I'll fetch and check that origin hasn't moved before pushing main, then stop for a compact before launching. I'm also weighing whether a public-or-private repo list belongs in AGENTS.md, naming only the public siblings so the private ones stay unnamed.
+
+I'm weighing whether to add a short rule to AGENTS.md naming only the sibling repositories that are public or meant to be, and referring to the private ones generically, so the list itself doesn't expose them.
+
+Now I'm drafting the AGENTS.md note on which sibling repositories can be named, so the list only includes public ones and everything else stays generic.
+
+I'm sizing the two commit messages now: the first, for the reworked add-repo-roadmap change, comes to about 64 characters, and the second, for adding add-agent-launch-tasks and superseding fix-prompt-delivery, about 77, both within the limit.
+
+I'm naming only public sibling repositories in AGENTS.md, using a generic reference for the rest, and committing that as `docs(chezmoi:docs): name only public sibling repositories`. The pushed commits still carry the old [redacted:repo] mention, and I'm leaving that history as it is.
+
+I'm noting that the nvim-orch message has to go out once the request moves, and that the observations file belongs in the add-agent-launch-tasks change directory. The brief goes in add-repo-roadmap, and it needs committing before the worktree is branched from main. The roadmap agent's session will be exported later with names masked, so that's fine. I'll keep the plan short, default to the rename only, and leave the closed chezmoi-wtasks session alone.
+
+
+`origin/main` is already at `6c0e388`: `chezmoi-wtasks` exported its session, pushed (my 2 commits included), and its tab is closed. So step 3 becomes the push, at the end, of the new commits. Nothing has been changed yet (plan mode).
+
+Two facts I'm folding in:
+- In `ef9e33d`, `chezmoi-wtasks` changed `fix-prompt-delivery` task 6.1. Once the change is applied, `nvim-orch` must be told, so its `session:start` can use `--prompt` again. The new change takes over that duty.
+- "[redacted:repo]" appears once in a public file (`enforce-hook-with-system-git/proposal.md:7`), already pushed. I'll make that line generic and leave history alone, as we did for the leaked name.
+
+**Capability:** you didn't choose, so I'll go with the simple rename: one capability, `openspec-repo-roadmap`. This repo's own use of the roadmap goes into the existing `spec-workflow` spec. Say so if you'd rather split it in two.
+
+## Plan, on your go
+1. **Keep [redacted:repo] and [redacted:repo] out of public files.**
+   - `enforce-hook-with-system-git/proposal.md:7` changes from "[redacted:repo], [redacted:repo] and [redacted:private]" to "[redacted:repo], [redacted:private] and the other fleet repositories".
+   - `AGENTS.md`, public-writing section: name only the repositories that are or will be public ([redacted:repo], [redacted:private], [redacted:repo], greffe, the Neovim configuration repository), and call any other "a fleet repository". The rule lists only public names, so it works whatever you decide about [redacted:repo] and [redacted:repo] later.
+   - Commit: `docs(chezmoi:docs): name only public sibling repositories` (57 characters).
+2. **Rework `add-repo-roadmap`.**
+   - Capability `openspec-repo-roadmap`, plus a modified `spec-workflow`.
+   - Mostly generated: each change gets a few roadmap fields (dependencies, phase or lane, priority, size, origin). The design decides where they live: a small file in the change folder, or extra keys in `.openspec.yaml` (OpenSpec ignores keys it doesn't know).
+   - `openspec:roadmap --write` fills the marked sections of `ROADMAP.md`; the hand-written text stays outside the markers.
+   - `--check` fails on: generated sections out of date, a change missing its fields, an unknown dependency, or a cycle.
+   - Python, with a `--json` output. Parity with the Neovim repo's task is decided feature by feature, and that repo gets a signal to adopt it at the end.
+   - Brief: `openspec/changes/add-repo-roadmap/brief.md`. [redacted:repo] is called "the fleet piloting repository"; its paths go only in the first prompt.
+   - Commit: `docs(chezmoi:spec): mechanize add-repo-roadmap and add its brief` (64 characters).
+3. **New change `add-agent-launch-tasks`, replacing `fix-prompt-delivery`.**
+   - Generic, for any repo; the Neovim repo should adopt it.
+   - One read-write worktree per branch, and one herdr workspace per worktree, which is the home of the agents and sessions working in it. Coordination across the project stays in the main checkout's workspace.
+   - Before creating anything, it checks whether:
+     - the branch exists, and where it is checked out;
+     - a workspace is already open on that path;
+     - the agent name is free.
+     
+     Each case leads to reuse, create or refuse.
+   - Prompt delivery is a Python port of the Neovim repo's tested code. Agents start in plan mode.
+   - It takes over all of `fix-prompt-delivery`, including its duty to notify `nvim-orch`.
+   - The launch log of this roadmap agent goes into `observations.md` in this change's folder.
+   - Specs: new `agent-launch`; modified `global-mise-tasks`.
+   - Delete the `fix-prompt-delivery` folder, and update audit rows 22 and 25.
+   - Commit: `docs(chezmoi:spec): add add-agent-launch-tasks, supersede fix-prompt-delivery` (77 characters).
+   - Send `nvim-orch` one line saying its request now lives in `add-agent-launch-tasks`.
+4. **Push.** `git fetch`, check nothing new arrived on origin, then push `main` with brew's git.
+5. **Stop for your `/compact`.**
+6. **On your next go, launch the agent by hand:**
+   - Worktree with `scm:worktree:new feat/add-repo-roadmap --base main`.
+   - Workspace with `herdr worktree open --path <worktree> --label chezmoi-roadmap --no-focus`.
+   - Start the agent with `-- --agent plan`, wait until opencode has drawn, and send one prompt (which carries the [redacted:repo] paths).
+   - Each step and its timing go into `observations.md`.
+
+The signals to [redacted:repo] and to the Neovim repo are approved and will go out at the end of the work.
+
+Turn off plan mode and say go.
+
+---
+
+## User
+
+go
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 7.7s)
+
+_Thinking:_
+I'm starting now, with build mode on and the todos to set up. Step one covers the [redacted:repo] mention and an AGENTS.md rule, so I'll read the public-writing section there and the line about the enforce hook.
+
+
+Build mode is on. Starting with step 1: keeping [redacted:repo] and [redacted:repo] out of public files.
+**Tool: todowrite**
+
+**Input:**
+```json
+{
+  "todos": [
+    {
+      "content": "1. Public names: enforce-hook proposal line 7 + AGENTS.md rule; commit",
+      "status": "in_progress",
+      "priority": "high"
+    },
+    {
+      "content": "2. Rework add-repo-roadmap (proposal, spec, spec-workflow delta, brief.md); validate; commit",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "content": "3. New add-agent-launch-tasks (proposal, specs, observations.md), delete fix-prompt-delivery, audit rows 22/25; commit; message nvim-orch",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "content": "4. Fetch, check origin, push main",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "content": "5. Stop for user's /compact",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "content": "6. Launch roadmap agent by hand in plan mode (worktree, herdr worktree open, agent, prompt), log to observations.md",
+      "status": "pending",
+      "priority": "high"
+    }
+  ]
+}
+```
+
+**Output:**
+```
+[
+  {
+    "content": "1. Public names: enforce-hook proposal line 7 + AGENTS.md rule; commit",
+    "status": "in_progress",
+    "priority": "high"
+  },
+  {
+    "content": "2. Rework add-repo-roadmap (proposal, spec, spec-workflow delta, brief.md); validate; commit",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "content": "3. New add-agent-launch-tasks (proposal, specs, observations.md), delete fix-prompt-delivery, audit rows 22/25; commit; message nvim-orch",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "content": "4. Fetch, check origin, push main",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "content": "5. Stop for user's /compact",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "content": "6. Launch roadmap agent by hand in plan mode (worktree, herdr worktree open, agent, prompt), log to observations.md",
+    "status": "pending",
+    "priority": "high"
+  }
+]
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; rtk git status --short; sed -n '1,8p' openspec/changes/enforce-hook-with-system-git/proposal.md | cut -c1-300; echo ==; rtk rg -n 'Writing for a public' -A8 AGENTS.md",
+  "workdir": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+## Why
+
+The commit-time secret scan delivered by `harden-sensitive-targets` is installed as config-based git hooks (`hook.<name>.command` in the repository's git config), which only git 2.54 or newer reads.
+This machine has two git binaries: brew's (2.55) enforces the hook, the system one (2.53) ignores it silently.
+On 2026-10-31 a staged, generated token-shaped test string was committed with the system git without any refusal (undone before any push), while the same commit through brew's git was refused.
+Any caller that resolves the system git therefore bypasses the scan with no warning.
+The hk hook installer is shared by the whole fleet: [redacted:repo], [redacted:repo] and [redacted:private] install their hooks the same way (config hooks, no script shims), so they have the same gap on this machine.
+Lookup on any repository: `git config --local --get-regexp '^hook\.'` lists config hooks, `/usr/bin/git --version` shows whether that git reads them.
+zsh:1: = not found
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 3.0s)
+
+**Tool: grep**
+
+**Input:**
+```json
+{
+  "pattern": "public",
+  "path": "~/.local/share/chezmoi/AGENTS.md"
+}
+```
+
+**Output:**
+```
+Found 100 matches (more matches available)
+~/.local/share/chezmoi/dot_config/VSCodium/User/modify_settings.json:
+  Line 5:   extension or the UI writes (API keys included) never reaches this public repo.
+
+
+~/.local/share/chezmoi/hk.pkl:
+  Line 1: // Secret scanning for this public repository (change harden-sensitive-targets).
+
+
+~/.local/share/chezmoi/.gitleaks.toml:
+  Line 10: # write_nuclei_template_rule, present in the public upstream project; its
+
+
+~/.local/share/chezmoi/memory/sessions/202610311807-harden_sensitive-explore_dispatch_rules.md:
+  Line 197: 34:   Externally facing docs (this file, `README.md`) retarget to [redacted:repo]'s public GitHub URL once [redacted:repo] passes its own publication gate (currently private, `[redacted:repo]:spec/drs/DR-004-naming_and_repository_topology.md`); until then they cite [redacted:repo] via the same `repo:path` form.
+
+
+~/.local/share/chezmoi/dot_config/vim/ycm_extra_conf.py:
+  Line 6: # This is free and unencumbered software released into the public domain.
+
+  Line 15: # software to the public domain. We make this dedication for the benefit
+
+  Line 16: # of the public at large and to the detriment of our heirs and
+
+
+~/.local/share/chezmoi/memory/sessions/202610301854-harden_sensitive_targets.md:
+  Line 377: 204: - Both this repository and [redacted:private] are written as if public.
+
+  Line 846: 3: The repository is public and holds age-encrypted secrets, yet nothing scans for leaks, at least one decrypted secret file is deployed readable by other users, and two chezmoi binaries of different versions compete on `PATH`.
+
+  Line 861: 18: - `secret-hygiene`: how secrets are stored, deployed and kept out of the public history.
+
+  Line 899: 6: - The history has never been scanned; the repository has been public for its whole life (297 commits on 2026-10-30).
+
+  Line 948: 55: - [Risk] The history scan finds a real secret. → Stop; tell the user which kind (without the value); the secret is rotated first; a history rewrite is a separate change with its own approval, since it changes every commit hash of a public repository.
+
+  Line 989: 17: ### Requirement: Clean public history
+
+  Line 1119:   Line 162: - **F12**: this public repository has no secret scanning, neither in history nor at commit time.
+
+  Line 1148: 6: This repository is public.
+
+  Line 1304: 162: - **F12**: this public repository has no secret scanning, neither in history nor at commit time.
+
+  Line 2020:     ["check public key"] =
+
+  Line 3096: I'm weighing alternatives: checking for `[redacted:envvar]`/`[redacted:envvar]` via `lookPath` and env vars runs into the AGENTS.md rule against exposing secret variable names publicly, even for standard names. A simpler fallback is just using a data flag like `nvim.external` with a promptBoolOnce default, letting the user decide per machine, combined with how chezmoi's git-repo externals behave when a clone fails or a directory already exists.
+
+  Line 3104: I'll decide to defer the full guard to fresh-machine-bootstrap: add the unguarded external now using the public repo URL, and move the "proves it leaves the existing clone alone" test over to that stage along with updating its task to reflect guarding the existing external.
+
+  Line 4857:     ["check public key"] =
+
+  Line 5567: The repo URL exposes a private repo name, but since GitHub itself is public that's a minor note rather than a real violation of the no-private-hosts rule; I'll mention it briefly rather than making it a blocking question. I also notice the fresh-machine-bootstrap design clones with `--branch dev`, but the actual default branch on GitHub is `main`, so I need to reconcile that mismatch.
+
+  Line 5846: For the guard question, I'm leaning toward recommending no guard now, since fresh-machine-bootstrap should own that logic later (it needs config template data), though I note the existing gh output guard design there is flawed since it errors on non-zero exit and hits the network every run—that needs fixing separately. I'll keep the questions to the user minimal: first-apply behavior and the guard decision, and I'll briefly mention the spec placement for the new neovim-config capability plus the fact that the repo URL will be public, treating that as a quick confirmation rather than a full question.
+
+  Line 5890:       "header": "Private repo URL in public repo",
+
+  Line 5891:       "question": "The external puts `[redacted:repo]` in this public repository. That reveals that a private repository with that name exists, nothing more. The fresh-machine-bootstrap design used a `<owner>/<repo>` placeholder. Is the real URL OK?",
+
+  Line 5909: User has answered your questions: "chezmoi will run `git pull --ff-only` once in ~/.config/nvim on the first apply (no state record yet), then never again unless `-R`. How should we handle the existing clone?"="One ff-only pull (Recommended)", "The guard planned in fresh-machine-bootstrap (`output "gh" "auth" "status"`) does not work as written: `output` aborts the template on a non-zero exit, and it makes a network call on every chezmoi command. What guard should this change ship with?"="Cheap offline guard now", "The external puts `[redacted:repo]` in this public repository. That reveals that a private repository with that name exists, nothing more. The fresh-machine-bootstrap design used a `<owner>/<repo>` placeholder. Is the real URL OK?"="option 2 and extending fresh-machine-bootstrap to `<host>/<owner>/<repo>` for maximum configurability". You can now continue with the user's answers in mind.
+
+  Line 5922: There's an additional complication: `dot_config/chezmoi/chezmoi.toml.tmpl` is a frozen snapshot deployed over the live config, so running `chezmoi init` then `chezmoi apply` could overwrite new changes with the stale snapshot — that's exactly what the config-template fix addresses. I'm now considering whether adding data via `.chezmoidata` would work instead, but that file lives in the public repo too, which defeats the purpose of keeping this data private.
+
+  Line 5930: Since the snapshot is public, it can't literally hold the value. I should check how F03 actually manifests by reading both `.chezmoi.toml.tmpl` and `dot_config/chezmoi/chezmoi.toml.tmpl` to compare them, watching for whether the latter exposes anything sensitive like an age recipient or identity path.
+
+  Line 6177:   recipient = "<public recipient, unchanged>"
+
+  Line 6402: Good, hosts.yml is unmanaged so the guard check is meaningful. I need to write a concise final plan, making sure the sensitive URL value never appears in any public artifacts, which the existing harden-sensitive-targets files already avoid.
+
+  Line 6727: - Manage `~/.config/gtk-3.0/bookmarks` only if it holds no private host, else template it from data kept out of the public repository.
+
+  Line 6806:     - "Write for a public repository: no secret values, no names of secret
+
+  Line 7115: 8: - Move `encryption = "age"` and the `[age]` identity and recipient (a public key) into `.chezmoi.toml.tmpl` (F04).
+
+  Line 7195: 36:   recipient = "<public recipient, unchanged>"
+
+  Line 7596: Now I'm turning to the proposal.md update for the Neovim config template fix. I need to add F05 to the Why section referencing the audit findings, add a What Changes bullet, and introduce a new `neovim-config` capability — the core idea being that the Neovim config is cloned through a git-repo external whose host/owner/repo values are asked once via config, keeping the actual repository name out of the public dotfiles repo, and the external only activates once those values are set and the machine already has a clone or GitHub CLI credentials.
+
+  Line 7646: I'm drafting the harden design doc's context section, covering the age encryption mode issue, the audit findings from 2026-10-30 showing inconsistent file permissions, the fact the repo history has never been scanned despite being public for 297 commits, and the differences between hk's gitleaks builtin behavior across versions.
+
+  Line 7674:   "content": "## Context\n\n- Encryption is age; decrypted targets get their mode from the source name, so an `encrypted_` file without `private_` is deployed with the default mode (0664 with the current umask 002).\n- On 2026-10-30, three encrypted targets were 0600 and one was 0664.\n  Lookup: `chezmoi managed --include=encrypted --path-style=absolute | xargs stat -c '%a %n'`.\n- The history has never been scanned; the repository has been public for its whole life (297 commits on 2026-10-30).\n- hk 2.10.0 is the latest release on 2026-10-31; its builtins include `gitleaks` and `detect_private_key`.\n  [redacted:private] pins hk 1.56.1 and moves on its own schedule; mise pins versions per repository, so the two can differ.\n- hk 1.56.1's `gitleaks` builtin runs `gitleaks dir` on the staged file names; `gitleaks dir` takes one path and silently scans the whole working tree when given several.\n  hk 2.x adds `scan = \"staged\"`, which runs `gitleaks git --pre-commit --staged` and reads exactly what is staged.\n- `which -a chezmoi` lists `~/.local/bin/chezmoi` (v2.62.2) before brew's (v2.72.1); upstream is v2.73.3.\n\n## Goals / Non-Goals\n\n**Goals:**\n\n- No decrypted secret readable by another account.\n- A known-clean history, or a known list of what leaked.\n- Commits that add a secret are refused locally.\n- One chezmoi version in use.\n\n**Non-Goals:**\n\n- Narrowing which processes see the tokens (F23, change `fast-correct-shell-startup`).\n- Rotating tokens (tracked in [redacted:private] \"Later steps\").\n- Other quality hooks (shellcheck, commit grammar): change `add-repo-quality-gates`.\n- Moving chezmoi to mise: change `rationalize-package-ownership` (its open question, settled on 2026-10-31: brew now, mise later).\n- Cloning the Neovim repository: change `fix-chezmoi-config-template`.\n\n## Decisions\n\n### Rename, do not chmod\n\nAdd `private_` to the source name (`git mv`) and apply only that target with `--exclude=scripts`.\nA manual `chmod` would be ...
+  Line 7704:   "content": "## Why\n\nThe repository is public and holds age-encrypted secrets, yet nothing scans for leaks, at least one decrypted secret file is deployed readable by other users, and two chezmoi binaries of different versions compete on `PATH`.\nThese are the cheapest risks to remove and they come first (audit `docs/audits/2026-10-30-environment.md`, findings F10, F11, F12; F05 checked).\n\n## What Changes\n\n- Every `encrypted_` source file also carries `private_`, so its target is 0600 (F10).\n- A one-off read-only secret scan of the whole git history; findings are triaged with the user before anything else happens (F12).\n- A commit-time secret scan: gitleaks run by hk 2.10.0 as a pre-commit hook on the staged content, both pinned in a repository `mise.toml` (F12).\n- One chezmoi binary: the stale `~/.local/bin/chezmoi` is removed and the brew one upgraded (F11).\n- A report on the Neovim repository: it now has a remote, and unpushed or uncommitted work is reported to the user, nothing is changed (F05; the external that clones it comes with `fix-chezmoi-config-template`).\n\n## Capabilities\n\n### New Capabilities\n\n- `secret-hygiene`: how secrets are stored, deployed and kept out of the public history.\n\n### Modified Capabilities\n\nNone.\n\n## Impact\n\n- Source renames under `dot_config/` for the affected encrypted files; their targets get mode 0600.\n- New repository files `mise.toml` and `hk.pkl`, listed in the temporary `.chezmoiignore` block until `adopt-chezmoiroot`, and `.gitleaks.toml` if an allowlist is needed (a dot file, which chezmoi ignores by default).\n- `~/.local/bin/chezmoi` deleted (needs the user's go, given on 2026-10-31); brew `chezmoi` upgraded.\n- `AGENTS.md` gains one line on the `PATH` that minimal shells need to find chezmoi.\n- No change to secret values; no history rewrite in this change (if the scan finds a real secret, rotation and any rewrite become their own change).\n\n<!-- vim: set ts=2 sts=2 sw=2 et endofline fixendoflin...
+  Line 7745:   "content": "## Why\n\nThe real config template `.chezmoi.toml.tmpl` and the config chezmoi actually uses have diverged: a frozen rendered config from another machine is deployed over `~/.config/chezmoi/chezmoi.toml`, it is the only place encryption is configured, and several settings in the template never take effect.\nA fresh machine therefore cannot decrypt, this machine carries wrong data, and the next change (scripts) needs a trustworthy config (audit findings F03, F04, F07, F08, F09, F13, F41).\nThe same config is the right home for the location of the Neovim repository, so that no repository name is written in this public repository (F05, decision of 2026-10-31).\n\n## What Changes\n\n- Move `encryption = \"age\"` and the `[age]` identity and recipient (a public key) into `.chezmoi.toml.tmpl` (F04).\n- Put every top-level key (`encryption`, `umask`, `pager`, `color`) before the `includeTemplate` calls, so none lands inside a data table (F08).\n- Add `umask = 0o027`: chezmoi writes directories 0750 and files 0640 (F13, decision of 2026-10-30).\n- Fix `[diff]`: `exclude = [\"externals\"]` instead of `diff.exclude` (F07).\n- Drop the `commitMessageTemplate` prompt (`autoCommit` is off) (F09).\n- Delete the frozen `dot_config/chezmoi/chezmoi.toml.tmpl` and regenerate the config with `chezmoi init`, which yields the real data for this machine (laptop, 6 cores, 12 threads) (F03).\n- After the brew hook re-adds the Brewfile, re-apply it so its mode matches the target state (F41).\n- Ask once for the Neovim repository location (`nvim.host`, default `github.com`, `nvim.owner`, `nvim.repo`; an empty owner or repository means no external) and clone it through a `git-repo` external that never pulls over local work (`refreshPeriod = \"0\"`, `pull.args = [\"--ff-only\"]`).\n  The external exists only when the data is set and the machine either already has the clone or has a GitHub CLI login file, so a machine without GitHub access still applies (F05).\n\n## Capabilities\n...
+  Line 7760:   "content": "## Context\n\n- `.chezmoi.toml.tmpl` (80 lines on commit `191ee9e`): prompts (lines 1-4), unused `$username` (5-10), includes `cpu`, `machine-type`, `gh-codespaces` (12-14), then `pager` and `color` (16-18), `[data]`, `[git]` with `commitMessageTemplate = \"{{ promptString ... }}\"` (30), `[env]`, `[update]`, `[diff]` with `diff.exclude` (51), `[edit]`, `[merge]`, empty hooks.\n- The included templates end with `[data.cpu]`, `[data.machine]`, `[data.github]` tables, so anything placed after them without a new table header belongs to `[data.github]`.\n- `dot_config/chezmoi/chezmoi.toml.tmpl` (56 lines) is a rendered copy plus `encryption` and `[age]`; it has no template actions; `chezmoi doctor` reports it as a suspicious entry.\n- `chezmoi dump-config` on 2026-10-30: `diff.exclude: []`, pager `less`, umask 002 (from the process).\n- The brew hook (`dot_config/shell/rc.d/110-pkg_brew.sh:63-91`) runs `chezmoi re-add` then commits; brew-file writes the Brewfile with its own mode, so `chezmoi status` keeps a mode-only entry.\n- Neovim lives in its own private repository, cloned at `~/.config/nvim`; its remote exists since 2026-10-30.\n  chezmoi runs `git pull` with the entry's `pull.args` on an existing `git-repo` external target the first time (no record in `gitRepoExternalState`), then only with `-R` when `refreshPeriod` is 0.\n- `~/.config/gh/hosts.yml` is not managed (only `config.yml` is) and must stay that way.\n- After `adopt-chezmoiroot`, all these paths are under `home/`.\n\n## Goals / Non-Goals\n\n**Goals:**\n\n- `chezmoi init` alone produces a complete, correct config on any machine.\n- Every key in the template has the effect it claims.\n- The Neovim repository location is configuration, not source.\n\n**Non-Goals:**\n\n- Using the computed data in templates, profiles, distro data (change `fresh-machine-bootstrap`, [redacted:private] `T-012`).\n- Removing the unused prompts or `$username` lines (cleanup in `fresh-machine-bootstrap`, which decid...
+  Line 8513: This JWT-looking match is in a vendored upstream fabric prompt file, not a config, so I'll verify read-only whether it's the well-known public JWT example and confirm the same string exists upstream before ruling on it.
+
+  Line 8551: I need to remember that a custom .gitleaks.toml disables default rules unless I explicitly set `[extend] useDefault = true`, so I'll include that alongside the allowlist. I should also present the user with options—allowlist, treat as a real secret, or inspect further—since the matched string appears to use only placeholder claim names and matches a known public example.
+
+  Line 8555: I'm pausing per task 2.3 to get your decision on the single finding: a `jwt`-pattern token (entropy 5.3) in `write_nuclei_template_rule/system.md` line 414, which I believe is a false positive since it matches a public upstream fabric sample with generic claim names, not a real secret.
+
+  Line 8566:       "question": "Is this finding a false positive to allowlist, or a real secret? The evidence above points to a public example from the upstream prompt.",
+
+  Line 8588: User has answered your questions: "Is this finding a false positive to allowlist, or a real secret? The evidence above points to a public example from the upstream prompt."="False positive, allowlist it (Recommended)". You can now continue with the user's answers in mind.
+
+  Line 8612:   "content": "# gitleaks configuration for this repository.\n# It extends the default rules; only reviewed false positives are listed below.\ntitle = \"dotfiles gitleaks configuration\"\n\n[extend]\nuseDefault = true\n\n# Reviewed on 2026-10-31 (change harden-sensitive-targets): the finding is an\n# example token inside the vendored upstream fabric prompt\n# write_nuclei_template_rule, present in the public upstream project; its\n# payload holds placeholder claims only.\n# The path pattern matches before and after the move into home/.\n[[allowlists]]\ndescription = \"Example JWT in the vendored upstream fabric prompt write_nuclei_template_rule\"\ntargetRules = [\"jwt\"]\npaths = ['''(^|/)dot_config/fabric/private_patterns/write_nuclei_template_rule/system\\.md$''']\n\n# vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en :\n"
+
+  Line 8897:   "content": "// Secret scanning for this public repository (change harden-sensitive-targets).\n//\n// Top-level `steps` feed the implicit `check`, `fix` and `pre-commit` hooks.\n// The explicit `pre-commit` hook replaces `gitleaks` with its staged variant,\n// so a commit is judged on exactly what is staged, and keeps the inherited\n// `detect_private_key` step.\n// Allowlisted false positives live in `.gitleaks.toml`.\namends \"package://github.com/jdx/hk/releases/download/v2.10.0/hk@2.10.0#/Config.pkl\"\nimport \"package://github.com/jdx/hk/releases/download/v2.10.0/hk@2.10.0#/Builtins.pkl\"\n\nsteps {\n  [\"gitleaks\"] = Builtins.gitleaks\n  [\"detect_private_key\"] = Builtins.detect_private_key\n}\n\nhooks {\n  [\"pre-commit\"] {\n    steps {\n      [\"gitleaks\"] = (Builtins.gitleaks) { scan = \"staged\" }\n    }\n  }\n}\n"
+
+  Line 10383: 5: How work on this public dotfiles repository is planned, recorded and checked: a dated audit baseline with numbered findings, one OpenSpec change per unit of work, an agent guide with safety rules, and writing that is safe to publish.
+
+  Line 10424: 46: - **WHEN** the documentation and spec files are searched for private IP ranges, email addresses other than the public author address, and token-like strings
+
+  Line 10840: For archiving, I can't preview `openspec archive` without `--yes` since it prompts interactively, so my plan is to tick task 6.2 first (since archiving moves tasks.md), then run `openspec archive harden-sensitive-targets --yes`, which relocates the change into the archive and generates the `secret-hygiene` spec. I'll also need to replace the generated "TBD" Purpose with a real sentence describing how secrets are stored, deployed, and kept out of public history, then validate and commit.
+
+  Line 10950:    - Replace the generated Purpose with one sentence: how secrets are stored, deployed and kept out of the public history.
+
+  Line 11287:   "newString": "## Purpose\n\nHow secrets are stored, deployed and kept out of the public history of this repository: encrypted sources deploy as private files, the history and every new commit are scanned for leaks, and one pinned chezmoi binary does the deploying.\n\n## Requirements\n"
+
+  Line 12081: - [redacted:repo]'s rule is the opposite. Its session note says: "Not an export: the raw transcript contains secrets and is not stored". Its `AGENTS.md` says: "Personal data (databases, credentials, session exports) is never committed". So for [redacted:private], which will become public, a raw export is the wrong tool without a scrub.
+
+  Line 12116: 3. For a public repo like [redacted:private] or the dotfiles, a hand-written digest following the [redacted:private] front-matter pattern is safer than a raw export.
+
+  Line 12286: I want to check rtk's behavior read-only, like what `rtk rewrite` actually does and what the proxy subcommand and hook exclusion config keys mean, before touching anything. Separately, I'm realizing the session export step is risky since this dotfiles repo is public — the raw transcript could leak things the user deliberately kept private, like repo names from `gh repo list`, home paths, the account name, and hostnames.
+
+  Line 12288: I also notice the transcript includes the `[redacted:envvar]` variable name from `gh auth status`, which the AGENTS rule against naming secret variables forbids even without exposing the actual value, plus the private `[redacted:repo]` repo name the user explicitly wanted excluded from the public repo. So committing a raw export here would violate those rules, and I'd also need a `.chezmoiignore` entry since `memory/` isn't meant to be deployed to `~/memory`.
+
+  Line 12294: For the session resolution itself, I can use export.py's resolve-last option against the chezmoi directory as a read-only check, and verify the script's flags with --help before running anything, since both are safe non-mutating operations. Pushing to the remote is a separate matter -- that's a write action affecting the public repo with several commits pending, so it's off-limits in plan mode right now.
+
+  Line 12296: Since pushing makes everything public, I want to double-check the outgoing commits for anything sensitive -- the gitleaks config, gh-config management, auth status references, and AGENTS.md all look fine on inspection, with no repo names leaking. Before actually pushing I'd want to run gitleaks against the diff range and grep for private repo names, IPs, or emails, and confirm there's no pre-push hook or branch protection blocking things.
+
+  Line 12380: Since this is a public repo, I'm scanning the transcript for anything that conflicts with the "writing for a public repository" guidance — things like the [redacted:envvar] secret name, private repo names ([redacted:repo], [redacted:repo]), migration checklist details, and hostnames. Most sensitive values already look redacted or masked, like the test email and chezmoi.toml keys, and the gh account name is public anyway, so I'm checking what else might need scrubbing before export.
+
+  Line 12382: I'm also noticing the checklist content includes infra specifics — a backup push command, Nextcloud paths, [redacted:private].php, personal file paths, and telemetry consent keys — none of which belong in a public commit. I don't actually know what opencode's `--sanitize` flag redacts, and testing it would mean writing to /tmp, which plan mode forbids, so I need to just lay out the export options for the user instead of experimenting.
+
+  Line 12384: I'm weighing whether to keep raw exports local-only (git-ignored, with a hand-written public-safe digest committed instead), use the unverified sanitize flag with a manual review pass, route the raw export to the private repo per DR-016, or just commit raw to the public repo despite the AGENTS.md violation — and I still need to sort out the gitignore and chezmoiignore entries either way.
+
+  Line 12620: Still, "signal now" probably just means now, not later. I'm also weighing which repo's roadmap should hold this: likely the dotfiles change map, under a new change like `fix-rtk-hook-output`, scoping managing the rtk config via chezmoi and excluding certain git commands from its output. There's uncertainty about placement order in the change map and whether to renumber, but I want to keep the questions to the essentials: whether to signal [redacted:repo] now versus inside the change, and how public the session export should be — I'll propose inserting it as row 20 with a note that it's independent.
+
+  Line 12622: For session export mechanics, I'm thinking through naming via a timestamp and slug like `harden_sensitive_targets`, and whether child subagent sessions get exported as separate files, pushing total size up — worth asking if this is fine for a public repo. I also note the export only captures the conversation up to export time, so sequencing matters: do the roadmap edits, signal [redacted:repo], commit, then export, commit again, and push, accepting that the export will include the commit action itself.
+
+  Line 12628: I need to figure out a gitignore strategy that keeps raw session exports local while still committing the public digest — maybe separating them into a `raw/` subdirectory, though that conflicts with the wrapper's requirement to write directly into `memory/sessions`. I'm weighing a pattern like ignoring everything in that folder except the digest files specifically.
+
+  Line 12630: Rather than overengineer this, I think it's better to just present the user with the options directly: either keep raw exports local and git-ignored with only a committed public-safe digest, or commit the raw export too (which would need a hook exception for that path).
+
+  Line 12632: For safety, before any push I should run gitleaks and a public-writing grep over the outgoing diff to catch private IPs, emails, repo names, and tokens, then confirm the remote and push settings are otherwise unremarkable.
+
+  Line 12707:       "header": "Session export and the public repo",
+
+  Line 12708:       "question": "The raw transcript of this session can't be pushed as is. Under AGENTS.md's public-writing rules it holds the name of a secret variable (from `gh auth status`) and the private Neovim repository name you chose to keep out of the repo. It also holds the fake private-key header from the hook test, so our own hook would refuse the commit. The child exports (the explore sub-agents) quote [redacted:private]'s private migration notes. How should the export go?",
+
+  Line 12712:           "description": "[redacted:repo]'s export.py writes the raw transcript and child exports into memory/sessions/raw/ (git-ignored, never pushed); I write and commit a public-safe digest note in memory/sessions/ ([redacted:private]'s digest format)"
+
+  Line 12716:           "description": "Commit the raw export to the public repo. Needs a hook exception for memory/sessions/ and accepts the leaks listed above"
+
+  Line 12766: User has answered your questions: "The raw transcript of this session can't be pushed as is. Under AGENTS.md's public-writing rules it holds the name of a secret variable (from `gh auth status`) and the private Neovim repository name you chose to keep out of the repo. It also holds the fake private-key header from the hook test, so our own hook would refuse the commit. The child exports (the explore sub-agents) quote [redacted:private]'s private migration notes. How should the export go?"="make a raw temp export and send this issue to agent in S1 tab in neovim workspace, then wait it has commited its work, and finally use it to create the redacted exports", "In [redacted:repo], a signal is a Lane A dispatch: a draft task record (T-065) plus its TODO.md line and a timeline row, carrying `dispatch_origin` and a return signal, committed only with `mise run -c validate` green. [redacted:repo]'s checkout is on `task/T-060` with another session's uncommitted work. When and how?"="Register now, worktree (Recommended)", "The fix lives in this repo: ~/.config/rtk/config.toml is unmanaged, and its `[hooks] exclude_commands` can keep `git commit` from being rewritten to `rtk git commit`. Where should it sit on the change map?"="Inside manage-ai-tool-configs". You can now continue with the user's answers in mind.
+
+  Line 13394:   Line 325:   - `[decision]` private files (in plan mode, not timed): the user chose the A, B and D mix of D21, with `zg` project, `2zg` private and `3zg` public; option 1 for S1 (keep private data out before the first push, D22); the private store inside a chezmoi data dir; an agent pre-sort for the review; S16 after S10.
+
+  Line 13416:   Line 712: - [ ] `[decision]` privacy review: re-check `spell/*.add` entries added since S1 (S1 kept only public entries and dropped the lists from history, D22), OpenSpec archives, `ROADMAP.md` (mentions [redacted:repo], local paths and the private store), `AGENTS.md`, `.opencode/`. `spell/ltex.hiddenFalsePositives.*.txt` is ignored since S1. Telemetry stays outside the repo.
+
+  Line 13420:   Line 767: - The state after S1 is in Global context ("Spell word lists"). The S1 backup `~/.local/state/nvim-s1-backup/site-spell/` holds the `site/spell` lists as reviewed in S1: every entry there was judged public; later entries are unreviewed.
+
+  Line 13426:   Line 782: - [ ] `[post-merge:live]` fold `~/.local/share/nvim/site/spell/*.add` into the tiers (entries in the S1 backup are public; review newer ones with the user), move `spell/ltex.hiddenFalsePositives.fr.txt` of the live checkout to the projects it belongs to or to the private store, rebuild the compiled lists, then the user decides whether to delete `~/.local/state/nvim-s1-backup/`.
+
+  Line 13478: Should I let S1 decide how to categorize these terms itself, or hand it my full list? Also, the private terms need to go into the separate chezmoi-private store rather than the nvim repo's public history, since the nvim repo itself is private anyway. Before finalizing, I want to check whether DEFAULT_TERMS_DIR actually exists in session_redact.py, skim the relevant README sections on export procedure and slug patterns, and look at the worktree list and commit message conventions plus the manage-ai-tool-configs files.
+
+  Line 13753: I'm thinking through the mitigation: adding term-based redaction per repo, since private repo names like "[redacted:repo]" are only sensitive when exposed through public repos like dotfiles, so a per-repo terms list makes more sense than a global one. I'm also noting other private content that leaked into exports, like migration checklist details with hostnames and snapshot IDs.
+
+  Line 13965: Then I need to figure out how to dispatch a brief to S1 through herdr's agent prompt and wait commands, checking the right wait syntax since S1's terminal is idle in opencode TUI, and I'm drafting the brief's content: identifying the chezmoi agent, its repo location, and public session context so the request is self-contained.
+
+  Line 13969: On the terms directory question, dotfiles likely needs its own private terms path separate from nvim's, probably configured through SESSION_REDACT_TERMS_DIR pointing somewhere like a chezmoi-private store. For completion, I need to commit the script changes following repo conventions, keep terms out of the public repo, and report back the commit SHA, the exact redaction command with its env var and script path, and the `--check` result against the redacted raw files.
+
+  Line 14000:    - **Goal:** redacted exports for this public repo's `memory/sessions/`, made with S1's script.
+
+  Line 14242: For the actual brief, I'm outlining categories of sensitive content for S1 to scan for without me quoting any actual values: secret-holding environment variable names, the private Neovim repo's owner/name, private-repo content leaked through sub-agent exports (personal names, client folders, cloud-sync paths, backup identifiers, machine hostnames like [redacted:private]/[redacted:private] -- though some of those already appear in the public AGENTS.md audit), and absolute paths. I also need to specify what I want returned: the commit SHA and branch, the exact command used, a recommendation for a per-repo terms directory, and the --check result, all packaged as a single multi-line prompt.
+
+  Line 14257:   "content": "MESSAGE FROM ANOTHER AGENT SESSION (herdr workspace \"chezmoi\", pane wN:p1, repository ~/.local/share/chezmoi). This is not the user. It does NOT answer your [decision] gate and does NOT mean the user finished reviewing your transcripts; keep that gate as it is.\n\nRequest (the user asked me to send it to you): extend your redaction so it can also produce redacted session exports for the PUBLIC dotfiles repository, then commit that work.\n\nContext\n- I need to publish the export of my own session in the dotfiles repository (public, GitHub). Your scripts/session_redact.py is the transitional tool the user wants to use.\n- My raw exports are in /tmp/opencode/session-raw (mode 0700), three files: the main session and two explore sub-agent sessions. Read them yourself. Do not copy raw content into any repository, any commit, any message to me, or any file outside /tmp/opencode.\n- Public-writing rule of that repository: no secret values, no names of secret variables, no token scopes, no private hosts or IP addresses, no employer or client details, no private repository names.\n\nGaps I know of, by category (I do not quote values on purpose; find them in the raw files)\n1. Names of environment variables that hold credentials, printed by tool output (for example the output of a GitHub CLI auth status command). Values are masked there, the NAMES are what must go.\n2. The owner and name of the private Neovim repository (you know it: it is your origin). It must not appear in a public repository.\n3. Private terms quoted by the explore sub-agents from the user's private [redacted:private] repository and its migration notes: personal names, client or training folder names, cloud-sync folder paths, archive and backup identifiers, snapshot ids, machine-specific identifiers. Judge what is private, you have the context of the private store.\n4. A synthetic private key block and generated token-shaped strings used on purpose as hook tests: your secret rules should a...
+  Line 14672: I need to double-check that T-065 is actually the next free ID before using it, and verify the claimed registration date rather than asserting it prematurely. Moving to the new change for enforcing hooks with system git, the public-writing rules let me describe the bypass generically with a local command since it's not a secrets-related vulnerability.
+
+  Line 14677: Now the separate change for the system-git bypass. It's described in general terms with a local command that shows the details, per the repo's public-writing rule.
+
+  Line 15104: I decide the dispatch_origin should use a repo:path form since dotfiles isn't a fleet repo with IDs, settling on citing the openspec change path, and I'll let validation confirm whether that resolves correctly. For content, I keep things public-safe by writing generally without naming anything secret, since [redacted:repo]'s repo privacy status is unknown.
+
+  Line 15177:   "content": "---\nid: T-065\ntitle: \"Signal from dotfiles: rtk hides passing-commit hook output; hk config hooks are ignored by git older than 2.54\"\nstatus: ready\ncreated: 2026-10-31\nupdated: 2026-10-31\ndepends_on: []\ndispatch_origin: \"dotfiles:openspec/changes/manage-ai-tool-configs\"\nrelated_decisions:\n  - id: DR-008\n    role: depends_on\n  - id: DR-016\n    role: depends_on\nrelated_specs:\n  - CT-007\n---\n\n# T-065: signal from dotfiles, hook output hidden by `rtk` on passing commits, hk config hooks ignored by git older than 2.54\n\n## Goal\n\nReceive two findings from the `dotfiles` repository (`github.com/silopolis/dotfiles`, public) that concern [redacted:repo]'s hook guidance and its template, and decide what [redacted:repo] records or changes:\n\n1. **Visibility** (`rtk`): agent sessions on the user's machines run shell commands through the `rtk` output filter, which rewrites `git commit` into `rtk git commit`. A commit that passes prints only `ok <short sha>`, so the hook's step results are invisible; a commit the hook refuses prints the full hook output. An agent cannot tell from a passing commit whether the hook ran.\n2. **Enforcement** (git version): `hk install` on git 2.54 or newer writes config-based hooks (`hook.<name>.command` in the repository's git config), which git older than 2.54 does not read. On a machine with two git binaries (user machine: brew git 2.55, system git 2.53), a commit made with the older one skipped the hook with no message. Any tool that calls the older git bypasses the scan.\n\nThis record is a signal: [redacted:repo] is sole judge of what, if anything, it changes (`DR-016`).\n\n## Context digest\n\n- **Where it comes from**: `dotfiles` change `harden-sensitive-targets` (archived 2026-10-31) installed a gitleaks and private-key pre-commit hook through hk 2.10.0. Verifying it, the session found both findings; they are written up in `dotfiles:openspec/changes/manage-ai-tool-configs/proposal.md` (visibility) and `...
+  Line 15192: The dotfiles repo reference checks out as public, and the [redacted:repo] repo citation seems fine too. Now I need to update the README index row, the TODO line, and the roadmap paragraph with its timeline row.
+
+  Line 15585: 7139445 feat(specs): add public redaction profile and terms directories
+
+  Line 15598: The mise untrust warning is fine since the worktree gets removed anyway. S1 is idle now with a committed change for the public redaction profile and terms directories, so I should check its reply and pane output. Meanwhile I'll proceed with commit A in dotfiles covering the audit, manage-ai-tool-configs, and enforce-hook-with-system-git files.
+
+  Line 15603: S1 is idle and has committed `7139445 feat(specs): add public redaction profile and terms directories`. Reading its reply in full before using anything it produced.
+
+  Line 15619:   ┃  [✓] Chezmoi request: public profile + dotfiles terms dir, tests, commit
+
+  Line 15624:      The public-profile redaction is done and committed; it passes --check on all three raw exports from the chezmoi session. PR #2 is not merged: the user's
+
+  Line 15640:      - That directory is a sibling of nvim/ in the private store. It sets profile to public, and shares the spell words and the fleet list with nvim/ through
+
+  Line 15685: S1's branch now has commit 7139445 with the public-profile mode and a clean `--check` pass, leaving its decision/merge gates untouched. I'll now update the proposal text for T-065 to note it still lives on an unmerged branch.
+
+  Line 15773:   "command": "cd ~/.config/nvim; echo \"branch: $(git rev-parse --abbrev-ref HEAD) $(git log -1 --format=%h)\"; echo \"== terms dir (names + sizes only)\"; ls -la ~/.local/share/chezmoi-private/dotfiles/ 2>&1 | head; echo \"== does the script have the public profile flag?\"; rtk rg -n 'profile|public' scripts/session_redact.py | head -8",
+
+  Line 15790: == does the script have the public profile flag?
+
+  Line 15793: 9:session_redact.py [--profile private|public] < in.md > out.md
+
+  Line 15794: 10:session_redact.py [--profile private|public] --check FILE...
+
+  Line 15795: 16:profile            'private' (default) or 'public'
+
+  Line 15796: 22:private-repos.txt  more private repository names (public profile only)
+
+  Line 15797: 27:public   transcripts for a public repository. Also redacts repository
+
+
+(Results truncated. Consider using a more specific path or pattern.)
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 5.7s)
+
+_Thinking:_
+I searched too broadly, since the path I gave Grep ended up covering the whole directory, which wasted effort. I'll read the AGENTS.md section directly instead.
+
+
+That search was far too broad. Reading the AGENTS.md section directly.
+**Tool: read**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/AGENTS.md",
+  "offset": 50,
+  "limit": 20
+}
+```
+
+**Output:**
+```
+<path>~/.local/share/chezmoi/AGENTS.md</path>
+<type>file</type>
+<content>
+50: 
+51: ## Safety rules
+52: 
+53: - Never run a full `chezmoi apply` without reviewing `chezmoi apply --dry-run --verbose` with the user first; until `make-install-scripts-idempotent` is archived, do not run one at all.
+54: - Apply single targets with `--exclude=scripts`.
+55: - Edit the source, never the target, for managed files; bring live edits back with `chezmoi re-add` after a diff review.
+56: - Never print, log or commit secret values; encrypted files are added with `chezmoi add --encrypt` and keep the `private_` attribute.
+57: - Raw session exports contain private data: keep them in a scratch directory with mode 0700, commit only the redacted copies in `memory/sessions/`, and delete the raw files.
+58: - Anything that uses sudo, writes outside `$HOME`, uninstalls or deletes needs the user's explicit go.
+59: - Commits: propose the messages, commit only after the user validates them, never push without being asked.
+60: - The brew hook (`dot_config/shell/rc.d/110-pkg_brew.sh`) commits the Brewfile by itself after brew changes: expect those commits.
+61: 
+62: ## Writing for a public repository
+63: 
+64: - No secret values, no names of secret variables, no token scopes, no private hosts or IP addresses, no employer or client details.
+65: - Open security issues are described in general terms, with a command that shows the details locally.
+66: - The same rule applies to [redacted:private], which will become public too.
+67: 
+68: ## Conventions
+69: 
+
+(Showing lines 50-69 of 81. Use offset=70 to continue.)
+</content>
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 6.2s)
+
+**Tool: edit**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/AGENTS.md",
+  "oldString": "- The same rule applies to [redacted:private], which will become public too.\n",
+  "newString": "- The same rule applies to [redacted:private], which will become public too.\n- Sibling repositories: name only those that are public or meant to be ([redacted:repo], [redacted:private], [redacted:repo], greffe, the Neovim configuration repository); call any other \"a fleet repository\".\n  A file that is committed here is public, so a private repository is not named even to say that it is private.\n"
+}
+```
+
+**Output:**
+```
+Edit applied successfully.
+```
+
+**Tool: edit**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/openspec/changes/enforce-hook-with-system-git/proposal.md",
+  "oldString": "[redacted:repo], [redacted:repo] and [redacted:private] install their hooks the same way",
+  "newString": "[redacted:repo], [redacted:private] and the other fleet repositories install their hooks the same way"
+}
+```
+
+**Output:**
+```
+Edit applied successfully.
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 9.5s)
+
+_Thinking:_
+I've confirmed the AGENTS.md edit is fine, including the mentions of [redacted:private] and its path. Next I'll validate the change, check the dashes, and confirm the commit subject is 57 characters.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\nopenspec validate --all --strict 2>&1 | tail -1; rtk rg -n '[—–]' AGENTS.md openspec/changes/enforce-hook-with-system-git || echo \"no dashes\"\necho \"== private names in tracked files outside exports\"; git grep -n -i -w -e [redacted:repo] -e [redacted:repo] -e [redacted:repo] -- . ':!memory/sessions' || echo none\nsubject=\"docs(chezmoi:docs): name only public sibling repositories\"; echo \"subject length: ${#subject}\"\ngit add AGENTS.md openspec/changes/enforce-hook-with-system-git/proposal.md; git diff --cached --name-status\n/home/linuxbrew/.linuxbrew/bin/git commit -m \"$subject\" -m \"- AGENTS.md: sibling repositories are named only when public or meant to be; any other is \\\"a fleet repository\\\", even to say it is private\n- enforce-hook-with-system-git: the proposal names no private repository\" 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | tail -6\necho \"exit=${pipestatus[1]}\"; git log -1 --format='%h %s'",
+  "workdir": "~/.local/share/chezmoi",
+  "timeout": 240000
+}
+```
+
+**Output:**
+```
+Totals: 25 passed, 0 failed (25 items)
+no dashes
+== private names in tracked files outside exports
+none
+subject length: 57
+M	AGENTS.md
+M	openspec/changes/enforce-hook-with-system-git/proposal.md
+  gitleaks – 2:26PM INF 0 commits scanned.
+  gitleaks – 2:26PM INF scanned ~491 bytes (491 bytes) in 329ms
+  gitleaks – 2:26PM INF no leaks found
+✔ gitleaks
+[main 005458d] docs(chezmoi:docs): name only public sibling repositories
+ 2 files changed, 3 insertions(+), 1 deletion(-)
+exit=0
+005458d docs(chezmoi:docs): name only public sibling repositories
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 34.8s)
+
+_Thinking:_
+Step 1 is finished, so I'm moving on to reworking add-repo-roadmap. I need to read the current files and work out the content first, and I'll update the todos as I go. For the proposal, I'm listing the new capability `openspec-repo-roadmap`, the changes to `spec-workflow` and `global-mise-tasks` (the deploy and list tasks, plus the Python rule), and per-change roadmap fields, with the exact location left for design.
+
+I'm going to check the current requirements in the global-mise-tasks spec, since the MODIFIED entries need their full text copied over. I'll also look at the spec-workflow requirements to decide whether the roadmap goes in as a new addition.
+
+I'm working out how the metadata for each change's roadmap fields should be stored. The spec scenarios need to hold regardless of where it ends up, so I'll describe them in terms of the change's roadmap fields and leave the exact location to design.md.
+
+I'm weighing a sidecar file for each change's roadmap fields against the `.openspec.yaml` metadata, since a sidecar is less likely to break if OpenSpec later tightens its schema. I'm leaving the exact placement to design.md, and the spec scenarios will refer only to the change's roadmap record for now. I'm also listing the fields I expect to need, starting with dependencies, phase, priority, size, and origin.
+
+I'm settling on the roadmap's storage shape now: fields like dependencies, phase, priority, size, source, and note, with the status derived rather than stored. The ROADMAP.md itself will be split into hand-written sections like the intro, phase descriptions, and backlog, and generated blocks for the sequencing table, the done list, and the in-progress and next items.
+
+I'm settling how the roadmap's generated blocks should be scoped: they should only hold what changes when a change is created or archived, like id, dependencies, phase, priority, size, source and archive date. Task counts and branch state would make the committed file churn on every tick, so those stay in the live viewer, while the done list keeps its stable dates.
+
+I'm weighing whether the roadmap's done list should live in the committed file, since archiving would then change it on every archive, versus leaving history to the viewer and keeping the committed file as a stable plan with a sequencing table only. The viewer would give the past-and-present view, and I'm still undecided whether that split holds for how the roadmap is used.
+
+I'm weighing whether to store a status checkbox in the generated blocks like the fleet does, but I already decided against a stored status, since it would go stale when archiving skips the writer. That leaves the question of whether done dates belong in the committed file at all, which I still need to settle in design.
+
+I'm settling on the committed roadmap's state: git-derived states like in-progress depend on local worktrees, so the file would become machine-dependent if it held them. So the generated blocks will carry only done versus open, with the done date, and the volatile states will live in the viewer.
+
+Now I'm drafting the brief for the roadmap agent, keeping the names generic and public-safe. The brief will point it to the fleet piloting repository's roadmap, contract, and study through the first prompt's paths, and I'll give the local nvim and [redacted:repo] locations as home paths.
+
+I'm sketching the brief for the roadmap agent next, covering its worktree and branch, starting in plan mode, the reading list, the decided and open points, what's out of scope, and the rules on merging and committing.
+
+Next I'm settling the rest of the coordination and reporting plan for the roadmap agent. The `add-agent-launch-tasks` change depends on this change's Python rule, and the nvim orchestrator needs a `--json` output and a parity table before it can drop its own roadmap task, so the design has to cover both. I'll also have the agent send a one-line report to chezmoi-orch at four points, and log any friction in that other change's observations file, though I still need to confirm whether that file belongs to this branch.
+
+I'm noting that friction will go into my reports to chezmoi-orch rather than into a shared observations file, so the two branches don't conflict. I'm also checking whether plan mode will make `mise run` prompt for approval, and I'm looking at which opsx skills exist to point the agent at.
+
+I'm going to check the audit rows that feed the seed list, and I'll keep row 24's note as it is, since the generated ROADMAP.md will replace that table once it's applied. Then I'll add row 25 for the launch change in step 3, and read the proposal and the global-mise-tasks spec requirements to refresh the exact text.
+
+
+Step 1 is committed as `005458d`. For step 2 I need the full text of the two `global-mise-tasks` requirements I'm modifying, so I'm reading them.
+**Tool: todowrite**
+
+**Input:**
+```json
+{
+  "todos": [
+    {
+      "content": "1. Public names: enforce-hook proposal line 7 + AGENTS.md rule; commit (005458d)",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "content": "2. Rework add-repo-roadmap (proposal, spec openspec-repo-roadmap, spec-workflow + global-mise-tasks deltas, brief.md); validate; commit",
+      "status": "in_progress",
+      "priority": "high"
+    },
+    {
+      "content": "3. New add-agent-launch-tasks (proposal, specs, observations.md), delete fix-prompt-delivery, audit rows 22/25; commit; message nvim-orch",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "content": "4. Fetch, check origin, push main",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "content": "5. Stop for user's /compact",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "content": "6. Launch roadmap agent by hand in plan mode (worktree, herdr worktree open, agent, prompt), log to observations.md",
+      "status": "pending",
+      "priority": "high"
+    }
+  ]
+}
+```
+
+**Output:**
+```
+[
+  {
+    "content": "1. Public names: enforce-hook proposal line 7 + AGENTS.md rule; commit (005458d)",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "content": "2. Rework add-repo-roadmap (proposal, spec openspec-repo-roadmap, spec-workflow + global-mise-tasks deltas, brief.md); validate; commit",
+    "status": "in_progress",
+    "priority": "high"
+  },
+  {
+    "content": "3. New add-agent-launch-tasks (proposal, specs, observations.md), delete fix-prompt-delivery, audit rows 22/25; commit; message nvim-orch",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "content": "4. Fetch, check origin, push main",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "content": "5. Stop for user's /compact",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "content": "6. Launch roadmap agent by hand in plan mode (worktree, herdr worktree open, agent, prompt), log to observations.md",
+    "status": "pending",
+    "priority": "high"
+  }
+]
+```
+
+**Tool: read**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/openspec/specs/global-mise-tasks/spec.md",
+  "offset": 1,
+  "limit": 44
+}
+```
+
+**Output:**
+```
+<path>~/.local/share/chezmoi/openspec/specs/global-mise-tasks/spec.md</path>
+<type>file</type>
+<content>
+1: # global-mise-tasks Specification
+2: 
+3: ## Purpose
+4: 
+5: The global mise tasks this repository deploys for any git repository: creating, removing, cleaning and listing worktrees (`scm:worktree:*`), and dispatching an agent into another repository's herdr workspace (`agent:dispatch`), with their safety rules, project hooks and settings.
+6: 
+7: Unless stated otherwise, scenarios run in a scratch repository whose `origin` is a bare repository on branch `main`, both under `/tmp/opencode`, with `WORKTREES_ROOT` pointing inside the same scratch directory and `HERDR_ENV` unset.
+8: 
+9: ## Requirements
+10: 
+11: ### Requirement: Global tasks are deployed and listed
+12: 
+13: The repository SHALL deploy the helper `~/.config/mise/lib/scm.sh` and the global file tasks `scm:worktree:new`, `scm:worktree:rm`, `scm:worktree:done`, `scm:worktree:ls` (aliases `scm:wt:new`, `scm:wt:rm`, `scm:wt:done`, `scm:wt:ls`) and `agent:dispatch`, the tasks executable.
+14: 
+15: #### Scenario: Tasks are listed
+16: 
+17: - **WHEN** `mise tasks ls --global` runs from a directory with no project config
+18: - **THEN** it lists `agent:dispatch`, `scm:worktree:done`, `scm:worktree:ls`, `scm:worktree:new` and `scm:worktree:rm`
+19: 
+20: #### Scenario: Aliases resolve
+21: 
+22: - **WHEN** `mise run scm:wt:ls --no-pr` runs in the scratch repository
+23: - **THEN** it exits 0 and prints the same table as `mise run scm:worktree:ls --no-pr`
+24: 
+25: #### Scenario: Targets match the source
+26: 
+27: - **WHEN** `chezmoi diff --exclude=externals,scripts ~/.config/mise/lib ~/.config/mise/tasks` runs
+28: - **THEN** it prints nothing, and `stat -c '%a' ~/.config/mise/tasks/scm/worktree/*` shows an executable mode for each task
+29: 
+30: ### Requirement: Tasks are generic and clean
+31: 
+32: The helper and tasks SHALL pass `shellcheck -x` and SHALL hold no home path, user name, host name or credential, since they ship in a public repository.
+33: 
+34: #### Scenario: shellcheck is clean
+35: 
+36: - **WHEN** `shellcheck -x` runs on `dot_config/mise/lib/scm.sh` and every file under `dot_config/mise/tasks/`
+37: - **THEN** it exits 0
+38: 
+39: #### Scenario: Nothing machine-specific
+40: 
+41: - **WHEN** `rg -n -e "$HOME" -e "$USER" dot_config/mise/lib dot_config/mise/tasks` runs
+42: - **THEN** it prints nothing
+43: 
+44: ### Requirement: Creating a worktree
+
+(Showing lines 1-44 of 158. Use offset=45 to continue.)
+</content>
+```
+
+**Tool: read**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/openspec/specs/spec-workflow/spec.md",
+  "offset": 28,
+  "limit": 30
+}
+```
+
+**Output:**
+```
+<path>~/.local/share/chezmoi/openspec/specs/spec-workflow/spec.md</path>
+<type>file</type>
+<content>
+28: - **WHEN** a session starts with no prior context
+29: - **THEN** `AGENTS.md`, `openspec list` and the cited audit findings are enough to run `/opsx-apply <change>` or `/opsx-continue <change>`
+30: 
+31: ### Requirement: Agent guide with safety rules
+32: 
+33: The repository SHALL have a root `AGENTS.md` stating where things live, how to check changes, and which operations need the user's explicit approval (full apply, sudo, writes outside `$HOME`, uninstalls, deletions, commits, pushes).
+34: 
+35: #### Scenario: Unsafe operations are listed
+36: 
+37: - **WHEN** `grep -c -E 'dry-run|sudo|commit' AGENTS.md` runs
+38: - **THEN** it prints a count of at least 3
+39: 
+40: ### Requirement: Public writing
+41: 
+42: Every committed file SHALL be safe to publish: no secret values, no names of secret variables, no token scopes, no private hosts or IP addresses, no employer or client details.
+43: 
+44: #### Scenario: Documentation pattern check
+45: 
+46: - **WHEN** the documentation and spec files are searched for private IP ranges, email addresses other than the public author address, and token-like strings
+47: - **THEN** nothing is found
+48: 
+49: ### Requirement: Repository files are not targets
+50: 
+51: Repository-level files (agent guide, docs, specs, tooling) SHALL never be deployed to the home directory.
+52: 
+53: #### Scenario: Managed list excludes repository files
+54: 
+55: - **WHEN** `chezmoi managed | grep -E '^(AGENTS\.md|docs|openspec)'` runs
+56: - **THEN** it prints nothing
+57: 
+
+(Showing lines 28-57 of 59. Use offset=58 to continue.)
+</content>
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 17.1s)
+
+_Thinking:_
+I'm about to write the proposal and then the spec files. The AGENTS.md sibling rule is already committed, and the spec-workflow doesn't need changing for it. In the proposal I'll keep public-facing wording clean and name only the sibling repositories I'm allowed to mention.
+
+
+Writing the reworked proposal.
+**Tool: write**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/openspec/changes/add-repo-roadmap/proposal.md",
+  "content": "## Why\n\nThere is no single place that shows this repository's work as a whole: what is done, what is in progress, what comes next and why in that order.\n`openspec list` shows only the active changes with task counts, `openspec view` is a dashboard of the current specs and changes, and the archive is a folder of dated directories with no index.\nThe order and the priorities live in one hand-kept table, the change map in section 6 of the audit (`docs/audits/2026-10-30-environment.md`), which is a dated baseline and not meant to be maintained; its later rows were added by other sessions without the rest of the document following.\nThe fleet's roadmaps keep one record per item with its dependencies and status in the front matter, and the roadmap file is a projection of those records that tools write or check; the Neovim configuration repository's roadmap is hand-written and a task derives the state from git.\nHere the records already exist: each OpenSpec change is one, but it carries no order, no dependency and no priority.\n`TODO.md` is out of date and is to be retired (audit finding F34, change `refresh-repo-docs`).\nSource: requests of the user on 2026-11-03 and 2026-11-04, audit finding F34 and section 6 of the audit.\n\n## What Changes\n\n- **Transitional.**\n  This is a stand-in for the fleet's records system ([redacted:repo] and greffe), which is not available yet and has no date.\n  The vocabulary follows the fleet's, so that a later migration is mechanical: permanent `B-NNN` backlog ids, dependencies named by change id, status derived and never typed by hand.\n  When the fleet's system is available, this change is superseded and `ROADMAP.md` is generated from its records instead.\n- **Roadmap fields per change.**\n  Every change, active or archived, carries a small record: dependencies, phase, priority, size, the finding or request it answers, one line on why it sits where it does.\n  The design decides where the record lives (a file in the change folder, or extra keys in `.openspec.yaml`); OpenSpec ignores both and archiving moves the folder as a whole.\n- **`ROADMAP.md` is mostly generated.**\n  A root `ROADMAP.md` holds hand-written text (purpose, phase descriptions, backlog, decisions) and sections between markers that the task writes: the sequencing table in dependency order and the done list with archive dates.\n  What is generated is only what is stable in a commit; the live state (in progress, task counts, startable, blocked) is never committed, because it depends on the checkout.\n- **A global mise task `openspec:roadmap`, usable by any OpenSpec repository.**\n  Python with the standard library only, deployed with the other global tasks, replacing the repo-local `roadmap` task of the Neovim configuration repository (its replacement is signalled at the end of this work, with a feature-by-feature parity table in the design).\n  - `mise run openspec:roadmap` prints Done, In progress, Next and Blocked from the records, the archive, `openspec list --json` and git; it writes nothing.\n  - `--write` regenerates the marked sections of `ROADMAP.md`.\n  - `--check` fails when a marked section is out of date, a change has no roadmap fields, a row names no change, a dependency is unknown, or the dependencies form a cycle.\n  - `--json` prints the same state for other tools.\n- **Global task rule.**\n  The `global-mise-tasks` requirement that every file under the tasks directory passes `shellcheck -x` becomes: shell files pass `shellcheck -x`, Python files compile and have unit tests.\n  The change `add-agent-launch-tasks` depends on this amendment.\n- **Adoption in this repository.**\n  - Seed the roadmap fields from the audit's change map (rows 0 to 25), then freeze that section with a pointer to `ROADMAP.md`.\n  - `ROADMAP.md` is listed in the temporary repository-files block of `.chezmoiignore`, removed by `adopt-chezmoiroot` with the rest; `.mise/` and the task source under `dot_config/mise/tasks/` need no entry.\n  - `AGENTS.md` tells a fresh session to run `mise run openspec:roadmap` first, and states that a new change gets its roadmap fields in the same commit and that `--write` follows `openspec archive`.\n  - Whether `--check` also runs as a commit hook step is left to the design (see `add-repo-quality-gates`).\n- **Non-goals.**\n  - Multi-agent orchestration (dispatch, lanes, one agent per change) is studied at fleet level and is not designed here; the roadmap fields only need to be able to carry what such a design later asks for.\n  - `TODO.md` is not removed here: its open items move into the backlog or into changes, and the removal stays in `refresh-repo-docs`.\n\n## Capabilities\n\n### New Capabilities\n\n- `openspec-repo-roadmap`: the roadmap fields of a change, the generated `ROADMAP.md`, and the read-only task that derives the state of every change from the records, the archive and git.\n\n### Modified Capabilities\n\n- `global-mise-tasks`: the `openspec:roadmap` task is deployed and listed; Python tasks are allowed, with their own checks.\n- `spec-workflow`: this repository keeps a `ROADMAP.md`, tells sessions to read it first, and records each change's roadmap fields when the change is created.\n\n## Impact\n\n- New files: the task `dot_config/mise/tasks/openspec/executable_roadmap` (under `home/` after `adopt-chezmoiroot`), its library and unit tests, `ROADMAP.md`, and a roadmap record in every existing change folder.\n- Edited: the audit's section 6 (frozen, with a pointer), `.chezmoiignore` (one line), `AGENTS.md`, `openspec/specs/global-mise-tasks` and `openspec/specs/spec-workflow` through the deltas.\n- Only the marked sections of `ROADMAP.md` are ever written, and only with `--write`; the viewer, `--check` and `--json` write nothing.\n- The task is deployed as a single target with `chezmoi apply --exclude=scripts ~/.config/mise/tasks/openspec`, after the user's go.\n- Other sessions work in the same repository at the same time: a change added by another session without its fields is reported by `--check`, which is the intended safety net.\n- The Neovim configuration repository can drop its `roadmap` task and read the global task's `--json`; that is a signal at the end of this work, not part of it.\n\n<!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->\n"
+}
+```
+
+**Output:**
+```
+Wrote file successfully.
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 24.1s)
+
+_Thinking:_
+I'm moving on to the openspec-repo-roadmap spec now: removing the old specs/repo-roadmap directory and dropping the `.mise/` mention from the proposal, since that's no longer used now that the task is global. I'll check the proposal fix afterward, then get to the spec files and their testable scenarios in a scratch OpenSpec repo under /tmp/opencode.
+
+Next I'm going through the openspec-repo-roadmap requirements: each change needs a roadmap record that survives archiving, and the check should catch a missing record. The state is derived from the archive, ticked tasks or a branch, and the viewer stays read-only with JSON output. `--write` only touches the generated sections, and the check covers stale sections, unknown dependencies, cycles, and rows naming no change.
+
+Now I'm writing the roadmap requirements into the spec: a roadmap record per change that survives archiving, a check that flags missing records, and a viewer that stays read-only with JSON output. Next I'll cover the delta for global mise tasks, with the tests going under `tests/global-mise-tasks/`.
+
+I'm now weighing where the roadmap Python library should live, leaning toward a shared spot under `dot_config/mise/lib/` alongside the SCM script, though the design doc will settle the exact path. I also want the unit tests to run from a committed command, which I'll pin down in the design rather than settle here.
+
+I'm settling on tests under `tests/global-mise-tasks/`, run with `python3 -m unittest discover -s tests/global-mise-tasks`, and the launch change's tests will go there too. The "nothing machine-specific" check already covers the Python lib through the existing `rg` scan of that directory. I'll also extend the chezmoi apply scenario to confirm the roadmap task is installed and executable, and remember that the MODIFIED requirement headers have to match the originals exactly.
+
+
+Now the new capability spec, replacing the earlier `repo-roadmap` one.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi/openspec/changes/add-repo-roadmap && git rm -q -r specs/repo-roadmap && mkdir -p specs/openspec-repo-roadmap specs/global-mise-tasks specs/spec-workflow && fd -t f . . ",
+  "workdir": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+./proposal.md
+
+```
+
+**Tool: write**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/openspec/changes/add-repo-roadmap/specs/openspec-repo-roadmap/spec.md",
+  "content": "## ADDED Requirements\n\nUnless stated otherwise, scenarios run in a scratch OpenSpec repository under `/tmp/opencode` (a git repository with `openspec/changes/` holding a few changes, one archived, and a `ROADMAP.md` with markers), with no chezmoi and no herdr involved.\n\n### Requirement: Every change carries roadmap fields\n\nEvery OpenSpec change, active or archived, SHALL carry a roadmap record with its dependencies (change ids), phase, priority, size, the finding or request it answers, and one line on why it sits where it does; the record SHALL survive archiving and SHALL NOT make `openspec validate --all --strict` fail.\n\n#### Scenario: Change without a record\n\n- **WHEN** the scratch repository gets a new change directory with no roadmap record and `mise run openspec:roadmap --check` runs\n- **THEN** it exits 1 and names the change\n\n#### Scenario: Record survives archiving\n\n- **WHEN** `openspec archive <id> --yes` archives a change that has a record, and then `openspec validate --all --strict` and `mise run openspec:roadmap --check` run\n- **THEN** the record is in the archived directory, validation passes, and the check reports no missing record\n\n### Requirement: State is derived, never stored\n\nThe state of a change SHALL be derived from the archive, the active changes, their task counts and git (worktrees and branches), never written in a record or in `ROADMAP.md`.\n\n#### Scenario: Groups\n\n- **WHEN** `mise run openspec:roadmap` runs on the scratch repository\n- **THEN** every archived change is under Done with its archive date, every active change with ticked tasks or an open worktree or branch is under In progress with its task counts, and every other active change is under Next when all its dependencies are done and under Blocked, naming what it waits for, otherwise\n\n#### Scenario: Archiving moves a change to done\n\n- **WHEN** a change is archived and `mise run openspec:roadmap` runs again, with no edit to any record\n- **THEN** the change is listed under Done with the date of its archive directory\n\n### Requirement: Reading writes nothing\n\n`mise run openspec:roadmap` and `mise run openspec:roadmap --check` SHALL NOT write any file, and `--json` SHALL print the same state as one JSON object for other tools.\n\n#### Scenario: No writes\n\n- **WHEN** `git status --short` and the modification times of `ROADMAP.md` and every file under `openspec/` are compared before and after `mise run openspec:roadmap` and `mise run openspec:roadmap --check`\n- **THEN** they are identical\n\n#### Scenario: JSON state\n\n- **WHEN** `mise run openspec:roadmap --json | jq -e '.changes | length'` runs\n- **THEN** it prints the number of active plus archived changes, and each entry has its id, state, dependencies, phase, priority and size\n\n### Requirement: Generated sections of ROADMAP.md\n\n`ROADMAP.md` SHALL hold hand-written text and sections between `<!-- roadmap:begin NAME -->` and `<!-- roadmap:end NAME -->` markers that only `mise run openspec:roadmap --write` rewrites, with the sequencing table in dependency order and the done list with archive dates; no generated section SHALL hold a task count or the state of a checkout.\n\n#### Scenario: Write is bounded and repeatable\n\n- **WHEN** `mise run openspec:roadmap --write` runs twice in the scratch repository\n- **THEN** the text outside the markers is byte-identical to before, the second run changes nothing, and `--check` then exits 0\n\n#### Scenario: Archiving makes the file stale\n\n- **WHEN** a change is archived and `mise run openspec:roadmap --check` runs before `--write`\n- **THEN** it exits 1 and names the stale section, and after `--write` it exits 0\n\n#### Scenario: No volatile state in the file\n\n- **WHEN** `awk '/roadmap:begin/,/roadmap:end/' ROADMAP.md | grep -c -E '[0-9]+/[0-9]+'` runs on a scratch repository with a change at 2 of 5 tasks\n- **THEN** it prints 0\n\n### Requirement: The check catches a broken roadmap\n\n`mise run openspec:roadmap --check` SHALL exit non-zero and name the problem when the roadmap, the records and the changes disagree.\n\n#### Scenario: Unknown dependency\n\n- **WHEN** a record names a dependency that is no change and `--check` runs\n- **THEN** it exits 1 and names the change and the unknown dependency\n\n#### Scenario: Dependency cycle\n\n- **WHEN** two records depend on each other and `--check` runs\n- **THEN** it exits 1 and names the cycle\n\n#### Scenario: Backlog ids\n\n- **WHEN** `ROADMAP.md` holds two backlog entries with the same `B-NNN` id, or an id that is not `B-` and three digits\n- **THEN** `--check` exits 1 and names the entry\n\n### Requirement: Usable by any OpenSpec repository\n\nThe task SHALL depend on nothing of this repository except `openspec`, `git` and Python 3 with its standard library, and SHALL hold no path, user name or repository name of this repository.\n\n#### Scenario: Runs in a foreign repository\n\n- **WHEN** the scratch repository has no chezmoi source and no mise project configuration, and `mise run openspec:roadmap --check` runs from it\n- **THEN** it exits 0 on a consistent roadmap and prints the groups on a plain run\n\n<!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->\n"
+}
+```
+
+**Output:**
+```
+Wrote file successfully.
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 11.1s)
+
+_Thinking:_
+The `.openspec.yaml` file doesn't show up in fd's listing because it's hidden, which is fine. The `specs/repo-roadmap` directory was committed in 9d12aa4, so removing it with `git rm -r` will work. Next I'm moving on to the global-mise-tasks delta and the spec-workflow delta.
+
+
+Now the two deltas, `global-mise-tasks` (two modified requirements, full text) and `spec-workflow` (one added requirement).
+**Tool: write**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/openspec/changes/add-repo-roadmap/specs/global-mise-tasks/spec.md",
+  "content": "## MODIFIED Requirements\n\n### Requirement: Global tasks are deployed and listed\n\nThe repository SHALL deploy the helper `~/.config/mise/lib/scm.sh` and the global file tasks `scm:worktree:new`, `scm:worktree:rm`, `scm:worktree:done`, `scm:worktree:ls` (aliases `scm:wt:new`, `scm:wt:rm`, `scm:wt:done`, `scm:wt:ls`), `agent:dispatch` and `openspec:roadmap`, the tasks executable.\n\n#### Scenario: Tasks are listed\n\n- **WHEN** `mise tasks ls --global` runs from a directory with no project config\n- **THEN** it lists `agent:dispatch`, `openspec:roadmap`, `scm:worktree:done`, `scm:worktree:ls`, `scm:worktree:new` and `scm:worktree:rm`\n\n#### Scenario: Aliases resolve\n\n- **WHEN** `mise run scm:wt:ls --no-pr` runs in the scratch repository\n- **THEN** it exits 0 and prints the same table as `mise run scm:worktree:ls --no-pr`\n\n#### Scenario: Targets match the source\n\n- **WHEN** `chezmoi diff --exclude=externals,scripts ~/.config/mise/lib ~/.config/mise/tasks` runs\n- **THEN** it prints nothing, and `stat -c '%a' ~/.config/mise/tasks/scm/worktree/* ~/.config/mise/tasks/openspec/*` shows an executable mode for each task\n\n### Requirement: Tasks are generic and clean\n\nThe helper and tasks SHALL be checked by their language: shell files pass `shellcheck -x`; Python files compile with `python3 -m py_compile`, use only the standard library, and have unit tests that pass; all of them SHALL hold no home path, user name, host name or credential, since they ship in a public repository.\n\n#### Scenario: shellcheck is clean\n\n- **WHEN** `shellcheck -x` runs on `dot_config/mise/lib/scm.sh` and on every shell file under `dot_config/mise/tasks/`\n- **THEN** it exits 0\n\n#### Scenario: Python compiles and its tests pass\n\n- **WHEN** `python3 -m py_compile` runs on every Python file under `dot_config/mise/lib/` and `dot_config/mise/tasks/`, then `python3 -m unittest discover -s tests/global-mise-tasks` runs\n- **THEN** both exit 0\n\n#### Scenario: Nothing machine-specific\n\n- **WHEN** `rg -n -e \"$HOME\" -e \"$USER\" dot_config/mise/lib dot_config/mise/tasks` runs\n- **THEN** it prints nothing\n\n<!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->\n"
+}
+```
+
+**Output:**
+```
+Wrote file successfully.
+```
+
+**Tool: write**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/openspec/changes/add-repo-roadmap/specs/spec-workflow/spec.md",
+  "content": "## ADDED Requirements\n\n### Requirement: A roadmap of all changes\n\nThe repository SHALL keep a root `ROADMAP.md`, mostly generated by `mise run openspec:roadmap --write`, that lists every change with its order and dependencies; a new change SHALL get its roadmap fields in the commit that creates it, and `AGENTS.md` SHALL tell a session to run `mise run openspec:roadmap` first; the file SHALL never be deployed to the home directory.\n\n#### Scenario: Roadmap is current\n\n- **WHEN** `mise run openspec:roadmap --check` runs at the repository root\n- **THEN** it exits 0\n\n#### Scenario: Read-first pointer\n\n- **WHEN** `grep -c 'mise run openspec:roadmap' AGENTS.md` runs\n- **THEN** it prints at least 1\n\n#### Scenario: Roadmap is not a target\n\n- **WHEN** `chezmoi managed | grep -c -E '^ROADMAP\\.md'` runs\n- **THEN** it prints 0\n\n#### Scenario: Frozen change map\n\n- **WHEN** section 6 of `docs/audits/2026-10-30-environment.md` is read\n- **THEN** it states that it is a snapshot and points to `ROADMAP.md` for the current order\n\n<!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->\n"
+}
+```
+
+**Output:**
+```
+Wrote file successfully.
+```
+
+**Tool: edit**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/openspec/changes/add-repo-roadmap/proposal.md",
+  "oldString": "`.mise/` and the task source under `dot_config/mise/tasks/` need no entry.",
+  "newString": "the task source under `dot_config/mise/tasks/` needs no entry."
+}
+```
+
+**Output:**
+```
+Edit applied successfully.
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 4.4s)
+
+_Thinking:_
+I'm going to audit the row 24 update and mention that it was generated, then review the brief starting with brief.md. I also want to confirm that mise run is still gated by the readonly guard in plan mode, and check the slash command names against the files in `.opencode/commands`.
+
+
+Before writing the brief, a check on which OpenSpec commands the agent will have in the worktree.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; fd -t f . .opencode/commands | head -20; echo ==; git ls-files .opencode | head -3; echo \"== nvim reference paths exist\"; for f in ~/.config/nvim/ROADMAP.md ~/.config/nvim/.mise/tasks/roadmap ~/.config/nvim/.mise/lib/workflow/roadmap.py ~/.config/nvim/tests/workflow/test_roadmap.py [redacted:repo]:spec/drs/DR-021-piloting_and_index_formats.md [redacted:repo]:project/roadmap.md [redacted:repo]:scripts/check/index.py [redacted:repo]:project/roadmap.md; do [ -e \"$f\" ] && echo ok || echo \"MISSING $f\"; done",
+  "workdir": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+[fd error]: Search path '.opencode/commands' is not a directory.
+[fd error]: No valid search paths given.
+zsh:1: = not found
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 3.1s)
+
+**Tool: glob**
+
+**Input:**
+```json
+{
+  "pattern": ".opencode/**/*",
+  "path": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+No files found
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "for f in ~/.config/nvim/ROADMAP.md ~/.config/nvim/.mise/tasks/roadmap ~/.config/nvim/.mise/lib/workflow/roadmap.py ~/.config/nvim/tests/workflow/test_roadmap.py [redacted:repo]:spec/drs/DR-021-piloting_and_index_formats.md [redacted:repo]:project/roadmap.md [redacted:repo]:scripts/check/index.py [redacted:repo]:project/roadmap.md; do if [ -e \"$f\" ]; then echo \"ok $f\"; else echo \"MISSING $f\"; fi; done"
+}
+```
+
+**Output:**
+```
+ok ~/.config/nvim/ROADMAP.md
+ok ~/.config/nvim/.mise/tasks/roadmap
+ok ~/.config/nvim/.mise/lib/workflow/roadmap.py
+ok ~/.config/nvim/tests/workflow/test_roadmap.py
+ok [redacted:repo]:spec/drs/DR-021-piloting_and_index_formats.md
+ok [redacted:repo]:project/roadmap.md
+ok [redacted:repo]:scripts/check/index.py
+ok [redacted:repo]:project/roadmap.md
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 3.2s)
+
+_Thinking:_
+My glob for `.opencode/**/*` came back empty, so the hidden directory may not be matching. The skills are listed in the system prompt under `.opencode/skills/`, but I don't know where the commands live, so I'll just list the directory with ls.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; rtk ls -a .opencode; rtk ls .opencode/command .opencode/commands 2>/dev/null | head -20; git ls-files .opencode | head -5; git check-ignore -v .opencode 2>&1 | head -2",
+  "workdir": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+command/
+node_modules/
+skills/
+.gitignore  63B
+package-lock.json  14.3K
+package.json  64B
+.opencode/command:
+total 92
+-rw-rw-r-- 1 [redacted:user_username] [redacted:user_username]  4465 Oct 30 18:10 opsx-apply.md
+-rw-rw-r-- 1 [redacted:user_username] [redacted:user_username]  4934 Oct 30 18:10 opsx-archive.md
+-rw-rw-r-- 1 [redacted:user_username] [redacted:user_username]  7460 Oct 30 18:10 opsx-bulk-archive.md
+-rw-rw-r-- 1 [redacted:user_username] [redacted:user_username]  4876 Oct 30 18:10 opsx-continue.md
+-rw-rw-r-- 1 [redacted:user_username] [redacted:user_username]  6499 Oct 30 18:10 opsx-explore.md
+-rw-rw-r-- 1 [redacted:user_username] [redacted:user_username]  4167 Oct 30 18:10 opsx-ff.md
+-rw-rw-r-- 1 [redacted:user_username] [redacted:user_username]  2585 Oct 30 18:10 opsx-new.md
+-rw-rw-r-- 1 [redacted:user_username] [redacted:user_username] 13410 Oct 30 18:10 opsx-onboard.md
+-rw-rw-r-- 1 [redacted:user_username] [redacted:user_username]  4335 Oct 30 18:10 opsx-propose.md
+-rw-rw-r-- 1 [redacted:user_username] [redacted:user_username]  4280 Oct 30 18:10 opsx-sync.md
+-rw-rw-r-- 1 [redacted:user_username] [redacted:user_username]  6352 Oct 30 18:10 opsx-verify.md
+.opencode/command/opsx-apply.md
+.opencode/command/opsx-archive.md
+.opencode/command/opsx-bulk-archive.md
+.opencode/command/opsx-continue.md
+.opencode/command/opsx-explore.md
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 23.2s)
+
+_Thinking:_
+I'm noting that the commands are tracked, so they'll show up in the worktree. The `.opencode/node_modules` folder is ignored and won't exist in a fresh worktree, which might matter if the plugin dependency is needed. I suspect it's `@opencode-ai/plugin`, and opencode should install it on startup. I'll check whether the worktree session actually runs. Now I'm writing the brief.
+
+I need to make sure the brief avoids anything sensitive, since the first prompt includes fleet piloting repository paths.
+
+
+_Thinking:_
+The commands are tracked, so the worktree will carry them. I'm writing the brief into the change folder now, naming only public or intended-public repositories and keeping the private repository's paths for the first prompt.
+
+
+**Tool: write**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/openspec/changes/add-repo-roadmap/brief.md",
+  "content": "# Brief: build the change add-repo-roadmap\n\nSent by the orchestrator agent `chezmoi-orch` (herdr workspace `chezmoi`) to the agent `chezmoi-roadmap`.\nThis file is an operational complement to the change, not a replacement: the proposal and the spec are the contract, this file says how to work.\n\n## Where you work\n\n- Repository: this one, in the worktree `[redacted:worktrees_root]/chezmoi-add-repo-roadmap`, on branch `feat/add-repo-roadmap`, started from `main`.\n- You are the only agent in this worktree.\n  Another agent, `chezmoi-orch`, works in the main checkout and creates changes there; merge `main` into your branch before the final verification (see \"Rules\").\n- You start in plan mode.\n  Your first output is the design, shown in chat; the user reads it and switches you to build mode once approved.\n  In plan mode the read-only guard asks for approval on every `mise run`; that is expected.\n\n## Read first, in this order\n\n1. `AGENTS.md` (safety rules, writing for a public repository, conventions).\n2. `openspec/changes/add-repo-roadmap/` (proposal, specs for `openspec-repo-roadmap`, `global-mise-tasks` and `spec-workflow`) and `openspec list`.\n3. Section 6 of `docs/audits/2026-10-30-environment.md` (the change map, rows 0 to 25: the seed for the roadmap fields) and finding F34.\n4. `openspec/specs/global-mise-tasks/spec.md` and `dot_config/mise/tasks/` (how global tasks are written and tested here).\n5. Format references, read-only, copying nothing private:\n   - The Neovim configuration repository: `~/.config/nvim/ROADMAP.md` (sessions table, one section per session), `~/.config/nvim/.mise/tasks/roadmap`, `~/.config/nvim/.mise/lib/workflow/roadmap.py` and `~/.config/nvim/tests/workflow/test_roadmap.py`.\n     Its task is the one the global task is meant to replace.\n   - [redacted:repo]: `[redacted:repo]:spec/drs/DR-021-piloting_and_index_formats.md`, `[redacted:repo]:project/roadmap.md`, `[redacted:repo]:scripts/check/index.py`.\n   - [redacted:private]: `[redacted:repo]:project/roadmap.md`.\n   - The fleet piloting repository: its roadmap, its piloting contract (ordering rule, projection layouts, status values) and its orchestration study.\n     The first prompt gives you the exact paths; they are not written here because that repository is not public.\n     Do not name it, its identifiers or its paths in any committed file; refer to it as \"the fleet piloting repository\".\n6. After reading, summarise in a few lines what each reference does that is useful here and what is not.\n\n## What to do\n\n1. `/opsx-continue add-repo-roadmap`: write `design.md`, then show it in chat before anything else.\n   It must settle, with the reason for each choice:\n   - Where the roadmap record of a change lives: a file in the change folder or extra keys in `.openspec.yaml`.\n     OpenSpec 1.2.0 reads that file with a schema that ignores unknown keys, and archiving moves the folder as a whole; check both facts again on the installed version, and check that `openspec validate --all --strict` accepts the choice.\n   - The record's fields, their names and allowed values, aligned with the fleet's vocabulary (dependencies, priority, phase, size, origin, reason), and how a record is created with a change (a template, or the task creating it).\n   - The layout of `ROADMAP.md`: what is hand-written, what is generated, the markers, and why the generated sections hold nothing that depends on the checkout.\n   - The order rule for the sequencing table: dependency order first, then which tie-breaks (priority, phase, id), written down and deterministic.\n   - How the generated state maps to what the Neovim repository's task prints.\n     Give a feature-by-feature table of that task (view, `--check`, `--json`, worktrees and branches, GitHub, gates, `Touches` overlaps, live editor sync, metrics, herdr status) with one ruling each: core here, project hook, stays in the Neovim repository, or later.\n     The aim is full parity; the table is where that is arbitrated, and the user decides on it.\n   - The language rule for the tasks directory and the unit-test layout (`tests/global-mise-tasks/`), and whether ruff is added to the repository's `mise.toml`.\n   - Whether `--check` becomes a commit hook step now or in `add-repo-quality-gates`.\n   - A short, generic paragraph on how the record's fields would map to a future records system ([redacted:repo] and greffe), without designing it.\n2. After the user approves the design: `/opsx-continue` for the tasks, then `/opsx-apply`, then `/opsx-verify`.\n3. Archive (`/opsx-archive`) only on the user's go, after `mise run openspec:roadmap --write` has been run on the final tree.\n4. Deploying the task to `~/.config/mise/tasks/openspec` is a single-target apply (`chezmoi apply --exclude=scripts ~/.config/mise/tasks/openspec`) and needs the user's go.\n   Never run a full `chezmoi apply`.\n\n## Non-goals\n\n- Multi-agent orchestration (dispatch, lanes, one agent per change) is not designed here; the fleet studies it.\n  Only make sure the record can later carry what such a design asks for.\n- No [redacted:repo] or greffe design, and no edit to other repositories: the Neovim repository gets a signal at the end, drafted by you and sent by the user's go through the orchestrator.\n- `TODO.md` stays; its removal belongs to `refresh-repo-docs`.\n- The change `add-agent-launch-tasks` (generic launch tasks, written by the orchestrator) depends on the language rule you write; do not touch its files.\n\n## Rules\n\n- Public repository: no secret values, no names of secret variables, no private hosts or IP addresses, no employer or client details, no private repository names.\n  Name only [redacted:repo], [redacted:private], [redacted:repo], greffe and the Neovim configuration repository; call any other \"a fleet repository\".\n- Markdown: one sentence per line, no em or en dashes, no emoji, sentence-case headings, the vim modeline as the last line.\n- Python: standard library only, tested, no home path or user name in any file.\n- Commits: propose the message first (`type(domain:subject): imperative lowercase summary`, subject at most 80 characters), commit only after the user validates it, with `/home/linuxbrew/.linuxbrew/bin/git commit` so the hook output is visible.\n  Never push.\n- Merging back into `main` happens only on the user's go: merge `main` into your branch first, give every change created meanwhile its roadmap record, run `mise run openspec:roadmap --check`, then `mise run scm:worktree:done feat/add-repo-roadmap`.\n- Anything that uses sudo, writes outside `$HOME`, uninstalls or deletes needs the user's explicit go.\n- The seed is the audit's change map; once `ROADMAP.md` exists, do not edit that table again except to freeze it.\n\n## Reporting\n\n- Report to the orchestrator with one short line each time, using `herdr agent prompt chezmoi-orch \"<one line>\"`, at five points: reading done, design ready, apply done, verify result, blocked (say on what).\n- Keep a list of every friction you meet with the tooling (a lost or duplicated prompt, a slow start, a permission prompt that blocked work, a path or trust problem in the worktree, a command that behaved differently from its help); send it with the last report.\n  The orchestrator studies this launch as a trial of one worktree and one workspace per piece of work.\n- At the end, draft the replacement signal for the Neovim configuration repository (what the global task covers, what stays there, how to switch); the user decides if it is sent.\n\n<!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->\n"
+}
+```
+
+**Output:**
+```
+Wrote file successfully.
+```
+
+**Tool: edit**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/docs/audits/2026-10-30-environment.md",
+  "oldString": "| 24 | `add-repo-roadmap` | F34, process | | proposal, specs; added 2026-11-03 on request; once applied, `ROADMAP.md` replaces this table and this section is frozen |",
+  "newString": "| 24 | `add-repo-roadmap` | F34, process | | proposal, specs, brief; added 2026-11-03 on request, reworked 2026-11-04 (generated `ROADMAP.md`, global task `openspec:roadmap`); once applied, `ROADMAP.md` replaces this table and this section is frozen |"
+}
+```
+
+**Output:**
+```
+Edit applied successfully.
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 6.2s)
+
+_Thinking:_
+I need to confirm the signature of `mise run scm:worktree:done feat/add-repo-roadmap`, since the brief depends on it. I also want to check the earlier claim that `mise run` always asks for confirmation in plan mode. After that, I'll run validation and the scans, then commit.
+
+
+Checking the `scm:worktree:done` usage I cited in the brief, then validation and the public-writing scans.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\nrg -n '^#USAGE' dot_config/mise/tasks/scm/worktree/executable_done | cut -c1-170\necho \"== validate\"; openspec validate --all --strict 2>&1 | tail -3\necho \"== dashes\"; rtk rg -n '[—–]' openspec/changes/add-repo-roadmap docs/audits/2026-10-30-environment.md || echo none\necho \"== private names / secrets in the change\"; git grep -n -i -w -e [redacted:repo] -e [redacted:repo] -e [redacted:repo] -e 'silopolis/' -e [redacted:envvar] --no-index -- openspec/changes/add-repo-roadmap || echo none\nrg -n -e '\\b([0-9]{1,3}\\.){3}[0-9]{1,3}\\b' openspec/changes/add-repo-roadmap || echo \"no ip\"\necho \"== modeline last line\"; for f in $(fd -t f -e md . openspec/changes/add-repo-roadmap); do tail -1 $f | rg -q 'vim: set' || echo \"NO MODELINE $f\"; done; echo checked\ngit status --short",
+  "workdir": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+4:#USAGE arg "[target]" help="Stem, name, branch or path; omit with --all-merged"
+5:#USAGE flag "--all-merged" help="Clean every clean worktree whose branch has commits of its own, merged into main"
+6:#USAGE flag "--force" help="Skip the checks of a target and discard (same as scm:worktree:rm --force)"
+7:#USAGE flag "--keep-tab" help="Do not close the herdr tab"
+== validate
+✓ spec/secret-hygiene
+✓ spec/spec-workflow
+Totals: 25 passed, 0 failed (25 items)
+== dashes
+none
+== private names / secrets in the change
+none
+no ip
+== modeline last line
+checked
+ M docs/audits/2026-10-30-environment.md
+ M openspec/changes/add-repo-roadmap/proposal.md
+D  openspec/changes/add-repo-roadmap/specs/repo-roadmap/spec.md
+?? openspec/changes/add-repo-roadmap/brief.md
+?? openspec/changes/add-repo-roadmap/specs/
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 5.8s)
+
+_Thinking:_
+I'm checking whether `openspec validate --all --strict` actually validates the delta specs for MODIFIED requirements against the main specs. It reported 25 passed, the same count as before, which I'd expect since this change adds one item.
+
+I'm wondering whether the header matching for the MODIFIED requirements is only checked at archive time, so I'll run `openspec validate add-repo-roadmap --strict` on this change alone and look for any mention of the deltas in its output. I'll also check `openspec change show` to see what it reports.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; openspec validate add-repo-roadmap --strict 2>&1 | tail -4; openspec show add-repo-roadmap --json --deltas-only 2>/dev/null | jq -c '[.deltas[] | {spec, operation}]' 2>/dev/null | cut -c1-400",
+  "workdir": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+Change 'add-repo-roadmap' is valid
+[{"spec":"global-mise-tasks","operation":"MODIFIED"},{"spec":"global-mise-tasks","operation":"MODIFIED"},{"spec":"openspec-repo-roadmap","operation":"ADDED"},{"spec":"openspec-repo-roadmap","operation":"ADDED"},{"spec":"openspec-repo-roadmap","operation":"ADDED"},{"spec":"openspec-repo-roadmap","operation":"ADDED"},{"spec":"openspec-repo-roadmap","operation":"ADDED"},{"spec":"openspec-repo-roadmap
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 6.4s)
+
+The deltas parse (2 modified, the rest added). Committing step 2.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\nsubject=\"docs(chezmoi:spec): mechanize add-repo-roadmap and add its brief\"; echo \"subject length: ${#subject}\"\ngit add openspec/changes/add-repo-roadmap docs/audits/2026-10-30-environment.md; git diff --cached --name-status\n/home/linuxbrew/.linuxbrew/bin/git commit -m \"$subject\" -m \"- Capability renamed openspec-repo-roadmap; spec-workflow and global-mise-tasks deltas added\n- Per-change roadmap fields, generated sections of ROADMAP.md between markers (no volatile state), --write, --check, --json\n- Global task openspec:roadmap in Python, meant to replace the Neovim repository's roadmap task; the tasks directory is checked per language\n- brief.md: how the roadmap agent works (plan mode first, design to settle, reporting, friction list)\" 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | tail -6\necho \"exit=${pipestatus[1]}\"; git log -1 --format='%h %s'; git status --short | wc -l",
+  "workdir": "~/.local/share/chezmoi",
+  "timeout": 240000
+}
+```
+
+**Output:**
+```
+subject length: 64
+M	docs/audits/2026-10-30-environment.md
+A	openspec/changes/add-repo-roadmap/brief.md
+M	openspec/changes/add-repo-roadmap/proposal.md
+A	openspec/changes/add-repo-roadmap/specs/global-mise-tasks/spec.md
+A	openspec/changes/add-repo-roadmap/specs/openspec-repo-roadmap/spec.md
+D	openspec/changes/add-repo-roadmap/specs/repo-roadmap/spec.md
+A	openspec/changes/add-repo-roadmap/specs/spec-workflow/spec.md
+ 7 files changed, 280 insertions(+), 104 deletions(-)
+ create mode 100644 openspec/changes/add-repo-roadmap/brief.md
+ create mode 100644 openspec/changes/add-repo-roadmap/specs/global-mise-tasks/spec.md
+ create mode 100644 openspec/changes/add-repo-roadmap/specs/openspec-repo-roadmap/spec.md
+ delete mode 100644 openspec/changes/add-repo-roadmap/specs/repo-roadmap/spec.md
+ create mode 100644 openspec/changes/add-repo-roadmap/specs/spec-workflow/spec.md
+exit=0
+3027977 docs(chezmoi:spec): mechanize add-repo-roadmap and add its brief
+0
+
+```
+
+**Tool: todowrite**
+
+**Input:**
+```json
+{
+  "todos": [
+    {
+      "content": "1. Public names: enforce-hook proposal line 7 + AGENTS.md rule; commit (005458d)",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "content": "2. Rework add-repo-roadmap (proposal, specs, deltas, brief.md); validate; commit",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "content": "3. New add-agent-launch-tasks (proposal, specs, observations.md), delete fix-prompt-delivery, audit rows 22/25; commit; message nvim-orch",
+      "status": "in_progress",
+      "priority": "high"
+    },
+    {
+      "content": "4. Fetch, check origin, push main",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "content": "5. Stop for user's /compact",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "content": "6. Launch roadmap agent by hand in plan mode (worktree, herdr worktree open, agent, prompt), log to observations.md",
+      "status": "pending",
+      "priority": "high"
+    }
+  ]
+}
+```
+
+**Output:**
+```
+[
+  {
+    "content": "1. Public names: enforce-hook proposal line 7 + AGENTS.md rule; commit (005458d)",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "content": "2. Rework add-repo-roadmap (proposal, specs, deltas, brief.md); validate; commit",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "content": "3. New add-agent-launch-tasks (proposal, specs, observations.md), delete fix-prompt-delivery, audit rows 22/25; commit; message nvim-orch",
+    "status": "in_progress",
+    "priority": "high"
+  },
+  {
+    "content": "4. Fetch, check origin, push main",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "content": "5. Stop for user's /compact",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "content": "6. Launch roadmap agent by hand in plan mode (worktree, herdr worktree open, agent, prompt), log to observations.md",
+    "status": "pending",
+    "priority": "high"
+  }
+]
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 3.8s)
+
+_Thinking:_
+Step 2 is committed, so I'm moving to step 3, the launch change. I'll read the fix-prompt-delivery spec delta, design, and tasks so I have all its requirements in view.
+
+
+Step 2 is committed as `3027977`. For step 3 I must carry over everything `fix-prompt-delivery` required, so I'm reading its delta spec and tasks first.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi/openspec/changes/fix-prompt-delivery; fd -t f . .; echo; rtk read specs/global-mise-tasks/spec.md",
+  "workdir": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+./design.md
+./proposal.md
+./specs/global-mise-tasks/spec.md
+./tasks.md
+
+## ADDED Requirements
+
+In the scenarios below, "the fake herdr" is `tests/global-mise-tasks/fake-herdr`, first on `PATH`.
+"Pastes" is the number of times it put the prompt text into the input box.
+Direct cases source the helper with `sleep` replaced by a no-op and call `scm_prompt_agent test-agent "Read and execute the brief at /tmp/opencode/brief.md"`.
+
+### Requirement: First prompt is delivered once
+
+`scm_prompt_agent`, used by `scm:worktree:new --prompt` and `agent:dispatch`, SHALL deliver the first prompt as follows:
+
+- before the first submission, wait up to 15 s for the agent to be `idle`, where a failed wait is not fatal;
+- then read the visible screen every second, up to 60 reads, until at least 5 lines hold something besides frame characters and whitespace, where a failed read counts as blank and a screen that never draws does not stop the submission; then pause 1 s;
+- submit with `herdr agent prompt --wait --until working`;
+- after any unconfirmed submission, inspect before doing anything else:
+  - agent status `working` or `done` means delivered;
+  - status `blocked` stops;
+  - otherwise read the visible screen; the prompt is on screen when its first 24 non-whitespace characters appear in the screen text, with frame characters (U+2500 to U+259F) and all whitespace removed from both;
+- while the prompt is on screen, press Enter at most twice and never submit the text again;
+- submit again only when the prompt is not on screen, at most 5 submissions in all.
+
+It SHALL set `SCM_PROMPT_OUTCOME` to `working`, `unsent`, `lost`, `blocked` or `unreadable`.
+It SHALL return 0 only for `working`.
+Whenever it stops without delivery, it SHALL print the outcome and the last 15 non-blank lines of the screen on stderr.
+
+#### Scenario: First submission works
+
+- **WHEN** the fake herdr accepts the first submission
+- **THEN** the helper returns 0 with outcome `working`, after 1 submission, 0 Enter presses and 1 paste, and the fake herdr's log shows `agent wait --until idle`, then `agent read`, before `agent prompt`
+
+#### Scenario: Waits for the TUI to draw
+
+- **WHEN** the fake herdr shows a blank screen for the first 3 reads and loses any submission made while the screen is blank
+- **THEN** the helper returns 0 with outcome `working`, after 4 screen reads before the first submission, 1 submission and 1 paste
+
+#### Scenario: Screen never draws
+
+- **WHEN** the fake herdr keeps the screen blank and loses every submission
+- **THEN** the helper reads the screen 60 times before its first submission, submits anyway, and returns non-zero with outcome `lost`, after 5 submissions and 0 pastes, and stderr says the screen never drew
+
+#### Scenario: A lost prompt is submitted again
+
+- **WHEN** the fake herdr loses the first submission (stall, nothing in the input)
+- **THEN** the helper returns 0 with outcome `working`, after 2 submissions and 1 paste
+
+#### Scenario: Text left in the input gets Enter, not a second paste
+
+- **WHEN** the fake herdr leaves the text in the input after the submission and takes the first Enter
+- **THEN** the helper returns 0 with outcome `working`, after 1 submission, 1 Enter press and 1 paste
+
+#### Scenario: A second Enter when the first is not taken
+
+- **WHEN** the fake herdr leaves the text in the input and takes only the second Enter
+- **THEN** the helper returns 0 with outcome `working`, after 2 Enter presses and 1 paste
+
+#### Scenario: Enter never taken
+
+- **WHEN** the fake herdr leaves the text in the input and never starts the agent
+- **THEN** the helper returns non-zero with outcome `unsent`, after 1 submission, 2 Enter presses and 1 paste, and stderr holds the last screen lines
+
+#### Scenario: Wrapped text is still found
+
+- **WHEN** the fake herdr leaves the text in the input, wrapped at 10 columns so that words are cut
+- **THEN** the helper presses Enter and does not paste a second time
+
+#### Scenario: Lost every time
+
+- **WHEN** the fake herdr loses every submission while the screen is drawn
+- **THEN** the helper returns non-zero with outcome `lost`, after 5 submissions, 0 Enter presses and 0 pastes
+
+#### Scenario: Blocked agent
+
+- **WHEN** the fake herdr answers `agent_blocked` to the submission
+- **THEN** the helper returns non-zero with outcome `blocked`, after 1 submission, with no Enter press and 0 pastes
+
+#### Scenario: Stall reported for an agent that took the prompt
+
+- **WHEN** the fake herdr answers `timeout` while the agent's status is `working`, or `agent_prompt_stalled` while its status is `done`
+- **THEN** the helper returns 0 with outcome `working` and 1 paste
+
+#### Scenario: Unreadable screen
+
+- **WHEN** the fake herdr draws the screen, stalls the submission, and from then on fails `agent read`
+- **THEN** the helper returns non-zero with outcome `unreadable`, with no Enter press and no second submission
+
+#### Scenario: Failed idle wait is not fatal
+
+- **WHEN** the fake herdr fails the idle wait and accepts the submission
+- **THEN** the helper returns 0 with outcome `working`
+
+### Requirement: Callers report the delivery outcome
+
+`scm:worktree:new --json` SHALL print exactly one line holding one JSON object with `path`, `branch`, `name`, `tab`, `pane`, `agent` and `prompt`, where `prompt` is the helper's outcome, or `none` when no prompt was sent.
+When the prompt is not delivered, `scm:worktree:new` SHALL still exit 0 and SHALL warn with the next step for the outcome.
+`agent:dispatch` SHALL exit 1 when the prompt is not delivered, with the next step for the outcome, and `agent:dispatch --json` SHALL print one line.
+
+#### Scenario: No prompt
+
+- **WHEN** `mise run scm:worktree:new feat/j --json` runs in a scratch repository
+- **THEN** its stdout is one line, and `jq -r .prompt` on it prints `none`
+
+#### Scenario: Prompt through a new tab
+
+- **WHEN** `mise run scm:worktree:new feat/k --tab --workspace w --agent-kind opencode --prompt "<text> @AGENTS.md" --json` runs with the fake herdr leaving the text in the input and taking the first Enter
+- **THEN** its stdout is one line, `jq -r .prompt` prints `working`, and the fake herdr counted 1 paste
+
+#### Scenario: Dispatch with the text stuck in the input
+
+- **WHEN** `mise run agent:dispatch` runs with the fake herdr leaving the text in the input and never starting the agent
+- **THEN** it exits 1 after 1 paste, and its message tells to press Enter in the agent's tab and does not tell to send the prompt again
+
+### Requirement: herdr calls are bounded
+
+Every herdr call of `scm_prompt_agent` SHALL run under a timeout: the call's own wait plus 10 s, or 15 s for calls that do not wait.
+A call that times out SHALL count as failed with the code `timeout`.
+
+#### Scenario: A hung screen read
+
+- **WHEN** the fake herdr draws the screen, stalls the submission, and from then on hangs on `agent read`, with the read timeout set to 2 s by the harness
+- **THEN** the helper returns non-zero with outcome `unreadable` within 10 s, after 1 paste
+
+### Requirement: Prompt help warns about file references
+
+The help of `scm:worktree:new --prompt` SHALL say that a text ending in a file reference such as `@file` opens the TUI's autocomplete, which may swallow the Enter.
+
+#### Scenario: Help text
+
+- **WHEN** `mise run scm:worktree:new --help` runs
+- **THEN** its output contains `@file`
+
+### Requirement: Unknown workspace is refused before anything is created
+
+`scm:worktree:new --tab` SHALL resolve `--workspace` (or `HERDR_WORKSPACE_ID`) before it creates the worktree, and SHALL name the value it was given when the workspace is not found or several workspaces share that label.
+
+#### Scenario: Bad workspace
+
+- **WHEN** `mise run scm:worktree:new feat/w --tab --workspace nope` runs in a scratch repository with the fake herdr, which knows no workspace `nope`
+- **THEN** it exits 1, its message contains `herdr workspace 'nope' not found`, and `git worktree list` and `git branch --list feat/w` show nothing new
+
+### Requirement: Delivery harness is kept in the repository
+
+The repository SHALL keep the harness `tests/global-mise-tasks/prompt-delivery.sh` and the fake herdr.
+The harness SHALL exit 0 only when every delivery scenario passes, and SHALL NOT be a chezmoi target.
+
+#### Scenario: Harness passes
+
+- **WHEN** `tests/global-mise-tasks/prompt-delivery.sh` runs at the repository root
+- **THEN** it exits 0, prints one result line per scenario, and leaves nothing under `/tmp/opencode/` (`test ! -e` on its scratch directory)
+
+#### Scenario: Not a target
+
+- **WHEN** `chezmoi managed` runs
+- **THEN** no line starts with `tests`
+
+<!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->
+
+```
+
+**Tool: read**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/openspec/changes/fix-prompt-delivery/tasks.md"
+}
+```
+
+**Output:**
+```
+<path>~/.local/share/chezmoi/openspec/changes/fix-prompt-delivery/tasks.md</path>
+<type>file</type>
+<content>
+1: ## 1. Plan
+2: 
+3: - [x] 1.1 Write the proposal, design, delta spec and tasks; add row 22 to the audit change map (`openspec validate --all --strict`)
+4: - [x] 1.2 Propose commit `docs(chezmoi:spec): add the fix-prompt-delivery change`; reply to the sender in this tab with the change id (`git show --stat HEAD` lists only `openspec/` and `docs/audits/` files)
+5: - [x] 1.3 Amend the artifacts after the sender's real-TUI correction (wait for the TUI to draw, 5 submissions, `--workspace` resolved before anything is created); propose commit `docs(chezmoi:spec): wait for the TUI to draw in fix-prompt-delivery` and answer the sender (`openspec validate fix-prompt-delivery --strict`)
+6: 
+7: ## 2. Harness first
+8: 
+9: - [ ] 2.1 Write `tests/global-mise-tasks/fake-herdr` (state directory, scenario variables, call log, paste counter, blank screen for N reads or forever with submissions lost while blank, input wrapped at a set width with cut words, a workspace list without `nope`) (`shellcheck tests/global-mise-tasks/fake-herdr`)
+10: - [ ] 2.2 Write `tests/global-mise-tasks/prompt-delivery.sh`: finds the helper in `home/dot_config` or `dot_config`, replaces `sleep`, runs every direct scenario of the delta spec, then the `mise run` scenarios with a scratch `MISE_CONFIG_DIR`, and removes its scratch directory on exit (`shellcheck -x tests/global-mise-tasks/prompt-delivery.sh`)
+11: - [ ] 2.3 Run it against the current helper: it exits non-zero, and the failing cases include the input-box ones on the paste count, the draw wait and the bad workspace (`tests/global-mise-tasks/prompt-delivery.sh; echo $?`)
+12: - [ ] 2.4 Keep it out of chezmoi: while `adopt-chezmoiroot` is not applied, add `tests` to the temporary block of `.chezmoiignore` and to that change's task 3.2 (`chezmoi managed | grep -c '^tests'` prints 0)
+13: - [ ] 2.5 Propose commit `test(dev:git): reproduce the duplicate first prompt with a fake herdr` (`git show --stat HEAD` lists `tests/`, `.chezmoiignore` and the `adopt-chezmoiroot` tasks file)
+14: 
+15: ## 3. Helper
+16: 
+17: - [ ] 3.1 `scm.sh`: limit variables, `scm_herdr` (timeout, error code), agent status, screen read, drawn-screen test and whitespace-free marker check in `jq`, screen tail (`shellcheck -x dot_config/mise/lib/scm.sh`)
+18: - [ ] 3.2 Rewrite `scm_prompt_agent` (idle wait, wait for the TUI to draw, pause, inspection loop with 5 submissions, outcome in `SCM_PROMPT_OUTCOME`, stderr report), add `scm_prompt_next_step`, and update the comment, including the warning about subshells (`shellcheck -x dot_config/mise/lib/scm.sh`)
+19: 
+20: ## 4. Callers
+21: 
+22: - [ ] 4.1 `scm:worktree:new`: `--prompt` help text, workspace resolved with the other refusals into its own variable, warning with the next step, `jq -nc` with `prompt` (`shellcheck -x dot_config/mise/tasks/scm/worktree/executable_new`)
+23: - [ ] 4.2 `agent:dispatch`: exit message with the next step for the outcome, `jq -nc` (`shellcheck -x dot_config/mise/tasks/agent/executable_dispatch`)
+24: - [ ] 4.3 The harness passes (`tests/global-mise-tasks/prompt-delivery.sh` exits 0; `test ! -e` on its scratch directory)
+25: - [ ] 4.4 Regression of the worktree tasks: create, list and remove a worktree in a scratch repository (`mise run scm:worktree:new feat/r --json | jq -e '.prompt == "none"'`; `mise run scm:worktree:rm r` exits 0)
+26: - [ ] 4.5 Apply the targets alone (`chezmoi apply --exclude=scripts ~/.config/mise/lib ~/.config/mise/tasks`), then `chezmoi diff --exclude=externals,scripts ~/.config/mise/lib ~/.config/mise/tasks` prints nothing and `mise tasks ls --global` lists five tasks
+27: 
+28: ## 5. Live check (user's go at this step)
+29: 
+30: - [ ] 5.1 Throwaway scratch repository under `/tmp/opencode/` with a bare origin and an `AGENTS.md`; `mise run scm:worktree:new feat/live --tab --workspace chezmoi --agent-kind opencode --agent-name chezmoi-live --prompt "Reply with the single word ok and do nothing else. @AGENTS.md" --json`; note the screen reads before the TUI drew (`jq -r .prompt` prints `working`)
+31: - [ ] 5.2 The prompt is on the agent's screen once, and the number of reads before the TUI drew is recorded in the design's Context, next to the sender's 10 s (`herdr agent read chezmoi-live --source visible`, marker counted with the helper's normalization prints 1)
+32: - [ ] 5.3 Clean up: `mise run scm:worktree:rm live --force` closes the tab, the scratch repository is deleted (`herdr agent get chezmoi-live` fails with `agent_not_found`; `test ! -e` on the scratch directory)
+33: - [ ] 5.4 Propose commit `fix(dev:git): deliver the first prompt once and report its outcome` (`git show --stat HEAD` lists only `dot_config/mise/` files)
+34: 
+35: ## 6. Close
+36: 
+37: - [ ] 6.1 Tell the Neovim repository that the change is applied, so that its `session:start` can go back to `--prompt`: the agent that received the brief (`chezmoi-wtasks`) is closed, so prompt the orchestrator named in its roadmap (`nvim-orch` on 2026-11-03), or ask the user when none runs (`herdr agent get nvim-orch` exits 0; `herdr agent read nvim-orch --source visible` shows the line)
+38: - [ ] 6.2 `openspec validate fix-prompt-delivery --strict`; `/opsx-verify fix-prompt-delivery`
+39: - [ ] 6.3 Archive (`openspec archive fix-prompt-delivery --yes`), mark row 22 of the change map as done, and propose commit `docs(chezmoi:spec): archive fix-prompt-delivery`; no [redacted:private] checklist line exists for this change (`rg -n 'fix-prompt-delivery' [redacted:repo]:migrations/2026-10-[redacted:private]-to-[redacted:private]/checklist.md` prints nothing)
+40: 
+41: <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->
+
+(End of file - total 41 lines)
+</content>
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 18.2s)
+
+_Thinking:_
+I'm reusing the old delivery requirements in the new `agent-launch` spec, swapping the shell helper `scm_prompt_agent` for a Python `deliver` function, since that behaviour is already merged in nvim's Python. The spec should describe delivery in tool-agnostic terms as "the launch library," and I'm considering carrying over the scenarios almost word for word to avoid rewriting them.
+
+I'm settling where the delivery code lives, and I'm weighing whether the Python package under the mise lib directory works as the home for it. I'm also planning the proposal's Why section, starting with the manual setup steps and the failures they produce, then the existing delivery helper's stall-and-repaste behaviour.
+
+I'm drafting the proposal's What changes section now: one read-write checkout per branch with its own herdr workspace, a shared Python library under the global mise lib that wraps herdr and handles first-prompt delivery, and a new workspace-opening task that I still need to name.
+
+I'm laying out the two new global tasks: `workspace:open` to find or create a worktree's herdr workspace and refuse clashes by label or branch, and `agent:launch` to ensure that workspace, check the agent name is free, start the agent in plan mode, and deliver the first prompt. I'm also weighing whether to keep `agent:dispatch` and extend it to create a workspace from the current directory when none exists.
+
+I'm now working through the rest of the proposal: the workspace-and-agent tasks keep their interfaces and go through the shared library, with the state table covering reuse, create, and refuse. I'm also planning the tests, which use a fake herdr with counted pastes, and a notice to the Neovim orchestrator once this is applied.
+
+I'm checking which existing requirements in the global-mise-tasks spec this change touches, mainly the dispatch and worktree creation requirements, to see what needs modifying.
+
+I'm settling on the two-change split: the new `agent-launch` capability will carry its own listing requirement, so the roadmap change doesn't collide with this one on "Global tasks are deployed and listed." Next I want to check the dispatch and worktree requirements in the global-mise-tasks spec to see what this change has to modify.
+
+I'm pulling up the global-mise-tasks spec, the "Creating a worktree" and "Dispatching an agent" requirements, to see what minimal changes they need.
+
+
+_Thinking:_
+The old delta's requirements carry over with the shell helper swapped for the Python library. Next I'll read the existing "Creating a worktree" and "Dispatching an agent" requirements, since the change alters how they deliver the prompt and report.
+
+
+**Tool: read**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/openspec/specs/global-mise-tasks/spec.md",
+  "offset": 44,
+  "limit": 70
+}
+```
+
+**Output:**
+```
+<path>~/.local/share/chezmoi/openspec/specs/global-mise-tasks/spec.md</path>
+<type>file</type>
+<content>
+44: ### Requirement: Creating a worktree
+45: 
+46: `scm:worktree:new <type>/<stem>` SHALL create the branch from `--base` (default `origin/main`) in a worktree at `<root>/<prefix>-<stem>`, where `<root>` is `WORKTREES_ROOT` (default `[redacted:worktrees_root]`) and `<prefix>` comes from `--prefix`, then `WORKTREES_PREFIX`, then the mise var `scm_worktrees_prefix` (with `{repo}` and `{dir}` expanded), then the origin repository name.
+47: It SHALL refuse, creating nothing, when the branch exists locally or on origin, when the path exists, or when the repository defines its own `worktree:new` or `worktree:rm` task and `--generic` is not given.
+48: It SHALL trust the new worktree with `mise trust` only when the source checkout is trusted, and SHALL record the commit the branch starts from.
+49: 
+50: #### Scenario: Happy path
+51: 
+52: - **WHEN** `mise run scm:worktree:new feat/demo --prefix demo` runs
+53: - **THEN** it exits 0, prints `$WORKTREES_ROOT/demo-demo`, `git worktree list` shows that path on branch `feat/demo`, and `cat "$(git -C "$WORKTREES_ROOT/demo-demo" rev-parse --absolute-git-dir)/scm-base"` prints the commit of `origin/main`
+54: 
+55: #### Scenario: Duplicate branch is refused
+56: 
+57: - **WHEN** the same command runs a second time
+58: - **THEN** it exits 1 with an error naming the existing branch, and `git worktree list | wc -l` is unchanged
+59: 
+60: #### Scenario: Repository with its own worktree task
+61: 
+62: - **WHEN** the scratch repository has a trusted `mise.toml` defining a task `worktree:new` and `mise run scm:worktree:new feat/other` runs
+63: - **THEN** it exits 1 and tells to use that task or pass `--generic`
+64: 
+65: ### Requirement: Source checkout integrity
+66: 
+67: `scm:worktree:new`, `scm:worktree:rm` and `scm:worktree:done` SHALL check that the source checkout has no `core.worktree` setting, before and after their git steps, and when it has one SHALL report an incident and exit with status 3 without unsetting it.
+68: 
+69: #### Scenario: core.worktree is reported, not fixed
+70: 
+71: - **WHEN** `git config core.worktree /tmp` is set in the scratch repository's main checkout and `mise run scm:worktree:new feat/x` runs there
+72: - **THEN** it exits 3 with a message starting with `INCIDENT: core.worktree`, creates no branch, and `git config --file .git/config --get core.worktree` still prints `/tmp`
+73: 
+74: ### Requirement: Merge test
+75: 
+76: A branch SHALL count as merged when its tip is an ancestor of `origin/main`, or when `gh` reports a merged pull request from that branch into `main` whose head commit equals the local tip.
+77: `scm:worktree:rm` SHALL also accept a tip that is an ancestor of the main checkout's `HEAD`.
+78: When `gh` is missing or fails, only the git tests SHALL apply.
+79: 
+80: #### Scenario: Squash-merged branch
+81: 
+82: - **WHEN** a worktree branch with one commit is squash-merged into `main` and pushed, a fake `gh` first on `PATH` answers `pr list` with `[{"number":7,"headRefOid":"<branch tip>"}]`, and `mise run scm:worktree:done <stem>` runs
+83: - **THEN** it exits 0 and the worktree and its local branch are gone
+84: 
+85: #### Scenario: Commits after the merge keep the branch
+86: 
+87: - **WHEN** the same setup has one more local commit on the branch, so the fake answer's `headRefOid` is no longer the tip, and `mise run scm:worktree:done <stem>` runs
+88: - **THEN** it exits 1 and the worktree is still listed by `git worktree list`
+89: 
+90: #### Scenario: No gh
+91: 
+92: - **WHEN** the squash-merged setup runs with a fake `gh` that exits 1
+93: - **THEN** `mise run scm:worktree:done <stem>` exits 1 and its message says the pull request lookup was not available
+94: 
+95: ### Requirement: Removing a worktree
+96: 
+97: `scm:worktree:rm <target>` SHALL refuse a worktree with uncommitted or untracked files, or an unmerged branch, unless `--force` is given; it SHALL run the project hook `scm:worktree:hook:post-remove` when defined, untrust the worktree, remove it and its local branch, and never touch the remote branch.
+98: 
+99: #### Scenario: Dirty worktree is refused
+100: 
+101: - **WHEN** a file is added in a worktree and `mise run scm:worktree:rm <stem>` runs
+102: - **THEN** it exits 1 and the worktree still exists
+103: 
+104: #### Scenario: Remote branch is kept
+105: 
+106: - **WHEN** a worktree branch is pushed, merged into `main`, and `mise run scm:worktree:rm <stem>` runs
+107: - **THEN** it exits 0, the local branch is gone, and `git ls-remote --heads origin <branch>` still prints it
+108: 
+109: ### Requirement: Cleaning merged worktrees
+110: 
+111: `scm:worktree:done` SHALL remove only worktrees whose branch is merged and has commits of its own since its recorded start commit (else since the creation entry of its reflog).
+112: `--all-merged` SHALL skip, with the reason printed, every worktree whose branch has no commits of its own, whose start is unknown, that is dirty, or that is not merged.
+113: `done <target>` on a branch with no commits of its own SHALL refuse and point to `scm:worktree:rm`.
+
+(Showing lines 44-113 of 158. Use offset=114 to continue.)
+</content>
+```
+
+**Tool: read**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/openspec/specs/global-mise-tasks/spec.md",
+  "offset": 130,
+  "limit": 30
+}
+```
+
+**Output:**
+```
+<path>~/.local/share/chezmoi/openspec/specs/global-mise-tasks/spec.md</path>
+<type>file</type>
+<content>
+130: ### Requirement: Listing worktrees
+131: 
+132: `scm:worktree:ls` SHALL print one row per worktree of the current repository (with `--all`, of every repository with a worktree under the worktrees root) with branch, ahead and behind counts against `origin/main`, dirty state, pull request, herdr tab and agent, and SHALL print JSON with `--json`.
+133: 
+134: #### Scenario: JSON listing
+135: 
+136: - **WHEN** one worktree exists and `mise run scm:worktree:ls --no-pr --json` runs
+137: - **THEN** `jq length` on its output prints 2 (the main checkout and the worktree)
+138: 
+139: ### Requirement: Dispatching an agent
+140: 
+141: `agent:dispatch` SHALL refuse an agent name that does not match `[a-z][a-z0-9_-]{0,31}`, a brief path that is not absolute or does not exist, a missing target directory, and an existing agent name; when the agent cannot start, it SHALL close the tab it created.
+142: 
+143: #### Scenario: Relative brief is refused
+144: 
+145: - **WHEN** `mise run agent:dispatch --workspace x --cwd /tmp --name test-agent --brief brief.md` runs
+146: - **THEN** it exits 1 with an error saying the brief must be an absolute path, and no herdr tab is created
+147: 
+148: ### Requirement: Project hooks
+149: 
+150: The tasks SHALL run the project tasks `scm:worktree:hook:post-create` (inside the new worktree, with `WT_PATH`, `WT_BRANCH`, `WT_NAME`, `WT_STEM`, `WT_REPO`, `WT_ENV_FILE`), `scm:worktree:hook:post-remove` (with `WT_REASON` and `WT_TAB` as well) and `scm:worktree:hook:incident`, when the project defines them, and SHALL do nothing otherwise.
+151: 
+152: #### Scenario: post-create hook runs
+153: 
+154: - **WHEN** the scratch repository has a trusted `mise.toml`, committed and pushed to `main`, with a task `scm:worktree:hook:post-create` that writes `$WT_STEM` to a file in `/tmp/opencode`, and `mise run scm:worktree:new feat/hooked` runs
+155: - **THEN** that file contains `hooked`
+156: 
+157: <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->
+158: 
+
+(End of file - total 158 lines)
+</content>
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 36.5s)
+
+_Thinking:_
+I'm settling on a design that avoids conflicts: the new `agent-launch` capability gets ADDED requirements for all the new behavior, and I'll only MODIFY "Dispatching an agent" in global-mise-tasks so it delivers through the launch library and reports back. I'm weighing whether dispatch should create a missing workspace, since that would remove the need for `--workspace` to already exist, but I'm leaning toward keeping it simple.
+
+I'm weighing whether `agent:dispatch` should also create the workspace when none matches the label, which would mean it reuses or creates it through the same rules as `workspace:open`. The existing refusals would stay in place, with delivery going through `agent-launch`, but I'm still deciding if that's wise before the design is settled.
+
+I'm working through how a branch that has no worktree yet should be handled: creating the worktree and workspace in one flow, versus refusing when the branch exists but isn't checked out anywhere.
+
+I'm working through the cases the spec needs to cover: a branch that exists but has no checkout anywhere, which I'm leaning toward refusing with a clear message, and the main checkout's workspace, which I'd treat the same way as any other. I'm also settling on refusing up front when the agent name is already taken, and on refusing when more than one workspace matches.
+
+I'm working out how the refusals and the JSON result line should look for `agent:launch`, and I'm carrying over the bounded-call behavior and the `--prompt` help warning from the old spec. The unknown-workspace refusal for `scm:worktree:new --tab` will become its own added requirement, so nothing gets created before the checks pass.
+
+Next I'm keeping the new behavior in the `agent-launch` capability as added requirements, and changing only the "Dispatching an agent" requirement in global-mise-tasks so it delivers through the launch library. I'm also planning to keep the unit tests and the fake herdr under `tests/global-mise-tasks/`, following the add-repo-roadmap layout.
+
+I'm planning the spec's test layout: a Python test double for herdr under `tests/global-mise-tasks/`, with unit tests calling the delivery function with the sleep patched out. I'm also starting an `observations.md` log in the change directory to record the decisions as they happen.
+
+I'm wrapping up the proposal now: a short note on which artifacts this change includes, the proposal itself and the `global-mise-tasks` delta, with the design left for a separate session. I'll write the proposal next.
+
+
+_Thinking:_
+The old delta's requirements are moving into a new `agent-launch` spec, with only "Dispatching an agent" modified in `global-mise-tasks` to avoid conflicting with `add-repo-roadmap`. Creating the new change and its proposal next.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; openspec new change add-agent-launch-tasks 2>&1 | tail -1; mkdir -p openspec/changes/add-agent-launch-tasks/specs/agent-launch openspec/changes/add-agent-launch-tasks/specs/global-mise-tasks; herdr --version; herdr agent start --help 2>&1 | rg -n 'AGENT_ARG|--' | head -8",
+  "workdir": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+✔ Created change 'add-agent-launch-tasks' at openspec/changes/add-agent-launch-tasks/ (schema: spec-driven)
+herdr 0.9.5
+3:Usage: herdr agent start <NAME> --kind <KIND> --pane <ID> [OPTIONS] [-- [AGENT_ARG]...]
+9:  [AGENT_ARG]...
+13:      --kind <KIND>
+18:      --pane <ID>
+21:      --timeout <MS>
+26:next: herdr agent prompt <TARGET> <TEXT> --wait
+
+```
+
+**Tool: write**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/openspec/changes/add-agent-launch-tasks/proposal.md",
+  "content": "## Why\n\nStarting an agent on a new piece of work is done by hand every time: a worktree, a herdr workspace, an agent in plan mode, and a first prompt sent after the TUI has drawn.\nNothing creates a herdr workspace; the global tasks only start an agent in a tab of a workspace that already exists.\nThe helper that sends the first prompt (`scm_prompt_agent`, used by `scm:worktree:new --prompt` and `agent:dispatch`) treats every stalled or timed-out `herdr agent prompt --wait` as a lost prompt and pastes the same text again, up to six times; herdr's own help says a stall does not prove that nothing was delivered.\nA prompt ending in a file reference (`@file`) opened opencode's autocomplete, which took the Enter, and the helper then filled the input box with copies.\nherdr reports an agent ready and idle as soon as `agent start` returns, but opencode draws nothing for about 10 s, and every prompt sent in that window is lost.\n`scm:worktree:new --json` prints its JSON over several lines and says nothing about the prompt, and with an unknown `--workspace` it dies after creating the worktree.\nThe Neovim configuration repository solved delivery in Python with a tested module (merged on its main branch, with a real-TUI check), runs its sessions with its own task, and keeps the `--prompt` return, the one-line JSON and the unknown workspace in its backlog.\nherdr 0.9.5 now has worktree-backed workspaces (`herdr worktree list|create|open|remove`): its list gives, for each worktree, the branch, the path and the workspace open on it.\nThis change replaces `fix-prompt-delivery`, which only existed as planning (shell port of the delivery, same requirements), and goes further: workspace creation and a launch flow, generic for any repository.\nSource: request of the Neovim configuration repository (session S19, 2026-11-03) for the delivery fixes; request of the user on 2026-11-04 for generic tasks that create workspaces and dispatch agents, and that the Neovim repository adopts; audit section 2.7.\n\n## What Changes\n\n- **Model.**\n  A branch has one read-write checkout at a time (git enforces it), so a branch implies a path.\n  A herdr workspace is built out of a worktree and is the home of the agents and sessions that work in it.\n  Coordination across the project (orchestration, synchronisation, messages between workspaces) stays one level up, in the workspace of the main checkout.\n  Whether a workspace should also carry its own orchestration is not decided here.\n- **Shared Python library** in the global mise lib directory, standard library only, ported from the Neovim repository's delivery module and its herdr wrapper, replacing `scm_prompt_agent`:\n  - bounded herdr calls (a timeout on each, `timeout` as an error code);\n  - the first prompt is delivered once: wait for idle, wait for the TUI to draw, submit with `--wait --until working`, inspect before any retry (`working` or `done` means delivered, `blocked` stops, the prompt still on screen gets Enter at most twice and is never pasted again, a prompt not on screen is submitted again, 5 submissions at most), outcome `working`, `unsent`, `lost`, `blocked` or `unreadable`;\n  - lookups of the state of a branch, a worktree, a workspace and an agent name.\n- **Two new global tasks** (names to confirm in the design):\n  - `workspace:open <branch|path>` creates, or reuses, the herdr workspace of a worktree, and prints one JSON line.\n  - `agent:launch <branch>` does the whole flow: creates the worktree when the branch is new (through `scm:worktree:new`), opens its workspace, starts the agent (default kind opencode, plan mode by default, optional model settings), delivers the first prompt, and prints one JSON line with the outcome.\n- **Checks before anything is created.**\n  Each case ends in reuse, create or refuse, and a refusal names what it found:\n  - the branch exists, is checked out, and where;\n  - a workspace is already open on that path (reuse);\n  - a workspace has the requested label but another path, or several share the label (refuse);\n  - the agent name is taken (refuse).\n- **`agent:dispatch` and `scm:worktree:new --prompt`** keep their interfaces and use the library; both print one JSON line with the delivery outcome; `scm:worktree:new --tab` resolves `--workspace` before it creates anything and names the value it was given; the help of `--prompt` warns that a text ending in `@file` may swallow the Enter.\n- **Tests.**\n  Python unit tests with a fake `herdr` that counts how many times the text reached the input box (`tests/global-mise-tasks/`, not a chezmoi target, listed in the temporary `.chezmoiignore` block and in `adopt-chezmoiroot` task 3.2 while that change is not applied), plus a live check with one throwaway agent, with the user's go.\n- **Replaces `fix-prompt-delivery`.**\n  Every requirement of that change moves into the `agent-launch` capability, its directory is deleted (it holds planning only; git keeps the history), and its audit row is marked as superseded.\n  Its closing duty moves here: when this change is applied, the Neovim repository is told, so that `session:start` can use the global tasks.\n- **Depends on `add-repo-roadmap`** for the amended rule on Python in the global tasks directory (shell files pass `shellcheck -x`, Python files compile and have unit tests).\n- **Observations.**\n  The launch of the roadmap agent, done by hand with the model above, is logged in `observations.md` in this folder: it is the input for the design and for a signal to the fleet's study of multi-agent orchestration.\n- **Non-goals.**\n  - The architecture of multi-agent orchestration, and where a launcher belongs in the fleet's tooling (this repository or the fleet's tools); the tasks stay small so that they can move.\n  - Any edit to the Neovim repository: it gets a signal to adopt the tasks, after this change is applied.\n  - Choosing the agent's model: only passing settings through.\n\n## Capabilities\n\n### New Capabilities\n\n- `agent-launch`: delivering a first prompt once, creating or reusing the workspace of a worktree, launching an agent into it, the refusals before creation, and the test harness.\n\n### Modified Capabilities\n\n- `global-mise-tasks`: `agent:dispatch` delivers through the library, reports the outcome, and opens the workspace by the same rules.\n\n## Impact\n\n- New: the Python library and the tasks `workspace:open` and `agent:launch` in `dot_config/mise/lib/` and `dot_config/mise/tasks/` (under `home/` after `adopt-chezmoiroot`), and `tests/global-mise-tasks/`.\n- Changed: `scm.sh` (the prompt helper goes away), `scm:worktree:new` and `agent:dispatch`.\n- Deleted: `openspec/changes/fix-prompt-delivery/`.\n- The return status contract of the callers stays: 0 delivered, non-zero not delivered, message on stderr; the first prompt takes longer, about 10 s while opencode draws, plus 1 s.\n- Applying the targets is a single-target apply with `--exclude=scripts`, after the user's go; the live check starts one throwaway agent in a herdr workspace and removes it afterwards.\n- Open questions for the design: the task names; what an existing branch with no checkout does (refuse or attach a worktree); whether the main checkout's workspace counts as a worktree workspace; how plan mode and model settings are passed; whether herdr's own `worktree open` is used or only its listing; the fate of the tab closing in `scm:worktree:done` when a workspace is the unit.\n\n<!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->\n"
+}
+```
+
+**Output:**
+```
+Wrote file successfully.
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 27.4s)
+
+_Thinking:_
+I'm moving on to the spec file for agent launch and planning to write it out in full detail.
+
+
+Now the `agent-launch` spec. The delivery scenarios carry over from the old delta, now against the library's delivery function.
+**Tool: write**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/openspec/changes/add-agent-launch-tasks/specs/agent-launch/spec.md",
+  "content": "## ADDED Requirements\n\nIn the scenarios below, \"the fake herdr\" is `tests/global-mise-tasks/fake_herdr.py`, a test double first on `PATH` that keeps its state in a scratch directory under `/tmp/opencode` and logs every call.\n\"Pastes\" is the number of times it put the prompt text into the input box.\nDirect cases call the library's delivery function with `sleep` replaced by a no-op and the text `Read and execute the brief at /tmp/opencode/brief.md` for an agent named `test-agent`.\nTask scenarios run in a scratch git repository whose `origin` is a bare repository on branch `main`, both under `/tmp/opencode`, with `WORKTREES_ROOT` inside the same directory and `HERDR_ENV` unset.\n\n### Requirement: First prompt is delivered once\n\nThe library's delivery function, used by `agent:launch`, `agent:dispatch` and `scm:worktree:new --prompt`, SHALL deliver the first prompt as follows:\n\n- before the first submission, wait up to 15 s for the agent to be `idle`, where a failed wait is not fatal;\n- then read the visible screen every second, up to 60 reads, until at least 5 lines hold something besides frame characters and whitespace, where a failed read counts as blank and a screen that never draws does not stop the submission; then pause 1 s;\n- submit with `herdr agent prompt --wait --until working`;\n- after any unconfirmed submission, inspect before doing anything else:\n  - agent status `working` or `done` means delivered;\n  - status `blocked` stops;\n  - otherwise read the visible screen; the prompt is on screen when its first 24 non-whitespace characters appear in the screen text, with frame characters (U+2500 to U+259F) and all whitespace removed from both;\n- while the prompt is on screen, press Enter at most twice and never submit the text again;\n- submit again only when the prompt is not on screen, at most 5 submissions in all.\n\nIt SHALL return the outcome `working`, `unsent`, `lost`, `blocked` or `unreadable`; only `working` is a success.\nWhenever it stops without delivery, it SHALL print the outcome and the last 15 non-blank lines of the screen on stderr.\n\n#### Scenario: First submission works\n\n- **WHEN** the fake herdr accepts the first submission\n- **THEN** the outcome is `working`, after 1 submission, 0 Enter presses and 1 paste, and the fake herdr's log shows `agent wait --until idle`, then `agent read`, before `agent prompt`\n\n#### Scenario: Waits for the TUI to draw\n\n- **WHEN** the fake herdr shows a blank screen for the first 3 reads and loses any submission made while the screen is blank\n- **THEN** the outcome is `working`, after 4 screen reads before the first submission, 1 submission and 1 paste\n\n#### Scenario: Screen never draws\n\n- **WHEN** the fake herdr keeps the screen blank and loses every submission\n- **THEN** the function reads the screen 60 times before its first submission, submits anyway, and the outcome is `lost`, after 5 submissions and 0 pastes, and stderr says the screen never drew\n\n#### Scenario: A lost prompt is submitted again\n\n- **WHEN** the fake herdr loses the first submission (stall, nothing in the input)\n- **THEN** the outcome is `working`, after 2 submissions and 1 paste\n\n#### Scenario: Text left in the input gets Enter, not a second paste\n\n- **WHEN** the fake herdr leaves the text in the input after the submission and takes the first Enter\n- **THEN** the outcome is `working`, after 1 submission, 1 Enter press and 1 paste\n\n#### Scenario: A second Enter when the first is not taken\n\n- **WHEN** the fake herdr leaves the text in the input and takes only the second Enter\n- **THEN** the outcome is `working`, after 2 Enter presses and 1 paste\n\n#### Scenario: Enter never taken\n\n- **WHEN** the fake herdr leaves the text in the input and never starts the agent\n- **THEN** the outcome is `unsent`, after 1 submission, 2 Enter presses and 1 paste, and stderr holds the last screen lines\n\n#### Scenario: Wrapped text is still found\n\n- **WHEN** the fake herdr leaves the text in the input, wrapped at 10 columns so that words are cut\n- **THEN** the function presses Enter and does not paste a second time\n\n#### Scenario: Lost every time\n\n- **WHEN** the fake herdr loses every submission while the screen is drawn\n- **THEN** the outcome is `lost`, after 5 submissions, 0 Enter presses and 0 pastes\n\n#### Scenario: Blocked agent\n\n- **WHEN** the fake herdr answers `agent_blocked` to the submission\n- **THEN** the outcome is `blocked`, after 1 submission, with no Enter press and 0 pastes\n\n#### Scenario: Stall reported for an agent that took the prompt\n\n- **WHEN** the fake herdr answers `timeout` while the agent's status is `working`, or `agent_prompt_stalled` while its status is `done`\n- **THEN** the outcome is `working` and there was 1 paste\n\n#### Scenario: Unreadable screen\n\n- **WHEN** the fake herdr draws the screen, stalls the submission, and from then on fails `agent read`\n- **THEN** the outcome is `unreadable`, with no Enter press and no second submission\n\n#### Scenario: Failed idle wait is not fatal\n\n- **WHEN** the fake herdr fails the idle wait and accepts the submission\n- **THEN** the outcome is `working`\n\n### Requirement: herdr calls are bounded\n\nEvery herdr call of the library SHALL run under a timeout: the call's own wait plus 10 s, or 15 s for calls that do not wait.\nA call that times out SHALL count as failed with the code `timeout`.\n\n#### Scenario: A hung screen read\n\n- **WHEN** the fake herdr draws the screen, stalls the submission, and from then on hangs on `agent read`, with the read timeout set to 2 s by the test\n- **THEN** the outcome is `unreadable` within 10 s, after 1 paste\n\n### Requirement: A workspace is built out of a worktree\n\n`workspace:open <branch|path>` SHALL find the worktree of the branch (or the given path) and the herdr workspaces open on that path, and SHALL end in one of: reuse the workspace open on the path; create a workspace with the path as its working directory and the worktree name as its label; refuse.\nIt SHALL refuse, creating nothing and naming what it found, when the branch exists with no checkout, when a workspace has the requested label with another path, when several workspaces are open on the path, or when the path is not a worktree of the repository.\nIt SHALL print one line holding one JSON object with `path`, `branch`, `workspace` and `action` (`reused` or `created`).\n\n#### Scenario: Reuse\n\n- **WHEN** a workspace is already open on the worktree of `feat/a` and `mise run workspace:open feat/a` runs\n- **THEN** it exits 0 and prints one line, `jq -r .action` on it prints `reused`, and the fake herdr's log shows no workspace creation\n\n#### Scenario: Create\n\n- **WHEN** the worktree of `feat/b` has no workspace and `mise run workspace:open feat/b` runs\n- **THEN** it exits 0, `jq -r .action` prints `created`, and the fake herdr's log shows one workspace creation with the worktree path as its working directory\n\n#### Scenario: Same label, other path\n\n- **WHEN** a workspace labelled like the worktree is open on another path\n- **THEN** the task exits 1, its message names both paths, and the fake herdr's log shows no workspace creation\n\n#### Scenario: Branch with no checkout\n\n- **WHEN** the branch `feat/c` exists locally and is checked out nowhere, and `mise run workspace:open feat/c` runs\n- **THEN** it exits 1, its message names the branch and says it has no checkout, and nothing is created\n\n### Requirement: An agent is launched into a workspace\n\n`agent:launch <branch>` SHALL create the worktree through `scm:worktree:new` when the branch is new, open its workspace as `workspace:open` does, start the agent (kind `opencode` by default, in plan mode unless told otherwise) in a pane of that workspace, deliver the first prompt as above, and print one line holding one JSON object with `path`, `branch`, `workspace`, `pane`, `agent`, `action` and `prompt`, where `prompt` is the delivery outcome or `none` when no prompt was given.\nIt SHALL exit 0 only when the agent was started and the prompt, if any, was delivered, and SHALL name the next step for each outcome that is not `working`.\nIt SHALL refuse before creating anything when the agent name does not match `[a-z][a-z0-9_-]{0,31}` or is taken.\n\n#### Scenario: New branch end to end\n\n- **WHEN** `mise run agent:launch feat/d --name test-agent --prompt \"Read and execute the brief at /tmp/opencode/brief.md\"` runs with the fake herdr accepting the first submission\n- **THEN** it exits 0, prints one line, `jq -r .prompt` prints `working`, `git worktree list` shows the worktree on `feat/d`, the fake herdr's log shows one workspace creation, one `agent start` in plan mode and one paste\n\n#### Scenario: Name taken\n\n- **WHEN** the fake herdr already has an agent `test-agent` and `mise run agent:launch feat/e --name test-agent` runs\n- **THEN** it exits 1, and `git worktree list` and `git branch --list feat/e` show nothing new\n\n#### Scenario: Prompt not delivered\n\n- **WHEN** the fake herdr leaves the text in the input and never starts the agent\n- **THEN** the task exits 1 after 1 paste, `jq -r .prompt` on its stdout prints `unsent`, and its message tells to press Enter in the agent's pane and does not tell to send the prompt again\n\n### Requirement: Callers report the delivery outcome\n\n`scm:worktree:new --json` SHALL print exactly one line holding one JSON object with `path`, `branch`, `name`, `tab`, `pane`, `agent` and `prompt`, where `prompt` is the delivery outcome, or `none` when no prompt was sent.\nWhen the prompt is not delivered, `scm:worktree:new` SHALL still exit 0 and SHALL warn with the next step for the outcome.\n`agent:dispatch --json` SHALL print one line.\n\n#### Scenario: No prompt\n\n- **WHEN** `mise run scm:worktree:new feat/j --json` runs in a scratch repository\n- **THEN** its stdout is one line, and `jq -r .prompt` on it prints `none`\n\n#### Scenario: Prompt through a new tab\n\n- **WHEN** `mise run scm:worktree:new feat/k --tab --workspace w --agent-kind opencode --prompt \"<text> @AGENTS.md\" --json` runs with the fake herdr leaving the text in the input and taking the first Enter\n- **THEN** its stdout is one line, `jq -r .prompt` prints `working`, and the fake herdr counted 1 paste\n\n### Requirement: Unknown workspace is refused before anything is created\n\n`scm:worktree:new --tab` SHALL resolve `--workspace` (or `HERDR_WORKSPACE_ID`) before it creates the worktree, and SHALL name the value it was given when the workspace is not found or several workspaces share that label.\n\n#### Scenario: Bad workspace\n\n- **WHEN** `mise run scm:worktree:new feat/w --tab --workspace nope` runs in a scratch repository with the fake herdr, which knows no workspace `nope`\n- **THEN** it exits 1, its message contains `herdr workspace 'nope' not found`, and `git worktree list` and `git branch --list feat/w` show nothing new\n\n### Requirement: Prompt help warns about file references\n\nThe help of `scm:worktree:new --prompt`, `agent:launch --prompt` and `agent:dispatch` SHALL say that a text ending in a file reference such as `@file` opens the TUI's autocomplete, which may swallow the Enter.\n\n#### Scenario: Help text\n\n- **WHEN** `mise run scm:worktree:new --help`, `mise run agent:launch --help` and `mise run agent:dispatch --help` run\n- **THEN** each output contains `@file`\n\n### Requirement: Launch tasks are deployed and tested\n\nThe repository SHALL deploy `workspace:open` and `agent:launch` with the global tasks, and SHALL keep the fake herdr and the unit tests of the library in `tests/global-mise-tasks/`; the tests SHALL pass, SHALL leave nothing under `/tmp/opencode/`, and SHALL NOT be a chezmoi target.\n\n#### Scenario: Tasks are listed\n\n- **WHEN** `mise tasks ls --global` runs from a directory with no project config\n- **THEN** it lists `workspace:open` and `agent:launch`\n\n#### Scenario: Tests pass\n\n- **WHEN** `python3 -m unittest discover -s tests/global-mise-tasks` runs at the repository root\n- **THEN** it exits 0, and `test ! -e` on the tests' scratch directory under `/tmp/opencode` succeeds\n\n#### Scenario: Not a target\n\n- **WHEN** `chezmoi managed | grep -c '^tests'` runs\n- **THEN** it prints 0\n\n<!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->\n"
+}
+```
+
+**Output:**
+```
+Wrote file successfully.
+```
+
+**Tool: write**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/openspec/changes/add-agent-launch-tasks/specs/global-mise-tasks/spec.md",
+  "content": "## MODIFIED Requirements\n\n### Requirement: Dispatching an agent\n\n`agent:dispatch` SHALL refuse an agent name that does not match `[a-z][a-z0-9_-]{0,31}`, a brief path that is not absolute or does not exist, a missing target directory, and an existing agent name; it SHALL open the workspace of the target directory by the rules of `workspace:open` and deliver the first prompt through the launch library; it SHALL exit 1 when the prompt is not delivered, with the next step for the outcome; and when the agent cannot start, it SHALL close the tab it created.\n\n#### Scenario: Relative brief is refused\n\n- **WHEN** `mise run agent:dispatch --workspace x --cwd /tmp --name test-agent --brief brief.md` runs\n- **THEN** it exits 1 with an error saying the brief must be an absolute path, and no herdr tab is created\n\n#### Scenario: Dispatch with the text stuck in the input\n\n- **WHEN** `mise run agent:dispatch` runs with the fake herdr leaving the text in the input and never starting the agent\n- **THEN** it exits 1 after 1 paste, and its message tells to press Enter in the agent's tab and does not tell to send the prompt again\n\n<!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->\n"
+}
+```
+
+**Output:**
+```
+Wrote file successfully.
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 4.1s)
+
+_Thinking:_
+I'm going to delete the fix-prompt-delivery directory, since the user's "go" approved that. Then I'll audit rows 22 and 25, update observations.md, validate, and commit. After that I'll message nvim-orch. For row 22, I need to check the current text near lines 233-238 of the audit and the "Changes 6 to 20 refine..." line.
+
+
+Next the deletion of `fix-prompt-delivery` (approved with your go), the audit rows, and the observations file. First the current rows 21 to 25.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; rg -n '^\\| (21|22|23|24) \\|' docs/audits/2026-10-30-environment.md | cut -c1-400; rg -n 'fix-prompt-delivery' --glob '!memory/**' --glob '!openspec/changes/fix-prompt-delivery/**' . | cut -c1-200",
+  "workdir": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+233:| 21 | `adopt-global-mise-tasks` | 2.7 (mise) | | done, archived 2026-11-02; added the same day on request of the Neovim repository |
+234:| 22 | `fix-prompt-delivery` | 2.7 (mise) | | full; added 2026-11-03 on request of the Neovim repository; follow-up: default setting and override flag for its timeouts and limits |
+235:| 23 | `add-private-store-external` | F05, 2.8 | | full; added 2026-11-03 on request of the Neovim repository; after orders 2 and 3; the Neovim session S16 merged without it |
+236:| 24 | `add-repo-roadmap` | F34, process | | proposal, specs, brief; added 2026-11-03 on request, reworked 2026-11-04 (generated `ROADMAP.md`, global task `openspec:roadmap`); once applied, `ROADMAP.md` replaces this table and this section is frozen |
+./docs/audits/2026-10-30-environment.md:234:| 22 | `fix-prompt-delivery` | 2.7 (mise) | | full; added 2026-11-03 on request of the Neovim repository; follow-up: default setting and override flag for i
+./openspec/changes/add-agent-launch-tasks/proposal.md:11:This change replaces `fix-prompt-delivery`, which only existed as planning (shell port of the delivery, same requirements), and goes further: w
+./openspec/changes/add-agent-launch-tasks/proposal.md:37:- **Replaces `fix-prompt-delivery`.**
+./openspec/changes/add-agent-launch-tasks/proposal.md:62:- Deleted: `openspec/changes/fix-prompt-delivery/`.
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 5.0s)
+
+_Thinking:_
+I'm noting that row 22 points to a follow-up on default settings and an override flag for the delivery timeouts and limits, which should go into the proposal's open questions. Next I'll grep design.md for "follow" and "setting" to see whether that content is already covered under Decisions.
+
+I'm checking design.md for its headings and the follow-up note, since deleting the file would lose that content, and I'd rather carry the key decisions into the proposal's open questions.
+
+
+Row 22 records a follow-up (a setting and override flag for the timeouts and limits). I want to see where `fix-prompt-delivery`'s design records it, so it isn't lost with the deletion.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi/openspec/changes/fix-prompt-delivery; rtk rg -n '^#{1,3} ' design.md | cut -c1-120; echo ==; rg -n -i 'follow|override|setting|flag' design.md | cut -c1-330 | head -12",
+  "workdir": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+1:## Context
+29:## Goals / Non-Goals
+45:## Decisions
+47:### Inspect before any retry
+74:### Marker without whitespace (deviation 1)
+81:### `done` counts as delivered (deviation 2)
+87:### Outcomes, and how callers get them (deviation 3)
+102:### Bounded herdr calls (deviation 4)
+109:### One-line JSON
+115:### Help text
+119:### Workspace resolved before anything is created
+125:### Test harness
+140:### Live check (user decision)
+149:## Risks / Trade-offs
+162:## Migration Plan
+168:## Open Questions
+zsh:1: = not found
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 2.1s)
+
+**Tool: read**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/openspec/changes/fix-prompt-delivery/design.md",
+  "offset": 140,
+  "limit": 40
+}
+```
+
+**Output:**
+```
+<path>~/.local/share/chezmoi/openspec/changes/fix-prompt-delivery/design.md</path>
+<type>file</type>
+<content>
+140: ### Live check (user decision)
+141: 
+142: With the user's go at that step:
+143: 
+144: - Create a scratch repository under `/tmp/opencode/` with a bare origin and an `AGENTS.md`.
+145: - Run `mise run scm:worktree:new feat/live --tab --workspace chezmoi --agent-kind opencode --agent-name chezmoi-live --prompt "Reply with the single word ok and do nothing else. @AGENTS.md" --json`.
+146: - Expect `"prompt":"working"` and the marker exactly once on the agent's screen; note from the stderr trace how many screen reads passed before the TUI drew, to compare with the sender's 10 s.
+147: - Finish with `mise run scm:worktree:rm live --force`, which closes the tab, then delete the scratch repository.
+148: 
+149: ## Risks / Trade-offs
+150: 
+151: - [Risk] A quick answer puts the text in the history, not the input, and the helper reads it as waiting. → With `done` counted as delivered this is rare; otherwise Enter on an empty input does nothing, and the outcome is `unsent`, reported and never pasted again.
+152: - [Risk] Enter while the popup is open picks a completion, like the stray `@explore`. → At most 2 Enter presses; the `unsent` message sends the user to the tab to check the input, and the help text warns against a trailing `@file`.
+153: - [Risk] The Python and bash versions drift. → Each repository tests its own; the deviations are named here and in the reply to the sender.
+154: - [Risk] herdr changes its error codes. → Unknown codes take the inspection path, never a blind resubmission.
+155: - [Risk] A caller runs the helper in a subshell and loses the outcome. → Both callers call it directly, and the helper's comment warns about it.
+156: - [Risk] The harness and the live check write outside `$HOME`, in `/tmp/opencode/` (scratch repositories, worktrees, fake herdr state). → One directory per run, removed on exit and checked with `test ! -e`; the live check removes its worktree with `scm:worktree:rm --force` and closes its tab, and its agent spends one short turn; opencode keeps a project record for the scratch path in its own database.
+157: - [Risk] Another agent kind draws fewer than 5 lines, or shows 5 lines of splash screen before its input listens. → The first case costs 60 s and then submits anyway; in the second, a lost prompt is not on screen, so it is sent again within the budget of 5.
+158: - [Trade-off] The first prompt waits for the TUI to draw (about 10 s for opencode) plus 1 s.
+159:   The worst case is about 4 min: 15 s idle wait, 60 s of screen reads, then 5 submissions with their 20 s waits, inspection passes and two 8 s Enter waits.
+160:   That is long, but bounded and visible on stderr, where the old helper pasted blindly.
+161: 
+162: ## Migration Plan
+163: 
+164: 1. Commit the harness and run it against the current helper (expected failures on the paste count).
+165: 2. Change the helper and the callers, run the harness until it passes, run `shellcheck -x`, apply `~/.config/mise/lib` and `~/.config/mise/tasks` alone with `--exclude=scripts`, then run the live check.
+166: 3. Rollback: `git revert` the fix commit and apply the two targets again; the harness then fails again, as expected.
+167: 
+168: ## Open Questions
+169: 
+170: - Follow-up suggested by the user on 2026-11-03: a default setting for the timeouts and limits (for example a mise var or `conf.d` value) and an override flag on the callers.
+171:   Recorded here and in the change map; not in this change.
+172: 
+173: <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->
+
+(End of file - total 173 lines)
+</content>
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 8.2s)
+
+_Thinking:_
+I'm carrying over the follow-up on timeout and limit settings, plus the Python and live-check design. I'm adding that follow-up to the proposal's open questions and noting that the live check becomes one throwaway agent in a herdr workspace.
+
+I'm adding the timeout and limit default, with an override flag on the callers, to the open questions, then deleting the fix-prompt-delivery directory with git rm -r. After that I'll update audit row 22, add row 25, and create observations.md.
+
+
+I'll carry that follow-up into the new proposal's open questions, then delete the old change, update the audit and create the observations file.
+**Tool: edit**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/openspec/changes/add-agent-launch-tasks/proposal.md",
+  "oldString": "the fate of the tab closing in `scm:worktree:done` when a workspace is the unit.",
+  "newString": "the fate of the tab closing in `scm:worktree:done` when a workspace is the unit; a default setting for the delivery timeouts and limits (a mise var or `conf.d` value) with an override flag on the callers, suggested by the user on 2026-11-03 for the superseded change."
+}
+```
+
+**Output:**
+```
+Edit applied successfully.
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; git rm -q -r openspec/changes/fix-prompt-delivery && echo \"removed: $(test -e openspec/changes/fix-prompt-delivery && echo STILL THERE || echo gone)\"; rtk ls openspec/changes",
+  "workdir": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+removed: gone
+add-agent-launch-tasks/
+add-private-store-external/
+add-repo-quality-gates/
+add-repo-roadmap/
+adopt-chezmoiroot/
+archive/
+cleanup-dead-config/
+enforce-hook-with-system-git/
+fast-correct-shell-startup/
+fix-chezmoi-config-template/
+fresh-machine-bootstrap/
+ignore-app-state/
+install-terminal-fonts/
+make-install-scripts-idempotent/
+manage-ai-tool-configs/
+manage-dev-tui-configs/
+manage-gh-config/
+manage-kde-desktop-config/
+manage-xdg-basics/
+port-[redacted:private]-shell-aliases/
+rationalize-package-ownership/
+reconcile-drift-and-supervised-apply/
+refresh-repo-docs/
+
+```
+
+**Tool: edit**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/docs/audits/2026-10-30-environment.md",
+  "oldString": "| 22 | `fix-prompt-delivery` | 2.7 (mise) | | full; added 2026-11-03 on request of the Neovim repository; follow-up: default setting and override flag for its timeouts and limits |",
+  "newString": "| 22 | `fix-prompt-delivery` | 2.7 (mise) | | superseded 2026-11-04 by `add-agent-launch-tasks` (row 25); it was added 2026-11-03 on request of the Neovim repository and never applied; its follow-up (default setting and override flag for the timeouts and limits) moved with it |"
+}
+```
+
+**Output:**
+```
+Edit applied successfully.
+```
+
+**Tool: edit**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/docs/audits/2026-10-30-environment.md",
+  "oldString": "once applied, `ROADMAP.md` replaces this table and this section is frozen |",
+  "newString": "once applied, `ROADMAP.md` replaces this table and this section is frozen |\n| 25 | `add-agent-launch-tasks` | 2.7 (mise), process | | proposal, specs; added 2026-11-04 on request; replaces `fix-prompt-delivery`; after 24 (the language rule for the global tasks) |"
+}
+```
+
+**Output:**
+```
+Edit applied successfully.
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 16.0s)
+
+_Thinking:_
+I'm checking the audit's "Changes 6 to 20 refine their artifacts" trailer, and confirming that only the audit and the new proposal reference fix-prompt-delivery. adopt-chezmoiroot's task 3.2 doesn't mention tests, which is fine since that test step belongs to fix-prompt-delivery's task 2.4. The new change's
+
+Now I'm drafting the observations file, starting with a purpose statement and a log header. The entries will begin with what's known before launch: herdr's worktree listing reports branch, path, and open workspace, and no task creates a workspace. I'm also noting that the Neovim repo runs sessions as tabs in one workspace, so I'll avoid `herdr worktree create`. I'll record the timestamps in ISO date-time format.
+
+
+Now the observations file, which starts with what is known before the launch and has an empty log for the steps still to come.
+**Tool: write**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/openspec/changes/add-agent-launch-tasks/observations.md",
+  "content": "# Observations: launching an agent by hand into its own worktree and workspace\n\nInput for the design of `add-agent-launch-tasks`, and for a signal to the fleet's study of multi-agent orchestration.\nThe first launch is done by hand, on 2026-11-04, for the agent that builds `add-repo-roadmap`: one worktree, one herdr workspace built out of it, one agent in plan mode, one first prompt.\nEach step below is logged with its command, its result and any friction, so that the tasks automate what really happened and not what was expected.\n\n## Known before the launch\n\n- herdr 0.9.5 has `herdr worktree list|create|open|remove`; `list` gives, for each worktree of a repository, its branch, its path and the workspace open on it.\n- No global task creates a workspace; `agent:dispatch` and `scm:worktree:new --tab` need one that exists.\n- The Neovim configuration repository runs its sessions as tabs of one workspace and does not use `herdr worktree create`, because it opens a whole workspace.\n- The first prompt is lost when sent while the opencode TUI is still blank (about 10 s after `agent start` returns), and a prompt ending in `@file` opens the autocomplete, which takes the Enter.\n- The read-only guard asks for approval on every `mise run` in plan mode.\n\n## Questions this launch answers\n\n- Does `herdr worktree open --path <worktree>` create a usable workspace for a worktree that `scm:worktree:new` made, and what label and focus does it give?\n- Does the new session start with the project's tracked `.opencode/` commands and skills, and does its dependency directory (not tracked) get installed by itself?\n- Is the worktree trusted by mise from its first command, and does the commit hook run there?\n- How long does the TUI take to draw in a fresh worktree, and does the first prompt arrive once?\n- What does the agent need from the orchestrator that a brief cannot carry?\n\n## Log\n\n<!-- Entries: time, step, command, result, friction. -->\n\n<!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->\n"
+}
+```
+
+**Output:**
+```
+Wrote file successfully.
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\necho \"== validate\"; openspec validate --all --strict 2>&1 | tail -2; openspec validate add-agent-launch-tasks --strict 2>&1 | tail -2\necho \"== deltas\"; openspec show add-agent-launch-tasks --json --deltas-only 2>/dev/null | jq -c '[.deltas[] | .spec + \":\" + .operation] | group_by(.) | map({(.[0]): length}) | add'\necho \"== dashes\"; rtk rg -n '[—–]' openspec/changes/add-agent-launch-tasks docs/audits/2026-10-30-environment.md || echo none\necho \"== private names / secrets / ips\"; rg -n -i -w -e [redacted:repo] -e [redacted:repo] -e [redacted:repo] -e 'silopolis/' -e [redacted:envvar] openspec/changes/add-agent-launch-tasks || echo none; rg -n -e '\\b([0-9]{1,3}\\.){3}[0-9]{1,3}\\b' openspec/changes/add-agent-launch-tasks || echo \"no ip\"\necho \"== modelines\"; for f in $(fd -t f -e md . openspec/changes/add-agent-launch-tasks); do tail -1 $f | rg -q 'vim: set' || echo \"NO MODELINE $f\"; done; echo checked\ngit status --short",
+  "workdir": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+== validate
+✓ spec/spec-workflow
+Totals: 25 passed, 0 failed (25 items)
+Change 'add-agent-launch-tasks' is valid
+== deltas
+{"agent-launch:ADDED":8,"global-mise-tasks:MODIFIED":1}
+== dashes
+none
+== private names / secrets / ips
+none
+no ip
+== modelines
+checked
+ M docs/audits/2026-10-30-environment.md
+D  openspec/changes/fix-prompt-delivery/.openspec.yaml
+D  openspec/changes/fix-prompt-delivery/design.md
+D  openspec/changes/fix-prompt-delivery/proposal.md
+D  openspec/changes/fix-prompt-delivery/specs/global-mise-tasks/spec.md
+D  openspec/changes/fix-prompt-delivery/tasks.md
+?? openspec/changes/add-agent-launch-tasks/
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 6.5s)
+
+_Thinking:_
+I'm checking that the item count still comes to 25: the earlier 25 passed, I dropped fix-prompt-delivery and added add-agent-launch-tasks, so the total holds. Next I'm drafting the commit subject, which runs 77 characters, and I'll confirm that length in the script.
+
+
+Everything validates (one change out, one in, so still 25 items). Committing step 3.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\nsubject=\"docs(chezmoi:spec): add add-agent-launch-tasks, supersede fix-prompt-delivery\"; echo \"subject length: ${#subject}\"\ngit add openspec/changes/add-agent-launch-tasks docs/audits/2026-10-30-environment.md; git diff --cached --name-status | sort | head -20\n/home/linuxbrew/.linuxbrew/bin/git commit -m \"$subject\" -m \"- New change: generic Python library and global tasks that open the herdr workspace of a worktree and launch an agent into it, with the checks before creation (reuse, create, refuse)\n- Takes over every requirement of fix-prompt-delivery (first prompt delivered once, bounded herdr calls, one-line JSON, workspace resolved first, help warning, test harness) and its closing duty to tell the Neovim repository\n- fix-prompt-delivery was planning only and is deleted; audit row 22 marked superseded, row 25 added\n- observations.md logs the first launch by hand as input for the design\" 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | tail -6\necho \"exit=${pipestatus[1]}\"; git log -1 --format='%h %s'; git status --short | wc -l; git log --format='%h %s' origin/main..HEAD",
+  "workdir": "~/.local/share/chezmoi",
+  "timeout": 240000
+}
+```
+
+**Output:**
+```
+subject length: 77
+A	openspec/changes/add-agent-launch-tasks/observations.md
+A	openspec/changes/add-agent-launch-tasks/proposal.md
+A	openspec/changes/add-agent-launch-tasks/specs/agent-launch/spec.md
+A	openspec/changes/add-agent-launch-tasks/specs/global-mise-tasks/spec.md
+D	openspec/changes/fix-prompt-delivery/design.md
+D	openspec/changes/fix-prompt-delivery/proposal.md
+D	openspec/changes/fix-prompt-delivery/specs/global-mise-tasks/spec.md
+D	openspec/changes/fix-prompt-delivery/tasks.md
+M	docs/audits/2026-10-30-environment.md
+R050	openspec/changes/fix-prompt-delivery/.openspec.yaml	openspec/changes/add-agent-launch-tasks/.openspec.yaml
+ create mode 100644 openspec/changes/add-agent-launch-tasks/specs/agent-launch/spec.md
+ create mode 100644 openspec/changes/add-agent-launch-tasks/specs/global-mise-tasks/spec.md
+ delete mode 100644 openspec/changes/fix-prompt-delivery/design.md
+ delete mode 100644 openspec/changes/fix-prompt-delivery/proposal.md
+ delete mode 100644 openspec/changes/fix-prompt-delivery/specs/global-mise-tasks/spec.md
+ delete mode 100644 openspec/changes/fix-prompt-delivery/tasks.md
+exit=0
+07e276d docs(chezmoi:spec): add add-agent-launch-tasks, supersede fix-prompt-delivery
+0
+07e276d docs(chezmoi:spec): add add-agent-launch-tasks, supersede fix-prompt-delivery
+3027977 docs(chezmoi:spec): mechanize add-repo-roadmap and add its brief
+005458d docs(chezmoi:docs): name only public sibling repositories
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 4.4s)
+
+_Thinking:_
+The commit for step 3 is in (07e276d), so next is the note to nvim-orch that its request has moved to add-agent-launch-tasks. The plan was approved, so I'll send it with `herdr agent prompt`. First I want to confirm nvim-orch exists and check its status, since prompting an agent that's mid-work might queue the text in an unexpected way.
+
+I'm checking that nvim-orch is still there and what its screen shows, since I want to see whether it's mid-task before the message goes in.
+
+
+Step 3 is committed as `07e276d`. Before messaging `nvim-orch`, I'll check that it is running and what state it is in, so the message doesn't land in the middle of something.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "herdr agent get nvim-orch 2>&1 | jq -c '.result.agent | {name, pane_id, agent_status, cwd}' 2>/dev/null || herdr agent get nvim-orch 2>&1 | head -3; echo \"== last visible lines\"; herdr agent read nvim-orch --source visible 2>&1 | tail -14 | cut -c1-200"
+}
+```
+
+**Output:**
+```
+{"name":"nvim-orch","pane_id":"wP:p1","agent_status":"idle","cwd":"~/.config/nvim"}
+== last visible lines
+
+     1. Start S13 now? It touches README.md, AGENTS.md, the fixtures README, the specs and openspec/config.yaml.
+     2. S18 first, then S17? S13 would document whichever of them lands before it.
+     3. Cleanup: go or keep.
+     4. Rotate [redacted:envvar].
+
+     ▣  Build · Claude Sonnet 5.5 · 1m 27s                                                                                                              █
+
+  ┃
+  ┃  if all those sessions and tabs
+  ┃
+  ┃  Build · Claude Sonnet 5.5 Anthropic
+  ╹▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+   ~/.config/nvim                                                                                        600.1K (60%) · $98.29  ctrl+p commands
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 7.2s)
+
+_Thinking:_
+The input box in nvim-orch has the user's half-typed draft in it, so sending a prompt there now would mix it with their text. I'll hold off and let the user know, then wait until they're done typing.
+
+I'll tell the user the message is on hold, since it's non-urgent, and offer to send it once the input box is clear. Next I'm fetching from origin, checking it, and pushing main with brew's git, since the user approved swapping step 3 for a push.
+
+
+_Thinking:_
+`nvim-orch` is idle with your half-typed message still in its input box, so I'm holding my prompt and will report back at the end. Next, step 4: fetch, check origin, then push.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\n/home/linuxbrew/.linuxbrew/bin/git fetch origin 2>&1 | tail -2\necho \"behind/ahead: $(git rev-list --count HEAD..origin/main)/$(git rev-list --count origin/main..HEAD)\"\ngit log --format='%h %an %s' origin/main..HEAD\necho \"== gitleaks over the outgoing range\"; gitleaks git --log-opts=\"origin/main..HEAD\" --redact --no-banner 2>&1 | tail -3\necho \"== private names in outgoing diff (counts)\"; git diff origin/main..HEAD | rg -c -i -w -e [redacted:repo] -e [redacted:repo] -e [redacted:repo] -e [redacted:envvar] || echo 0\ngit status --short | wc -l",
+  "workdir": "~/.local/share/chezmoi",
+  "timeout": 120000
+}
+```
+
+**Output:**
+```
+behind/ahead: 0/3
+07e276d [redacted:user_fullname] (@silopolis) docs(chezmoi:spec): add add-agent-launch-tasks, supersede fix-prompt-delivery
+3027977 [redacted:user_fullname] (@silopolis) docs(chezmoi:spec): mechanize add-repo-roadmap and add its brief
+005458d [redacted:user_fullname] (@silopolis) docs(chezmoi:docs): name only public sibling repositories
+== gitleaks over the outgoing range
+[90m2:30PM[0m [32mINF[0m [1m3 commits scanned.[0m
+[90m2:30PM[0m [32mINF[0m [1mscanned ~45666 bytes (45.67 KB) in 219ms[0m
+[90m2:30PM[0m [32mINF[0m [1mno leaks found[0m
+== private names in outgoing diff (counts)
+1
+0
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 5.5s)
+
+_Thinking:_
+I'm checking the diff for private names: the first count came back as 1, meaning one matching line, and the second output of 0 is the git status count. I still need to account for whether that match is a removal line, since the diff includes deletions.
+
+The match I got is probably from a removed line in the diff, the deleted enforce-hook text that mentions the private names. I need to confirm that every matching line starts with a minus sign.
+
+
+One line in the outgoing diff matches the private-name scan. It should be the removed [redacted:repo] line in the enforce-hook proposal, so I'm checking it is a deletion and not an addition.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; git diff origin/main..HEAD | rg -n -i -w -e [redacted:repo] -e [redacted:repo] -e [redacted:repo] -e [redacted:envvar] | cut -c1-160; echo \"== added lines only\"; git diff origin/main..HEAD | rg '^\\+' | rtk rg -c -i -w -e [redacted:repo] -e [redacted:repo] -e [redacted:repo] -e [redacted:envvar] || echo \"0 additions match\"",
+  "workdir": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+823:-The hk hook installer is shared by the whole fleet: [redacted:repo], [redacted:repo] and [redacted:private] install their hooks the same way (config hooks, no script shims), so they have the 
+== added lines only
+0 additions match
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 6.2s)
+
+It is only the deleted line, and no added line names a private repository. Origin has not moved (0 behind, 3 ahead) and gitleaks is clean over the range, so I'm pushing `main` with brew's git.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; /home/linuxbrew/.linuxbrew/bin/git push origin main 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | tail -6; echo \"exit=${pipestatus[1]}\"; /home/linuxbrew/.linuxbrew/bin/git fetch origin 2>&1 | tail -1; echo \"behind/ahead: $(git rev-list --count HEAD..origin/main)/$(git rev-list --count origin/main..HEAD)\"; git rev-parse --short HEAD origin/main",
+  "workdir": "~/.local/share/chezmoi",
+  "timeout": 120000
+}
+```
+
+**Output:**
+```
+To https://github.com/silopolis/dotfiles.git
+   6c0e388..07e276d  main -> main
+exit=0
+behind/ahead: 0/0
+fatal: Needed a single revision
+
+```
+
+**Tool: todowrite**
+
+**Input:**
+```json
+{
+  "todos": [
+    {
+      "content": "1. Public names: enforce-hook proposal line 7 + AGENTS.md rule; commit (005458d)",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "content": "2. Rework add-repo-roadmap (proposal, specs, deltas, brief.md); validate; commit (3027977)",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "content": "3. New add-agent-launch-tasks, delete fix-prompt-delivery, audit rows 22/25; commit (07e276d)",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "content": "3b. Message nvim-orch: its request moved to add-agent-launch-tasks (HELD: its input box holds the user's draft; send when empty)",
+      "status": "pending",
+      "priority": "medium"
+    },
+    {
+      "content": "4. Fetch, check origin, push main",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "content": "5. Stop for user's /compact",
+      "status": "in_progress",
+      "priority": "high"
+    },
+    {
+      "content": "6. Launch roadmap agent by hand in plan mode (worktree scm:worktree:new from main, herdr worktree open, agent -- --agent plan, first prompt with fleet piloting repo paths), log to observations.md",
+      "status": "pending",
+      "priority": "high"
+    }
+  ]
+}
+```
+
+**Output:**
+```
+[
+  {
+    "content": "1. Public names: enforce-hook proposal line 7 + AGENTS.md rule; commit (005458d)",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "content": "2. Rework add-repo-roadmap (proposal, specs, deltas, brief.md); validate; commit (3027977)",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "content": "3. New add-agent-launch-tasks, delete fix-prompt-delivery, audit rows 22/25; commit (07e276d)",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "content": "3b. Message nvim-orch: its request moved to add-agent-launch-tasks (HELD: its input box holds the user's draft; send when empty)",
+    "status": "pending",
+    "priority": "medium"
+  },
+  {
+    "content": "4. Fetch, check origin, push main",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "content": "5. Stop for user's /compact",
+    "status": "in_progress",
+    "priority": "high"
+  },
+  {
+    "content": "6. Launch roadmap agent by hand in plan mode (worktree scm:worktree:new from main, herdr worktree open, agent -- --agent plan, first prompt with fleet piloting repo paths), log to observations.md",
+    "status": "pending",
+    "priority": "high"
+  }
+]
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 10.6s)
+
+Steps 1 to 4 are done and pushed: `origin/main` is at `07e276d`, with nothing ahead or behind. I'm stopping here for your `/compact`; I can't compact myself.
+
+## Commits pushed
+- **`005458d` `docs(chezmoi:docs): name only public sibling repositories`.**
+  - `AGENTS.md` now names only public or soon-public siblings ([redacted:repo], [redacted:private], [redacted:repo], greffe, the Neovim configuration repository); any other is "a fleet repository".
+  - `enforce-hook-with-system-git/proposal.md` no longer names a private repository. The old wording stays in pushed history, as agreed.
+- **`3027977` `docs(chezmoi:spec): mechanize add-repo-roadmap and add its brief`.**
+  - One capability, `openspec-repo-roadmap`, plus modifications to `spec-workflow` and `global-mise-tasks`.
+  - Each change carries roadmap fields (dependencies, phase, priority, size, origin, reason).
+  - Marked sections of `ROADMAP.md` are written by `--write`; `--check` and `--json` write nothing.
+  - What is generated stays stable in a commit: no task counts, no checkout state.
+  - The Python rule for the tasks directory is amended.
+  - The brief is `openspec/changes/add-repo-roadmap/brief.md`. It names no private repository; the exact paths for the fleet piloting repository go in the first prompt.
+- **`07e276d` `docs(chezmoi:spec): add add-agent-launch-tasks, supersede fix-prompt-delivery`.**
+  - **Model:** one worktree per branch, and one workspace per worktree, hosting its agents.
+  - **Launch tasks:** `workspace:open` and `agent:launch`, which reuse, create or refuse.
+  - **Delivery library:** `agent:dispatch` is modified to use it.
+  - **Carried over from `fix-prompt-delivery`:**
+    - every requirement and test scenario;
+    - the duty to tell the Neovim repo when applied;
+    - the follow-up on timeout settings.
+  - **Deleted:** `fix-prompt-delivery` (planning only; git keeps it).
+  - **Audit:** row 22 is superseded and row 25 added.
+  - **Observations:** `observations.md` is ready for the launch log.
+- **Checks before pushing:** `openspec validate --all --strict` passes (25 items), gitleaks is clean over the range, and no added line names a private repository.
+
+## Held back
+- **Message to `nvim-orch` (its request moved to `add-agent-launch-tasks`).** Its input box holds a draft you were typing ("if all those sessions and tabs"), and a prompt now would be pasted into it. I'll send it when the box is empty, or you can relay it.
+- **`chezmoi-wtasks`:** the tab was already closed and its session exported (`6c0e388`).
+
+## After `/compact`: step 6, on your go
+1. **Worktree:** `mise run scm:worktree:new feat/add-repo-roadmap --base main --json`, from `main` at `07e276d` (the brief is already in it).
+2. **Workspace:** `herdr worktree open --path <worktree> --label chezmoi-roadmap --no-focus`. This tests the one-workspace-per-worktree model.
+3. **Agent:** `herdr agent start chezmoi-roadmap --kind opencode --pane <root pane> -- --agent plan`.
+4. **First prompt**, sent by hand following the delivery protocol:
+   - Wait for idle (15 s).
+   - Wait for the TUI to draw (up to 60 s), then pause 1 s.
+   - Send once with `--wait --until working`.
+   - Inspect before any retry.
+   
+   It carries the brief path and the fleet piloting repository paths, and does not end with an `@` path.
+5. **Log:** every step and its timing goes into `observations.md`.
+
+The signals to [redacted:repo] and to the Neovim repo are for the end of the work.
+
+---
+
+## User
+
+is the work in this session fully done? can it be closed? its tab too?
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 83.2s)
+
+_Thinking:_
+
+Let me check the state read-only before answering.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\necho \"== repo\"; git status --short | wc -l; echo \"behind/ahead: $(git rev-list --count HEAD..origin/main)/$(git rev-list --count origin/main..HEAD)\"\necho \"== roadmap launch started?\"; git branch --list 'feat/add-repo-roadmap'; rtk ls -d [redacted:worktrees_root]/chezmoi-add-repo-roadmap 2>&1 | tail -1\necho \"== agents\"; herdr agent list 2>&1 | jq -r '.result.agents[] | \"\\(.pane_id) \\(.name // \"-\") \\(.agent_status)\"' | rg 'chezmoi|nvim-orch'\necho \"== nvim-orch input box\"; herdr agent read nvim-orch --source visible 2>&1 | tail -6 | head -3 | cut -c1-120\necho \"== last orchestrator export covers through\"; rg -m1 -n 'Updated:' memory/sessions/202610301854-harden_sensitive_targets.md\necho \"== transient files\"; rtk ls /tmp/opencode 2>&1 | rg -i 'brief|exp-|session-raw|terms' || echo none\necho \"== [redacted:repo] T-065 branch\"; git -C [redacted:repo] branch --list 'task/T-065*' --format='%(refname:short) %(objectname:short)'; git -C [redacted:repo] branch --merged dev --list 'task/T-065*' | wc -l",
+  "workdir": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+== repo
+2
+behind/ahead: 0/2
+== roadmap launch started?
+ls: cannot access '[redacted:worktrees_root]/chezmoi-add-repo-roadmap': No such file or directory
+== agents
+== nvim-orch input box
+{"error":{"code":"agent_not_found","message":"agent target nvim-orch not found"},"id":"cli:agent:read"}
+== last orchestrator export covers through
+4:**Updated:** 11/3/2026, 7:09:27 PM
+== transient files
+briefs/
+== [redacted:repo] T-065 branch
+task/T-065-signal_rtk_hook_output 83e4cae
+0
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 4.2s)
+
+_Thinking:_
+
+Things moved since my last turn. Checking what changed.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; rtk git status --short; rtk git log --format='%h %ad %s' --date=format:'%m-%d %H:%M' origin/main..HEAD | cat; echo \"== agents raw\"; herdr agent list 2>&1 | jq -r '.result.agents[]? | \"\\(.pane_id) \\(.name // \"-\") \\(.agent_status) \\(.cwd)\"' 2>&1 | head -20; echo \"== my pane\"; herdr pane current --current 2>&1 | jq -c '.result.pane | {pane_id, workspace_id}' 2>/dev/null; rtk ls /tmp/opencode/briefs",
+  "workdir": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+?? openspec/changes/enforce-hook-with-system-git/design.md
+?? openspec/changes/enforce-hook-with-system-git/tasks.mdac34c14 11-06 17:12 docs(chezmoi:spec): add the manage-xdg-basics design and ...
+f615fd3 11-06 15:12 docs(chezmoi:spec): create and add add-mise-app-desktop-e...
+== agents raw
+w6558a2c3a6c122:pE - idle [redacted:repo]
+w9:pC - idle [redacted:repo]
+w9:pD [redacted:private]-nvimreq idle [redacted:repo]
+wG:p1 - idle [redacted:repo]
+wJ:p2 - idle [redacted:worktrees_root]/T-315a-spike_plannotator_revue_humaine_outillee
+wN:p1 - working ~/.config/herdr
+wN:p7 - working ~/.local/share/chezmoi
+wP:p1 - idle ~/.config/nvim
+wR:p1 - idle [redacted:repo]
+wS:p1 rog-rules idle [redacted:worktrees_root]/rog-rules
+wW:p1 rog-testenv idle [redacted:worktrees_root]/rog-testenv
+== my pane
+{"pane_id":"wN:p1","workspace_id":"wN"}
+guard-herdr.md  8.0K
+rog-loading.md  6.1K
+rog-rules.md  7.6K
+rog-setup.md  5.8K
+s19-addendum.md  1.9K
+s2-addendum.md  5.8K
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 10.3s)
+
+_Thinking:_
+
+Another agent is working in this checkout (`wN:p7`, unnamed). Checking what it does, since it decides who can take over.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "herdr pane read wN:p7 --source visible 2>&1 | rg -v '^\\s*$' | tail -25 | cut -c1-170; echo \"== tabs of wN\"; herdr tab list --workspace wN 2>&1 | jq -r '.result.tabs[]? | \"\\(.tab_id) \\(.label)\"' 2>/dev/null"
+}
+```
+
+**Output:**
+```
+  ┃  $ /usr/bin/git --version; git --version; mise ls --current hk; echo "hooksPath=[$(git config --get core.hooksPath)]"; echo "global=[$(git config -
+  ┃  -global --get-regexp '^hook\.')]"
+  ┃
+  ┃  git version 2.53.0
+  ┃  git version 2.55.0
+  ┃  hk  2.10.0  ~/.local/share/chezmoi/mise.toml  2.10.0
+  ┃  hooksPath=[]
+  ┃  global=[]
+  ┃
+     Task 1.1 is done: git 2.53 and 2.55, hk 2.10.0, no core.hooksPath, no global hook. Next, task 1.2: delete the test clone.
+  ┃
+  ┃  $ rm -rf /tmp/opencode/hooktest && test ! -e /tmp/opencode/hooktest && echo gone
+  ┃
+  ┃  gone
+  ┃
+     Working on task 2.1: add the hooks:install task.
+     ~ Reading file…
+                                                                                                                                                        ▄
+     ▣  Build · Claude Opus 5.5                                                                                                                         █
+  ┃
+  ┃
+  ┃
+  ┃  Build · Claude Opus 5.5 Anthropic
+  ╹▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+   ⬝⬝⬝⬝⬝⬝⬝⬝  esc interrupt                                                                                            68.1K (7%) · $1.81  ctrl+p commands
+== tabs of wN
+wN:t1 orch
+wN:t2 editor
+wN:t3 git
+wN:t6 shell
+wN:t7 obsidian-clipper
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 12.7s)
+
+_Thinking:_
+
+No, this session isn't done, so it shouldn't be closed yet. Its tab is `orch` (`wN:t1`), which also holds the editor, git and shell tabs' parent workspace, so only the `orch` tab would go.
+
+## Still open from this session
+1. **The roadmap agent was never launched.** No branch or worktree exists yet. Everything it needs is committed: the change, `brief.md`, and `observations.md` in `add-agent-launch-tasks`.
+2. **The message to `nvim-orch` was never sent.** herdr has dropped every agent name since: `chezmoi-orch` and `nvim-orch` no longer exist, and the Neovim pane `wP:p1` is unnamed. The brief tells the roadmap agent to report to `chezmoi-orch`, so whoever launches it must either claim that name or change the brief.
+3. **This session's export is out of date.** It stops at 2026-11-03 19:09, so the reasoning from the last two days isn't recorded: the roadmap rework, the launch change, and the decisions on public names, capabilities and the worktree-workspace model. The commits carry the results but not the why.
+4. **Signals still to send at the end:** to [redacted:repo] (launch observations) and to the Neovim repo (roadmap task replacement and launch tasks). Both wait on the roadmap agent's work.
+5. **Fleet item to hand over:** [redacted:repo] `T-065` is still unmerged (`task/T-065-signal_rtk_hook_output` at `83e4cae`, not in `dev`).
+
+## Changed while this session was idle (not mine, but relevant)
+- An unnamed agent in `wN:p7` is applying `enforce-hook-with-system-git` in the main checkout right now (task 2.1, untracked `design.md` and `tasks.md`). That takes care of the hookfix dispatch I had planned.
+- `main` holds 2 unpushed commits from other sessions (`f615fd3` and `ac34c14`, 2026-11-06).
+- My brief `/tmp/opencode/brief-chezmoi-enforce-hook.md` is gone, which no longer matters.
+
+## Two ways to close cleanly
+
+**A. Finish here, then close:**
+1. Launch the roadmap agent (step 6), after renaming this pane to `chezmoi-orch` so its reports arrive.
+2. Send the `nvim-orch` note once that pane has a name again.
+3. Re-export this session, redacted, as one commit, pushed on your word.
+4. Close the `orch` tab.
+
+The catch: launching makes this session the agent's orchestrator, so it can't close until the work ends.
+
+**B. Hand over and close now:**
+1. Write the handoff into the repo, in a file that will be read: open items 1 to 5 above, the launch steps, and the report target as "the orchestrator in the chezmoi workspace" rather than a name. That means a small edit to `brief.md` and a section in `observations.md`.
+2. Re-export this session, then commit the handoff and the export together, with your approval.
+3. Close the `orch` tab. A fresh orchestrator takes the launch from the committed files.
+
+I recommend B. The launch is already fully written down, this session's context is large and costly, and a fresh orchestrator would start from committed files rather than from my memory.
+
+Plan mode is on, so I've changed nothing. Tell me A or B, and turn plan mode off.
+
+---
+
+## User
+
+I have been side tracked from here and lost track for too long + important work has taken place in 'obsidian-clipper' tab/agent session.
+Update status here
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 101.8s)
+
+_Thinking:_
+I need to check the state of the obsidian-clipper session, so I'll start with the git log since my last push (07e276d) on main and the origin state, keeping it read-only.
+
+I'm checking what the obsidian-clipper session has done, starting with the commits since my last push. Fetch is blocked in plan mode, so I'll work from the local refs and look at that tab's pane output next.
+
+
+I'm checking read-only what has changed since my last push (`07e276d`), starting with git, the agents and the `obsidian-clipper` tab.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\necho \"== now: $(date '+%F %H:%M')\"\necho \"== commits since my push 07e276d (local main)\"; git log --format='%h %ad %s' --date=format:'%m-%d %H:%M' 07e276d..HEAD | cat\necho \"== origin/main (last fetched $(stat -c '%y' .git/FETCH_HEAD | cut -c1-16))\"; echo \"behind/ahead: $(git rev-list --count HEAD..origin/main)/$(git rev-list --count origin/main..HEAD)\"\necho \"== working tree\"; git status --short\necho \"== branches and worktrees\"; git branch --format='%(refname:short) %(objectname:short) %(upstream:track)' | cat; git worktree list\necho \"== active changes\"; openspec list 2>/dev/null | tail -30",
+  "workdir": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+== now: 2026-11-08 06:30
+== commits since my push 07e276d (local main)
+ca92b3b 11-08 06:23 docs(chezmoi:memory): export the adopt-chezmoiroot and test-infra session
+3983843 11-07 18:27 docs(chezmoi:docs): add the planned change order to TODO.md
+7d2fe50 11-07 18:27 docs(chezmoi:spec): add the remove-brew-libvirt change
+969127e 11-07 18:22 docs(chezmoi:spec): add the incus flag prompt and fix the render checks
+6e92a04 11-07 18:22 docs(chezmoi:spec): split the vm target and smoke ci out of the test infra
+d06895d 11-07 18:19 docs(chezmoi:spec): add the incus host setup and setup hook changes
+382085b 11-07 18:04 docs(chezmoi:spec): fix the render check of add-private-store-external
+7f64790 11-07 18:04 docs(chezmoi:docs): add a mise packaging backlog with the incus client
+0e692d9 11-07 18:04 docs(chezmoi:spec): add the kali vm uefi and secure boot change stubs
+aee4e45 11-07 12:27 docs(chezmoi:spec): add the add-machine-lifecycle-test-infra proposal and design
+a6fcc94 11-07 10:56 docs(chezmoi:spec): state the source-layout spec purpose
+f7a7ddb 11-07 10:55 docs(chezmoi:spec): archive adopt-chezmoiroot
+340a547 11-07 10:54 fix(chezmoi:layout): point the bootstrap script at the repository root
+356ddd6 11-07 10:40 chore(chezmoi:layout): fix source paths and ignores for home/
+e513cc5 11-06 19:13 refactor(chezmoi:layout): move the source state into home/
+ec368d1 11-06 18:42 docs(chezmoi:spec): archive enforce-hook-with-system-git
+9e44147 11-06 18:34 docs(chezmoi:spec): record the hook fix for the fleet and package ownership
+b3637d3 11-06 18:31 fix(git:hooks): install the secret scan as a shim every git runs
+896c551 11-06 18:31 docs(chezmoi:spec): add the enforce-hook-with-system-git design and tasks
+ac34c14 11-06 17:12 docs(chezmoi:spec): add the manage-xdg-basics design and tasks
+f615fd3 11-06 15:12 docs(chezmoi:spec): create and add add-mise-app-desktop-entries change artifacts
+== origin/main (last fetched 2026-11-08 06:23)
+behind/ahead: 0/0
+== working tree
+== branches and worktrees
+main ca92b3b 
+~/.local/share/chezmoi ca92b3b [main]
+== active changes
+Changes:
+  remove-brew-libvirt                      No tasks      12h ago
+  fix-chezmoi-config-template              0/27 tasks    12h ago
+  support-kali-vm-uefi                     No tasks      12h ago
+  add-machine-smoke-ci                     No tasks      12h ago
+  add-kali-vm-target                       No tasks      12h ago
+  add-machine-lifecycle-test-infra         No tasks      12h ago
+  add-incus-setup-hook                     No tasks      12h ago
+  add-incus-host-setup                     No tasks      12h ago
+  add-private-store-external               2/19 tasks    12h ago
+  support-kali-vm-secure-boot              No tasks      13h ago
+  fresh-machine-bootstrap                  1/14 tasks    19h ago
+  rationalize-package-ownership            0/11 tasks    1d ago
+  manage-xdg-basics                        0/48 tasks    1d ago
+  add-mise-app-desktop-entries             0/28 tasks    1d ago
+  add-agent-launch-tasks                   No tasks      3d ago
+  add-repo-roadmap                         No tasks      3d ago
+  port-[redacted:private]-shell-aliases                0/8 tasks     5d ago
+  manage-ai-tool-configs                   No tasks      7d ago
+  manage-gh-config                         No tasks      7d ago
+  refresh-repo-docs                        No tasks      8d ago
+  add-repo-quality-gates                   No tasks      8d ago
+  cleanup-dead-config                      No tasks      8d ago
+  ignore-app-state                         No tasks      8d ago
+  manage-dev-tui-configs                   No tasks      8d ago
+  manage-kde-desktop-config                No tasks      8d ago
+  install-terminal-fonts                   0/6 tasks     8d ago
+  fast-correct-shell-startup               0/16 tasks    8d ago
+  reconcile-drift-and-supervised-apply     0/18 tasks    8d ago
+  make-install-scripts-idempotent          0/23 tasks    8d ago
+
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "echo \"== workspace wN tabs and panes\"; herdr tab list --workspace wN 2>&1 | jq -r '.result.tabs[]? | \"\\(.tab_id) \\(.label)\"'; herdr pane list --workspace wN 2>&1 | jq -r '.result.panes[]? | \"\\(.pane_id) tab=\\(.tab_id) agent=\\(.agent // .agent_kind // \"-\") status=\\(.agent_status // \"-\") cwd=\\(.cwd)\"' 2>/dev/null | head -20\necho \"== agents\"; herdr agent list 2>&1 | jq -r '.result.agents[]? | \"\\(.pane_id) \\(.name // \"-\") \\(.agent_status) \\(.cwd)\"'"
+}
+```
+
+**Output:**
+```
+== workspace wN tabs and panes
+wN:t1 orch
+wN:t2 editor
+wN:t3 git
+wN:t6 shell
+wN:t7 obsidian-clipper
+wN:p1 tab=wN:t1 agent=opencode status=blocked cwd=~/.config/herdr
+wN:p2 tab=wN:t2 agent=- status=unknown cwd=~/.local/share/chezmoi
+wN:p3 tab=wN:t3 agent=- status=unknown cwd=~/.local/share/chezmoi
+wN:p6 tab=wN:t6 agent=- status=unknown cwd=~/.local/share/chezmoi
+wN:p7 tab=wN:t7 agent=opencode status=idle cwd=~/.local/share/chezmoi
+== agents
+w6558a2c3a6c122:pE - idle [redacted:repo]
+w9:pC [redacted:private]-orch working [redacted:repo]
+wG:p1 - idle [redacted:repo]
+wJ:p2 - idle [redacted:worktrees_root]/T-315a-spike_plannotator_revue_humaine_outillee
+wN:p1 - blocked ~/.config/herdr
+wN:p7 - idle ~/.local/share/chezmoi
+wP:p1 nvim-orch idle ~/.config/nvim
+wR:p1 rog-orch working [redacted:repo]
+wS:p1 rog-rules idle [redacted:worktrees_root]/rog-rules
+wV:p1 - idle [redacted:worktrees_root]/rog-loading
+wW:p1 rog-testenv idle [redacted:worktrees_root]/rog-testenv
+wX:p1 rog-doctor idle [redacted:worktrees_root]/rog-doctor
+wY:p1 rog-utilities idle [redacted:worktrees_root]/rog-utilities
+w0:p1 rog-memory idle [redacted:worktrees_root]/rog-memory
+w11:p1 [redacted:private]-t065-lead working [redacted:worktrees_root]/[redacted:private]-T-065-hook_output_and_enforcement
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 9.3s)
+
+_Thinking:_
+The obsidian-clipper tab is the agent that handled the enforce-hook, adopt-chezmoiroot, and test-infra work, and its export ca92b3b covers that session. I'm going to read the exported session file and the README entry for it, then check the planned change order in TODO.md, the audit and roadmap state, the archive directory, and the change map.
+
+I'm going to read the README index and the tail of the exported session, and check the git stats for the key commits, the planned change order in TODO.md, and the obsidian-clipper session's final messages. The export is probably large, so I'm weighing whether to hand the summary to an explore agent.
+
+
+_Thinking:_
+The `obsidian-clipper` tab is pane wN:p7, an unnamed opencode agent that has made 21 commits since my push. I'm reading its session index, the archive, and the new change order next.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\necho \"== sessions index\"; rtk ls memory/sessions; rg -n '^\\|' memory/sessions/README.md | cut -c1-260\necho \"== archive\"; rtk ls openspec/changes/archive\necho \"== main specs\"; rtk ls openspec/specs\necho \"== TODO.md planned order (3983843)\"; git show --stat --format='%h %s%n%b' 3983843 | head -20 | cut -c1-200",
+  "workdir": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+== sessions index
+202610301854-harden_sensitive_targets.md  1.1M
+202610311807-harden_sensitive-explore_dispatch_rules.md  146.6K
+202610311807-harden_sensitive-explore_export_machinery.md  164.5K
+202611022007-adopt_global_mise_tasks.md  769.6K
+202611061418-add_mise_app_desktop_entries.md  158.2K
+202611061844-adopt_chezmoiroot_and_test_infra.md  1.1M
+README.md  5.5K
+19:| File | Session | Notes |
+20:| --- | --- | --- |
+21:| `202610301854-harden_sensitive_targets.md` | `ses_e720ce42affen6d11Mjrfbnxpi` | Orchestrator session of the repository. Change `harden-sensitive-targets`: apply, hook probes, verify, archive; then the rtk and system git hook findings, the signal to the pr
+22:| `202610311807-harden_sensitive-explore_dispatch_rules.md` | `ses_e6d11a624ffePObu4C6kjRjMqm` | Sub-agent: how a fleet repository signals the project factory, and where rtk is configured |
+23:| `202610311807-harden_sensitive-explore_export_machinery.md` | `ses_e6d11c8cdffe3dVrtrei30j3UH` | Sub-agent: the existing session export machinery |
+24:| `202611022007-adopt_global_mise_tasks.md` | `ses_e6256e898ffeOM7EdjLhs55t0k` | Session of the agent that received three briefs from the Neovim repository: change `adopt-global-mise-tasks` (review, cleanup fixes, apply, archive), change `fix-prompt-deliver
+25:| `202611061418-add_mise_app_desktop_entries.md` | `ses_e4efce262ffeS3bDu0gR1sU9xA` | Change `add-mise-app-desktop-entries` (Obsidian from mise: KDE menu entry, icon, `obsidian://` handler for Firefox): all four artifacts; the `modify_` decision for `mimeap
+26:| `202611061844-adopt_chezmoiroot_and_test_infra.md` | `ses_e4e09db8cffemmn27kyPyjtsNs` | Change `adopt-chezmoiroot` (move of the source state into `home/`, path and ignore fixes, `install.sh`, verify, archive); then the design of `add-machine-lifecycle-tes
+== archive
+2026-10-30-bootstrap-spec-workflow/
+2026-10-31-harden-sensitive-targets/
+2026-11-02-adopt-global-mise-tasks/
+2026-11-06-enforce-hook-with-system-git/
+2026-11-07-adopt-chezmoiroot/
+== main specs
+global-mise-tasks/
+secret-hygiene/
+source-layout/
+spec-workflow/
+== TODO.md planned order (3983843)
+3983843 docs(chezmoi:docs): add the planned change order to TODO.md
+
+
+ TODO.md | 50 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 50 insertions(+)
+
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "herdr pane read wN:p7 --source visible 2>&1 | rg -v '^\\s*$' | tail -45 | cut -c1-180"
+}
+```
+
+**Output:**
+```
+     them only generally, as the client-looking directory and VM names from the checklist and the hosting provider in the wipe checklist, so the user
+     can add them to the private store without them appearing in the transcript.
+     I'm planning the handoff notes now: the tree is clean and in sync with origin, with the 21 pushed commits covering the export. I'll point the
+     next session at the first checklist item in TODO.md and flag the tasks that still need the user, along with the deferred and unfinished items.
+     I'm settling how to flag the store's dotfiles terms directory, which sets fleet-names: keep against the README's rule for this repo. I worked
+     around it with a scratch copy, so the user should decide whether to change the store or keep the exception.
+     Everything is pushed: origin/main and local main are both at ca92b3b, the push carried 21 commits, and the working tree is clean.
+     Session export
+     - File: memory/sessions/202611061844-adopt_chezmoiroot_and_test_infra.md, 21,592 lines, session ses_e4e09db8cffemmn27kyPyjtsNs, no sub-agents.
+     - Export: the raw transcript went to a mode 0700 scratch directory, through a file as the README requires. The redacted copy is the only thing in
+       the repository; the raw file and the scratch copy of the terms are deleted.
+     - Redaction: the public profile, with the checks the README asks for.
+       - The tool's --check reports zero in every category.
+       - The output is idempotent.
+       - gitleaks finds nothing in the file, nor in any of the 21 pushed commits.
+       - I read the start, middle and end of the file, and the places where text from sibling repositories came through.
+     - Fleet names: the store's dotfiles terms directory has fleet-names: keep. That contradicts the README's rule for this repository (sibling
+       repository names masked). I used a scratch copy without that switch, so sibling names are masked. You may want to fix the store so the next
+       export doesn't need the copy.
+     - Extra terms: the tool doesn't know three details from the [redacted:private] checklist output, which I masked in the scratch copy: a client-looking directory
+       name, a VM name, and a hosting provider's name. They are not in your private store, so a re-export would leak them again unless you add them to
+       the global redact-terms.txt. I haven't written them here, since this reply would end up in the next export. They are in the checklist lines
+       that mention the vagrant box path and the wipe steps.
+     - README: I added the table row and fixed a stale sentence that still said these files are excluded through .chezmoiignore. They now sit outside
+       home/.
+     - First attempt: my first redaction run failed on an inline (?i) flag in one of my extra terms. The tool failed closed (exit 1), but my shell
+       redirect left an empty file, which briefly made the scans look clean. I caught it, redid the run and re-ran every check on a non-empty file.
+       The tool compiles terms case-insensitively already, so inline flags aren't needed.
+     Next session
+     Per TODO.md, the first change to apply is fix-chezmoi-config-template: all its artifacts and 27 tasks are ready. It needs you for the two chezmoi
+     init runs (tasks 3.2 and 4.2; answer no to the Incus question) and for your go on the Neovim pull (4.6).
+     Not done, on purpose:
+     - No tasks artifacts yet for add-incus-host-setup, add-incus-setup-hook, add-kali-vm-target, add-machine-smoke-ci or remove-brew-libvirt; they
+       come when their turn arrives.
+     - The lxc-ci issue, the fork decision and the roadmap entries are not drafted.
+     - Nothing was installed or uninstalled.
+     ▣  Build · Claude Sonnet 5.5 · 6m 16s                                                                                                              ▄
+  ┃
+  ┃
+  ┃
+  ┃  Build · Claude Sonnet 5.5 Anthropic · xhigh
+  ╹▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀�
+   ~/.local/share/chezmoi                                                                                500.9K (50%) · $43.64  ctrl+p commands
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 10.9s)
+
+_Thinking:_
+I'm pulling up TODO.md to see the planned change order, and checking whether my add-repo-roadmap and add-agent-launch-tasks entries are in it. I also need to see whether the brief's paths still point to the old locations now that files have moved under home/.
+
+I'm also checking the audit change map rows past 25 and the AGENTS.md changes, since the brief's paths may have gone stale after the move under home/. My own pane shows as blocked, probably waiting on the user, with a herdr config directory as its working path. Separately, the [redacted:private]-t065-lead agent is already working on T-065 in a [redacted:repo] worktree, so that one is covered.
+
+
+_Thinking:_
+That agent's reply covers its own work; I'm now checking it against this session's commits: the new TODO.md order, the audit change map, and whether my two changes still hold after the move to home/.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\necho \"== TODO.md\"; rtk wc -l TODO.md; rg -n '^#|^\\s*[0-9]+\\.|^- ' TODO.md | cut -c1-230 | head -70",
+  "workdir": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+== TODO.md
+74
+1:# TODO
+12:## Mise packaging backlog
+24:## Planned order of changes
+36:1. [ ] `fix-chezmoi-config-template` (audit 3): the config template, encryption, umask, Neovim external, the `features.incus` question.
+37:2. [ ] `make-install-scripts-idempotent` (audit 4): after it, a full apply is allowed after a reviewed dry run.
+38:3. [ ] `remove-brew-libvirt`: brew's libvirt, and a ban on it, on `qemu` and on brew's `incus`; first of the Incus group so that `virsh` and `incus` on `PATH` are the system ones.
+39:4. [ ] `fast-correct-shell-startup` (audit 7).
+40:5. [ ] `manage-xdg-basics` (audit 12): its install script runs only after line 2.
+41:6. [ ] `add-mise-app-desktop-entries`: after line 5 is archived, so that `mimeapps.list` has one owner.
+42:7. [ ] `cleanup-dead-config` (audit 16): proposal and specs only, needs design and tasks.
+43:8. [ ] `manage-gh-config` (audit 19): proposal and specs only; its install script step comes after line 2.
+44:9. [ ] `add-private-store-external` (audit 23): after line 1.
+45:10. [ ] `add-repo-roadmap` (audit 24): proposal and specs; replaces this list once applied.
+46:11. [ ] `add-incus-host-setup`: the deployed task `sys:virt:incus:setup`, installed on the laptop with its acceptance checks.
+47:12. [ ] `add-machine-lifecycle-test-infra`: the harness core for system containers; starts with a throwaway run on a hosted runner.
+48:13. [ ] `add-incus-setup-hook`: the opt-in flag and the chezmoi hook; needs lines 1, 2 and 11.
+49:14. [ ] `fresh-machine-bootstrap` (audit 6): the first stage that applies, run in the harness of line 12.
+50:15. [ ] `test-second-apply-noop` *planned*: a second apply in a guest changes nothing.
+51:16. [ ] `reconcile-drift-and-supervised-apply` (audit 5): the first full apply on the laptop, after line 15.
+52:17. [ ] `add-kali-vm-target`: the `vm` kind and the Kali VM; needs lines 11 and 12.
+53:18. [ ] `add-machine-smoke-ci`: the committed workflow and its Zabbly channel matrix; the VM job needs line 17.
+54:19. [ ] `support-kali-vm-uefi`: a Kali VM image of our own, and the pipeline decision (distrobuilder with a fork of `lxc/lxc-ci`, or Packer); an upstream request.
+55:20. [ ] `support-kali-vm-secure-boot`: after line 19.
+56:21. [ ] `test-update-to-head` *planned*.
+57:22. [ ] `test-rollback-to-previous` *planned*.
+58:23. [ ] `test-purge` *planned*.
+59:24. [ ] `support-omarchy` *planned*: an Arch VM with the Omarchy installer; needs line 17.
+60:25. [ ] The rest, in the audit's order:
+
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\necho \"== change map rows 21+\"; rg -n '^\\| (2[1-9]|3[0-9]) \\|' docs/audits/2026-10-30-environment.md | cut -c1-230\necho \"== my changes vs new layout: stale flat paths\"; rg -n -o '`dot_config/[^`]*`' openspec/changes/add-repo-roadmap openspec/changes/add-agent-launch-tasks | cut -c1-140\necho \"== mentions of my two changes elsewhere\"; rg -n -l 'add-repo-roadmap|add-agent-launch-tasks|openspec:roadmap' --glob '!memory/**' . | cat\necho \"== AGENTS.md diff since my push\"; rtk git diff --stat 07e276d..HEAD -- AGENTS.md .chezmoiroot install.sh | cat; rg -n 'roadmap|TODO' AGENTS.md | cut -c1-200",
+  "workdir": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+== change map rows 21+
+233:| 21 | `adopt-global-mise-tasks` | 2.7 (mise) | | done, archived 2026-11-02; added the same day on request of the Neovim repository |
+234:| 22 | `fix-prompt-delivery` | 2.7 (mise) | | superseded 2026-11-04 by `add-agent-launch-tasks` (row 25); it was added 2026-11-03 on request of the Neovim repository and never applied; its follow-up (default setting and overri
+235:| 23 | `add-private-store-external` | F05, 2.8 | | full; added 2026-11-03 on request of the Neovim repository; after orders 2 and 3; the Neovim session S16 merged without it |
+236:| 24 | `add-repo-roadmap` | F34, process | | proposal, specs, brief; added 2026-11-03 on request, reworked 2026-11-04 (generated `ROADMAP.md`, global task `openspec:roadmap`); once applied, `ROADMAP.md` replaces this table and
+237:| 25 | `add-agent-launch-tasks` | 2.7 (mise), process | | proposal, specs; added 2026-11-04 on request; replaces `fix-prompt-delivery`; after 24 (the language rule for the global tasks) |
+== my changes vs new layout: stale flat paths
+openspec/changes/add-repo-roadmap/brief.md:20:`dot_config/mise/tasks/`
+openspec/changes/add-repo-roadmap/proposal.md:34:`dot_config/mise/tasks/`
+openspec/changes/add-repo-roadmap/proposal.md:54:`dot_config/mise/tasks/openspec/executable_roadmap`
+openspec/changes/add-agent-launch-tasks/proposal.md:60:`dot_config/mise/lib/`
+openspec/changes/add-agent-launch-tasks/proposal.md:60:`dot_config/mise/tasks/`
+openspec/changes/add-repo-roadmap/specs/global-mise-tasks/spec.md:28:`dot_config/mise/lib/scm.sh`
+openspec/changes/add-repo-roadmap/specs/global-mise-tasks/spec.md:28:`dot_config/mise/tasks/`
+openspec/changes/add-repo-roadmap/specs/global-mise-tasks/spec.md:33:`dot_config/mise/lib/`
+openspec/changes/add-repo-roadmap/specs/global-mise-tasks/spec.md:33:`dot_config/mise/tasks/`
+== mentions of my two changes elsewhere
+./TODO.md
+./docs/audits/2026-10-30-environment.md
+./openspec/changes/add-machine-lifecycle-test-infra/proposal.md
+./openspec/changes/add-agent-launch-tasks/observations.md
+./openspec/changes/add-agent-launch-tasks/proposal.md
+./openspec/changes/add-repo-roadmap/brief.md
+./openspec/changes/add-repo-roadmap/specs/spec-workflow/spec.md
+./openspec/changes/add-repo-roadmap/specs/global-mise-tasks/spec.md
+./openspec/changes/add-repo-roadmap/specs/openspec-repo-roadmap/spec.md
+./openspec/changes/add-repo-roadmap/proposal.md
+./openspec/changes/add-incus-host-setup/proposal.md
+== AGENTS.md diff since my push
+ .chezmoiroot |  1 +
+ AGENTS.md    | 26 ++++++++++++++++----------
+ 2 files changed, 17 insertions(+), 10 deletions(-)
+38:| `README.md`, `TODO.md`, `scripts/`, `mise.toml`, `hk.pkl`, `.gitleaks.toml` | Repository tooling, outside the source state |
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 699.9s)
+
+_Thinking:_
+I'm checking the TODO.md header and the "the rest" section to see whether add-agent-launch-tasks belongs in the planned order, since it isn't listed among the first 25 rows. I also want to confirm where the main spec's global-mise-tasks paths moved after the adopt-chezmoiroot change.
+
+I'm checking whether the main spec's global-mise-tasks paths now point to `home/dot_config/...`, since my MODIFIED deltas in add-repo-roadmap still use the old flat paths and would overwrite them on archive. I also want to see how add-machine-lifecycle-test-infra and add-incus-host-setup mention my changes, and I'll send the held message to nvim-orch once I confirm its input box is free.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\nsed -n '1,35p;60,74p' TODO.md | cut -c1-250\necho \"== main spec paths now\"; rg -n 'dot_config/mise' openspec/specs/global-mise-tasks/spec.md | cut -c1-160 | head -5\necho \"== mentions in other changes\"; rg -n 'add-repo-roadmap|add-agent-launch-tasks|openspec:roadmap' openspec/changes/add-machine-lifecycle-test-infra/proposal.md openspec/changes/add-incus-host-setup/proposal.md | cut -c1-300",
+  "workdir": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+# TODO
+
+* Add chezmoi.toml
+* Use $EDITOR for commit message writing
+* Add .gitconfig
+* Add .config/user-dirs.{dirs,locale}
+* Add .config/.nvim/
+* Add .config/gtk-3.0
+* Add .config/qt{5,6}ct
+* Use pre-commit
+
+## Mise packaging backlog
+
+Tools that the install priority puts in mise and that are installed another way today.
+Candidates for `rationalize-package-ownership`, which owns package ownership.
+
+* Incus command-line tools.
+  The mise registry has no `incus` entry (checked on 2026-11-07), and brew's `incus` is the client only.
+  Upstream releases of `lxc/incus` ship Linux binaries named `bin.linux.incus.x86_64`, `bin.linux.incus-migrate.x86_64` and `bin.linux.incus-simplestreams.x86_64`, so mise's GitHub backend (`github:lxc/incus`) is the candidate; try it with an asset p
+  A client from mise would come first on `PATH` and shadow `/usr/bin/incus`, which `sys:virt:incus:setup` reports on purpose: keep it on the daemon's release line (7.0 while Kali packages 7.0.1), or leave the client to apt.
+  Check whether apt's `incus-extra` already holds `incus-migrate` and `incus-simplestreams` before adding them.
+  The daemon stays with apt: it is a system service that needs root.
+
+## Planned order of changes
+
+The order in which the open OpenSpec changes are applied and archived, written on 2026-11-07; tick a line when its change is archived.
+It starts from the audit's change map (`docs/audits/2026-10-30-environment.md`, section 6) and differs from it on purpose in three places:
+
+* the changes the user wants applied soon (lines 4 to 10) come right after the first three;
+* the Incus changes (lines 11 to 13) and the guest-based stages come before the supervised apply, so that the first full apply is proven in a disposable guest before it runs on the laptop;
+* `reconcile-drift-and-supervised-apply` moves behind `test-second-apply-noop` for that reason.
+
+Lines marked *planned* have no change yet; create each with `/opsx-propose` when it is next.
+Once `add-repo-roadmap` is applied, its generated `ROADMAP.md` replaces this list.
+
+25. [ ] The rest, in the audit's order:
+    * [ ] `port-[redacted:private]-shell-aliases` (audit 8)
+    * [ ] `rationalize-package-ownership` (audit 9): also owns the mise packaging backlog above
+    * [ ] `install-terminal-fonts` (audit 10)
+    * [ ] `manage-kde-desktop-config` (audit 11)
+    * [ ] `manage-ai-tool-configs` (audit 13)
+    * [ ] `manage-dev-tui-configs` (audit 14)
+    * [ ] `ignore-app-state` (audit 15)
+    * [ ] `add-repo-quality-gates` (audit 17)
+    * [ ] `refresh-repo-docs` (audit 18)
+    * [ ] `add-agent-launch-tasks` (audit 25): after line 10, for the language rule of the global tasks.
+
+Later, with no change yet: development containers and DevPod as targets, OCI images as machines, real machines reached over SSH (with [redacted:private]), more distros (Debian stable, Ubuntu, Arch), RPM-based distros, Zabbly packages for Debian testing (revisit at 
+
+<!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->
+== main spec paths now
+36:- **WHEN** `shellcheck -x` runs on `dot_config/mise/lib/scm.sh` and every file under `dot_config/mise/tasks/`
+41:- **WHEN** `rg -n -e "$HOME" -e "$USER" dot_config/mise/lib dot_config/mise/tasks` runs
+== mentions in other changes
+openspec/changes/add-incus-host-setup/proposal.md:32:- `global-mise-tasks` gains a requirement; `add-repo-roadmap` and `add-agent-launch-tasks` modify other requirements of the same spec, so archive order matters.
+openspec/changes/add-machine-lifecycle-test-infra/proposal.md:31:Each stage and each distro is its own change; their order and status live in the checklist of `TODO.md` and later in `add-repo-roadmap`.
+
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "echo \"== nvim-orch input box\"; herdr agent read nvim-orch --source visible 2>&1 | rg -v '^\\s*$' | tail -6 | cut -c1-160\necho \"== [redacted:repo] T-065\"; rtk git -C [redacted:repo] log --oneline -3 task/T-065-signal_rtk_hook_output 2>/dev/null | cat; rtk git -C [redacted:worktrees_root]/[redacted:private]-T-065-hook_output_and_enforcement log --oneline -4 2>/dev/null | cat; git -C [redacted:worktrees_root]/[redacted:private]-T-065-hook_output_and_enforcement status --short 2>/dev/null | wc -l"
+}
+```
+
+**Output:**
+```
+== nvim-orch input box
+  ┃
+  ┃
+  ┃
+  ┃  Plan · Claude Opus 5.5 Anthropic · xhigh
+  ╹▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀�
+   ~/.config/nvim                                                                                       237.1K (24%) · $131.46  ctrl+p commands
+== [redacted:repo] T-065
+11d9f90 chore(project): record the T-069 signals, [redacted:repo]:T-096 and [redacted:repo]:T-320 (T-069)
+36d1989 chore(project): register T-069 to T-071, promote B-027 (T-069, T-070, T-071)
+15d356c chore(project): adopt .state/ as the ignored home of orchestration state (T-068)
+d45f200 docs(memory): rename the coordination export to the ORCH slug (T-065)
+0
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 23.3s)
+
+_Thinking:_
+I'm checking the main spec's flat paths against the source-layout rules, since the spec may expect a home/ prefix on pre-adopt-chezmoiroot entries.
+
+I'm noticing the spec commands use the flat `dot_config/` paths, which would fail if run literally, though the repo's convention says those paths take a `home/` prefix. That's a known gap for the roadmap change to fix. I'm also checking whether the [redacted:repo] T-065 branch log printed anything, but that's handled by [redacted:repo]'s own agent, and the nvim-orch input is empty so the held message can go once out of plan mode.
+
+Thinking about the roadmap brief: the seed should come from TODO.md's planned order rather than the audit's change map, since TODO.md now supersedes it, and add-repo-roadmap sits at line 10 with no explicit prerequisite, so it could start in parallel in its own worktree.
+
+Now I'm sorting out which sessions belong to the obsidian-clipper tab: its export from 18:44 covers adopt-chezmoiroot and test infra, and the 14:18 one covers add-mise-app-desktop-entries under a different session id. I'll also note that the private store's terms dir still says `fleet-names: keep`, which contradicts the README rule, so that needs a user decision. Next I'm checking who ran enforce-hook.
+
+I'm reading the README rows for enforce-hook-with-system-git and checking which session did that work, since the 18:42 archive and the 14:18 session may not line up. I also want to confirm which fix was chosen (the shim commit) and whether AGENTS.md now changes how hooks get installed.
+
+I'm going to check AGENTS.md quickly to see whether the hook-install rules changed alongside the enforce-hook fix.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\necho \"== README rows 25-26 (full)\"; sed -n '25,26p' memory/sessions/README.md\necho \"== AGENTS.md changes\"; git diff 07e276d..HEAD -- AGENTS.md | rg '^[-+][^-+]' | cut -c1-260\necho \"== enforce-hook outcome\"; git show -s --format='%b' b3637d3 9e44147 | rg -v '^$' | cut -c1-240 | head -14",
+  "workdir": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+== README rows 25-26 (full)
+| `202611061418-add_mise_app_desktop_entries.md` | `ses_e4efce262ffeS3bDu0gR1sU9xA` | Change `add-mise-app-desktop-entries` (Obsidian from mise: KDE menu entry, icon, `obsidian://` handler for Firefox): all four artifacts; the `modify_` decision for `mimeapps.list` recorded in `manage-xdg-basics`; the Kali menu layout set aside for a later change; this export. No sub-agents |
+| `202611061844-adopt_chezmoiroot_and_test_infra.md` | `ses_e4e09db8cffemmn27kyPyjtsNs` | Change `adopt-chezmoiroot` (move of the source state into `home/`, path and ignore fixes, `install.sh`, verify, archive); then the design of `add-machine-lifecycle-test-infra` (Incus against Vagrant, containers and VMs, OCI images, the Kali cloud image inspected) and its split into `add-incus-host-setup`, `add-incus-setup-hook`, `add-kali-vm-target` and `add-machine-smoke-ci`; `remove-brew-libvirt`, the Kali VM UEFI and Secure Boot stubs, the flag prompt in `fix-chezmoi-config-template`, the packaging backlog and the planned order of changes in `TODO.md`; this export. Redacted with the public profile and sibling repository names masked, plus three extra terms added for this export (a client-looking directory name, a VM name and a hosting provider). No sub-agents |
+== AGENTS.md changes
+-Paths below are the flat layout; after the change `adopt-chezmoiroot`, everything chezmoi reads moves under `home/`.
++`.chezmoiroot` points chezmoi at `home/`: everything chezmoi reads lives there, everything else at the root is repository tooling and needs no ignore entry.
++`chezmoi source-path` prints `<repository>/home`; templates reach source files through `{{ .chezmoi.sourceDir }}`.
++The audit and changes written before `adopt-chezmoiroot` use flat paths: prefix them with `home/`.
+-| `.chezmoi.toml.tmpl` | Config template: prompts, data, encryption |
+-| `.chezmoidata/` | Template data: `packages.yaml`, `vscodium.yaml` |
+-| `.chezmoiexternals/` | Downloaded files and repositories (themes, GitAlias, Vundle, bin) |
+-| `.chezmoiscripts/` | `run_onchange_` install scripts |
+-| `.chezmoitemplates/` | Shared template snippets |
+-| `.chezmoiignore`, `.chezmoiremove` | Target ignore and removal lists (patterns match targets, not source paths) |
+-| `dot_config/`, `dot_local/`, root `symlink_dot_*` | Managed files; `~/.zshrc`, `~/.bashrc`, `~/.profile`, `~/.gitconfig` are symlinks into `~/.config` |
+-| `dot_config/shell/` | Shared bash and zsh startup: `profile`, `shellrc`, `rc.d/NNN-*.sh`, `aliases` |
++| `.chezmoiroot` | Single line `home`: where the source state starts |
++| `home/.chezmoi.toml.tmpl` | Config template: prompts, data, encryption |
++| `home/.chezmoidata/` | Template data: `packages.yaml`, `vscodium.yaml` |
++| `home/.chezmoiexternals/` | Downloaded files and repositories (themes, GitAlias, Vundle, bin) |
++| `home/.chezmoiscripts/` | `run_onchange_` install scripts |
++| `home/.chezmoitemplates/` | Shared template snippets |
++| `home/.chezmoiignore`, `home/.chezmoiremove` | Target ignore and removal lists (patterns match targets, not source paths) |
++| `home/dot_config/`, `home/dot_local/`, `home/symlink_dot_*` | Managed files; `~/.zshrc`, `~/.bashrc`, `~/.profile`, `~/.gitconfig` are symlinks into `~/.config` |
++| `home/dot_config/shell/` | Shared bash and zsh startup: `profile`, `shellrc`, `rc.d/NNN-*.sh`, `aliases` |
++| `home/key.txt.age` | Passphrase-protected age identity, decrypted by a before script |
++| `README.md`, `TODO.md`, `scripts/`, `mise.toml`, `hk.pkl`, `.gitleaks.toml` | Repository tooling, outside the source state |
+== enforce-hook outcome
+
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "echo \"== which panes/sessions are the exported ones still open?\"; for p in wN:p7; do herdr agent get $p 2>&1 | jq -c '.result.agent | {pane_id, agent_status, session: (.session_id // .agent_session_id // null)}' 2>/dev/null; done\necho \"== [redacted:repo] T-065 state\"; rtk git -C [redacted:repo] branch -a --list '*T-065*' --format='%(refname:short) %(objectname:short)' | cat; git -C [redacted:worktrees_root]/[redacted:private]-T-065-hook_output_and_enforcement rev-parse --abbrev-ref HEAD 2>&1; rtk git -C [redacted:worktrees_root]/[redacted:private]-T-065-hook_output_and_enforcement log --oneline -3 | cat"
+}
+```
+
+**Output:**
+```
+== which panes/sessions are the exported ones still open?
+{"pane_id":"wN:p7","agent_status":"idle","session":null}
+== [redacted:repo] T-065 state
+task/T-065-hook_output_and_enforcement 11d9f90
+merged/task/T-065-signal_rtk_hook_output d78b6c2
+origin/merged/task/T-065-signal_rtk_hook_output d78b6c2
+
+task/T-065-hook_output_and_enforcement
+11d9f90 chore(project): record the T-069 signals, [redacted:repo]:T-096 and [redacted:repo]:T-320 (T-069)
+36d1989 chore(project): register T-069 to T-071, promote B-027 (T-069, T-070, T-071)
+15d356c chore(project): adopt .state/ as the ignored home of orchestration state (T-068)
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 12.1s)
+
+_Thinking:_
+The [redacted:repo] T-065 signal branch has been merged and renamed, and [redacted:repo] is now working on T-065 itself in its own worktree, so that item is closed on my side. Next I'm checking the archive for the enforce-hook decision, since the commit b3637d3 points to option C: installing the secret scan as a shim that every git command runs.
+
+I'm checking the remaining proposals against the chezmoi changes: the `.chezmoiignore` temporary block is gone, so the ROADMAP.md and tests/ entries are obsolete, while the grep scenario still holds. I also need to check that the archive-order conflict on global-mise-tasks is handled.
+
+The obsidian-clipper session's export is already current (pushed at ca92b3b), and its last reply was the handoff, so it looks finished and idle; the user can close it. My own session's export is stale, and the pane's working directory pointing at ~/.config/herdr seems off, though that may just reflect how the instance was launched. Next I'm checking the archive for the enforce-hook decision in one quick pass.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; rg -n -m3 -i 'legacy|shim|option' openspec/changes/archive/2026-11-06-enforce-hook-with-system-git/design.md | cut -c1-220; echo \"== hook shim present\"; rtk ls .git/hooks | rtk rg -v sample; echo \"== still a .chezmoiignore temp block?\"; rtk rg -n -i 'temporary' home/.chezmoiignore | head -3 || echo none",
+  "workdir": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+11:| desktop session (plasmashell, `systemd --user`) | brew 2.55 | yes (shims) |
+23:| shim, `hk install --legacy --mise` | refused, file named | refused, file named | refused, `mise: not found` | refused, `mise: not found` |
+24:| shim, `hk install --legacy` | refused, file named | refused, file named | refused, file named | refused, file named |
+== hook shim present
+pre-commit  143B
+== still a .chezmoiignore temp block?
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 9.5s)
+
+_Thinking:_
+I'm composing the status now in plan mode, so nothing gets changed. The report will cover the 21 commits since 11-04, mostly from the obsidian-clipper agent, which actually came from two separate sessions on 11-06.
+
+I'm checking whether the enforce-hook commits belong to a session that's recorded in the sessions index, since the obsidian-clipper tab's export only lists add-mise-app-desktop-entries. A quick search of the README should settle whether that session is missing from the record.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; rg -n -c 'enforce-hook-with-system-git' memory/sessions/*.md | cut -c1-120; rg -n -m2 'enforce-hook-with-system-git' memory/sessions/202611061418-add_mise_app_desktop_entries.md | cut -c1-200",
+  "workdir": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+memory/sessions/202611061418-add_mise_app_desktop_entries.md:1
+memory/sessions/202611022007-adopt_global_mise_tasks.md:16
+memory/sessions/202611061844-adopt_chezmoiroot_and_test_infra.md:6
+memory/sessions/202610301854-harden_sensitive_targets.md:59
+104:  enforce-hook-with-system-git             No tasks      1d ago
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 34.4s)
+
+_Thinking:_
+I couldn't find an export of the session that applied enforce-hook-with-system-git (November 6, roughly 17:15 to 18:42); it may be part of a session that was never exported, so I'm keeping that uncertain. Now I'm working out how to phrase the status briefly, then what it means for my p.
+
+I'm now going through what the roadmap change means for add-repo-roadmap, which hasn't started and sits at line 10 of TODO.md's planned order. Its flat dot_config paths need to become home/dot_config, and the stale .chezmoiignore bullet can go. The bigger issue is that TODO.md's planned order now supersedes the audit change map as the seed source, which conflicts with my proposal that TODO.md stays in place.
+
+I'm checking the rest of the list against the roadmap change: add-agent-launch-tasks has stale `.chezmoiignore` and archived `adopt-chezmoiroot` references along with flat paths, and brief.md's report-to name `chezmoi-orch` no longer exists since my pane lost that name. The nvim-orch message can go out now, while [redacted:repo] T-065 is already merged and handled by its own lead, so it's off my list.
+
+Now I'm checking the cleanup options, starting with obsidian-clipper's tab, which has committed, exported and pushed work and a handoff for the next change. I'd close it only after reading its last reply, since that reply isn't in the export. Then I'll weigh the options for my own tab and lay out a plan that starts with a small commit to refresh my two changes.
+
+I'm laying out the rest of the plan: first a small commit to refresh my two changes for the new layout and TODO.md, then validate it. After that I'd send nvim-orch the held note, re-export this session as a redacted scratch copy, and push once you give the word. Last, I'd close this tab and obsidian-clipper, and ask whether to launch add-repo-roadmap now in parallel, since it touches little of what fix-chezmoi-config-template changes.
+
+I'm deciding between launching add-repo-roadmap now in parallel, since it barely overlaps with fix-chezmoi-config-template, or waiting for its turn in TODO.md. I also still need to settle whether to close the tabs, so I'll lay out both decisions briefly at the end of the status.
+
+
+Everything is pushed and the working tree is clean: `main` and `origin/main` are both at `ca92b3b`, 21 commits after my last push. My two changes and the roadmap launch haven't moved since 2026-11-04, and parts of their files are now out of date.
+
+## What the other sessions did (2026-11-06 to 2026-11-08)
+- **Changes applied and archived:**
+  - `enforce-hook-with-system-git` (archived 11-06): the secret scan is now a git hook script that both gits run.
+  - `adopt-chezmoiroot` (archived 11-07): the source state now lives in `home/`, there's an `install.sh`, and a new `source-layout` spec. Root files no longer need ignore entries.
+- **New changes, proposal and design only so far:**
+  - `add-mise-app-desktop-entries`: Obsidian from mise, its KDE menu entry and the `obsidian://` handler. This is where the tab name "obsidian-clipper" comes from.
+  - `add-machine-lifecycle-test-infra`, split into `add-incus-host-setup`, `add-incus-setup-hook`, `add-kali-vm-target` and `add-machine-smoke-ci`.
+  - `remove-brew-libvirt`, and stubs for Kali VM UEFI and Secure Boot.
+  - An Incus question added to `fix-chezmoi-config-template`, and design and tasks written for `manage-xdg-basics`.
+- **New source of order:** `TODO.md` now has a "Planned order of changes" (written 11-07). It deliberately departs from the audit's change map and says the generated `ROADMAP.md` will replace it.
+  - Line 1, next to apply: `fix-chezmoi-config-template`, which needs you for two `chezmoi init` runs and the Neovim pull.
+  - Line 10: `add-repo-roadmap`.
+  - In the "rest" group: `add-agent-launch-tasks`, after line 10.
+- **Exports:** two sessions were exported (`add_mise_app_desktop_entries` and `adopt_chezmoiroot_and_test_infra`). I found no export of the session that applied `enforce-hook-with-system-git` on 11-06.
+- **The `obsidian-clipper` agent's handoff** (its last reply, which is not in its export):
+  - The `dotfiles` terms directory in your private store has the switch that keeps sibling names readable on. That contradicts this repo's README, and it worked around it with a scratch copy, as I did.
+  - Three terms it masked by hand (a client-looking directory, a VM name, a hosting provider) aren't in your store, so a future re-export would leak them unless you add them.
+
+## Where this session's items stand
+| Item | State |
+| --- | --- |
+| Hookfix dispatch | Not needed: the change is applied and archived |
+| [redacted:repo] `T-065` | Off my list: my signal branch is merged, and [redacted:repo]'s own agent (`[redacted:private]-t065-lead`) is working on it in a worktree |
+| Note to `nvim-orch` | Still unsent. `nvim-orch` is back and its input box is empty, so it can go now |
+| Roadmap agent launch | Not started: no branch or worktree |
+| This session's export | Out of date: it stops on 11-03 at 19:09 |
+| My pane's name | Lost: herdr shows `wN:p1` with no name, so the brief's "report to `chezmoi-orch`" reaches nobody |
+
+## What's out of date in my two changes
+- **Paths:** they use the old flat paths (`dot_config/mise/...`), but the source is now under `home/`. The main `global-mise-tasks` spec still uses flat paths too, and my roadmap change copies those requirements, so its test commands would fail as written.
+- **Ignore file:** both changes still say to add entries to the temporary `.chezmoiignore` block, which no longer exists. `add-agent-launch-tasks` also points at `adopt-chezmoiroot` task 3.2, which is now archived.
+- **Seed and `TODO.md`:** `add-repo-roadmap` says to seed from the audit's change map and leave `TODO.md` alone. It should seed from `TODO.md`'s planned order (including its *planned* lines and the mise packaging backlog) and replace that list, as `TODO.md` itself now says.
+- **Archive order:** `add-incus-host-setup` notes that it, `add-repo-roadmap` and `add-agent-launch-tasks` all change the `global-mise-tasks` spec, so the order they are archived in matters.
+
+## Can the tabs be closed?
+- **`obsidian-clipper` (`wN:p7`):** yes, once you've read its last reply for the two private-store fixes. Its work is committed, exported and pushed.
+- **`orch` (this tab):** not yet. Four steps would let it close:
+  1. One commit refreshing my two changes for the `home/` layout and `TODO.md`: fix the paths, drop the ignore bullets, seed from `TODO.md`, and point reports at "the orchestrator of the chezmoi workspace" or whatever name you choose.
+  2. Send the note to `nvim-orch`.
+  3. Re-export this session, redacted with a scratch terms copy, and commit it. Push only on your word.
+  4. Close the tab. The roadmap agent is then launched from the committed brief by whoever orchestrates next.
+
+Two decisions for you:
+- **Close this tab:** do steps 1 to 4 now, or keep this tab open?
+- **Roadmap timing:** launch `add-repo-roadmap` now in its own worktree, or wait for line 10 of `TODO.md`? It would barely overlap with line 1, since it touches new files, `TODO.md` and the audit.
+
+Plan mode is on; turn it off when you've decided.
+
+---
+
+## User
+
+which private-store fixes ? how to fix them?
+ok for the 4 steps
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 18.6s)
+
+_Thinking:_
+I'm checking which private-store fixes the user wants and how to apply them, since they've approved the four steps. Plan mode is on, so I'll only read and plan. I want to see the layout of the private store and where the `fleet-names` switch lives, listing names and sizes without opening any contents.
+
+I'm going to read the redaction script's header to see how the terms directory is laid out. The extra terms themselves I'll leave alone, since I shouldn't print them. The user can find them locally with a command instead.
+
+
+Read-only: the redaction tool's documentation and the store's layout (file names and the switch only, no terms).
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.config/nvim; sed -n '1,60p' scripts/session_redact.py | cut -c1-200"
+}
+```
+
+**Output:**
+```
+#!/usr/bin/env python3
+"""Redact private data from a session transcript (Markdown).
+
+TRANSITIONAL: [redacted:repo] T-063 covers secrets only (study B-035: private terms,
+paths and configuration layers are not planned there), so this script stays
+until a [redacted:repo] tool covers the same ground (ROADMAP D23, S17).
+
+Usage:
+  session_redact.py [--profile private|public] < in.md > out.md
+  session_redact.py [--profile private|public] --check [FILE...]
+  session_redact.py [--profile private|public] --explain
+
+No private term lives in this script, nor in any repository. Terms live in
+the private store (default ~/.local/share/chezmoi-private, a clone of a
+private repository; SESSION_REDACT_STORE overrides it) and are read in
+layers, later layers winning for single settings and adding to the lists:
+
+  1. built-in defaults (profile private, fleet names redacted, identity and
+     path aliases 'auto');
+  2. global: <store>/session-redact/, the user's own data for every project:
+     list files and an optional config.toml (profile, fleet-names, identity,
+     path-aliases, spell);
+  3. project: .session-redact.toml at the git root (settings only, never a
+     term: profile, terms, fleet-names, identity, path-aliases, check,
+     exclude) and the directory of the store it names with 'terms';
+  4. SESSION_REDACT_TERMS_DIR, a directory of list files read as one more
+     layer ('terms-dir'); the command line of earlier consumers;
+  5. --profile.
+
+With no global directory, no project file and no SESSION_REDACT_TERMS_DIR,
+the project directory is <store>/nvim (the behaviour before the layers). The
+script stops with status 2 when nothing is configured, when a named
+directory is missing or when a configuration file is invalid: it never
+redacts less than configured.
+
+A lists directory may contain (all optional):
+
+  profile            'private' or 'public' (project and terms-dir layers)
+  fleet-names.txt    'keep' or 'redact' (same layers): whether fleet
+                     repository names stay readable in the public profile
+  spell/*.add        private words, one per line ('#' comments, '/flags';
+                     'word/!' marks a misspelled word and is ignored)
+  redact-terms.txt   one term per line; 're:' prefix = regex;
+                     'include <relative path>' loads another file
+  identity.txt       '<category>: <value>' lines about the user (fullname,
+                     firstname, lastname, email, username, ...); each
+                     becomes [redacted:user_<category>]
+  path-aliases.txt   '<~/path> = <name>' lines; the path becomes
+                     [redacted:<name>] (for example a worktrees root)
+  fleet-repos.txt    repository names under ~/Work; 'tries' means
+                     [redacted:repo]>
+  private-repos.txt  more private repository names (public profile)
+  public-repos.txt   public repositories, allowed as 'owner/name'
+  github-owners.txt  GitHub owners; any 'owner/name' not in public-repos
+                     is redacted (default deny)
+
+Lists are the union of the layers, each entry once, owned by the first layer
+that defines it; a layer can add an entry and cannot remove one.
+
+Profiles:
+
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "store=~/.local/share/chezmoi-private; echo \"== store is a git repo?\"; git -C $store rev-parse --abbrev-ref HEAD 2>&1; git -C $store status --short 2>&1 | wc -l; rtk git -C $store log --oneline -3 2>&1 | cat\necho \"== layout (names, sizes, symlinks; no content)\"; find $store -maxdepth 2 -not -path '*/.git*' -printf '%y %M %s %p -> %l\\n' 2>/dev/null | sed \"s|$HOME|~|g\" | head -40"
+}
+```
+
+**Output:**
+```
+== store is a git repo?
+main
+0
+f45e92e chore: remove what moved to session-redact/ from nvim/ and dotfiles/
+7c6fa16 chore: add the global session-redact layer
+c26ffb4 chore: add the LTeX hidden false positives moved from the live nvim checkout
+== layout (names, sizes, symlinks; no content)
+d drwx------ 108 ~/.local/share/chezmoi-private -> 
+d drwx------ 10 ~/.local/share/chezmoi-private/nvim -> 
+d drwx------ 120 ~/.local/share/chezmoi-private/nvim/spell -> 
+d drwx------ 76 ~/.local/share/chezmoi-private/dotfiles -> 
+f -rw------- 7 ~/.local/share/chezmoi-private/dotfiles/profile -> 
+f -rw------- 218 ~/.local/share/chezmoi-private/dotfiles/fleet-names.txt -> 
+f -rw------- 1079 ~/.local/share/chezmoi-private/dotfiles/redact-terms.txt -> 
+d drwx------ 240 ~/.local/share/chezmoi-private/session-redact -> 
+f -rw------- 26 ~/.local/share/chezmoi-private/session-redact/config.toml -> 
+f -rw------- 219 ~/.local/share/chezmoi-private/session-redact/fleet-repos.txt -> 
+f -rw------- 89 ~/.local/share/chezmoi-private/session-redact/github-owners.txt -> 
+f -rw------- 197 ~/.local/share/chezmoi-private/session-redact/identity.txt -> 
+f -rw------- 89 ~/.local/share/chezmoi-private/session-redact/path-aliases.txt -> 
+f -rw------- 410 ~/.local/share/chezmoi-private/session-redact/private-repos.txt -> 
+f -rw------- 1426 ~/.local/share/chezmoi-private/session-redact/public-repos.txt -> 
+f -rw------- 468 ~/.local/share/chezmoi-private/session-redact/redact-terms.txt -> 
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 7.2s)
+
+_Thinking:_
+I'm checking the fleet-names.txt setting in dotfiles/, which just says whether to keep or redact names, and seeing whether a `.session-redact.toml` project file exists at the chezmoi repo root. I'll also pull the non-comment settings from fleet-names.txt and session-redact/config.toml, since those are settings rather than the terms themselves.
+
+I'm also going over the README rule, then checking whether the store's git remote is pushed with a status check.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "store=~/.local/share/chezmoi-private\necho \"== dotfiles/fleet-names.txt setting (non-comment lines)\"; rtk rg -v '^\\s*(#|$)' $store/dotfiles/fleet-names.txt; echo \"== dotfiles/profile\"; rtk read $store/dotfiles/profile; echo \"== global config.toml keys\"; rtk rg -o '^\\s*[a-z_-]+\\s*=' $store/session-redact/config.toml; rtk rg -n 'fleet' $store/session-redact/config.toml\necho \"== store push state\"; rtk git -C $store status -sb | head -1\necho \"== chezmoi project file?\"; ls -la ~/.local/share/chezmoi/.session-redact.toml 2>&1 | sed \"s|$HOME|~|\"; ls -la ~/.config/nvim/.session-redact.toml 2>&1 | sed \"s|$HOME|~|\"\necho \"== README rule on terms dir\"; sed -n '30,48p' ~/.local/share/chezmoi/memory/sessions/README.md | cut -c1-260"
+}
+```
+
+**Output:**
+```
+== dotfiles/fleet-names.txt setting (non-comment lines)
+keep
+== dotfiles/profile
+public
+== global config.toml keys
+spell =
+== store push state
+## main...origin/main
+== chezmoi project file?
+ls: cannot access '~/.local/share/chezmoi/.session-redact.toml': No such file or directory
+-rw-rw-r-- 1 [redacted:user_username] [redacted:user_username] 342 nov.   7 17:40 ~/.config/nvim/.session-redact.toml
+== README rule on terms dir
+The session keeps going after an export, so the file is replaced by a longer one at each re-export.
+
+## Redaction
+
+The public profile of the redaction tool rewrites each raw export before it enters this repository:
+
+1. secrets (API keys, tokens, age secret keys, private key blocks) become `[redacted:secret]`;
+2. private terms, repository names, credential variable names, token scope lines, IP addresses, e-mail addresses and non-public git hosts become `[redacted:private]`, `[redacted:repo]`, `[redacted:ip]` and similar markers;
+3. identity values (name, e-mail address, login name) become `[redacted:user_...]` markers, and the worktrees root becomes `[redacted:worktrees_root]`;
+4. home directories become `~`; `/home/linuxbrew` (Homebrew's prefix) and the placeholder `/home/user` stay.
+
+The private terms come from a private terms directory selected with the environment variable `SESSION_REDACT_TERMS_DIR`, never from this repository.
+For this public repository the directory used is a throwaway copy of the private store's `dotfiles` terms with the switch that keeps sibling repository names readable removed, so every sibling repository name is masked.
+Details the tool does not know are added to that copy as extra terms before the export, after reading the raw export for them.
+The tool and the directory are recorded in the user's private notes; the tool is transitional.
+
+Redaction only knows what it is told.
+Before committing, run the tool's `--check` on the redacted files, run the repository's secret scan on `memory/sessions/`, and search the files for what this export is known to be about; none of these is proof on its own.
+
+
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.config/nvim; sed -n '60,130p' scripts/session_redact.py | cut -c1-200"
+}
+```
+
+**Output:**
+```
+Profiles:
+  private  transcripts kept in a private repository. Fleet references
+           ~/Work/<repo>/<path> become `<repo>:<path>` ([redacted:repo] DR-012).
+  public   transcripts for a public repository. Also redacts private
+           repository names, credential variable names, token-scope
+           lines, IPv4 addresses, e-mail addresses and non-public git
+           hosts, and always applies identity and path aliases. With
+           fleet-names 'keep', fleet repositories stay readable in the
+           DR-012 form (names of private repositories are then published:
+           a decision of the repository owner).
+  The private profile applies identity and path aliases only when the
+  setting 'identity' or 'path-aliases' is 'redact'.
+
+Rules, in this order:
+  1. secrets (API keys, tokens, age secret keys, JWTs, private key blocks)
+     become [redacted:secret];
+  2. /home/<user> becomes ~ (not /home/linuxbrew, Homebrew's prefix, nor
+     the placeholder /home/user);
+  3. identity values become [redacted:user_<category>];
+  4. terms become [redacted:private];
+  5. path aliases;
+  6. fleet paths, then, in the public profile, GitHub slugs, bare
+     repository names and the generic public rules.
+
+--check prints counts per category, never the terms, and exits 1 if
+anything is left; under the categories made of lists it adds a line per
+layer that owns entries (indented by two spaces). Without FILE it checks the
+project's 'check' globs minus 'exclude'. --explain prints the store, the
+project file, each setting with its source and the files read by layer
+(paths and entry counts, never a term). The output is deterministic and
+idempotent.
+"""
+
+from __future__ import annotations
+
+import argparse
+import os
+import re
+import sys
+import tomllib
+from dataclasses import dataclass, field
+from pathlib import Path
+
+PROFILES = ("private", "public")
+FLEET_NAMES = ("keep", "redact")
+OPT_INS = ("auto", "redact")
+MAX_INCLUDE_DEPTH = 3
+
+STORE_ENV = "SESSION_REDACT_STORE"
+TERMS_DIR_ENV = "SESSION_REDACT_TERMS_DIR"
+GLOBAL_DIRNAME = "session-redact"
+LEGACY_DIRNAME = "nvim"
+PROJECT_FILE = ".session-redact.toml"
+GLOBAL_KEYS = {"profile", "fleet-names", "identity", "path-aliases", "spell"}
+PROJECT_KEYS = {"profile", "terms", "fleet-names", "identity", "path-aliases", "check", "exclude"}
+
+# Exit statuses: 0 clean, 1 --check found something, 2 bad configuration, 64 usage.
+EXIT_CONFIG = 2
+EXIT_USAGE = 64
+
+SECRET_RES = [
+    re.compile(r"sk-[A-Za-z0-9_-]{16,}"),
+    re.compile(r"\bgh[pousr]_[A-Za-z0-9]{20,}"),
+    re.compile(r"\bgithub_pat_[A-Za-z0-9_]{20,}"),
+    re.compile(r"\bglpat-[A-Za-z0-9_-]{20,}"),
+    re.compile(r"\bxox[baprs]-[A-Za-z0-9-]{10,}"),
+    re.compile(r"\bnpm_[A-Za-z0-9]{30,}"),
+    re.compile(r"\bhf_[A-Za-z0-9]{30,}"),
+    re.compile(r"\bAIza[0-9A-Za-z_-]{35}"),
+    re.compile(r"\bAKIA[0-9A-Z]{16}\b"),
+    re.compile(r"AGE-SECRET-KEY-[0-9A-Z]{20,}"),
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 24.4s)
+
+_Thinking:_
+I'm looking at the layered setup now: a global store folder, a project `.session-redact.toml` at the git root that points to a terms directory, and an environment variable override. The nvim repo has its own config file, which I want to open and check.
+
+I'm checking how the fleet-names setting interacts with the public and private repo lists, since the rule says only the public or soon-public sibling names should be readable. I need to read the code to see whether `redact` also keeps names listed in `public-repos.txt`.
+
+I'm weighing two ways to fix the fleet-names contradiction: switching the store's `fleet-names.txt` to `redact`, or adding a project `.session-redact.toml` at the chezmoi repo root that sets the profile, terms directory, and fleet-names mode. The project file would remove the need for an environment variable, but I still need to confirm how layer 3 and the terms directory interact.
+
+I'm weighing whether a project `.session-redact.toml` in the public chezmoi repo is acceptable, since it would only name the store directory `dotfiles` and that isn't sensitive. Then I'm turning to the three extra terms from the [redacted:private] checklist, a client-looking directory name, a VM name, and a hosting provider, which would leak in any public export, so I'm considering putting them in the global store as a shared list rather than per project.
+
+I'm weighing whether the three extra terms belong in the global store, since client details would leak in any public export and [redacted:private] will become public too. I still need a way to locate them without printing their values, so I'm looking at the checklist lines around the vagrant box path and wipe steps.
+
+I'm avoiding opening that checklist myself, since anything I print here would land in this export before the redactor knows those terms. The user can find the lines in their own terminal, and I'll make sure the three extra terms go into the store before any export runs.
+
+The store needs to be fixed before I re-export, or my own transcript would leak the client names again. The three extra terms have to go into it first, and I'll avoid opening that checklist myself, since its output would land in this export before the redactor knows those terms. The README's line about the throwaway copy with the switch removed will need updating too, once the store is in the right state.
+
+I'm checking how the fleet-names setting interacts with the public-repos list, since public siblings might stay readable while private ones get masked, so I'm grepping the script for fleet_names handling.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.config/nvim; echo \"== nvim project file (settings only)\"; rtk read .session-redact.toml\necho \"== fleet-names / public-repos handling\"; rg -n 'fleet_names|fleet-names|public_repos|private_repos|keep' scripts/session_redact.py | sed -n '1,60p' | cut -c1-170"
+}
+```
+
+**Output:**
+```
+== nvim project file (settings only)
+# Settings of the session transcript redaction for this repository (scripts/session_redact.py).
+# Settings only: no private term may be written here. The terms live in the private store,
+# in the global directory session-redact/ and in the directory named by `terms` below.
+profile = "private"
+terms = "nvim"
+check = ["memory/sessions/*.md"]
+== fleet-names / public-repos handling
+21:     list files and an optional config.toml (profile, fleet-names, identity,
+24:     term: profile, terms, fleet-names, identity, path-aliases, check,
+39:  fleet-names.txt    'keep' or 'redact' (same layers): whether fleet
+67:           fleet-names 'keep', fleet repositories stay readable in the
+104:FLEET_NAMES = ("keep", "redact")
+113:GLOBAL_KEYS = {"profile", "fleet-names", "identity", "path-aliases", "spell"}
+114:PROJECT_KEYS = {"profile", "terms", "fleet-names", "identity", "path-aliases", "check", "exclude"}
+246:        # The parser's message can quote the content: keep only the position.
+295:    """The legacy scalar files of a lists directory: 'profile' and 'fleet-names.txt'."""
+297:    fleet = names_from(path / "fleet-names.txt")
+300:        "fleet-names": ("keep" if fleet[0] == "keep" else "redact") if fleet else None,
+308:        "fleet-names": ("redact", "default"),
+338:                    "fleet-names": choice(data, "fleet-names", FLEET_NAMES, where),
+362:                "fleet-names": choice(data, "fleet-names", FLEET_NAMES, where),
+419:    keep_fleet: bool = False
+428:    fleet_names: set[str] = field(default_factory=set)
+429:    public_repos: set[str] = field(default_factory=set)
+605:    rules = Rules(profile=config.profile, keep_fleet=config.settings["fleet-names"][0] == "keep")
+614:    rules.fleet_names = {n.lower() for n in fleet if n != "tries"}
+615:    rules.public_repos = {n.lower() for _, n in layer_entries(layers, "public-repos.txt")}
+631:        words = (words - rules.fleet_names) if rules.keep_fleet else (words | rules.fleet_names)
+632:        words -= rules.public_repos
+644:    hide = rules.profile == "public" and not rules.keep_fleet
+670:    if low in rules.public_repos:
+672:    if rules.keep_fleet and low in rules.fleet_names:
+709:        for line in text.splitlines(keepends=True):
+800:    for key in ("profile", "fleet-names", "identity", "path-aliases"):
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 2.7s)
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.config/nvim; sed -n '600,690p' scripts/session_redact.py | cut -c1-170; echo \"== layer order for settings\"; sed -n '325,372p' scripts/session_redact.py | cut -c1-170"
+}
+```
+
+**Output:**
+```
+    )
+
+
+def load_rules(config: Config) -> Rules:
+    layers = config.layers
+    rules = Rules(profile=config.profile, keep_fleet=config.settings["fleet-names"][0] == "keep")
+    rules.terms, rules.terms_by_layer = load_terms(layers)
+    if config.applies("identity"):
+        rules.identity = load_identity(layers)
+    if config.applies("path-aliases"):
+        rules.aliases = load_aliases(layers)
+
+    owned = layer_entries(layers, "fleet-repos.txt")
+    fleet = sorted({name for _, name in owned}, key=lambda n: (-len(n), n))
+    rules.fleet_names = {n.lower() for n in fleet if n != "tries"}
+    rules.public_repos = {n.lower() for _, n in layer_entries(layers, "public-repos.txt")}
+    if fleet:
+        rules.fleet_path, rules.fleet_left = fleet_patterns(fleet)
+        for layer in layers:
+            mine = sorted({n for owner, n in owned if owner == layer.name}, key=lambda n: (-len(n), n))
+            if mine:
+                rules.fleet_left_by_layer[layer.name] = fleet_patterns(mine)[1]
+    if config.profile == "public":
+        owners = sorted({name for _, name in layer_entries(layers, "github-owners.txt")})
+        if owners:
+            alt = "|".join(re.escape(o) for o in owners)
+            rules.slug = re.compile(
+                r"(?<![\w.-])(?:https?://github\.com/|git@[redacted:host]\.com:)?(?:" + alt + r")/(?P<name>[A-Za-z0-9._-]+)",
+                re.I,
+            )
+        words = {n.lower() for _, n in layer_entries(layers, "private-repos.txt")}
+        words = (words - rules.fleet_names) if rules.keep_fleet else (words | rules.fleet_names)
+        words -= rules.public_repos
+        if words:
+            alt = "|".join(re.escape(w) for w in sorted(words, key=lambda n: (-len(n), n)))
+            rules.repo_words = re.compile(r"(?<![\w-])(?:" + alt + r")(?![\w-])", re.I)
+    return rules
+
+
+# -- redaction -----------------------------------------------------------------
+
+
+def rewrite_fleet_line(line: str, in_fence: bool, rules: Rules) -> str:
+    assert rules.fleet_path is not None
+    hide = rules.profile == "public" and not rules.keep_fleet
+
+    def repl(m: re.Match[str]) -> str:
+        repo = m.group("repo")
+        path = (m.group("path") or "").lstrip("/")
+        trailing = ""
+        while path and path[-1] in ".:":
+            trailing = path[-1] + trailing
+            path = path[:-1]
+        if hide:
+            return ("[redacted:repo]" + (f":{path}" if path else "")) + trailing
+        ref = f"{repo}:{path}" if path else repo
+        in_code = in_fence or line.count("`", 0, m.start()) % 2 == 1
+        return (ref if in_code else f"`{ref}`") + trailing
+
+    return rules.fleet_path.sub(repl, line)
+
+
+def slug_replacement(m: re.Match[str], rules: Rules) -> str:
+    """Public allowlisted slugs stay; kept fleet names become bare; others go."""
+    name, trail = m.group("name"), ""
+    stripped = name.rstrip(".")
+    trail, name = name[len(stripped):], stripped
+    if name.lower().endswith(".git"):
+        name = name[:-4]
+    low = name.lower()
+    if low in rules.public_repos:
+        return m.group(0)
+    if rules.keep_fleet and low in rules.fleet_names:
+        return name + trail
+    return "[redacted:repo]" + trail
+
+
+def _public_ip(m: re.Match[str]) -> str:
+    octets = [int(o) for o in m.group(0).split(".")]
+    if any(o > 255 for o in octets) or octets[0] == 127 or octets == [0, 0, 0, 0]:
+        return m.group(0)
+    return "[redacted:ip]"
+
+
+def redact_public(text: str, rules: Rules) -> str:
+    if rules.slug is not None:
+        text = rules.slug.sub(lambda m: slug_replacement(m, rules), text)
+    if rules.repo_words is not None:
+        text = rules.repo_words.sub("[redacted:repo]", text)
+    text = CRED_ENV_RE.sub("[redacted:envvar]", text)
+    text = SCOPES_RE.sub(r"\1 [redacted:scopes]", text)
+== layer order for settings
+            layers.append(layer)
+
+    global_dir = store / GLOBAL_DIRNAME
+    if global_dir.is_dir():
+        layer = Layer("global", global_dir, [global_dir / "spell"])
+        config = global_dir / "config.toml"
+        if config.is_file():
+            data = load_toml(config, GLOBAL_KEYS)
+            where = config.name
+            put(
+                "global config",
+                {
+                    "profile": choice(data, "profile", PROFILES, where),
+                    "fleet-names": choice(data, "fleet-names", FLEET_NAMES, where),
+                    "identity": choice(data, "identity", OPT_INS, where),
+                    "path-aliases": choice(data, "path-aliases", OPT_INS, where),
+                },
+            )
+            for entry in string_list(data, "spell", where):
+                spell = global_dir / entry
+                if not spell.is_dir():
+                    raise ConfigError(f"{where}: spell directory not found: {short(spell)}")
+                layer.spell_dirs.append(spell)
+            layer.note("config.toml")
+        add(layer)
+
+    project_file = find_project_file(Path.cwd())
+    project_dir: Path | None = None
+    check: list[str] = []
+    exclude: list[str] = []
+    if project_file is not None:
+        where = project_file.name
+        data = load_toml(project_file, PROJECT_KEYS)
+        put(
+            "project file",
+            {
+                "profile": choice(data, "profile", PROFILES, where),
+                "fleet-names": choice(data, "fleet-names", FLEET_NAMES, where),
+                "identity": choice(data, "identity", OPT_INS, where),
+                "path-aliases": choice(data, "path-aliases", OPT_INS, where),
+            },
+        )
+        check = glob_list(data, "check", where)
+        exclude = glob_list(data, "exclude", where)
+        name = terms_name(data, where)
+        if name is not None:
+            project_dir = store / name
+            if not project_dir.is_dir():
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 28.9s)
+
+_Thinking:_
+I've found that with `fleet-names = redact`, fleet names still get added to the word list, but public repos listed in public-repos.txt get subtracted back out, so they stay readable. That means the AGENTS.md rule I want, where public siblings are readable and private ones are masked, looks achievable by combining those two settings. I'm now checking whether public-repos.txt is meant to list public repositories.
+
+I'm checking whether public-repos.txt holds bare repo names or owner/name pairs. The code reads it into a set of lowercased names, so the name part is probably what gets compared. The fleet path rewrite seems to ignore that list, so a path under a public repo would still come out redacted.
+
+I'm checking whether specific names like [redacted:repo] and [redacted:repo] appear in public-repos.txt, using a count-only search so nothing private gets printed. I'll also see whether [redacted:repo] shows up in fleet-repos.txt too, and whether the global session layer still applies when I use the scratch copy.
+
+The config's `keep` setting for `dotfiles/fleet-names.txt` looks like a default someone picked earlier, not a deliberate choice, so I'm weighing whether to switch it to `redact`. With the AGENTS.md rule in mind, `redact` plus the public-repos allowlist fits better, and the user should make that call.
+
+I'm now planning the two fixes: switching the fleet-names setting from keep to redact, and adding the three terms to a redact-terms file, most likely the global session-redact layer so they apply everywhere.
+
+I'm deciding whether to read the checklist lines myself or leave that to the user, since they hold private data and my transcript gets exported. Since the store will mask those terms once they're added, I'd rather have the user paste them in by hand, one per line, then check the result with `--explain` and push the store repo.
+
+I'm weighing whether to have the user copy the checklist lines by hand rather than reading them myself, since they're private and my transcript gets exported. I'm also sketching an optional project-level config file that would pin the public profile, the terms source, and the fleet-names setting for this repo, and I still need to check which takes precedence when a legacy project file is also present.
+
+I'm going to check how the project directory's legacy files are ordered against the project file, since that decides whether the store's `keep` setting would override a `redact` value. Reading the config loader around lines 372 to 400 should settle that before I rely on it.
+
+I'm weighing whether a project-level config file would make sense, since it could pin the public profile and the fleet-names setting for this repo, with the README pointing to it as the export entry point. The README says the tool and directory are recorded in private notes, but a project file that only names a store directory seems harmless. Before deciding, I want to check which takes precedence when a legacy file in the project directory sets the same key.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.config/nvim; sed -n '372,400p' scripts/session_redact.py | cut -c1-170; rg -n 'def put' -A8 scripts/session_redact.py | cut -c1-150 | head -12\nstore=~/.local/share/chezmoi-private/session-redact\necho \"== public-repos.txt: are the public siblings allowlisted? (counts only)\"; for n in [redacted:repo] [redacted:repo] [redacted:private] [redacted:repo] greffe dotfiles; do printf '%s: ' $n; rtk rg -c -i \"(^|/)$n\\s*$\" $store/public-repos.txt || echo 0; done\necho \"== entries per list (counts only)\"; for f in fleet-repos private-repos public-repos redact-terms; do printf '%s: ' $f; rtk rg -c -v '^\\s*(#|$)' $store/$f.txt; done; printf 'dotfiles/redact-terms: '; rtk rg -c -v '^\\s*(#|$)' ~/.local/share/chezmoi-private/dotfiles/redact-terms.txt"
+}
+```
+
+**Output:**
+```
+            if not project_dir.is_dir():
+                raise ConfigError(f"{where}: terms directory not found: {short(project_dir)}")
+
+    terms_env = os.environ.get(TERMS_DIR_ENV)
+    terms_dir = Path(terms_env).expanduser() if terms_env else None
+    if terms_dir is not None and not terms_dir.is_dir():
+        raise ConfigError(f"{TERMS_DIR_ENV}: directory not found: {short(terms_dir)}")
+    if project_dir is None and terms_dir is None and project_file is None and not global_dir.is_dir():
+        legacy = store / LEGACY_DIRNAME
+        if legacy.is_dir():
+            project_dir = legacy
+
+    if project_dir is not None:
+        layer = Layer("project", project_dir, [project_dir / "spell"])
+        put("project directory", directory_scalars(project_dir))
+        add(layer)
+    if terms_dir is not None:
+        layer = Layer("terms-dir", terms_dir, [terms_dir / "spell"])
+        put("terms-dir", directory_scalars(terms_dir))
+        add(layer)
+    if not layers:
+        raise ConfigError(
+            f"no configuration found in {short(store)}: no {GLOBAL_DIRNAME}/ directory, no project "
+            f"terms directory and no {TERMS_DIR_ENV}"
+        )
+
+    if profile_flag is not None:
+        put("--profile", {"profile": profile_flag})
+    if settings["profile"][0] not in PROFILES:
+313:    def put(source: str, values: dict[str, str | None]) -> None:
+314-        for key, value in values.items():
+315-            if value is not None:
+316-                settings[key] = (value, source)
+317-
+318-    layers: list[Layer] = []
+319-    seen: set[Path] = set()
+320-
+321-    def add(layer: Layer) -> None:
+== public-repos.txt: are the public siblings allowlisted? (counts only)
+[redacted:repo]: 0
+[redacted:repo]: 0
+[redacted:private]: 0
+[redacted:repo]: 0
+greffe: 0
+dotfiles: 1
+== entries per list (counts only)
+fleet-repos: 12
+private-repos: 16
+public-repos: 96
+redact-terms: 9
+dotfiles/redact-terms: 19
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 430.0s)
+
+_Thinking:_
+I'm weighing which fix works: the store's `dotfiles/fleet-names.txt` overrides a project file's setting, so changing only the project file wouldn't help. Deleting that store file is the cleanest route, so that the project file decides.
+
+I'm settling on the store file as the fix: change `dotfiles/fleet-names.txt` from `keep` to `redact`, or delete it so the project file decides. I'm also checking the public siblings allowlist, since [redacted:repo] and [redacted:repo] would get masked in exports, which is acceptable for now.
+
+I'm going to add the three terms to a redact list, and I'd put them in the global `session-redact/redact-terms.txt` since they come from [redacted:private]'s checklist, which any session can read. I'll pull the values out of that checklist myself in a terminal, not through an agent, so they never reach a transcript before the store knows them.
+
+Now I'm working out how to get the three terms into the redact list, using the checklist as the source. I'd rather pull those values myself in a terminal than route them through an agent, so they never sit in a transcript before the store knows to mask them. I'll add them to the global `session-redact/redact-terms.txt`, then check with `--explain` that the count goes from 9 to 12 and commit the store.
+
+I'm laying out the rest of the plan: a README update in `memory/sessions/README.md` that describes the store's `dotfiles` directory as the source of the sibling-name switch, and an optional `.session-redact.toml` at the repo root holding the public profile, the `dotfiles` terms, and the export check glob. I'm noting that the store's scalar files override the project file, so the fleet-names setting has to be right in the store.
+
+Next I'm checking how the four steps line up: the store fixes have to land before I re-export. If the user handles them first, I'll export straight from the store. If not, I'd need a scratch copy with the switch removed, but I can't name the three terms without reading the checklist, and I'm not sure they ever showed up in this session's transcript.
+
+Next I'm checking the rest of the plan: the store fixes come first, so the export doesn't leak. Then I'll look at the refresh-commit details, starting with the add-repo-roadmap proposal and its file paths.
+
+I'm deciding whether to move all of TODO.md's content into ROADMAP.md and delete TODO.md, since nothing would be left behind. That would mean refresh-repo-docs drops its TODO.md removal item, which is a change to that proposal, so I'll flag it for the user to accept or object.
+
+Next I'm settling the roadmap change: ROADMAP.md takes over the planned order and the backlog, the old top-level bullets get triaged into the backlog, and once TODO.md is empty I'll delete it and update refresh-repo-docs to match. I'm also noting that the audit change map stays frozen with a pointer, since it already drifts from TODO.md, and that add-incus-host-setup touches global-mise-tasks too. The spec's MODIFIED requirement has to use full home/ paths, which would fix the main spec's flat paths as well.
+
+I'm checking the target name for the report: this pane has no name, so the brief will tell the agent to find the chezmoi workspace orchestrator via `herdr agent list`, and fall back to reporting to the user if none is running.
+
+Now I'm working through the add-agent-launch-tasks change: its paths move under `home/`, the `.chezmoiignore` and `adopt-chezmoiroot` mentions get dropped since `tests/` sits outside the source state, and it needs an archive-order note alongside add-incus-host-setup. I'm also adding observations about agent names getting lost, since the earlier rename to `chezmoi-orch` didn't persist.
+
+I'm going to write up the nvim-orch message next, since the prompt-delivery request now lives in the chezmoi change add-agent-launch-tasks. The one-line note will say the Python port of its delivery module, plus the generic workspace and launch tasks, are meant for any
+
+Next I'm looking at how to hand the remaining steps off: the export to the store comes after the store fixes, and I want the transcript export to include the sub-agent children from this run.
+
+Next I'm weighing the three explore tasks for the full export: their names have to be neutral in the filename, since the filename isn't redacted. They quote the private [redacted:repo] material heavily (study findings, milestone IDs, French text, paths), and with the fleet-name redaction only the repo names get masked, so that content would still be published.
+
+I'm weighing whether exporting the child sessions could expose private [redacted:repo] material, since their quoted study findings, milestone IDs, and repo references aren't covered by the fleet-name masking. The fleet redaction only hides repo names, so that content would still be published, and I'd rather ask the user before including those children.
+
+I'm weighing whether to export only the main session rather than the child sessions, since the subagent results already sit in the main transcript. The child files would add the raw file reads from the private [redacted:repo] repo, which is the bigger exposure, so I'm leaning toward leaving them out this time.
+
+I'm checking whether the exported children would leak private [redacted:repo] material: their file reads and quoted findings aren't covered by the fleet-name masking. My main transcript already carries those digests via the subagent results, so I'm leaning toward exporting only the main session this time and leaving the children out. I'll also run the export check to confirm the credential variable names and the user's name are being redacted.
+
+I'm checking the redaction for the transcript export: the credential variable names like the API key should be caught by the credential pattern, and the user's name and the private repo names by the identity and fleet lists. The public dotfiles repo URL and the neutral file names are fine to publish.
+
+I'm noting that the commit message for the orchestrator re-export should stay as `docs(chezmoi:memory): re-export the orchestrator session`, and the README row needs updating to cover the 11-03 to 11-08 stretch. I'll also update the redaction sentence if the store fix goes through. Pushing waits for the user's go-ahead, and I'll ask about that at the end.
+
+I'm deciding whether to close the tab myself, but that would end this session mid-turn, so the user should close it after the export is committed. I'll also note that the obsidian-clipper tab can be closed once the store fixes are in.
+
+I'm working out whether the three child exports can go out, since they quote the private [redacted:repo] material and the masking only hides repo names. The main transcript already carries those digests through the subagent results, so the children add mostly raw file reads. I'm leaning toward exporting only the main session this time and asking the user to confirm.
+
+Checking the export script's flags next, to see whether the children can be left out with a plain `--help` call.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd /tmp/opencode 2>/dev/null || cd ~; python3 [redacted:repo]:scripts/session/export.py --help 2>&1 | sed -n '1,40p' | cut -c1-170"
+}
+```
+
+**Output:**
+```
+usage: export.py [-h] [--last] [--resolve-last] [--slug SLUG] [--rename TITLE]
+                 [--sanitize] [--no-thinking] [--no-tool-details]
+                 [--no-model-names] [--out-dir OUT_DIR] [--force]
+                 [--since auto|MSG_ID] [--full] [--directory DIR]
+                 [--last-warn] [--no-children] [--attach] [--check-trailers]
+                 [--allow-dirty] [--reattach]
+                 [session_id]
+
+Exporte une session OpenCode en Markdown
+(memory/sessions/{YYYYMMDDHHMM}[-{id}]-{slug}.md).
+
+positional arguments:
+  session_id           Identifiant de session OpenCode (ex. ses_...) — omis si
+                       --last
+
+options:
+  -h, --help           show this help message and exit
+  --last               Résout automatiquement la session la plus récemment
+                       active de ce dépôt (usage interactif/orchestration
+                       mono-agent — cf. session.resolve_last_session)
+  --resolve-last       N'exporte rien : résout --last et affiche le SESSION_ID
+                       sur stdout. Pour un script d'orchestration (ex.
+                       task:close) qui a besoin de connaître le SESSION_ID
+                       concret avant d'appeler l'export, sans dupliquer la
+                       logique de résolution ni risquer une deuxième
+                       résolution incohérente.
+  --slug SLUG          Slug explicite de nom de fichier (recommandé — sinon
+                       dérivé du titre)
+  --rename TITLE       Renomme la session (titre court et synthétique) avant
+                       export ; utilisé pour dériver le slug si --slug absent
+  --sanitize           Redacte les données sensibles (passthrough `opencode
+                       export --sanitize`)
+  --no-thinking        Exclut les blocs de raisonnement (_Thinking:_)
+  --no-tool-details    Exclut les détails Input/Output/Error des appels
+                       d'outils
+  --no-model-names     N'appelle pas `opencode models` pour résoudre les noms
+                       d'affichage (garde les id bruts, ex. claude-sonnet-5) —
+                       plus rapide
+  --out-dir OUT_DIR    Répertoire de sortie (défaut :
+                       [redacted:repo]:memory/sessions)
+
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "herdr agent --help 2>&1 | rg -n -i 'rename|name' | head -6; echo \"== my session children since 11-04 (titles only)\"; opencode session list --format json 2>/dev/null | jq -r '.[] | select(.parentID==\"ses_e720ce42affen6d11Mjrfbnxpi\") | \"\\(.id) \\(.title)\"' 2>/dev/null | head -10"
+}
+```
+
+**Output:**
+```
+11:  rename     Rename an agent
+== my session children since 11-04 (titles only)
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 43.9s)
+
+_Thinking:_
+I've confirmed `--no-children` is available, so now I'm drafting a concise answer: two store fixes (plus an optional one) with commands, the ordering dependency on step 3, and five questions for the user about who runs fix 1, where the terms go, whether children belong in the export, whether to push after step 3, and whether a project file is needed.
+
+I'm weighing whether to ask the user the decisions through the question tool or just list them as text at the end. The text route is simpler and gets everything into one reply, so I'll write the explanation with a short decision list and let them answer in a single round trip.
+
+Now I'm writing out the shell commands for the first fix: editing the fleet-names file so `keep` becomes `redact`, and checking the result with the explain flag.
+
+Next I'm adding the three terms to the global redact list, which should take the count from 9 to 12, then committing and pushing the store. I'm keeping this step in the user's own terminal, since the values aren't in the store yet and an agent reading them would put them in its transcript.
+
+Next I'm adding a note on the public siblings: [redacted:repo] and [redacted:private] names get masked in exports too, since they aren't on the public allowlist yet, which is stricter than AGENTS.md requires.
+
+I'm noting what the observations file should record: the herdr agent names disappeared at a later check, with no clear cause yet. I also want the brief to tell the orchestrator to report to the user in its own pane if it can't find the chezmoi workspace orchestrator, and that ROADMAP.md takes over the planned order from TODO.md.
+
+Now I'm settling the rest of the plan: the observations file gets a note that the herdr agent names vanished at a later check, and the brief tells the orchestrator to report to the user in its own pane if it can't find the chezmoi orchestrator, with ROADMAP.md taking over the order from TODO.md. Next I'm turning to the export itself, which runs only after the store fixes, in the main session alone, to keep the sub-agents out of it.
+
+Now I'm weighing who runs the first store fix: either I make the one-word switch myself, or the user does it in their terminal. I'm leaning toward me doing it, since it holds no private value, though the store is private and I'd be committing there, so I'm still checking whether that needs their go-ahead.
+
+Now I'm deciding the open points: whether I or the user runs the first store fix, where the three terms go (global or dotfiles), whether the export covers only the main session, whether to add the project file, and whether to push after step 3. Order matters: steps 1 and 2 can start now, step 3 waits for the store fixes, and step 4 is the user's.
+
+
+## The private-store fixes
+
+The `obsidian-clipper` agent found two problems in your private redaction store (`~/.local/share/chezmoi-private`, a git repo in sync with its remote). I checked both.
+
+1. **Sibling repository names are left readable.**
+   - `dotfiles/fleet-names.txt` is set to `keep`, so redacting with that folder as it is leaves every fleet repository name readable, private ones included.
+   - This repo's README and `AGENTS.md` say those names must be hidden. That is why both agents redacted from a throwaway copy without that file.
+   - A setting in the repo can't override it, because the store folder's setting wins.
+   - **Fix:** change that line from `keep` to `redact`.
+     ```
+     sed -i 's/^keep$/redact/' ~/.local/share/chezmoi-private/dotfiles/fleet-names.txt
+     ```
+   - **Effect:** private repository names are hidden, and names on your `public-repos.txt` allowlist stay readable.
+     - [redacted:repo] and [redacted:private] aren't on that list yet, so they'll be hidden too. That is stricter than needed, and safe.
+     - Add them to the list once they are actually public.
+
+2. **Three private details aren't in the store.**
+   - They are a client-looking directory name, a VM name and a hosting provider, all from [redacted:private]'s migration checklist.
+   - The agent hid them by hand in its throwaway copy only, so any later export that touches that checklist would publish them.
+   - **Fix:** add each one as a plain line in the store's shared list, `session-redact/redact-terms.txt`, which applies to every repo.
+     - The shared list is the better place because sessions in any repo may read [redacted:private]'s checklist, and [redacted:private] will become public.
+     - The other option is `dotfiles/redact-terms.txt`, which covers this repo only.
+   - Run these yourself, in your own terminal, not through an agent. Whatever an agent reads ends up in its transcript, and the store doesn't know these values yet.
+     ```
+     rg -n -i 'vagrant|wipe' [redacted:repo]:migrations/2026-10-[redacted:private]-to-[redacted:private]/checklist.md
+     nvim ~/.local/share/chezmoi-private/session-redact/redact-terms.txt
+     ```
+   - Write each value as one line. Don't add `(?i)`: matching already ignores case, and that flag broke the other agent's first run. Use the `re:` prefix only for a pattern.
+
+**Check both fixes** (this prints settings and counts, never a term):
+```
+cd ~/.local/share/chezmoi && SESSION_REDACT_TERMS_DIR=~/.local/share/chezmoi-private/dotfiles python3 ~/.config/nvim/scripts/session_redact.py --explain
+```
+It should show `fleet-names` as `redact`, and the shared list with 12 entries instead of 9. Then commit and push the store.
+
+## The 4 steps, updated
+1. **Refresh my two changes** in one commit, `docs(chezmoi:spec): refresh the roadmap and launch changes for home/` (68 characters):
+   - Paths become `home/dot_config/mise/...`.
+   - Drop the bullets about the `.chezmoiignore` block and `adopt-chezmoiroot` task 3.2.
+   - Add a note that the archive order matters, because `add-incus-host-setup` also changes `global-mise-tasks`.
+   - In `add-repo-roadmap`:
+     - Seed it from `TODO.md`: the planned order including its *planned* lines, the packaging backlog, and the old bullets as backlog items.
+     - `ROADMAP.md` then takes over that content, so this change deletes `TODO.md`, and `refresh-repo-docs` drops that item.
+   - In the brief, the roadmap agent reports to `chezmoi-orch` if one is running (`herdr agent get chezmoi-orch`), and to you in its own pane otherwise.
+   - In `observations.md`, log that herdr agent names went missing between checks.
+2. **Tell `nvim-orch`** that its prompt-delivery request now lives in `add-agent-launch-tasks` (`07e276d`), and that nothing is needed from it now. I'll check that its input box is empty first.
+3. **Re-export this session**, once you tell me the store is fixed. With the fixes in place, I can redact from the store directly instead of a copy.
+   - **Main session only** (`--no-children`): its three new sub-agents mostly read private repositories, and their summaries are already in the main transcript.
+   - **Repo updates:**
+     - Update the orchestrator row in the README, and its sentence about the throwaway copy.
+     - Add a `.session-redact.toml` at the repo root (settings only, as the Neovim repo has), so `--check` covers every export without the environment variable.
+   - **Checks:** the tool's `--check`, gitleaks, and my own scans.
+   - **Commit:** `docs(chezmoi:memory): re-export the orchestrator session`.
+4. **Close the tabs.** You close `orch`: closing it from inside would end this session in the middle of my reply. `obsidian-clipper` can close once you've made the store fixes; this reply relays its handoff, and my export will keep it.
+
+Steps 1 and 2 don't depend on the store, so I'll run them as soon as plan mode is off.
+
+**Defaults, unless you say otherwise:**
+- You make both store fixes in one store commit.
+- The three details go in the shared list.
+- The export is the main session only, with the `.session-redact.toml` file.
+- I push after step 3 only if you say so.
+
+---
+
+## User
+
+it'd be better if 'keep' fleet-names would only keep public ones
+can't you do them yourself or tell obsidian-clipper to do it?
+4 steps ok
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 117.7s)
+
+_Thinking:_
+I'm looking at how the `keep` option handles fleet names in session_redact.py. Right now it keeps private fleet names readable, and the goal is to keep only the public ones and redact the private ones.
+
+I'm checking whether the existing `redact` setting already gives the behavior the user wants, since fleet names in public-repos.txt would stay readable as bare words. The catch is that fleet path rewrites hide every fleet repo, public ones included, so I need to work out what that leaves readable.
+
+Working out the public-repos case, I see that a real change to `keep` would mean the fleet path rewrite has to check per repo whether it is public, not hide every fleet repo, and that the bare-word set would come out the same as under `redact`.
+
+I'm checking how `layer_entries` builds the public-repos set, to see whether those entries are bare repo names or `owner/name` slugs. If they're bare names, the `low in rules.public_repos` comparison works as I assumed, and I also want to settle whether repos that are only meant to be public, like [redacted:repo] and [redacted:private], count as public yet.
+
+I'm weighing what "public" should mean for `keep`: strictly the entries in public-repos.txt, or also repos that are meant to be public, like [redacted:repo] and [redacted:private]. The Neovim config repo is trickier, since it's currently treated as private, so I need to decide whether it counts.
+
+I'm weighing whether "public" should mean only what's listed in public-repos.txt, or also repos meant to go public like [redacted:repo] and [redacted:private]. Masking those would be stricter than the repo's own naming rules, but the list itself is the cleaner boundary, and the user could add names there if they're publishable.
+
+I'm weighing whether to treat the repos that are only meant to be public, like [redacted:repo] and [redacted:private], as public for `keep`. Listing them in public-repos.txt would make their slugs readable, which is a small reveal if they're still private on GitHub. I'll propose that the nvim side handle this and let the user decide which names go on the list.
+
+I'm weighing whether the obsidian-clipper agent could add the three terms to the store itself, since it already knows which ones it masked. The worry is that its reply would echo them into the next export, so I'd rather the terms go straight into the store without being written out anywhere else.
+
+I'm weighing whether obsidian-clipper should add the three terms to the store itself, since it already knows which ones it masked and the strings are in its transcript. Handing it off seems better than doing it myself, but I still have to confirm the store's location is fine to edit.
+
+Delegating the store update to obsidian-clipper looks like the cleaner option, since it already knows the three terms it masked.
+
+I'm thinking about delegating the store fixes to obsidian-clipper, since it already knows the three terms it masked, and asking it to add them to the redaction store and verify the export with counts only. The open question is what the store should say about fleet names while the tool's `keep` behavior is still being changed.
+
+I'm considering switching the dotfiles fleet-names setting to `redact` for now, since that only affects dotfiles exports and would let me redact directly from the store. Once the tool's new `keep` behavior lands, the user can flip it back. The `keep` change itself belongs to the nvim repo, so I shouldn't touch that code from here.
+
+I'm weighing how to get the change request to the nvim side, since the `keep` behavior lives in that repo and I shouldn't edit it from here. Sending it to nvim-orch in a brief file seems right, since the request has several parts, and it could go alongside the store note.
+
+I'm deciding where the request for the nvim side should live, and I'll put it in a transient brief under /tmp/opencode/briefs for nvim-orch to pick up and archive, since it isn't tied to any change in this repo.
+
+I'm going to check the format of the public-repos list and how its entries get parsed, so I can describe it accurately. I also want to confirm whether herdr's prompt command accepts a pane ID as its target, since the pane has no name. Then I'll note that the roadmap agent reports to chezmoi-orch if it's running, and that my own pane lost its name, which I could restore.
+
+I'm settling on whether to push the store changes: the store is a private repo, and the user asked for the fixes, so I'll commit them there but check with the user before pushing.
+
+I'm laying out the order of work: first I'll commit my two changes, then have obsidian-clipper add its three masked terms to the redaction store and switch the dotfiles fleet-names setting to `redact` for now. I'll check its export with counts only before I redo mine.
+
+I'm checking the fixed store against the existing committed exports with `--check`, to catch any term that already leaked into history. Any nonzero count would mean a past leak, and I'd report only the counts. Obsidian-clipper should commit the store and wait for the user's go before pushing, then reply in one line with counts only, since it already knows the three terms and I'd rather not read them myself.
+
+I'm drafting the nvim-orch request as a brief, covering the superseded fix-prompt-delivery note and the proposal that `keep` should only leave public repo names readable.
+
+I'm thinking through how the nvim side should handle the request: the `keep` branch for low-scoring fleet names gets dropped, with tests and `--explain` updated, and the design stays with the repo owner. Since the dotfiles store will use `redact` in the meantime, I'll switch it back once `keep` lands. Before I prompt nvim-orch with the brief path, I want to confirm its input box is empty; it's in Plan mode, so it will plan first. Then I need to ask the user whether "public" for `keep` means only what's in public-repos.txt, or also repos meant to go public.
+
+I'm going to write a project-level `.session-redact.toml` in this repo that points the tool at the dotfiles terms store, sets the public profile, and checks the session exports. Before settling on it, I want to confirm whether the fleet-names setting belongs in that file too.
+
+Next I'll fold the store's dotfiles terms into a project-level `.session-redact.toml`, though its fleet-names setting gets overridden by the store's own file. I'm relying on the store's setting, and once the tool's keep-public change lands it should read `keep` there. The README sentence about the throwaway copy needs rewording to point at the store's dotfiles terms, selected by that project file. The enforce-hook session export also seems to be missing, but that's not mine, so I'll just note it. Then the plan is to commit the export, the README, and the project file together.
+
+I'm deciding whether to push the store commit, leaning toward asking the user first, and I'm weighing whether a "public" setting for `keep` should mean only what's listed in public-repos.txt or also repos meant to go public. I'll also want to close the obsidian-clipper tab once its store work is done.
+
+I'm going to check, read-only, whether herdr's prompt command accepts a pane ID as its target, and how the public-repos list entries are formatted. I also want to see whether the nvim repo has tests covering the session redaction code.
+
+I'm going to check two things read-only: whether herdr's prompt command accepts a pane ID as its target, and how the public-repos list entries are formatted. I also want to see whether the nvim repo has tests covering the session redaction code, so the brief can point to them.
+
+
+I'm checking three things before planning, all read-only: whether herdr can prompt an unnamed pane, what format the store's public list uses, and where the redaction tool's tests live.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "herdr agent prompt --help 2>&1 | sed -n '1,25p' | cut -c1-160"
+}
+```
+
+**Output:**
+```
+Submit a prompt to an agent
+
+Usage: herdr agent prompt <TARGET> <TEXT> [OPTIONS]
+
+Arguments:
+  <TARGET>
+          
+
+  <TEXT>
+          
+
+Options:
+      --wait
+          Wait for the first matching state observed after submission
+
+      --until <STATUS>
+          State to match after --wait; repeat for more than one state
+          
+          [possible values: idle, working, blocked, done, unknown]
+
+      --timeout <MS>
+          Fail after this many milliseconds
+
+If the agent is already blocked, submission is rejected with agent_blocked before any input is sent. When an accepted submission starts from another non-working
+
+
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.config/nvim\necho \"== list parsing\"; rg -n 'def (names_from|layer_entries|load_list)' -A14 scripts/session_redact.py | cut -c1-150 | head -40\necho \"== public-repos entry shape (shape only, no values)\"; awk '!/^[[:space:]]*(#|$)/ { if ($0 ~ /\\//) s++; else b++ } END { print \"with owner/: \" s+0 \", bare: \" b+0 }' ~/.local/share/chezmoi-private/session-redact/public-repos.txt\necho \"== fleet-repos in public-repos (count only)\"; comm -12 <(rg -v '^\\s*(#|$)' ~/.local/share/chezmoi-private/session-redact/fleet-repos.txt | tr 'A-Z' 'a-z' | sort -u) <(rg -v '^\\s*(#|$)' ~/.local/share/chezmoi-private/session-redact/public-repos.txt | sed 's|.*/||' | tr 'A-Z' 'a-z' | sort -u) | wc -l\necho \"== tests of the tool\"; fd -t f 'redact' tests scripts 2>/dev/null; git log --oneline -3 -- scripts/session_redact.py | cat\necho \"== open nvim work on the tool\"; rg -n -i 'session_redact|redact' ROADMAP.md | cut -c1-170 | tail -8"
+}
+```
+
+**Output:**
+```
+== list parsing
+440:def names_from(path: Path) -> list[str]:
+441-    names = []
+442-    for line in read_lines(path):
+443-        line = line.strip()
+444-        if line and not line.startswith("#"):
+445-            names.append(line)
+446-    return names
+447-
+448-
+449:def layer_entries(layers: list[Layer], filename: str) -> list[tuple[str, str]]:
+450-    """The union of a list file over the layers: (owner layer, line), each line once."""
+451-    seen: set[str] = set()
+452-    out: list[tuple[str, str]] = []
+453-    for layer in layers:
+454-        path = layer.path / filename
+455-        if not path.is_file():
+456-            continue
+457-        lines = names_from(path)
+458-        layer.note(filename, len(lines))
+459-        for line in lines:
+460-            if line not in seen:
+461-                seen.add(line)
+462-                out.append((layer.name, line))
+463-    return out
+== public-repos entry shape (shape only, no values)
+with owner/: 0, bare: 96
+== fleet-repos in public-repos (count only)
+1
+== tests of the tool
+scripts/session_redact.py
+tests/session_redact/redact_support.py
+tests/session_redact/test_session_redact.py
+0ad18b4 fix(sessions): do not echo a bad profile file in the error
+46de707 feat(sessions): read the redaction configuration in layers
+cc082b6 feat(specs): add identity, path aliases and readable fleet references to redaction
+== open nvim work on the tool
+1359:- Validation: baseline before the change: 13 `session_redact` tests and 158 workflow tests pass. After: 54 `session_redact` and 158 workflow tests pass, G3 (no compi
+1361:  - Incident (low): the plan phase printed a store commit's author name and a listing of mise's trusted configurations, which contains private folder names, into thi
+1363:  - Deviation: Touches extended by the new root file `.session-redact.toml` (the user's choice of location), the `cwd` of the redactor in `.mise/tasks/session/export
+1424:  - Run 2 (14:02) exited 0: tab `S18-plan`, the prompt delivered in 1 submission and 0 Enter presses, the agent `working`, `Plan · Claude Opus 5.5 · xhigh` in its 
+1427:- Validation: baseline before the change: 99 workflow unit tests pass. After: 156 workflow tests and 13 `session_redact` tests pass; G3 (no compile failure in `scrip
+1557:  - An allow list for false positives (exact strings never redacted, a separate explicit file counted by `--check` and listed by `--explain`) was not built: nothing 
+1558:  - Classify the terms only the dotfiles project has (its own `redact-terms.txt`): which ones are global? Moving one changes this repository's output, so it belongs 
+1559:  - `.session-redact.toml` is read from the working directory of the process. `mise run session:export` passes the project root; a consumer in another repository (th
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 7.2s)
+
+_Thinking:_
+I'm checking public-repos.txt, which has 96 bare names but only one fleet repo in it. If "public" means that file, then [redacted:repo] and [redacted:private] would get masked under the new keep-only-public rule unless they're added, even though they're meant to be public.
+
+Checking whether the other repos on the list are actually public. Adding [redacted:repo] to the public list would keep `[redacted:repo]` readable, which is what AGENTS.md already allows, so that's fine. Separately, there's a line in the nvim ROADMAP about classifying dotfiles-only terms, and a note about `.session-redact.toml` read from the working directory that I want to read in full.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.config/nvim; sed -n '1553,1562p' ROADMAP.md | cut -c1-600; echo \"== which backlog/section\"; awk 'NR<=1553 && /^#{2,3} /{h=$0} END{print h}' ROADMAP.md"
+}
+```
+
+**Output:**
+```
+  - Images: rex is untested (not installed) and zellij is unsupported by the pinned snacks.nvim (`supported = false`); test rex when it is installed (what snacks detects, whether passthrough works) and watch snacks.nvim for zellij support. Ghostty and WezTerm are in snacks.nvim's list and untested here (D18).
+  - No test keeps the README key table and the mappings together: the S13 probe (a throwaway `keycheck.py` that parses the table and compares it with `maparg` in a Markdown and a Lua buffer) found 38 pairs and no mismatch. Candidate, next to `tests/smoke.sh` and with the other candidates for `util.spell` and `util.ltex` above: commit it.
+  - Nothing stops a second modeline in a main spec (the cause of the strays S13 removed: a sync copies the delta's). Candidates: a rule of `mise run roadmap --check`, or a test in `tests/workflow`, that every `openspec/specs/*/spec.md` has exactly one `<!-- vim` line and it is the last.
+- S18 follow-ups (2026-11-07):
+  - An allow list for false positives (exact strings never redacted, a separate explicit file counted by `--check` and listed by `--explain`) was not built: nothing needs it today. Together with it, review a syntax to remove a global term in one project (the user asked for it at the S18 `[decision]` gate): today a layer can only add, which is the safe default for a leak-prevention tool; a removal syntax would need an explicit, reported form (for example a line `!term` in a project list that `--check` and `--explain` count and show) and a decision on whether the `public` profile may ever use it
+  - Classify the terms only the dotfiles project has (its own `redact-terms.txt`): which ones are global? Moving one changes this repository's output, so it belongs with the S14 review. The `--explain` and per-layer `--check` lines show the owner of each count.
+  - `.session-redact.toml` is read from the working directory of the process. `mise run session:export` passes the project root; a consumer in another repository (the chezmoi session) runs from its own root and uses `SESSION_REDACT_TERMS_DIR`, which still works. If other repositories adopt project files, a `--project DIR` option may be wanted.
+  - The per-layer lines omit "repository names" (derived from several lists with no single owner).
+  - Saving `ROADMAP.md` through the Markdown chain rewrites old text (markdownlint MD038 strips spaces inside code spans, as in the entry on text-changing fixes above): S18 edited it without the chain.
+
+== which backlog/section
+## Backlog
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 60.9s)
+
+_Thinking:_
+Running from the repo root with a `.session-redact.toml` works, so that's settled. Next I need to decide what counts as "public" for the keep list: the entries in public-repos.txt, or also the names meant to be public. Since AGENTS.md already allows naming [redacted:repo], [redacted:private], [redacted:repo], and greffe here, I'm leaning toward making public-repos.txt the single source and having the user add those names to it.
+
+I'm weighing whether to add the not-yet-public names ([redacted:repo], [redacted:private], [redacted:repo], greffe) to public-repos.txt, since a private repo's slug there would reveal its existence, though AGENTS.md already names [redacted:repo] publicly. I'll ask the user about that, and about the interim fleet-names setting and whether the store commit should also be pushed.
+
+I'm weighing whether public-repos.txt should be the single source for the keep list, and whether [redacted:repo], [redacted:private], [redacted:repo], and greffe belong in it now, since AGENTS.md already names them. I'm also thinking about the interim fleet-names setting and whether the store commit should be pushed, and I'll work through those with obsidian-clipper handling the store edits and the verification afterward.
+
+Next I'm settling on the store-side work: obsidian-clipper can add the three terms and redact the fleet names in the store, and I'd rather not pull those values into my own context. I'm also weighing whether the store commit message should be proposed for the user to validate before it goes in.
+
+Next I'm drafting a brief for the nvim orchestrator: noting that the earlier fix-prompt-delivery task was superseded by add-agent-launch-tasks (already pushed), and asking that fleet-names in keep mode should only keep public repos readable, since right now private ones stay visible too.
+
+I'm drafting the brief for the nvim orchestrator: it should say the earlier fix-prompt-delivery task was superseded by add-agent-launch-tasks, and ask that fleet names in keep mode stay readable only when they are in public-repos.txt, with everything else redacted. I'll also note the dotfiles repo's new root settings file.
+
+Before sending anything to nvim-orch, I'm checking whether its input is still empty, since the last read showed it in Plan mode with nothing typed. I'll write the brief to `/tmp/opencode/briefs/`, where the other agents already drop theirs, and I won't need a reply in this pane because I'm closing my tab after the store step. Instead, nvim will record the request on its roadmap and tell the user when it lands, so the user can flip the store file back to `keep`.
+
+Next I'm updating the add-repo-roadmap change: TODO.md gets seeded into the planned order, and ROADMAP.md replaces it. The refresh-repo-docs bullet that retires TODO.md needs to point to add-repo-roadmap instead, which is a small coordinated edit. I'm also checking the archive-order note in add-repo-roadmap.
+
+Now I'm checking the TODO.md ordering and the audit notes, which both point to the same change map. Next I'm adding a scenario to the add-repo-roadmap delta that confirms TODO.md is gone after the change.
+
+Checking the main spec's flat paths against the global-mise-tasks delta, since the spec text may be stale.
+
+Next I'm going through the flat paths in the main spec's global-mise-tasks requirements, which are stale, so the delta will use the `home/` prefix and fix them when it's archived. I'm also planning to remove the `.chezmoiignore` temp block and the adopt-chezmoiroot bullet from add-agent-launch-tasks, leaving its "Not a target" scenario as is, since `tests/` sits outside `home/`.
+
+Next I'm pulling the session export together: I'll check whether the main file still points to child sessions when I run it without children, since earlier exports included two explore files.
+
+Next I'm checking whether [redacted:repo] and greffe are listed as private, since that decides whether their names get masked in the transcript's paths and task summaries.
+
+I'm checking whether the main export still points to child sessions when I run it without children, since the earlier exports included two explore files. The transcript's sub-agent summaries quote [redacted:repo]'s study, which comes from a private repo, so I'm weighing whether that content needs redacting before export.
+
+I'm weighing whether to show the full main session with fleet and private repo names masked, or to drop tool output to cut the private content, since the user's own design notes are not secrets but the [redacted:repo] material is still private. I'm also noting that this transcript covers the herdr work, so the export needs checking against the redaction rules before it goes out.
+
+Checking the redaction scan now: the lookahead `(?![\w-])` won't match a name followed by a hyphen, so "[redacted:private]-[redacted:private]-study" would slip through unmasked. I'll run my own substring scan on the redacted output for each private name, case-insensitive, and report only counts.
+
+Next I'm working out how to extend the redaction setup for the export: I'll scan the output for each private name as a substring, reporting counts only, since a hyphenated label like "[redacted:private]-[redacted:private]-study" would slip past the current word-boundary match. If anything leaks, I'll layer extra terms on top of the project config for this run rather than editing the shared store file.
+
+Now I'm weighing how to handle the extra redaction terms for this export. Rather than touching the shared store file, I'd point a one-off terms directory at a scratch folder with the new names, so they stay out of the project config. Once the export is clean, I can suggest moving those terms into the store permanently.
+
+Next I'm adding the README update for the orchestrator row and the redaction sentence, pointing it at the store's dotfiles terms through the repo's `.session-redact.toml`, with any one-off extra terms kept in a scratch layer named by SESSION_REDACT_TERMS_DIR.
+
+Checking the `--check` step next: it'll scan all existing exports against the fixed store, so any leftovers from earlier sessions will show up as counts, and I'll report them to you rather than fix them unasked.
+
+Next I'm settling the questions for the user: whether "public" means only what's listed in public-repos.txt, or also the names meant to be public, and whether to push this repo and the store after the export commit.
+
+I'm weighing the remaining questions for the user: whether to redact the interim fleet names now or keep scratch copies until the tool change, when to push the store and repo, and whether to export the full main session with names masked or drop tool details. I also want to confirm that the obsidian-clipper and nvim-orch input boxes are empty before going further.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "for p in wN:p7 nvim-orch; do echo \"== $p input box\"; herdr agent read $p --source visible 2>&1 | rg -v '^\\s*$' | tail -5 | head -3 | cut -c1-140; done\necho \"== bare fleet names inside compound words (pattern test only, synthetic)\"; python3 -c \"import re; r=re.compile(r'(?<![\\w-])(?:name)(?![\\w-])',re.I); print([bool(r.search(s)) for s in ['name','name-study','x-name','name.']])\""
+}
+```
+
+**Output:**
+```
+== wN:p7 input box
+  ┃
+  ┃
+  ┃  Build · Claude Sonnet 5.5 Anthropic · xhigh
+== nvim-orch input box
+  ┃
+  ┃
+  ┃  Plan · Claude Opus 5.5 Anthropic · xhigh
+== bare fleet names inside compound words (pattern test only, synthetic)
+[True, False, False, True]
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 864.8s)
+
+_Thinking:_
+I've confirmed that the bare-name redaction rule skips hyphenated labels like "[redacted:private]-[redacted:private]-study", so compound names can leak through. That's a real gap, and it belongs in the nvim request too, since fleet names can hide inside hyphenated workspace labels. My independent scan needs to catch these, with a few extra one-off terms for this export. Both input boxes are empty, and the plan is ready.
+
+Next I'm putting the questions to the user along with the plan, keeping it brief.
+
+
+Yes, both can be done without you typing the values.
+
+## Who does the store fixes
+- **The three private details:** `obsidian-clipper` should add them itself. It already knows the exact values, so they never have to pass through my session. If I did it, I'd have to read [redacted:private]'s checklist again to find them.
+- **Its input box is empty**, so I can prompt it by pane (`wN:p7`).
+- **What I'll ask it to do:**
+  - Add the three details to the shared list `session-redact/redact-terms.txt`, with no inline flags.
+  - Set `dotfiles/fleet-names.txt` for the interim (see the first question below).
+  - Run `--explain` and `--check` over every export in this repo with the fixed store. This also shows whether an export already pushed contains a term the store now knows.
+  - Commit in the store.
+  - Reply with counts only.
+
+## "keep" should keep only public names
+- **Today:** with `keep`, every fleet repo name stays readable, private ones included. That covers bare names, `~/Work/<repo>/...` paths and `owner/name` links.
+- **The fix belongs in the redaction tool**, which lives in the Neovim repo, so it goes to `nvim-orch` as a request. With the change, a fleet name stays readable only if it's on the store's public list (`public-repos.txt`: 96 bare names, and only one fleet repo among them today). Every other name becomes `[redacted:repo]`. `redact` stays as it is.
+- **A second gap the tool has:** a name inside a hyphenated word is never hidden. I tested the pattern: `name` matches, `name-study` does not. This session contains herdr workspace labels of that shape, built from private repo names. That goes into the same request, and my own scans will check for it in this export.
+
+## Updated plan
+1. **Refresh my two changes** for the `home/` layout and `TODO.md`. One commit: `docs(chezmoi:spec): refresh the roadmap and launch changes for home/`.
+   - Paths become `home/...`, and the bullets about the old ignore block go.
+   - `add-repo-roadmap` seeds from `TODO.md` and retires it, so `refresh-repo-docs` drops its "retire `TODO.md`" bullet.
+   - Add the archive-order note.
+   - In the brief, the roadmap agent reports to `chezmoi-orch` if one is running, otherwise to you in its own pane.
+   - In `observations.md`, log that herdr agent names went missing.
+2. **Prompt `obsidian-clipper`** to make the store fixes, as above.
+3. **Send `nvim-orch` a brief** at `/tmp/opencode/briefs/chezmoi-request-redact-keep-public.md`, after checking its input box again. It covers:
+   - a note that `fix-prompt-delivery` is now `add-agent-launch-tasks` (`07e276d`), with nothing to do now;
+   - the `keep`-public request;
+   - the hyphenated-name gap;
+   - that this repo now has a `.session-redact.toml`;
+   - no reply to this pane, since it will be closed: it records the request and tells you when the change lands.
+4. **Re-export this session** once the store reports clean. Main session only, redacted from the store through a new `.session-redact.toml` at the repo root: `profile = "public"`, `terms = "dotfiles"`, and every export under `memory/sessions/` as what `--check` covers.
+   - **One-off terms**, such as those hyphenated labels, go in a 0700 scratch layer (`SESSION_REDACT_TERMS_DIR`). I then tell you which entries to make permanent, giving their count but never their values.
+   - **Checks:** the tool's `--check`, gitleaks, and a substring scan of every name in the store's fleet and private lists (counts only).
+   - **Commit:** `docs(chezmoi:memory): re-export the orchestrator session`, with the README updated.
+5. **Close the tabs:** `obsidian-clipper` once it has reported, with your go. You close `orch`.
+**Tool: question**
+
+**Input:**
+```json
+{
+  "questions": [
+    {
+      "header": "What counts as public for keep",
+      "question": "For the new `keep`, which names count as public?",
+      "options": [
+        {
+          "label": "The store's public list (Recommended)",
+          "description": "`public-repos.txt` is the only source. You add [redacted:repo], [redacted:private], [redacted:repo] and greffe when you decide their names may appear in exports (AGENTS.md already lets this repo name them). One list, no new concept"
+        },
+        {
+          "label": "Separate publishable list",
+          "description": "A new list of names that may be published, whether the repository is public yet or not, kept apart from the GitHub allowlist. The Neovim repo designs it"
+        }
+      ]
+    },
+    {
+      "header": "Interim fleet-names setting",
+      "question": "The tool change will take time. What should `dotfiles/fleet-names.txt` say until it lands?",
+      "options": [
+        {
+          "label": "redact now, keep later (Recommended)",
+          "description": "Every fleet name is hidden in this repo's exports, which is stricter than needed but safe, and lets exports use the store directly. Switch back to `keep` when the tool change lands"
+        },
+        {
+          "label": "Leave keep, use scratch copies",
+          "description": "No store change for this setting; every export keeps using a copy without the switch, as both agents did"
+        }
+      ]
+    },
+    {
+      "header": "Pushes",
+      "question": "What should be pushed at the end?",
+      "options": [
+        {
+          "label": "Both (Recommended)",
+          "description": "The store commit (private repository) and this repo's two new commits (the refresh, then the export)"
+        },
+        {
+          "label": "This repo only",
+          "description": "The store commit stays local"
+        },
+        {
+          "label": "Nothing",
+          "description": "You push yourself later"
+        }
+      ]
+    },
+    {
+      "header": "Private content in the export",
+      "question": "My main transcript holds the summaries returned by three sub-agents: the fleet piloting repo's orchestration study and roadmap conventions, fleet roadmaps, dispatch tooling. With names masked, that is still content from private repos. How should the export go?",
+      "options": [
+        {
+          "label": "Full, names masked (Recommended)",
+          "description": "The design reasoning stays: findings and line references, no secrets, and private repo names hidden by the store and my scans"
+        },
+        {
+          "label": "Without tool details",
+          "description": "`--no-tool-details`: drops every tool input and output, sub-agent results included; the reasoning and replies stay, the evidence goes"
+        }
+      ]
+    }
+  ]
+}
+```
+
+**Output:**
+```
+User has answered your questions: "For the new `keep`, which names count as public?"="The store's public list (Recommended)", "The tool change will take time. What should `dotfiles/fleet-names.txt` say until it lands?"="redact now, keep later (Recommended)", "What should be pushed at the end?"="Both (Recommended)", "My main transcript holds the summaries returned by three sub-agents: the fleet piloting repo's orchestration study and roadmap conventions, fleet roadmaps, dispatch tooling. With names masked, that is still content from private repos. How should the export go?"="Full, names masked (Recommended)". You can now continue with the user's answers in mind.
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 12.7s)
+
+_Thinking:_
+Everything's been recommended and the plan is settled. Since plan mode is still on, I'll lay out the final plan briefly and ask whether to turn it off.
+
+
+Settled:
+- **Public names:** the new `keep` uses the store's public list (`public-repos.txt`).
+- **Interim setting:** `redact` now, back to `keep` when the tool change lands.
+- **Pushes:** both, the store and this repo.
+- **Export:** the full session, with names masked.
+
+## Final plan
+1. **Refresh my two changes** and commit: `docs(chezmoi:spec): refresh the roadmap and launch changes for home/` (68 characters).
+   - Paths become `home/...`.
+   - Drop the old ignore-block bullets.
+   - `add-repo-roadmap` seeds from `TODO.md` and retires it; `refresh-repo-docs` drops its `TODO.md` bullet.
+   - Add the archive-order note.
+   - The brief's report target becomes: `chezmoi-orch` if one is running, otherwise you.
+   - Log the herdr name loss in `observations.md`.
+2. **Prompt `obsidian-clipper` (`wN:p7`)** to fix the store:
+   - Add its three details to `session-redact/redact-terms.txt`.
+   - Set `dotfiles/fleet-names.txt` to `redact`.
+   - Run `--explain`, then `--check` over every export here.
+   - Commit and push the store.
+   - Reply with counts only.
+3. **Brief `nvim-orch`** at `/tmp/opencode/briefs/chezmoi-request-redact-keep-public.md`:
+   - A note that `fix-prompt-delivery` is now `add-agent-launch-tasks` (`07e276d`), with nothing to do now.
+   - `keep` keeps only names on the public list: bare names, `~/Work/<repo>/...` paths and `owner/name` links, with tests.
+   - The hyphenated-name gap.
+   - This repo now has a `.session-redact.toml`.
+   - It tells you when the change lands, so you can switch the store back to `keep`.
+4. **Re-export this session** once the store reports clean:
+   - Add `.session-redact.toml` at the repo root (`profile = "public"`, `terms = "dotfiles"`, check covers `memory/sessions/*.md`).
+   - One-off terms go in a 0700 scratch layer. I'll tell you how many to make permanent, never the values.
+   - Checks: the tool's `--check`, gitleaks, and substring scans of every name in the store's fleet and private lists (counts only).
+   - Update the README, then commit: `docs(chezmoi:memory): re-export the orchestrator session`.
+   - Push this repo.
+5. **Close the tabs:** I close `obsidian-clipper`'s tab once it has reported. You close `orch`.
+
+Turn off plan mode and I'll run it.
+
+---
+
+## User
+
+go
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 24.2s)
+
+_Thinking:_
+I'm kicking off the plan with the todo list. Since the obsidian-clipper prompt can run in parallel with step 1, I'll send that off first. One thing to keep in mind: that agent works in the chezmoi checkout, while the store is a separate repo, and its `--check` run would touch memory/sessions here.
+
+I'm noting that the obsidian-clipper agent works in the chezmoi checkout, while this store is a separate repo, so I'll tell it explicitly to stay out of this repo and only touch the store. I'm drafting the prompt now, one message with no path ending and none of the three terms, and I'll submit it to that agent's pane and check it started.
+
+I'm drafting the message for the obsidian-clipper agent, asking it to add the three masked details to the store's term list and set the fleet-names file to redact, then run the explain and check commands and report only counts. I'm also keeping the commit message free of any term.
+
+I'm settling on the prompt for the obsidian-clipper agent: it should fill in the store's term list and set the fleet-names file to redact, then run the checks and report only counts. The other part is to keep the commit message free of any terms, and to avoid the store's values appearing anywhere but the store itself.
+
+I'm checking the layering for the `--check` run: the global layer stays in place, and the terms directory is what carries the dotfiles list. I'm also weighing whether pointing the env var at the same directory as a project file would double-count the list, and I'm leaning toward using the env var only for a scratch layer.
+
+Next I'll write the todo list, then send the prompt to the obsidian-clipper agent so it runs alongside step 1.
+
+
+Build mode is on. I'll prompt `obsidian-clipper` first, since it can work on the store while I refresh my two changes.
+**Tool: todowrite**
+
+**Input:**
+```json
+{
+  "todos": [
+    {
+      "content": "2. Prompt obsidian-clipper (wN:p7): store fixes (3 terms, fleet-names redact), check, commit+push store, counts only",
+      "status": "in_progress",
+      "priority": "high"
+    },
+    {
+      "content": "1. Refresh add-repo-roadmap + add-agent-launch-tasks (home/ paths, TODO.md seed/retire, refresh-repo-docs bullet, archive-order note, brief report target, observations); validate; commit",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "content": "3. Brief nvim-orch (keep-public request, hyphenated-name gap, fix-prompt-delivery superseded) and prompt it",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "content": "4. Re-export this session: .session-redact.toml, scratch layer for one-off terms, checks, README, commit, push repo",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "content": "5. Close obsidian-clipper tab after its report; user closes orch",
+      "status": "pending",
+      "priority": "medium"
+    }
+  ]
+}
+```
+
+**Output:**
+```
+[
+  {
+    "content": "2. Prompt obsidian-clipper (wN:p7): store fixes (3 terms, fleet-names redact), check, commit+push store, counts only",
+    "status": "in_progress",
+    "priority": "high"
+  },
+  {
+    "content": "1. Refresh add-repo-roadmap + add-agent-launch-tasks (home/ paths, TODO.md seed/retire, refresh-repo-docs bullet, archive-order note, brief report target, observations); validate; commit",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "content": "3. Brief nvim-orch (keep-public request, hyphenated-name gap, fix-prompt-delivery superseded) and prompt it",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "content": "4. Re-export this session: .session-redact.toml, scratch layer for one-off terms, checks, README, commit, push repo",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "content": "5. Close obsidian-clipper tab after its report; user closes orch",
+    "status": "pending",
+    "priority": "medium"
+  }
+]
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "herdr agent read wN:p7 --source visible 2>&1 | rg -v '^\\s*$' | tail -4 | cut -c1-120\ncat > /tmp/opencode/briefs/chezmoi-request-store-fixes.md <<'EOF'\n# Request to the agent that applied adopt-chezmoiroot: fix the private redaction store\n\nFrom: the orchestrator agent of this repository (pane wN:p1). The user approved this request.\nThis is not the user speaking; it does not change any gate you have.\n\nYour handoff reported two problems in the private redaction store. Please fix them, and nothing else.\nStore: ~/.local/share/chezmoi-private (a private git repository, in sync with its remote).\n\n1. Add the three details you masked by hand (the client-looking directory name, the VM name, the hosting provider name) as plain lines to session-redact/redact-terms.txt.\n   No inline flags (matching is already case-insensitive); the `re:` prefix only if a pattern is really needed.\n   Do not write their values anywhere else: not in your reply, not in a commit message, not in any file of the chezmoi repository.\n2. Set dotfiles/fleet-names.txt to `redact`.\n   This is an interim value: the redaction tool will keep only names from the public list readable (a request goes to the Neovim repository's orchestrator), and the user will switch the file back to `keep` then.\n3. Check, from ~/.local/share/chezmoi:\n   - `SESSION_REDACT_TERMS_DIR=~/.local/share/chezmoi-private/dotfiles python3 ~/.config/nvim/scripts/session_redact.py --explain`\n   - the same variable with `--profile public --check memory/sessions/*.md`.\n   A non-zero count on an export that is already pushed is a finding to report, not to fix.\n4. Commit in the store (message in its style, naming no term) and push it.\n5. Reply with counts and settings only: the commit hash, the entry count of session-redact/redact-terms.txt before and after, the value of fleet-names and the source `--explain` gives for it, and the `--check` counts per category.\n\nDo not modify, stage or commit anything in the chezmoi repository: another session is committing there.\nEOF\nls -la /tmp/opencode/briefs/chezmoi-request-store-fixes.md"
+}
+```
+
+**Output:**
+```
+  ┃
+  ┃  Build · Claude Sonnet 5.5 Anthropic · xhigh
+  ╹▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀�
+   ~/.local/share/chezmoi                                                                                500.9
+-rw-rw-r-- 1 [redacted:user_username] [redacted:user_username] 1867 nov.   8 07:30 /tmp/opencode/briefs/chezmoi-request-store-fixes.md
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 10.4s)
+
+_Thinking:_
+I need to point the agent at the file now, using a plain path rather than an @ reference at the end of the prompt.
+
+
+The input box is empty and the TUI is drawn, so one submission is enough.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "herdr agent prompt wN:p7 \"Message from another agent session, not from the user: please read and carry out the request in the file /tmp/opencode/briefs/chezmoi-request-store-fixes.md and reply with counts only, as it says.\" --wait --until working --timeout 20000 2>&1 | head -5 | cut -c1-200; echo \"exit=${pipestatus[1]}\"; sleep 6; herdr agent get wN:p7 2>&1 | jq -c '.result.agent | {agent_status}'; herdr agent read wN:p7 --source visible 2>&1 | rg -v '^\\s*$' | tail -8 | cut -c1-170",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+{"id":"cli:agent:prompt","result":{"agent":{"agent":"opencode","agent_session":{"agent":"opencode","kind":"id","source":"herdr:opencode","value":"ses_e4e09db8cffemmn27kyPyjtsNs"},"agent_status":"worki
+exit=0
+{"agent_status":"working"}
+  ┃
+     ▣  Build · Claude Sonnet 5.5                                                                                                                       ▄
+  ┃
+  ┃
+  ┃
+  ┃  Build · Claude Sonnet 5.5 Anthropic · xhigh
+  ╹▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+   ⬝⬝⬝⬝⬝⬝⬝⬝  esc interrupt                                                                                         500.9K (50%) · $43.64  ctrl+p commands
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 32.2s)
+
+_Thinking:_
+Next I'm refreshing my two changes, starting by reading the proposal file. It needs its paths updated to the new `home/` location, a .chezmoiignore bullet, seeding from TODO.md, retiring TODO.md, reversing the non-goal about keeping it, and an archive-order note.
+
+I'm checking the spec deltas next: the global-mise-tasks spec needs its paths moved to `home/`, and since the main spec still uses the flat paths, my delta's `home/` version corrects that on archive. Then the spec-workflow spec needs a new scenario confirming TODO.md is gone, and I need to see what its current "not targets" wording says after the chezmoiroot change.
+
+I'm thinking about the roadmap's planned entries, which have no change directory yet. The roadmap spec requires each change to appear once, so I need a way to mark planned rows and have the check accept them without failing.
+
+I'm weighing how to represent planned roadmap entries, since they have no change folder and so no record to pull from. My leaning is to have the spec require that planned entries be accepted and not fail the check, but the exact place they live is still undecided.
+
+I'm now weighing how the planned roadmap entries should be handled, since they have no change directory and so nothing to pull a record from. The thinking is that ROADMAP.md keeps a hand-maintained list of planned ids with their dependencies, which the generated table would include in order with a `planned` state. Separately, I'm noting the ordering problem: TODO.md's order is hand-chosen and can't come purely from dependencies, so the design needs some way to reproduce it.
+
+Next I'm weighing whether the seed's order from TODO.md can be expressed at all, since dependency order alone won't reproduce a hand-chosen list. I'm leaning toward putting the acceptance check for the seed in the proposal and the brief rather than in a spec, because it's a one-time migration check that later edits would break.
+
+I'm checking whether the audit's change map has the newer changes, since the earlier grep stopped around row 25. Others like the incus work seem to exist only in TODO.md, which would make the audit map stale. If so, the proposal should seed from TODO.md's planned order and take the origin and findings columns from the audit. I also need to update the brief's paths and its read-first list to match.
+
+Next I'm checking the remaining proposal and brief edits: the agent-launch proposal needs its paths moved under `home/dot_config/`, and the tests directory sits outside `home/`, so it needs no ignore entry.
+
+I'm checking the observations log for the agent-launch change, since the note about the lost agent names needs updating. Nvim-orch appears to have its name back, while my own agent's name is still missing, so the log's "not durable" entry needs revisiting.
+
+I'm trying to pin down how the observed name loss should be recorded, since the cause is unclear. The plan is to log that `chezmoi-orch`'s name vanished between 11-04 and 11-06 while other panes kept or regained theirs, and to leave the reason open rather than guess at it. I also notice that pane wN:p1 is listed under a working directory I wouldn't expect to be in, which I want to check before I trust the entry.
+
+Looking at whether I should keep the planned chezmoi-orch pane's name, I'll leave the rename alone since I'm closing this tab, and I'll note the nvim-orch brief's instruction to tell the user.
+
+I'm now checking the refresh-repo-docs proposal for any mention of TODO.md, since retiring it changes that change's scope, and I'm also considering a small wording update in TODO.md itself to say the roadmap replaces the file.
+
+Next I'm checking the archive-order note, specifically which requirements the add-agent-launch-tasks change modifies so I can compare them against add-repo-roadmap's edits to the same spec.
+
+I'm checking whether add-incus-host-setup also modifies "Global tasks are deployed and listed," since two changes rewriting the same requirement would clash at archive, while touching different requirements would not.
+
+
+The prompt was delivered once and the agent is working. Now step 1. First I'm checking which requirements the other open changes modify in the same spec, so my archive-order note is accurate.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\necho \"== changes with a global-mise-tasks delta\"; fd -t f spec.md openspec/changes -p 'global-mise-tasks' --exclude archive | cat\nfor f in $(fd -t f spec.md openspec/changes --exclude archive -p 'global-mise-tasks'); do echo \"-- $f\"; rg -n '^## (ADDED|MODIFIED|REMOVED|RENAMED)|^### Requirement' $f | cut -c1-150; done\necho \"== refresh-repo-docs mentions of TODO.md\"; rg -n 'TODO\\.md' openspec/changes/refresh-repo-docs | cut -c1-220\necho \"== spec-workflow / source-layout: not-a-target wording\"; rg -n 'Requirement|ROADMAP|TODO|chezmoi managed' openspec/specs/source-layout/spec.md openspec/specs/spec-workflow/spec.md | cut -c1-200",
+  "workdir": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+== changes with a global-mise-tasks delta
+[fd error]: Search path 'global-mise-tasks' is not a directory.
+openspec/changes/add-agent-launch-tasks/specs/agent-launch/spec.md
+openspec/changes/add-agent-launch-tasks/specs/global-mise-tasks/spec.md
+openspec/changes/add-incus-host-setup/specs/global-mise-tasks/spec.md
+openspec/changes/add-incus-host-setup/specs/incus-host-setup/spec.md
+openspec/changes/add-incus-setup-hook/specs/incus-setup-hook/spec.md
+openspec/changes/add-kali-vm-target/specs/machine-test-vms/spec.md
+openspec/changes/add-machine-lifecycle-test-infra/specs/machine-test-harness/spec.md
+openspec/changes/add-machine-smoke-ci/specs/machine-smoke-ci/spec.md
+openspec/changes/add-mise-app-desktop-entries/specs/mise-app-desktop-entries/spec.md
+openspec/changes/add-private-store-external/specs/neovim-config/spec.md
+openspec/changes/add-private-store-external/specs/private-store/spec.md
+openspec/changes/add-repo-quality-gates/specs/quality-gates/spec.md
+openspec/changes/add-repo-roadmap/specs/global-mise-tasks/spec.md
+openspec/changes/add-repo-roadmap/specs/openspec-repo-roadmap/spec.md
+openspec/changes/add-repo-roadmap/specs/spec-workflow/spec.md
+openspec/changes/cleanup-dead-config/specs/config-hygiene/spec.md
+openspec/changes/fast-correct-shell-startup/specs/shell-startup/spec.md
+openspec/changes/fix-chezmoi-config-template/specs/chezmoi-config/spec.md
+openspec/changes/fix-chezmoi-config-template/specs/neovim-config/spec.md
+openspec/changes/fresh-machine-bootstrap/specs/chezmoi-config/spec.md
+openspec/changes/fresh-machine-bootstrap/specs/machine-bootstrap/spec.md
+openspec/changes/ignore-app-state/specs/app-state-exclusion/spec.md
+openspec/changes/install-terminal-fonts/specs/terminal-fonts/spec.md
+openspec/changes/make-install-scripts-idempotent/specs/install-scripts/spec.md
+openspec/changes/manage-ai-tool-configs/specs/ai-tool-configs/spec.md
+openspec/changes/manage-dev-tui-configs/specs/tui-configs/spec.md
+openspec/changes/manage-gh-config/specs/gh-config/spec.md
+openspec/changes/manage-kde-desktop-config/specs/kde-desktop-config/spec.md
+openspec/changes/manage-xdg-basics/specs/xdg-basics/spec.md
+openspec/changes/port-[redacted:private]-shell-aliases/specs/shell-aliases/spec.md
+openspec/changes/rationalize-package-ownership/specs/package-ownership/spec.md
+openspec/changes/reconcile-drift-and-supervised-apply/specs/drift-control/spec.md
+openspec/changes/refresh-repo-docs/specs/repo-docs/spec.md
+openspec/changes/remove-brew-libvirt/specs/brew-package-bans/spec.md
+openspec/changes/support-kali-vm-secure-boot/specs/kali-vm-image/spec.md
+openspec/changes/support-kali-vm-uefi/specs/kali-vm-image/spec.md
+[fd error]: Search path 'global-mise-tasks' is not a directory.
+-- openspec/changes/add-agent-launch-tasks/specs/agent-launch/spec.md
+1:## ADDED Requirements
+8:### Requirement: First prompt is delivered once
+90:### Requirement: herdr calls are bounded
+100:### Requirement: A workspace is built out of a worktree
+126:### Requirement: An agent is launched into a workspace
+147:### Requirement: Callers report the delivery outcome
+163:### Requirement: Unknown workspace is refused before anything is created
+172:### Requirement: Prompt help warns about file references
+181:### Requirement: Launch tasks are deployed and tested
+-- openspec/changes/add-agent-launch-tasks/specs/global-mise-tasks/spec.md
+1:## MODIFIED Requirements
+3:### Requirement: Dispatching an agent
+-- openspec/changes/add-incus-host-setup/specs/global-mise-tasks/spec.md
+1:## ADDED Requirements
+3:### Requirement: The Incus setup task is deployed and listed
+-- openspec/changes/add-incus-host-setup/specs/incus-host-setup/spec.md
+1:## ADDED Requirements
+9:### Requirement: Setup reports what exists before it acts
+34:### Requirement: Check and dry run change nothing and never call sudo
+54:### Requirement: Setup installs and initialises a bare host
+80:### Requirement: The storage driver follows the filesystem
+104:### Requirement: An existing Incus is reported and never changed
+147:### Requirement: The Zabbly source is limited, verified and written once
+177:### Requirement: Guests reach the network while Docker runs
+186:### Requirement: The default group is enough to run guests
+210:### Requirement: The setup is tested without touching the system
+-- openspec/changes/add-incus-setup-hook/specs/incus-setup-hook/spec.md
+1:## ADDED Requirements
+3:### Requirement: Incus is an opt-in feature
+-- openspec/changes/add-kali-vm-target/specs/machine-test-vms/spec.md
+1:## ADDED Requirements
+6:### Requirement: VM guests use the same interface as containers
+31:### Requirement: Imported images are pinned and checked
+45:### Requirement: Images that Incus does not ship are imported once and made agent-ready
+69:### Requirement: The Kali VM target boots Kali's cloud image
+-- openspec/changes/add-machine-lifecycle-test-infra/specs/machine-test-harness/spec.md
+1:## ADDED Requirements
+6:### Requirement: Targets are described in one list
+39:### Requirement: One interface for the guest lifecycle
+70:### Requirement: Missing or unreachable engine is reported, not hidden
+86:### Requirement: Guests are isolated from other instances
+117:### Requirement: Guests run as a user unlike the host's
+137:### Requirement: The guest receives the repository as committed
+157:### Requirement: No real secret enters a guest
+171:### Requirement: A stage is a script run in the guest
+197:### Requirement: The smoke stage proves the plumbing and applies nothing
+222:### Requirement: The harness is tested tooling that follows the fleet stack
+-- openspec/changes/add-machine-smoke-ci/specs/machine-smoke-ci/spec.md
+1:## ADDED Requirements
+3:### Requirement: Every CI-capable target is proven on a hosted runner
+44:### Requirement: The workflow holds no secret and nothing personal
+-- openspec/changes/add-mise-app-desktop-entries/specs/mise-app-desktop-entries/spec.md
+1:## ADDED Requirements
+3:### Requirement: Declared mise GUI applications
+12:### Requirement: Desktop entry per installed application
+31:### Requirement: Launch path survives mise upgrades
+50:### Requirement: Themed icon per installed application
+64:### Requirement: URL scheme handlers
+88:### Requirement: Desktop caches refreshed on change
+-- openspec/changes/add-private-store-external/specs/neovim-config/spec.md
+1:## ADDED Requirements
+3:### Requirement: Compiled spell lists are ignored by git
+-- openspec/changes/add-private-store-external/specs/private-store/spec.md
+1:## ADDED Requirements
+3:### Requirement: Store location is configuration
+17:### Requirement: Store cloned by a guarded external
+42:### Requirement: A clone is private
+-- openspec/changes/add-repo-quality-gates/specs/quality-gates/spec.md
+1:## ADDED Requirements
+3:### Requirement: Whole-tree check passes
+12:### Requirement: Shell sources are checked
+21:### Requirement: Templates render
+30:### Requirement: Commit messages follow the convention
+44:### Requirement: Specs stay valid
+-- openspec/changes/add-repo-roadmap/specs/global-mise-tasks/spec.md
+1:## MODIFIED Requirements
+3:### Requirement: Global tasks are deployed and listed
+22:### Requirement: Tasks are generic and clean
+-- openspec/changes/add-repo-roadmap/specs/openspec-repo-roadmap/spec.md
+1:## ADDED Requirements
+5:### Requirement: Every change carries roadmap fields
+19:### Requirement: State is derived, never stored
+33:### Requirement: Reading writes nothing
+47:### Requirement: Generated sections of ROADMAP.md
+66:### Requirement: The check catches a broken roadmap
+85:### Requirement: Usable by any OpenSpec repository
+-- openspec/changes/add-repo-roadmap/specs/spec-workflow/spec.md
+1:## ADDED Requirements
+3:### Requirement: A roadmap of all changes
+-- openspec/changes/cleanup-dead-config/specs/config-hygiene/spec.md
+1:## ADDED Requirements
+3:### Requirement: No leftover files in the source state
+12:### Requirement: Configs only for tools in use
+21:### Requirement: Correct theme names
+30:### Requirement: Terminal remote control restricted
+39:### Requirement: Portable git configuration
+-- openspec/changes/fast-correct-shell-startup/specs/shell-startup/spec.md
+1:## ADDED Requirements
+3:### Requirement: Fast startup
+17:### Requirement: Single load of the interactive configuration
+26:### Requirement: Silent startup
+35:### Requirement: Clean PATH
+54:### Requirement: Working locale
+63:### Requirement: bash login on a bare terminal
+72:### Requirement: Opt-in token exposure
+-- openspec/changes/fix-chezmoi-config-template/specs/chezmoi-config/spec.md
+1:## ADDED Requirements
+3:### Requirement: Config generated from the template only
+22:### Requirement: Encryption configured by the template
+36:### Requirement: Every key takes effect
+55:### Requirement: The config records whether Incus is wanted
+74:### Requirement: Restrictive deployment modes
+83:### Requirement: Brewfile stays in sync after brew changes
+-- openspec/changes/fix-chezmoi-config-template/specs/neovim-config/spec.md
+1:## ADDED Requirements
+3:### Requirement: Neovim location is configuration
+12:### Requirement: Neovim configuration from its own repository
+-- openspec/changes/fresh-machine-bootstrap/specs/chezmoi-config/spec.md
+1:## ADDED Requirements
+3:### Requirement: Machine description data
+-- openspec/changes/fresh-machine-bootstrap/specs/machine-bootstrap/spec.md
+1:## ADDED Requirements
+3:### Requirement: One-command bootstrap
+17:### Requirement: User and prefix independence
+31:### Requirement: Bootstrap does not depend on GitHub access
+40:### Requirement: git identity from data
+-- openspec/changes/ignore-app-state/specs/app-state-exclusion/spec.md
+1:## ADDED Requirements
+3:### Requirement: Application state is ignored on purpose
+12:### Requirement: Ignore patterns are effective
+-- openspec/changes/install-terminal-fonts/specs/terminal-fonts/spec.md
+1:## ADDED Requirements
+3:### Requirement: Configured terminal fonts are installed
+17:### Requirement: Declared font set
+-- openspec/changes/make-install-scripts-idempotent/specs/install-scripts/spec.md
+1:## ADDED Requirements
+3:### Requirement: Scripts are no-ops on an up-to-date machine
+17:### Requirement: Scripts never uninstall
+26:### Requirement: System files written only when needed and never weakened
+40:### Requirement: Non-interactive scripts
+49:### Requirement: Triggers follow inputs
+63:### Requirement: Portable scripts
+77:### Requirement: Dry-run mode
+86:### Requirement: Shell quality
+-- openspec/changes/manage-ai-tool-configs/specs/ai-tool-configs/spec.md
+1:## ADDED Requirements
+3:### Requirement: Declarative AI tool settings are managed
+12:### Requirement: No credentials or state in the repository
+26:### Requirement: Agent shells show commit hook output
+45:### Requirement: Provider keys are referenced, not stored
+-- openspec/changes/manage-dev-tui-configs/specs/tui-configs/spec.md
+1:## ADDED Requirements
+3:### Requirement: Customized TUI configs are managed
+12:### Requirement: Tool rewrites do not cause drift
+-- openspec/changes/manage-gh-config/specs/gh-config/spec.md
+1:## ADDED Requirements
+3:### Requirement: Login state stays out of the repository
+17:### Requirement: Settings are declared and private
+26:### Requirement: Extensions are declared
+-- openspec/changes/manage-kde-desktop-config/specs/kde-desktop-config/spec.md
+1:## ADDED Requirements
+3:### Requirement: Declared KDE settings converge
+12:### Requirement: Undeclared keys are left alone
+21:### Requirement: Quiet status despite KDE rewrites
+30:### Requirement: Machine-specific state excluded
+-- openspec/changes/manage-xdg-basics/specs/xdg-basics/spec.md
+1:## ADDED Requirements
+3:### Requirement: XDG user directories
+12:### Requirement: Default applications
+31:### Requirement: Declared autostart set
+50:### Requirement: One user fontconfig file
+64:### Requirement: No private hosts in bookmarks
+-- openspec/changes/port-[redacted:private]-shell-aliases/specs/shell-aliases/spec.md
+1:## ADDED Requirements
+3:### Requirement: Ported aliases and functions
+17:### Requirement: Aliases do not break or shadow by accident
+31:### Requirement: Shell syntax
+-- openspec/changes/rationalize-package-ownership/specs/package-ownership/spec.md
+1:## ADDED Requirements
+3:### Requirement: One owner per tool
+12:### Requirement: Declared equals installed
+26:### Requirement: GitHub .deb packages through bin
+-- openspec/changes/reconcile-drift-and-supervised-apply/specs/drift-control/spec.md
+1:## ADDED Requirements
+3:### Requirement: Source and live state agree
+17:### Requirement: Application-migrated configs are current in the source
+26:### Requirement: Private application directories
+35:### Requirement: No unexplained files in managed shell folders
+49:### Requirement: Supervised full apply
+-- openspec/changes/refresh-repo-docs/specs/repo-docs/spec.md
+1:## ADDED Requirements
+3:### Requirement: README explains the repository
+12:### Requirement: No stale task list
+21:### Requirement: Repository documentation is not deployed
+-- openspec/changes/remove-brew-libvirt/specs/brew-package-bans/spec.md
+1:## ADDED Requirements
+3:### Requirement: Brew's libvirt stack is removed and shadows nothing
+37:### Requirement: Brew is configured to refuse the banned formulae in every kind of shell
+66:### Requirement: A banned formula is refused and other installs are unaffected
+-- openspec/changes/support-kali-vm-secure-boot/specs/kali-vm-image/spec.md
+1:## ADDED Requirements
+3:### Requirement: The Kali VM image boots with Secure Boot enabled
+22:### Requirement: Signing keys stay out of the repository
+-- openspec/changes/support-kali-vm-uefi/specs/kali-vm-image/spec.md
+1:## ADDED Requirements
+3:### Requirement: The Kali VM image is built from a recipe and boots under UEFI
+17:### Requirement: The pipeline choice is recorded
+== refresh-repo-docs mentions of TODO.md
+openspec/changes/refresh-repo-docs/proposal.md:3:The README is a stub, `TODO.md` lists items that are done or obsolete, and the tmux `AGENTS.md` is deployed into `~/.config/tmux` and no longer matches the config it descr
+openspec/changes/refresh-repo-docs/proposal.md:9:- Retire `TODO.md`: open items become OpenSpec changes or [redacted:private] backlog entries, then the file is removed.
+openspec/changes/refresh-repo-docs/specs/repo-docs/spec.md:18:- **WHEN** `git ls-files TODO.md` runs
+== spec-workflow / source-layout: not-a-target wording
+openspec/specs/spec-workflow/spec.md:7:## Requirements
+openspec/specs/spec-workflow/spec.md:8:### Requirement: Dated audit baseline
+openspec/specs/spec-workflow/spec.md:17:### Requirement: One OpenSpec change per unit of work
+openspec/specs/spec-workflow/spec.md:31:### Requirement: Agent guide with safety rules
+openspec/specs/spec-workflow/spec.md:40:### Requirement: Public writing
+openspec/specs/spec-workflow/spec.md:49:### Requirement: Repository files are not targets
+openspec/specs/spec-workflow/spec.md:55:- **WHEN** `chezmoi managed | grep -E '^(AGENTS\.md|docs|openspec)'` runs
+openspec/specs/source-layout/spec.md:7:## Requirements
+openspec/specs/source-layout/spec.md:8:### Requirement: Source state under home/
+openspec/specs/source-layout/spec.md:22:### Requirement: Repository files stay outside the source state
+openspec/specs/source-layout/spec.md:28:- **WHEN** `grep -nE '^(AGENTS\.md|README\.md|TODO\.md|docs|openspec|scripts|mise\.toml|hk\.pkl)$' home/.chezmoiignore` runs
+openspec/specs/source-layout/spec.md:33:- **WHEN** `chezmoi managed | grep -E '^(AGENTS\.md|README\.md|docs|openspec|scripts|mise\.toml|hk\.pkl)'` runs
+openspec/specs/source-layout/spec.md:36:### Requirement: The layout move changes no target
+openspec/specs/source-layout/spec.md:42:- **WHEN** `chezmoi managed`, `chezmoi status` and `chezmoi diff --exclude=externals` are captured before and after the move
+openspec/specs/source-layout/spec.md:45:### Requirement: No hard-coded source path
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 9.6s)
+
+_Thinking:_
+My search pattern for the global-mise-tasks file failed and returned far too much, so I'll pull out what matters from it. The key point is that add-incus-host-setup adds a new requirement, "The Incus setup task is deployed and listed," rather than modifying an existing one, so there's no direct conflict on the same requirement. There is still some overlap with my own change to the global task list, which I need to look at.
+
+I'm checking whether the add-repo-roadmap change conflicts with refresh-repo-docs, since it would delete TODO.md. I'll read the "No stale task list" requirement and its scenario around lines 12 to 20 to see how it should be adapted.
+
+The refresh-repo-docs change can keep its "No stale task list" requirement as it is, since that describes the outcome. The thing to adjust is the proposal bullet about retiring TODO.md, so it says who handles that removal. I'll read the requirement and tasks to decide how to word it.
+
+
+_Thinking:_
+My earlier find pattern was too broad and listed everything, but the useful bits are there: add-incus-host-setup only adds a requirement, so no requirement gets changed twice. refresh-repo-docs still has a bullet and a requirement about retiring TODO.md, which I'm reading before making any edits.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; sed -n '9,25p' openspec/changes/refresh-repo-docs/specs/repo-docs/spec.md; echo ==; sed -n '1,16p' openspec/changes/refresh-repo-docs/proposal.md | cut -c1-260; echo \"== incus delta first lines\"; sed -n '1,12p' openspec/changes/add-incus-host-setup/specs/global-mise-tasks/spec.md | cut -c1-260; echo \"== TODO.md lines 24-35, 45\"; sed -n '24,35p;45p' TODO.md | cut -c1-260",
+  "workdir": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+- **WHEN** `grep -c '^## ' README.md` runs
+- **THEN** it prints at least 4, and the bootstrap command appears in a code block
+
+### Requirement: No stale task list
+
+Open work SHALL be tracked as OpenSpec changes or [redacted:private] backlog entries, not in a free-form TODO file.
+
+#### Scenario: TODO retired
+
+- **WHEN** `git ls-files TODO.md` runs
+- **THEN** it prints nothing
+
+### Requirement: Repository documentation is not deployed
+
+Documentation about the repository or its configs SHALL not be deployed into the home directory.
+
+#### Scenario: No deployed docs
+zsh:1: = not found
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 3.6s)
+
+_Thinking:_
+The `sed` output got cut off, and the later parts of the command seem not to have run. The `zsh:1: = not found` error points at the `==` in my echo: in zsh, a leading `==` is treated as an equals expansion, which aborted the command. I'll avoid `echo ==` and rerun the remaining steps.
+
+
+The bare `==` tripped zsh's `=` expansion and cut that command short. Re-running the rest.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; sed -n '1,16p' openspec/changes/refresh-repo-docs/proposal.md | cut -c1-260; echo \"-- incus delta\"; sed -n '1,12p' openspec/changes/add-incus-host-setup/specs/global-mise-tasks/spec.md | cut -c1-260; echo \"-- TODO.md 24-35 and 45\"; sed -n '24,35p;45p' TODO.md | cut -c1-260",
+  "workdir": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+## Why
+
+The README is a stub, `TODO.md` lists items that are done or obsolete, and the tmux `AGENTS.md` is deployed into `~/.config/tmux` and no longer matches the config it describes (audit finding F34).
+Once the consolidation changes have landed, a reader (the user on a new machine, an agent, or a visitor of the public repository) should understand what this repository is and how to use it from the README alone.
+
+## What Changes
+
+- Rewrite `README.md`: purpose, relation to [redacted:private], bootstrap command, layout, how changes are made (OpenSpec, `AGENTS.md`), license.
+- Retire `TODO.md`: open items become OpenSpec changes or [redacted:private] backlog entries, then the file is removed.
+- Move the tmux agent guide out of the target state (into `docs/` or merged into `AGENTS.md`) and align it with `tmux.conf`; same check for any other deployed README.
+- Add a short `docs/` index (audits, how-to for bootstrap and supervised apply).
+
+## Capabilities
+
+### New Capabilities
+
+-- incus delta
+## ADDED Requirements
+
+### Requirement: The Incus setup task is deployed and listed
+
+The repository SHALL deploy the global file task `sys:virt:incus:setup`, executable, with the alias `sys:setup:virt:incus`, so that the host setup for virtualization is found under the object-first name and under the action-first name.
+
+#### Scenario: Task is listed
+
+- **WHEN** `mise tasks ls --global` runs from a directory with no project config
+- **THEN** it lists `sys:virt:incus:setup`
+
+#### Scenario: Alias resolves
+-- TODO.md 24-35 and 45
+## Planned order of changes
+
+The order in which the open OpenSpec changes are applied and archived, written on 2026-11-07; tick a line when its change is archived.
+It starts from the audit's change map (`docs/audits/2026-10-30-environment.md`, section 6) and differs from it on purpose in three places:
+
+* the changes the user wants applied soon (lines 4 to 10) come right after the first three;
+* the Incus changes (lines 11 to 13) and the guest-based stages come before the supervised apply, so that the first full apply is proven in a disposable guest before it runs on the laptop;
+* `reconcile-drift-and-supervised-apply` moves behind `test-second-apply-noop` for that reason.
+
+Lines marked *planned* have no change yet; create each with `/opsx-propose` when it is next.
+Once `add-repo-roadmap` is applied, its generated `ROADMAP.md` replaces this list.
+
+10. [ ] `add-repo-roadmap` (audit 24): proposal and specs; replaces this list once applied.
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 38.0s)
+
+_Thinking:_
+I'm now planning the edits, starting with the proposal: the line about retiring TODO.md is being rewritten so it points to `add-repo-roadmap` and its ROADMAP.md, which takes over the planned order and backlog.
+
+Next I'm going through the spec scenario for the "No stale task list" requirement. It still reads fine as written, since ROADMAP.md is a generated roadmap and not a free-form TODO file, so I'll leave the spec alone and only change the proposal's line about retiring TODO.md. I'm also checking the TODO.md note about its generated ROADMAP.md replacing the list.
+
+I'm working out the remaining edits to the TODO.md lines: the roadmap change will replace the list, and the packaging backlog and older bullets move into its backlog before the file is removed. I'm also updating the audit row so it mentions TODO.md, then turning to the add-repo-roadmap proposal, where the Why section needs to reflect that the planned order now lives in TODO.md alongside the audit's change map. Since several edits are needed there, I'll rewrite that proposal in full rather than patch it piece by piece.
+
+I'm rewriting the Why paragraph of the add-repo-roadmap proposal, swapping the single hand-kept table for two lists: the audit's change map, which stops at row 25, and the planned order in TODO.md, which already disagrees with it.
+
+I'm now updating the roadmap proposal's Why section, so the planned order in TODO.md and the audit's change map are both named as hand-kept lists, and I'm rewording how TODO.md's older bullets and packaging backlog are described.
+
+I'm now reworking the add-repo-roadmap proposal's Why and Impact sections to reflect that TODO.md and the audit's change map are the two hand-kept lists, and that the TODO.md bullet moves into this change, with the global-mise-tasks archive order noted.
+
+Now I'm working through the spec for planned changes, adding a requirement so ROADMAP.md can list a change that doesn't have a folder yet.
+
+I'm adding a requirement for planned changes, so ROADMAP.md can list a change that doesn't have a folder yet. Such an entry would show up under Later, Next, or Blocked depending on its dependencies, and --check wouldn't fail for the missing folder. It would fail once a planned id matches an existing change, since that entry should become a normal change. I'm also sketching two scenarios to cover those cases.
+
+I'm now checking the add-repo-roadmap spec for the global-mise-tasks capability, where the paths need to point at the `home/` source tree. That means the chezmoi diff target, the shellcheck target and the Python compile target all change to their `home/dot_config/mise/` equivalents.
+
+I'm checking the remaining path references in the global-mise-tasks spec, where the lib and tasks paths all move under `home/dot_config/mise/`. The main spec still has the flat paths, so the modified requirement will carry the `home/` form when it is archived.
+
+I'm now checking the spec-workflow proposal, where the scenario about the roadmap not being a deploy target still holds. I'm adding a check that TODO.md is gone and making sure the planned order carries over, with the requirement amended so the former TODO.md can't be deployed once it's removed.
+
+I'm now rewriting the brief for add-repo-roadmap: the line about another agent working in the main checkout becomes a general note that other agents create changes there, and the reporting target becomes `chezmoi-orch` if that agent is found, otherwise the user in my own pane.
+
+I'm now getting the brief's reading list and paths straight: the TODO.md planned order, the audit's section 6 and finding F34, and the archived adopt-chezmoiroot change, with everything chezmoi reads under `home/`. Next I'm adding the design points for the task, covering how planned entries without a folder are represented, how the generated table keeps TODO.md's order, and where its packaging backlog and older bullets end up.
+
+I'm now updating the add-agent-launch-tasks proposal so its file paths sit under `home/`, covering the Python library and tasks and the tests folder that stays outside the chezmoi source.
+
+I'm now working through the proposal's edits, moving the Dispatching requirement's Python paths under `home/` and rewording the tests bullet so it no longer needs a temporary ignore entry. I'm also noting that only the Dispatching requirement changes, and that the Python language rule needs to be in place before the Python tasks land.
+
+Next I'm adjusting the add-agent-launch-tasks proposal, which needs a few targeted edits: the Python paths move under `home/`, and the tests bullet no longer needs a temporary ignore entry.
+
+I'm rewriting the Why paragraph of the proposal now, since the table it describes is no longer one list but two: the audit's change map and the planned order in TODO.md.
+
+I'm going through the add-repo-roadmap proposal now, rewording its Why and Impact sections so they say the TODO.md list and the audit's change map are the two hand-kept lists the roadmap replaces.
+
+I'm adding the planned-changes bullet to What Changes, so a change that has no folder yet can still be listed in ROADMAP.md with its dependencies, and `--check` only starts failing once a folder with that id exists.
+
+I'm now updating the list of edits to the add-repo-roadmap proposal: the Impact section will name the task under `home/dot_config/mise/tasks/openspec/`, its library and unit tests, and `ROADMAP.md`, and I'm dropping the `.chezmoiignore` line from the edited files and adding `TODO.md` to the removed ones.
+
+I'm now checking the proposal's Impact section: the bullets about the paths moving and the single-target deploy still stand, but there's no separate bullet about the audit change map after `adopt-chezmoiroot`. I still need to add an archive-order bullet, and I'll read the file first so the edits match its exact text.
+
+I'm going to read the roadmap proposal file first, since I'm not sure the harness will let me edit it from memory, and it's cheap to check.
+
+
+Now the edits. I'm reading the current proposal of `add-repo-roadmap` so the replacements match exactly.
+**Tool: read**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/openspec/changes/add-repo-roadmap/proposal.md"
+}
+```
+
+**Output:**
+```
+<path>~/.local/share/chezmoi/openspec/changes/add-repo-roadmap/proposal.md</path>
+<type>file</type>
+<content>
+1: ## Why
+2: 
+3: There is no single place that shows this repository's work as a whole: what is done, what is in progress, what comes next and why in that order.
+4: `openspec list` shows only the active changes with task counts, `openspec view` is a dashboard of the current specs and changes, and the archive is a folder of dated directories with no index.
+5: The order and the priorities live in one hand-kept table, the change map in section 6 of the audit (`docs/audits/2026-10-30-environment.md`), which is a dated baseline and not meant to be maintained; its later rows were added by other sessions without the rest of the document following.
+6: The fleet's roadmaps keep one record per item with its dependencies and status in the front matter, and the roadmap file is a projection of those records that tools write or check; the Neovim configuration repository's roadmap is hand-written and a task derives the state from git.
+7: Here the records already exist: each OpenSpec change is one, but it carries no order, no dependency and no priority.
+8: `TODO.md` is out of date and is to be retired (audit finding F34, change `refresh-repo-docs`).
+9: Source: requests of the user on 2026-11-03 and 2026-11-04, audit finding F34 and section 6 of the audit.
+10: 
+11: ## What Changes
+12: 
+13: - **Transitional.**
+14:   This is a stand-in for the fleet's records system ([redacted:repo] and greffe), which is not available yet and has no date.
+15:   The vocabulary follows the fleet's, so that a later migration is mechanical: permanent `B-NNN` backlog ids, dependencies named by change id, status derived and never typed by hand.
+16:   When the fleet's system is available, this change is superseded and `ROADMAP.md` is generated from its records instead.
+17: - **Roadmap fields per change.**
+18:   Every change, active or archived, carries a small record: dependencies, phase, priority, size, the finding or request it answers, one line on why it sits where it does.
+19:   The design decides where the record lives (a file in the change folder, or extra keys in `.openspec.yaml`); OpenSpec ignores both and archiving moves the folder as a whole.
+20: - **`ROADMAP.md` is mostly generated.**
+21:   A root `ROADMAP.md` holds hand-written text (purpose, phase descriptions, backlog, decisions) and sections between markers that the task writes: the sequencing table in dependency order and the done list with archive dates.
+22:   What is generated is only what is stable in a commit; the live state (in progress, task counts, startable, blocked) is never committed, because it depends on the checkout.
+23: - **A global mise task `openspec:roadmap`, usable by any OpenSpec repository.**
+24:   Python with the standard library only, deployed with the other global tasks, replacing the repo-local `roadmap` task of the Neovim configuration repository (its replacement is signalled at the end of this work, with a feature-by-feature parity table in the design).
+25:   - `mise run openspec:roadmap` prints Done, In progress, Next and Blocked from the records, the archive, `openspec list --json` and git; it writes nothing.
+26:   - `--write` regenerates the marked sections of `ROADMAP.md`.
+27:   - `--check` fails when a marked section is out of date, a change has no roadmap fields, a row names no change, a dependency is unknown, or the dependencies form a cycle.
+28:   - `--json` prints the same state for other tools.
+29: - **Global task rule.**
+30:   The `global-mise-tasks` requirement that every file under the tasks directory passes `shellcheck -x` becomes: shell files pass `shellcheck -x`, Python files compile and have unit tests.
+31:   The change `add-agent-launch-tasks` depends on this amendment.
+32: - **Adoption in this repository.**
+33:   - Seed the roadmap fields from the audit's change map (rows 0 to 25), then freeze that section with a pointer to `ROADMAP.md`.
+34:   - `ROADMAP.md` is listed in the temporary repository-files block of `.chezmoiignore`, removed by `adopt-chezmoiroot` with the rest; the task source under `dot_config/mise/tasks/` needs no entry.
+35:   - `AGENTS.md` tells a fresh session to run `mise run openspec:roadmap` first, and states that a new change gets its roadmap fields in the same commit and that `--write` follows `openspec archive`.
+36:   - Whether `--check` also runs as a commit hook step is left to the design (see `add-repo-quality-gates`).
+37: - **Non-goals.**
+38:   - Multi-agent orchestration (dispatch, lanes, one agent per change) is studied at fleet level and is not designed here; the roadmap fields only need to be able to carry what such a design later asks for.
+39:   - `TODO.md` is not removed here: its open items move into the backlog or into changes, and the removal stays in `refresh-repo-docs`.
+40: 
+41: ## Capabilities
+42: 
+43: ### New Capabilities
+44: 
+45: - `openspec-repo-roadmap`: the roadmap fields of a change, the generated `ROADMAP.md`, and the read-only task that derives the state of every change from the records, the archive and git.
+46: 
+47: ### Modified Capabilities
+48: 
+49: - `global-mise-tasks`: the `openspec:roadmap` task is deployed and listed; Python tasks are allowed, with their own checks.
+50: - `spec-workflow`: this repository keeps a `ROADMAP.md`, tells sessions to read it first, and records each change's roadmap fields when the change is created.
+51: 
+52: ## Impact
+53: 
+54: - New files: the task `dot_config/mise/tasks/openspec/executable_roadmap` (under `home/` after `adopt-chezmoiroot`), its library and unit tests, `ROADMAP.md`, and a roadmap record in every existing change folder.
+55: - Edited: the audit's section 6 (frozen, with a pointer), `.chezmoiignore` (one line), `AGENTS.md`, `openspec/specs/global-mise-tasks` and `openspec/specs/spec-workflow` through the deltas.
+56: - Only the marked sections of `ROADMAP.md` are ever written, and only with `--write`; the viewer, `--check` and `--json` write nothing.
+57: - The task is deployed as a single target with `chezmoi apply --exclude=scripts ~/.config/mise/tasks/openspec`, after the user's go.
+58: - Other sessions work in the same repository at the same time: a change added by another session without its fields is reported by `--check`, which is the intended safety net.
+59: - The Neovim configuration repository can drop its `roadmap` task and read the global task's `--json`; that is a signal at the end of this work, not part of it.
+60: 
+61: <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->
+
+(End of file - total 61 lines)
+</content>
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 12.5s)
+
+**Tool: edit**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/openspec/changes/add-repo-roadmap/proposal.md",
+  "oldString": "The order and the priorities live in one hand-kept table, the change map in section 6 of the audit (`docs/audits/2026-10-30-environment.md`), which is a dated baseline and not meant to be maintained; its later rows were added by other sessions without the rest of the document following.",
+  "newString": "The order and the priorities live in two hand-kept lists: the change map in section 6 of the audit (`docs/audits/2026-10-30-environment.md`), a dated baseline that stops at row 25, and the planned order in `TODO.md` (written 2026-11-07), which departs from the map on purpose and holds *planned* entries for changes that do not exist yet.\nChanges created since the map was written (the Incus and test-infrastructure group, `remove-brew-libvirt`, the Kali VM stubs) appear only in `TODO.md`."
+}
+```
+
+**Output:**
+```
+Edit applied successfully.
+```
+
+**Tool: edit**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/openspec/changes/add-repo-roadmap/proposal.md",
+  "oldString": "`TODO.md` is out of date and is to be retired (audit finding F34, change `refresh-repo-docs`).\nSource: requests of the user on 2026-11-03 and 2026-11-04, audit finding F34 and section 6 of the audit.",
+  "newString": "`TODO.md` keeps the same kind of list a second time, next to older bullets and a packaging backlog, and audit finding F34 asks to retire it.\nSource: requests of the user on 2026-11-03 and 2026-11-04, audit finding F34, section 6 of the audit and the planned order in `TODO.md`."
+}
+```
+
+**Output:**
+```
+Edit applied successfully.
+```
+
+**Tool: edit**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/openspec/changes/add-repo-roadmap/proposal.md",
+  "oldString": "  The design decides where the record lives (a file in the change folder, or extra keys in `.openspec.yaml`); OpenSpec ignores both and archiving moves the folder as a whole.",
+  "newString": "  The design decides where the record lives (a file in the change folder, or extra keys in `.openspec.yaml`); OpenSpec ignores both and archiving moves the folder as a whole.\n  A change that is planned but has no folder yet (the *planned* lines of `TODO.md`) is listed by id in the hand-kept part of `ROADMAP.md` with its dependencies, and `--check` accepts it until a folder with that id exists."
+}
+```
+
+**Output:**
+```
+Edit applied successfully.
+```
+
+**Tool: edit**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/openspec/changes/add-repo-roadmap/proposal.md",
+  "oldString": "  - Seed the roadmap fields from the audit's change map (rows 0 to 25), then freeze that section with a pointer to `ROADMAP.md`.\n  - `ROADMAP.md` is listed in the temporary repository-files block of `.chezmoiignore`, removed by `adopt-chezmoiroot` with the rest; the task source under `dot_config/mise/tasks/` needs no entry.",
+  "newString": "  - Seed the roadmap fields from the planned order in `TODO.md` (its order, its *planned* lines, its packaging backlog and its older bullets as backlog items) and from the audit's change map (the finding or request each change answers); the generated table must list the changes in the order `TODO.md` gives.\n    Then freeze the audit's section 6 with a pointer to `ROADMAP.md`, and remove `TODO.md`.\n  - `ROADMAP.md` needs no ignore entry: since `adopt-chezmoiroot` the root files are outside the source state (spec `source-layout`); the task source is under `home/dot_config/mise/tasks/`."
+}
+```
+
+**Output:**
+```
+Edit applied successfully.
+```
+
+**Tool: edit**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/openspec/changes/add-repo-roadmap/proposal.md",
+  "oldString": "  - `TODO.md` is not removed here: its open items move into the backlog or into changes, and the removal stays in `refresh-repo-docs`.",
+  "newString": "  - The README and docs work stay in `refresh-repo-docs`; its bullet that retired `TODO.md` is removed, because this change retires it."
+}
+```
+
+**Output:**
+```
+Edit applied successfully.
+```
+
+**Tool: edit**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/openspec/changes/add-repo-roadmap/proposal.md",
+  "oldString": "- New files: the task `dot_config/mise/tasks/openspec/executable_roadmap` (under `home/` after `adopt-chezmoiroot`), its library and unit tests, `ROADMAP.md`, and a roadmap record in every existing change folder.\n- Edited: the audit's section 6 (frozen, with a pointer), `.chezmoiignore` (one line), `AGENTS.md`, `openspec/specs/global-mise-tasks` and `openspec/specs/spec-workflow` through the deltas.",
+  "newString": "- New files: the task `home/dot_config/mise/tasks/openspec/executable_roadmap`, its library under `home/dot_config/mise/lib/`, unit tests in `tests/global-mise-tasks/` (outside the source state), `ROADMAP.md`, and a roadmap record in every existing change folder.\n- Removed: `TODO.md`, once its content is in `ROADMAP.md`.\n- Edited: the audit's section 6 (frozen, with a pointer), `AGENTS.md`, the proposal of `refresh-repo-docs` (its `TODO.md` bullet), and `openspec/specs/global-mise-tasks` and `openspec/specs/spec-workflow` through the deltas.\n- Archive order: this change modifies the requirements \"Global tasks are deployed and listed\" and \"Tasks are generic and clean\" of `global-mise-tasks`; no other open change modifies them (`add-incus-host-setup` adds a requirement of its own and `add-agent-launch-tasks` modifies \"Dispatching an agent\"), so the order is free, but `openspec validate --all --strict` runs after each archive."
+}
+```
+
+**Output:**
+```
+Edit applied successfully.
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 10.1s)
+
+_Thinking:_
+I'm moving on to the specs now: updating the delta paths for global-mise-tasks, adding a planned requirement to openspec-repo-roadmap, and retiring the TODO in spec-workflow.
+
+
+Now the three spec deltas: `home/` paths, planned entries, and the retirement of `TODO.md`.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi/openspec/changes/add-repo-roadmap/specs\n# home/ prefix on the source paths of the global-mise-tasks delta\nsed -i 's#`dot_config/mise/lib/scm\\.sh`#`home/dot_config/mise/lib/scm.sh`#; s#`dot_config/mise/tasks/`#`home/dot_config/mise/tasks/`#g; s#`dot_config/mise/lib/`#`home/dot_config/mise/lib/`#g; s#rg -n -e \"\\$HOME\" -e \"\\$USER\" dot_config/mise/lib dot_config/mise/tasks#rg -n -e \"$HOME\" -e \"$USER\" home/dot_config/mise/lib home/dot_config/mise/tasks#' global-mise-tasks/spec.md\nrg -n 'dot_config' global-mise-tasks/spec.md | cut -c1-220",
+  "workdir": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+28:- **WHEN** `shellcheck -x` runs on `home/dot_config/mise/lib/scm.sh` and on every shell file under `home/dot_config/mise/tasks/`
+33:- **WHEN** `python3 -m py_compile` runs on every Python file under `home/dot_config/mise/lib/` and `home/dot_config/mise/tasks/`, then `python3 -m unittest discover -s tests/global-mise-tasks` runs
+38:- **WHEN** `rg -n -e "$HOME" -e "$USER" home/dot_config/mise/lib home/dot_config/mise/tasks` runs
+
+```
+
+**Tool: edit**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/openspec/changes/add-repo-roadmap/specs/openspec-repo-roadmap/spec.md",
+  "oldString": "### Requirement: Usable by any OpenSpec repository",
+  "newString": "### Requirement: Planned changes are listed\n\n`ROADMAP.md` SHALL be able to list a change that has no folder yet as planned, in its hand-kept part, with its dependencies and its place in the order; the task SHALL show it with the state `planned`, and `--check` SHALL accept it until a change with that id exists.\n\n#### Scenario: Planned entry\n\n- **WHEN** the scratch `ROADMAP.md` lists a planned id that depends on an existing change and no folder has that id, and `mise run openspec:roadmap` and `mise run openspec:roadmap --check` run\n- **THEN** the plain run shows the id with the state `planned` after its dependency, and the check exits 0\n\n#### Scenario: Planned entry that became a change\n\n- **WHEN** a change folder is created with the id of a planned entry and `--check` runs\n- **THEN** it exits 1 and names the id, until the planned entry is removed\n\n### Requirement: Usable by any OpenSpec repository"
+}
+```
+
+**Output:**
+```
+Edit applied successfully.
+```
+
+**Tool: write**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/openspec/changes/add-repo-roadmap/specs/spec-workflow/spec.md",
+  "content": "## ADDED Requirements\n\n### Requirement: A roadmap of all changes\n\nThe repository SHALL keep a root `ROADMAP.md`, mostly generated by `mise run openspec:roadmap --write`, that lists every change with its order and dependencies; a new change SHALL get its roadmap fields in the commit that creates it, and `AGENTS.md` SHALL tell a session to run `mise run openspec:roadmap` first; the file SHALL never be deployed to the home directory; the former `TODO.md` SHALL be removed once its content is in `ROADMAP.md`.\n\n#### Scenario: Roadmap is current\n\n- **WHEN** `mise run openspec:roadmap --check` runs at the repository root\n- **THEN** it exits 0\n\n#### Scenario: Read-first pointer\n\n- **WHEN** `grep -c 'mise run openspec:roadmap' AGENTS.md` runs\n- **THEN** it prints at least 1\n\n#### Scenario: Roadmap is not a target\n\n- **WHEN** `chezmoi managed | grep -c -E '^ROADMAP\\.md'` runs\n- **THEN** it prints 0\n\n#### Scenario: Frozen change map\n\n- **WHEN** section 6 of `docs/audits/2026-10-30-environment.md` is read\n- **THEN** it states that it is a snapshot and points to `ROADMAP.md` for the current order\n\n#### Scenario: Task list retired\n\n- **WHEN** `git ls-files TODO.md` runs\n- **THEN** it prints nothing\n\n#### Scenario: Seed keeps the planned order\n\n- **WHEN** the changes of the sequencing table in `ROADMAP.md` are compared, on the commit that creates it, with the planned order of `TODO.md` on the parent commit\n- **THEN** the changes common to both appear in the same order\n\n<!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->\n"
+}
+```
+
+**Output:**
+```
+Wrote file successfully.
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 23.3s)
+
+_Thinking:_
+I'm moving on to the brief now, rewriting the whole thing with the updates. After that come the add-agent-launch-tasks edits, the refresh-repo-docs work, TODO.md, and audit row 24 with the observations.
+
+
+Now the brief, rewritten for the new layout, the `TODO.md` seed and the reporting target.
+**Tool: write**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/openspec/changes/add-repo-roadmap/brief.md",
+  "content": "# Brief: build the change add-repo-roadmap\n\nWritten by the orchestrator agent of this repository, for the agent that builds this change (suggested name `chezmoi-roadmap`).\nThis file is an operational complement to the change, not a replacement: the proposal and the specs are the contract, this file says how to work.\n\n## Where you work\n\n- Repository: this one, in a worktree `[redacted:worktrees_root]/chezmoi-add-repo-roadmap`, on branch `feat/add-repo-roadmap`, started from `main`.\n  The orchestrator creates the worktree and its herdr workspace; if you find yourself in the main checkout, stop and say so.\n- You are the only agent in that worktree.\n  Other agents work in the main checkout and create changes there; merge `main` into your branch before the final verification (see \"Rules\").\n- You start in plan mode.\n  Your first output is the design, shown in chat; the user reads it and switches you to build mode once approved.\n  In plan mode the read-only guard asks for approval on every `mise run`; that is expected.\n- Everything chezmoi reads lives under `home/` since the change `adopt-chezmoiroot` (spec `source-layout`); the changes written before it use flat paths, prefix them with `home/`.\n\n## Read first, in this order\n\n1. `AGENTS.md` (safety rules, writing for a public repository, conventions).\n2. `openspec/changes/add-repo-roadmap/` (proposal, specs for `openspec-repo-roadmap`, `global-mise-tasks` and `spec-workflow`) and `openspec list`.\n3. The seed of the order: the \"Planned order of changes\" in `TODO.md` (written 2026-11-07, 25 lines, some *planned* with no change yet, plus the mise packaging backlog and older bullets).\n   Then section 6 of `docs/audits/2026-10-30-environment.md` (the change map, rows 0 to 25: the finding or request each change answers) and finding F34.\n4. `openspec/specs/global-mise-tasks/spec.md`, `openspec/specs/source-layout/spec.md` and `home/dot_config/mise/tasks/` (how global tasks are written and tested here), and the archived `adopt-chezmoiroot`.\n5. Format references, read-only, copying nothing private:\n   - The Neovim configuration repository: `~/.config/nvim/ROADMAP.md` (sessions table, one section per session), `~/.config/nvim/.mise/tasks/roadmap`, `~/.config/nvim/.mise/lib/workflow/roadmap.py` and `~/.config/nvim/tests/workflow/test_roadmap.py`.\n     Its task is the one the global task is meant to replace.\n   - [redacted:repo]: `[redacted:repo]:spec/drs/DR-021-piloting_and_index_formats.md`, `[redacted:repo]:project/roadmap.md`, `[redacted:repo]:scripts/check/index.py`.\n   - [redacted:private]: `[redacted:repo]:project/roadmap.md`.\n   - The fleet piloting repository: its roadmap, its piloting contract (ordering rule, projection layouts, status values) and its orchestration study.\n     The first prompt gives you the exact paths; they are not written here because that repository is not public.\n     Do not name it, its identifiers or its paths in any committed file; refer to it as \"the fleet piloting repository\".\n6. After reading, summarise in a few lines what each reference does that is useful here and what is not.\n\n## What to do\n\n1. `/opsx-continue add-repo-roadmap`: write `design.md`, then show it in chat before anything else.\n   It must settle, with the reason for each choice:\n   - Where the roadmap record of a change lives: a file in the change folder or extra keys in `.openspec.yaml`.\n     OpenSpec 1.2.0 reads that file with a schema that ignores unknown keys, and archiving moves the folder as a whole; check both facts again on the installed version, and check that `openspec validate --all --strict` accepts the choice.\n   - The record's fields, their names and allowed values, aligned with the fleet's vocabulary (dependencies, priority, phase, size, origin, reason), and how a record is created with a change (a template, or the task creating it).\n   - How a *planned* change (no folder yet) is written, and what the hand-kept part of `ROADMAP.md` holds.\n   - How the fields reproduce the order of `TODO.md`: it is a hand order that is not derivable from dependencies alone (the user's chosen order, then the Incus group before the supervised apply).\n     The generated table must list the seeded changes in that order (spec `spec-workflow`, scenario \"Seed keeps the planned order\"); say which field carries it.\n   - What happens to the rest of `TODO.md` (the mise packaging backlog, the older bullets, the \"Later\" line): backlog items with permanent `B-NNN` ids, or changes.\n     `TODO.md` is removed by this change, and the bullet of `refresh-repo-docs` that retired it is already dropped.\n   - The layout of `ROADMAP.md`: what is hand-written, what is generated, the markers, and why the generated sections hold nothing that depends on the checkout.\n   - The order rule for the sequencing table: dependency order first, then which tie-breaks (priority, phase, id), written down and deterministic.\n   - How the generated state maps to what the Neovim repository's task prints.\n     Give a feature-by-feature table of that task (view, `--check`, `--json`, worktrees and branches, GitHub, gates, `Touches` overlaps, live editor sync, metrics, herdr status) with one ruling each: core here, project hook, stays in the Neovim repository, or later.\n     The aim is full parity; the table is where that is arbitrated, and the user decides on it.\n   - The language rule for the tasks directory and the unit-test layout (`tests/global-mise-tasks/`, outside the source state, so no ignore entry), and whether ruff is added to the repository's `mise.toml`.\n   - Whether `--check` becomes a commit hook step now or in `add-repo-quality-gates`.\n   - A short, generic paragraph on how the record's fields would map to a future records system ([redacted:repo] and greffe), without designing it.\n2. After the user approves the design: `/opsx-continue` for the tasks, then `/opsx-apply`, then `/opsx-verify`.\n3. Archive (`/opsx-archive`) only on the user's go, after `mise run openspec:roadmap --write` has been run on the final tree.\n4. Deploying the task to `~/.config/mise/tasks/openspec` is a single-target apply (`chezmoi apply --exclude=scripts ~/.config/mise/tasks/openspec`) and needs the user's go.\n   Never run a full `chezmoi apply`.\n\n## Non-goals\n\n- Multi-agent orchestration (dispatch, lanes, one agent per change) is not designed here; the fleet studies it.\n  Only make sure the record can later carry what such a design asks for.\n- No [redacted:repo] or greffe design, and no edit to other repositories: the Neovim repository gets a signal at the end, drafted by you and sent by the user's go through the orchestrator.\n- The README and docs work stay in `refresh-repo-docs`.\n- The change `add-agent-launch-tasks` (generic launch tasks, written by the orchestrator) depends on the language rule you write; do not touch its files.\n\n## Rules\n\n- Public repository: no secret values, no names of secret variables, no private hosts or IP addresses, no employer or client details, no private repository names.\n  Name only [redacted:repo], [redacted:private], [redacted:repo], greffe and the Neovim configuration repository; call any other \"a fleet repository\".\n- Markdown: one sentence per line, no em or en dashes, no emoji, sentence-case headings, the vim modeline as the last line.\n- Python: standard library only, tested, no home path or user name in any file.\n- Commits: propose the message first (`type(domain:subject): imperative lowercase summary`, subject at most 80 characters), commit only after the user validates it, with `/home/linuxbrew/.linuxbrew/bin/git commit` so the hook output is visible.\n  Never push.\n- Merging back into `main` happens only on the user's go: merge `main` into your branch first, give every change created meanwhile its roadmap record and every new line of `TODO.md` its place, run `mise run openspec:roadmap --check`, then `mise run scm:worktree:done feat/add-repo-roadmap`.\n- Anything that uses sudo, writes outside `$HOME`, uninstalls or deletes needs the user's explicit go; removing `TODO.md` is part of the approved change, but do it in its own commit.\n- The seed is `TODO.md` and the audit's change map; once `ROADMAP.md` exists, do not edit that table again except to freeze it.\n\n## Reporting\n\n- Report with one short line each time, at five points: reading done, design ready, apply done, verify result, blocked (say on what).\n  Send it with `herdr agent prompt chezmoi-orch \"<one line>\"` when `herdr agent get chezmoi-orch` succeeds; agent names do not always survive (see `openspec/changes/add-agent-launch-tasks/observations.md`), so when it fails, write the line in your own pane for the user.\n- Keep a list of every friction you meet with the tooling (a lost or duplicated prompt, a slow start, a permission prompt that blocked work, a path or trust problem in the worktree, a command that behaved differently from its help); send it with the last report.\n  The orchestrator studies this launch as a trial of one worktree and one workspace per piece of work.\n- At the end, draft the replacement signal for the Neovim configuration repository (what the global task covers, what stays there, how to switch); the user decides if it is sent.\n\n<!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->\n"
+}
+```
+
+**Output:**
+```
+Wrote file successfully.
+```
+
+**Tool: edit**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/openspec/changes/refresh-repo-docs/proposal.md",
+  "oldString": "- Retire `TODO.md`: open items become OpenSpec changes or [redacted:private] backlog entries, then the file is removed.",
+  "newString": "- `TODO.md` is retired by `add-repo-roadmap`, whose `ROADMAP.md` takes over its planned order and its backlog; this change only keeps the requirement that no stale task list is left."
+}
+```
+
+**Output:**
+```
+Edit applied successfully.
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\npython3 - <<'EOF'\nimport re,io\np='TODO.md'\ns=open(p).read()\na=\"Once `add-repo-roadmap` is applied, its generated `ROADMAP.md` replaces this list.\"\nb=\"Once `add-repo-roadmap` is applied, its generated `ROADMAP.md` replaces this list, the packaging backlog and the older bullets move into its backlog, and this file is removed.\"\nassert s.count(a)==1\ns=s.replace(a,b)\na2=\"`add-repo-roadmap` (audit 24): proposal and specs; replaces this list once applied.\"\nb2=\"`add-repo-roadmap` (audit 24): proposal and specs; replaces this file once applied.\"\nassert s.count(a2)==1\ns=s.replace(a2,b2)\nopen(p,'w').write(s)\np='docs/audits/2026-10-30-environment.md'\ns=open(p).read()\na=\"once applied, `ROADMAP.md` replaces this table and this section is frozen |\"\nb=\"once applied, `ROADMAP.md` replaces this table and `TODO.md`, and this section is frozen |\"\nassert s.count(a)==1\ns=s.replace(a,b); open(p,'w').write(s)\nprint(\"ok\")\nEOF\ngit diff --stat | cat",
+  "workdir": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+ok
+ TODO.md                                            |  4 +--
+ docs/audits/2026-10-30-environment.md              |  2 +-
+ openspec/changes/add-repo-roadmap/brief.md         | 35 ++++++++++++++--------
+ openspec/changes/add-repo-roadmap/proposal.md      | 21 ++++++++-----
+ .../specs/global-mise-tasks/spec.md                |  6 ++--
+ .../specs/openspec-repo-roadmap/spec.md            | 14 +++++++++
+ .../add-repo-roadmap/specs/spec-workflow/spec.md   | 12 +++++++-
+ openspec/changes/refresh-repo-docs/proposal.md     |  2 +-
+ 8 files changed, 67 insertions(+), 29 deletions(-)
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 16.4s)
+
+_Thinking:_
+I'm going to make the proposal edits for add-agent-launch-tasks now, starting with the Tests section. I'll use exact strings from my earlier Write to target the lines describing the Python unit tests and the fake `herdr` that counts how many times text reached the input box.
+
+I'm going through the remaining proposal edits: the Tests parenthetical gets replaced, I'm checking the exact wording of the Impact line about the new library and tasks, and I'm noting that the archive order should go after add-repo-roadmap.
+
+
+Now `add-agent-launch-tasks`: the paths, the obsolete ignore-block sentence, and an archive-order note.
+**Tool: edit**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/openspec/changes/add-agent-launch-tasks/proposal.md",
+  "oldString": "(`tests/global-mise-tasks/`, not a chezmoi target, listed in the temporary `.chezmoiignore` block and in `adopt-chezmoiroot` task 3.2 while that change is not applied)",
+  "newString": "(`tests/global-mise-tasks/`, at the repository root and so outside the source state: no ignore entry)"
+}
+```
+
+**Output:**
+```
+Edit applied successfully.
+```
+
+**Tool: edit**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/openspec/changes/add-agent-launch-tasks/proposal.md",
+  "oldString": "in `dot_config/mise/lib/` and `dot_config/mise/tasks/` (under `home/` after `adopt-chezmoiroot`), and `tests/global-mise-tasks/`.",
+  "newString": "in `home/dot_config/mise/lib/` and `home/dot_config/mise/tasks/`, and `tests/global-mise-tasks/`."
+}
+```
+
+**Output:**
+```
+Edit applied successfully.
+```
+
+**Tool: edit**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/openspec/changes/add-agent-launch-tasks/proposal.md",
+  "oldString": "- Deleted: `openspec/changes/fix-prompt-delivery/`.",
+  "newString": "- Deleted: `openspec/changes/fix-prompt-delivery/` (done in the commit that created this change).\n- Archive order: this change modifies only the requirement \"Dispatching an agent\" of `global-mise-tasks`, which no other open change touches (`add-repo-roadmap` modifies two other requirements and `add-incus-host-setup` adds one), so the archive order is free; the implementation order is not: the Python rule that `add-repo-roadmap` amends must exist before Python tasks are deployed, and `TODO.md` places this change after it."
+}
+```
+
+**Output:**
+```
+Edit applied successfully.
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\npython3 - <<'EOF'\np='openspec/changes/add-agent-launch-tasks/observations.md'\ns=open(p).read()\na=\"## Log\\n\\n<!-- Entries: time, step, command, result, friction. -->\\n\"\nb=\"\"\"## Log\n\n<!-- Entries: time, step, command, result, friction. -->\n\n- 2026-11-08, before the launch: agent names are not durable.\n  The orchestrator pane was renamed on 2026-11-03 so that briefs could name it as the reporting target.\n  By 2026-11-06 herdr listed no agent name at all, and on 2026-11-08 most panes of other workspaces had a name again while the orchestrator pane and the pane of the agent that did the work in between had none.\n  The cause is unknown (a restart of the pane, of herdr, or of the agent session are all candidates).\n  Consequence: a brief that names a reporting target must say what to do when `herdr agent get <name>` fails; the roadmap brief now does.\n  For the design: `agent:launch` should check the name at the end of the launch and report the pane id next to it, so that a caller can message by pane when the name is gone.\n- 2026-11-08: `herdr agent prompt <pane-id>` works on an unnamed pane (used to send a request to another agent); a name is not required.\n\"\"\"\nassert s.count(a)==1\nopen(p,'w').write(s.replace(a,b))\nEOF\necho \"== validate\"; openspec validate --all --strict 2>&1 | tail -3\necho \"== dashes in touched files\"; rtk rg -n '[—–]' openspec/changes/add-repo-roadmap openspec/changes/add-agent-launch-tasks openspec/changes/refresh-repo-docs TODO.md | head -3 || true\necho \"== flat paths left in my two changes\"; rg -n '[^/]dot_config/mise' openspec/changes/add-repo-roadmap openspec/changes/add-agent-launch-tasks | rg -v 'home/dot_config' | cut -c1-160 || echo none\necho \"== private names / secrets / ips\"; rg -n -i -w -e [redacted:repo] -e [redacted:repo] -e [redacted:repo] -e 'silopolis/' -e [redacted:envvar] openspec/changes/add-repo-roadmap openspec/changes/add-agent-launch-tasks TODO.md || echo none\necho \"== modelines\"; for f in $(fd -t f -e md . openspec/changes/add-repo-roadmap openspec/changes/add-agent-launch-tasks openspec/changes/refresh-repo-docs) TODO.md; do tail -1 $f | rg -q 'vim: set' || echo \"NO MODELINE $f\"; done; echo checked\ngit status --short",
+  "workdir": "~/.local/share/chezmoi"
+}
+```
+
+**Output:**
+```
+== validate
+✓ change/support-kali-vm-secure-boot
+✓ change/support-kali-vm-uefi
+Totals: 33 passed, 0 failed (33 items)
+== dashes in touched files
+== flat paths left in my two changes
+== private names / secrets / ips
+none
+== modelines
+checked
+ M TODO.md
+ M docs/audits/2026-10-30-environment.md
+ M openspec/changes/add-agent-launch-tasks/observations.md
+ M openspec/changes/add-agent-launch-tasks/proposal.md
+ M openspec/changes/add-repo-roadmap/brief.md
+ M openspec/changes/add-repo-roadmap/proposal.md
+ M openspec/changes/add-repo-roadmap/specs/global-mise-tasks/spec.md
+ M openspec/changes/add-repo-roadmap/specs/openspec-repo-roadmap/spec.md
+ M openspec/changes/add-repo-roadmap/specs/spec-workflow/spec.md
+ M openspec/changes/refresh-repo-docs/proposal.md
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 7.4s)
+
+_Thinking:_
+The dashes and flat-path checks came back empty, so validation is passing at 33. TODO.md already ends with its modeline, which I can see from the earlier output. The one thing I'm unsure about is the flat-paths pipeline: the `|| echo none` fallback only fires on the last command's exit status, so an empty result from the earlier stages might not be reported the way I expect.
+
+The commit subject still needs its length checked, so I'll count it in bash. I also need to mention the TODO.md edit in the commit body. The user already approved the plan with "go", and the plan listed this exact message, so I'll commit with it.
+
+
+Validation passes (33 items) and the scans are clean. Committing step 1.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\nsubject=\"docs(chezmoi:spec): refresh the roadmap and launch changes for home/\"; echo \"subject length: ${#subject}\"\ngit add TODO.md docs/audits/2026-10-30-environment.md openspec/changes/add-agent-launch-tasks openspec/changes/add-repo-roadmap openspec/changes/refresh-repo-docs; git diff --cached --name-status\n/home/linuxbrew/.linuxbrew/bin/git commit -m \"$subject\" -m \"- add-repo-roadmap: seeds from the planned order in TODO.md and retires that file; planned entries without a folder; home/ paths; no ignore entry; archive-order note\n- openspec-repo-roadmap: planned-entry requirement; spec-workflow: TODO.md retired, seed keeps the planned order\n- add-agent-launch-tasks: home/ paths, tests outside the source state, archive-order note; observations: agent names are not durable\n- brief: report to the orchestrator when its name resolves, else to the user; refresh-repo-docs drops its TODO.md bullet\" 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | tail -6\necho \"exit=${pipestatus[1]}\"; git log -1 --format='%h %s'; git status --short | wc -l",
+  "workdir": "~/.local/share/chezmoi",
+  "timeout": 240000
+}
+```
+
+**Output:**
+```
+subject length: 68
+M	TODO.md
+M	docs/audits/2026-10-30-environment.md
+M	openspec/changes/add-agent-launch-tasks/observations.md
+M	openspec/changes/add-agent-launch-tasks/proposal.md
+M	openspec/changes/add-repo-roadmap/brief.md
+M	openspec/changes/add-repo-roadmap/proposal.md
+M	openspec/changes/add-repo-roadmap/specs/global-mise-tasks/spec.md
+M	openspec/changes/add-repo-roadmap/specs/openspec-repo-roadmap/spec.md
+M	openspec/changes/add-repo-roadmap/specs/spec-workflow/spec.md
+M	openspec/changes/refresh-repo-docs/proposal.md
+  gitleaks – 7:32AM INF 0 commits scanned.
+  gitleaks – 7:32AM INF scanned ~10834 bytes (10.83 KB) in 188ms
+  gitleaks – 7:32AM INF no leaks found
+✔ gitleaks
+[main 6adcfe0] docs(chezmoi:spec): refresh the roadmap and launch changes for home/
+ 10 files changed, 79 insertions(+), 32 deletions(-)
+exit=0
+6adcfe0 docs(chezmoi:spec): refresh the roadmap and launch changes for home/
+0
+
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "echo \"== obsidian-clipper status\"; herdr agent get wN:p7 2>&1 | jq -c '.result.agent | {agent_status}'; herdr agent read wN:p7 --source visible 2>&1 | rg -v '^\\s*$' | tail -14 | cut -c1-170"
+}
+```
+
+**Output:**
+```
+== obsidian-clipper status
+{"agent_status":"done"}
+       - Categories: secrets, private terms (global and terms-dir), user identity, path aliases, fleet absolute paths, home paths, repository names,
+         credential variable names, token scope lines, IP addresses, e-mail addresses, git hosts.
+       - So there is no finding on the pushed exports, and the new terms match nothing in them.
+     - --explain: exits 0. The profile is public, and the terms-dir layer has 19 entries.
+     The chezmoi repository: I changed nothing there. It was clean (0 changes) and still at ca92b3b after my checks, which only read it.
+     Values: none appears in this reply or in the commit message. The shell commands I ran did contain them, so this session's transcript has them.
+     The next export of it will mask them, since the terms are now in the store.
+     ▣  Build · Claude Sonnet 5.5 · 59.2s                                                                                                               ▄
+  ┃
+  ┃
+  ┃
+  ┃  Build · Claude Sonnet 5.5 Anthropic · xhigh
+  ╹▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+   ~/.local/share/chezmoi                                                                                491.0K (49%) · $45.15  ctrl+p commands
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 2.9s)
+
+_Thinking:_
+The commit 6adcfe0 went through, and the pre-commit hook came back clean with no secrets found. The obsidian-clipper work is finished, so I'm going back over its full reply and reading the lines just above where I left off.
+
+
+Step 1 is committed as `6adcfe0`, and `obsidian-clipper` has finished. Reading its whole reply.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "herdr agent read wN:p7 --source visible --lines 80 2>&1 | rg -v '^\\s*$' | rg -n . | sed -n '1,60p' | cut -c1-200"
+}
+```
+
+**Output:**
+```
+1:  ┃  short HEAD) remote $(git rev-parse --short origin/main) ahead $(git rev-list --count @{u}..HEAD)"
+2:  ┃
+3:  ┃  M  dotfiles/fleet-names.txt
+4:  ┃  M  session-redact/redact-terms.txt
+5:  ┃  2a995bd chore: add three redaction terms and set fleet-names to redact for dotfiles
+6:  ┃  f45e92e chore: remove what moved to session-redact/ from nvim/ and dotfiles/
+7:  ┃   dotfiles/fleet-names.txt        | 2 +-
+8:  ┃   session-redact/redact-terms.txt | 3 +++
+9:  ┃   2 files changed, 4 insertions(+), 1 deletion(-)
+10:  ┃  To [redacted:repo]
+11:  ┃     f45e92e..2a995bd  main -> main
+12:  ┃  push rc=0
+13:  ┃  …
+14:  ┃
+15:  ┃  Click to expand
+16:  ┃
+17:  ┃
+18:  ┃  $ cd $HOME/.local/share/chezmoi && git status --short | wc -l && rtk git log --oneline -1
+19:  ┃
+20:  ┃  0
+21:  ┃  ca92b3b docs(chezmoi:memory): export the adopt-chezmoiroot and test-infra session
+22:  ┃
+23:     Done. The private store is fixed and pushed, with counts only as the brief asked.
+24:     - Commit hash: 2a995bd, pushed to the store's remote. Local and remote are equal, and nothing is ahead.
+25:     - Entries in session-redact/redact-terms.txt:
+26:       - before: 9
+27:       - after: 12
+28:       - The three added lines are plain, with no inline flags and no re: prefix. I checked first that none was already present.
+29:     - fleet-names:
+30:       - value: redact
+31:       - source from --explain: terms-dir, meaning dotfiles/fleet-names.txt
+32:       - The comments in that file are intact.
+33:     - --profile public --check memory/sessions/*.md: 0 in every category.
+34:       - Categories: secrets, private terms (global and terms-dir), user identity, path aliases, fleet absolute paths, home paths, repository names,
+35:         credential variable names, token scope lines, IP addresses, e-mail addresses, git hosts.
+36:       - So there is no finding on the pushed exports, and the new terms match nothing in them.
+37:     - --explain: exits 0. The profile is public, and the terms-dir layer has 19 entries.
+38:     The chezmoi repository: I changed nothing there. It was clean (0 changes) and still at ca92b3b after my checks, which only read it.
+39:     Values: none appears in this reply or in the commit message. The shell commands I ran did contain them, so this session's transcript has them.
+40:     The next export of it will mask them, since the terms are now in the store.
+41:     ▣  Build · Claude Sonnet 5.5 · 59.2s                                                                                                               ▄
+42:  ┃
+43:  ┃
+44:  ┃
+45:  ┃  Build · Claude Sonnet 5.5 Anthropic · xhigh
+46:  ╹▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+47:   ~/.local/share/chezmoi                                                                                491.0K (49%) · $45.15  ctrl+p commands
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 29.4s)
+
+_Thinking:_
+I need to avoid writing the private repo name anywhere, including in my summary and in any committed file. The output from the herdr read will contain it too, so I'll redact it with the owner and slug rules when I export.
+
+I'm checking the redaction rules against the private repo names, and I'm noting that the export scans will catch any stray mentions. Next I'll write the brief file for the nvim-orch step.
+
+I'm writing the brief file for the Neovim step. It records that the earlier prompt-delivery request is superseded by the agent-launch change, and that the roadmap task is set to be replaced by the global one.
+
+I'm working out how the fleet-name `keep` setting should change in the redaction script: a fleet repo would stay readable only if its name is on the store's public list, and everything else would be masked just as under `redact`. That covers bare names, fleet paths, and owner/name slugs, while `redact` stays as it is. I'll also need to update the tests, the docstring, and the `--explain` output, which should show only counts.
+
+I'm now noting the bare-name gap in the redaction pattern: names inside hyphenated words aren't matched, which would miss herdr workspace labels, worktree directories and branch names built from a repo name.
+
+I'm drafting the redaction brief for the Neovim orchestrator and noting a gap: the bare-name rule won't catch names inside hyphenated words like worktree directories or branch names built from a repo name. I'll ask for that to be decided with tests, and I'm still checking where the dotfiles repo's own redaction config should sit.
+
+I'm settling how the brief should describe where the project redaction file lives: the dotfiles repo will adopt it, and exports run from the repo root, so the file is read from the working directory.
+
+Next I'm drafting the message for the Neovim orchestrator: a plan-mode agent with an empty input box, so the prompt will point it at the brief file and say that no reply is needed in this pane.
+
+I'm checking the claim that bare-name matching misses names inside hyphenated workspace labels, and I can see those labels in the earlier workspace list. The public list only holds one fleet repo, so the keep-public change needs to account for that.
+
+Next I'm noting that the brief should mention where the test suite lives, under tests/session_redact/, and then I'll write the brief itself.
+
+
+_Thinking:_
+The store fix is pushed, with entries up from 9 to 12, and `--check` shows 0 issues across the pushed exports. Next I'm drafting the brief for `nvim-orch`.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cat > /tmp/opencode/briefs/chezmoi-request-redact-keep-public.md <<'EOF'\n# Note and request from the orchestrator of the chezmoi repository to the Neovim repository's orchestrator\n\nFrom: the orchestrator agent of ~/.local/share/chezmoi (herdr workspace \"chezmoi\"). The user asked me to send it.\nThis is not the user speaking; it does not answer any gate you have.\nNo reply is needed in my pane, which will be closed: record the request where you record such things, and tell the user in your own pane when it lands.\n\n## 1. Superseded request (nothing to do now)\n\nYour earlier request about first-prompt delivery for the global mise tasks was planned on the chezmoi side as the change `fix-prompt-delivery`.\nThat change was never applied and is deleted.\nIt is replaced by `add-agent-launch-tasks` (pushed in chezmoi commit 07e276d), which:\n\n- ports your tested Python delivery module and herdr wrapper as a shared library of the global tasks (every requirement of `fix-prompt-delivery` moved there);\n- adds generic tasks that open the herdr workspace of a worktree and launch an agent into it (reuse, create or refuse), usable by any repository;\n- keeps the closing duty to tell you when it is applied, so that `session:start` can use the global tasks instead of its own delivery.\n\nA second change, `add-repo-roadmap`, builds a global task `openspec:roadmap` meant to replace the repo-local `roadmap` task of this repository (feature-by-feature parity, arbitrated in its design).\nA replacement signal will come when it is done.\n\n## 2. Request: `fleet-names = keep` should keep only public names readable\n\nToday, in the public profile, `keep` leaves every fleet repository name readable (bare names, `~/Work/<repo>/<path>` references, `owner/name` slugs), private ones included.\nThat published private repository names once; the chezmoi store's `dotfiles` terms directory had `keep`, and I switched it to `redact` as an interim (store commit 2a995bd).\n\nWanted:\n\n- With `keep`, a fleet repository stays readable only when its name is in the store's public list (`session-redact/public-repos.txt`, bare names compared in lower case).\n  Every other fleet name is redacted exactly as under `redact`: `[redacted:repo]`, and `[redacted:repo]:<path>` for the path form.\n- The same rule for the three forms: bare name, fleet path, `owner/name` slug.\n- `redact` keeps its behaviour.\n- The user decided that the public list is the single source: no new list.\n  Today only one fleet repository is in it; the user will add the others when their names may appear.\n- Tests in tests/session_redact for each form, the docstring (profiles and `fleet-names.txt`), and `--explain` / `--check` lines that show how many fleet names are readable and how many hidden (counts, never names).\n\nWhen it lands, tell the user: the chezmoi store setting goes back to `keep`.\n\n## 3. Gap found while preparing an export: names inside hyphenated words\n\nThe bare-name rule of the public profile is `(?<![\\w-])(?:names)(?![\\w-])`.\nA name matches alone (`name`, `name.`) but not inside a hyphenated word (`name-study`, `x-name`).\nHerdr workspace labels, worktree directories and branch names are built that way (`<repo>-<topic>`), and they pass through unmasked in the public profile.\nPlease decide the rule (for example: a fleet or private name that is a whole hyphen-delimited segment is redacted), with tests, and think about short names that are also common words.\nThe chezmoi side will scan its own exports for this until then.\n\n## 4. FYI\n\nThe chezmoi repository adopts a root `.session-redact.toml` (profile public, terms directory `dotfiles`, check of `memory/sessions/*.md`), read from the working directory as your S18 follow-up describes; exports run from its root, so no `--project` option is needed there.\nEOF\nherdr agent read nvim-orch --source visible 2>&1 | rg -v '^\\s*$' | tail -5 | head -3 | cut -c1-120; herdr agent get nvim-orch 2>&1 | jq -c '.result.agent | {agent_status}'"
+}
+```
+
+**Output:**
+```
+  ┃
+  ┃
+  ┃  Plan · Claude Opus 5.5 Anthropic · xhigh
+{"agent_status":"idle"}
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 11.6s)
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "herdr agent prompt nvim-orch \"Message from another agent session (the chezmoi orchestrator), not from the user: please read the file /tmp/opencode/briefs/chezmoi-request-redact-keep-public.md. It holds a note and a request about scripts/session_redact.py. Record the request where you record such things and tell the user in your own pane; no reply is needed to me.\" --wait --until working --timeout 20000 2>&1 | jq -c '.result.agent | {agent_status}' 2>/dev/null || echo \"prompt call failed\"; sleep 8; herdr agent get nvim-orch 2>&1 | jq -c '.result.agent | {agent_status}'; herdr agent read nvim-orch --source visible 2>&1 | rg -v '^\\s*$' | tail -10 | cut -c1-170",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+{"agent_status":"working"}
+{"agent_status":"working"}
+  ┃  redact-keep-public.md. It holds a note and a request about scripts/session_redact.py. Record the request where you record such things and tell
+  ┃  the user in your own pane; no reply is needed to me.
+  ┃
+     ▣  Plan · Claude Opus 5.5                                                                                                                          ▄
+  ┃
+  ┃
+  ┃
+  ┃  Plan · Claude Opus 5.5 Anthropic · xhigh
+  ╹▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+   ⬝⬝⬝⬝⬝⬝⬝⬝  esc interrupt                                                                                        237.1K (24%) · $131.46  ctrl+p commands
+
+```
+
+**Tool: todowrite**
+
+**Input:**
+```json
+{
+  "todos": [
+    {
+      "content": "2. Prompt obsidian-clipper: store fixes (done: store commit 2a995bd pushed, 9 -> 12 terms, fleet-names redact, check 0)",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "content": "1. Refresh add-repo-roadmap + add-agent-launch-tasks + refresh-repo-docs + TODO.md (committed 6adcfe0)",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "content": "3. Brief nvim-orch (keep-public request, hyphenated-name gap, fix-prompt-delivery superseded) and prompt it",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "content": "4. Re-export this session: .session-redact.toml, scratch layer for one-off terms, checks (incl. hyphenated names), README, commit, push repo",
+      "status": "in_progress",
+      "priority": "high"
+    },
+    {
+      "content": "5. Close obsidian-clipper tab after its report; user closes orch",
+      "status": "pending",
+      "priority": "medium"
+    }
+  ]
+}
+```
+
+**Output:**
+```
+[
+  {
+    "content": "2. Prompt obsidian-clipper: store fixes (done: store commit 2a995bd pushed, 9 -> 12 terms, fleet-names redact, check 0)",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "content": "1. Refresh add-repo-roadmap + add-agent-launch-tasks + refresh-repo-docs + TODO.md (committed 6adcfe0)",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "content": "3. Brief nvim-orch (keep-public request, hyphenated-name gap, fix-prompt-delivery superseded) and prompt it",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "content": "4. Re-export this session: .session-redact.toml, scratch layer for one-off terms, checks (incl. hyphenated names), README, commit, push repo",
+    "status": "in_progress",
+    "priority": "high"
+  },
+  {
+    "content": "5. Close obsidian-clipper tab after its report; user closes orch",
+    "status": "pending",
+    "priority": "medium"
+  }
+]
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5)
+
+_Thinking:_
+The helper handled the transfer and is working, so the next step is the re-export. I'm setting up the redaction config file in the repo root, with a public profile and a dotfiles term set, and I'm keeping the private terms out of the file itself.
+
+The config file is the part I'm checking now: it names only a public profile and the dotfiles store directory, so no private term ends up in the repo. Next comes the raw export of the session into the scratch folder, but my notes say to ask before re-exporting, so I need to confirm that first.
+
+Next I'm working out the raw export: the slug stays `harden_sensitive_targets` so the main file gets overwritten under its existing name, and the children markers should be left alone since those files haven't changed.
+
+I'm now looking at the redaction setup for the re-export: the settings go in a project file at the repo root, the raw export runs with the children turned off, and the redaction step reads from the scratch layer and runs from the repo root.
+
+I'm now working out how to check for leaks in the redacted output: comparing the private repo names against the transcript, counting matches without printing them, and deciding whether any extra terms are needed for hyphenated forms.
+
+I'm weighing how to find the hyphenated private names in the redacted output without printing them, since any name I echo here could leak into the next export. The plan is a script that scans the redacted file for compound forms and writes the extra terms to the scratch layer, so nothing gets displayed.
+
+I'm going to split the text into tokens, so any compound token containing a private name gets caught in the scan, and I'll write those compounds to the scratch layer without printing them.
+
+I'm scanning the redacted output for hyphenated tokens that contain a private name as a segment, and I'm building that scan so it only reports counts and never prints the names.
+
+I'm writing a short scan that pulls out the hyphenated tokens containing a private repo name as a segment, and I'm adding those tokens as plain terms to the scratch layer without printing them.
+
+I'm settling on a regex rule for the scratch layer that treats hyphens as word boundaries, so a private name gets masked whenever it appears as a hyphen-delimited segment. That would close the gap the plain redaction misses, and it could also serve as a fix to the tool itself.
+
+I'm considering how the term rule's replacement interacts with the path rules: if the name gets masked first, the fleet path pattern may stop matching, and I'd need to check the order of application before relying on the regex approach.
+
+I'm considering whether the term rule's replacement could break the path rules, since masking a name first might stop the fleet path pattern from matching. That is the ordering question I still need to settle before relying on the regex approach for the hyphenated cases.
+
+I'm working out a regex that only masks a private name when a hyphen sits right next to it, so compound forms get caught without changing how standalone names are handled.
+
+I'm settling on a regex that treats a private name as a match only when a hyphen sits directly beside it, so hyphenated compounds get caught while standalone names keep the existing handling. I still need to check the lookbehind syntax works in the tool's regex engine and that the scratch-layer terms compile without inline flags.
+
+I'm figuring out which names to mask in hyphenated forms, starting from the fleet and private repo lists minus the public ones, so the scratch-layer terms match the tool's own bare-name handling.
+
+I'm weighing whether names that sound like ordinary words would cause false positives under the hyphen-adjacent regex, since a name like "nvim" might match an editor reference rather than a repo.
+
+I'm laying out the remaining steps: writing the config file, creating the scratch directory with restricted permissions, running the raw export, doing a first redaction pass with a leak check and a segment scan, then building the scratch-layer terms and running a second pass with them.
+
+Next I'm running the re-export with the redaction config and the scratch-layer terms, then checking the output for leaks. I'm also running the identity and credential counts and a gitleaks pass on the final file.
+
+Next I'm setting up the redactor's scratch layer and the second pass, running the redaction with the extra terms and then checking the output. I'll also copy the finished file into the sessions folder and update the README.
+
+Checking the remaining export details: the exporter uses the session ID as a positional argument, and the previous run ran from /tmp/opencode with the output directory and slug set. The session is still growing, so the file could reach 1.5MB or more, which is manageable.
+
+Next I'm reviewing the README row for this session and the redaction paragraph so I can update them after the export is finished.
+
+The next part is the README update: I'm rewriting the redaction paragraph to point at `.session-redact.toml` at the repo root, note that the store's `dotfiles` directory sets sibling-name handling to `redact` and that it should not be switched to `keep`, and say that extra terms go into a 0700 throwaway directory for one export only. I'm also adding a note that the tool misses names inside hyphenated words, so those need a separate scan.
+
+I'm about to write the `.session-redact.toml` config, which is the first step before the raw export.
+
+
+`nvim-orch` took the prompt and is working. Now step 4, the re-export. First the repository's redaction settings file, then the raw export into a private scratch directory.
+**Tool: write**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/.session-redact.toml",
+  "content": "# Settings of the session transcript redaction for this repository (scripts/session_redact.py of the Neovim configuration repository).\n# Settings only: no private term may be written here. The terms live in the private store,\n# in the global directory session-redact/ and in the directory named by `terms` below.\nprofile = \"public\"\nterms = \"dotfiles\"\ncheck = [\"memory/sessions/*.md\"]\n"
+}
+```
+
+**Output:**
+```
+Wrote file successfully.
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "set -u\nS=/tmp/opencode/export-scratch\nrm -rf \"$S\"; mkdir -p \"$S/raw\" \"$S/terms\" \"$S/out\"; chmod 0700 \"$S\" \"$S/raw\" \"$S/terms\" \"$S/out\"\ncd /tmp/opencode\npython3 [redacted:repo]:scripts/session/export.py ses_e720ce42affen6d11Mjrfbnxpi --out-dir \"$S/raw\" --slug harden_sensitive_targets --full --force --no-children > \"$S/export.log\" 2>&1; echo \"export exit=$?\"\ntail -3 \"$S/export.log\" | cut -c1-160\nls -la \"$S/raw\" | sed \"s|$HOME|~|\"; wc -l \"$S\"/raw/*.md | tail -1",
   "workdir": "/tmp/opencode",
   "timeout": 300000
 }
