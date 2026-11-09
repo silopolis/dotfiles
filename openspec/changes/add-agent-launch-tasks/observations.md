@@ -50,5 +50,13 @@ Each step below is logged with its command, its result and any friction, so that
     The cause is the guard's learning phase, not plan mode: its allowlist is still short (1 learned rule on 2026-11-08, hundreds of "always" answers not yet turned into rules), so commands that are read-only but unknown to it, such as `chezmoi` queries, ask each time.
     Until the allowlist grows, a plan-mode launch cannot run unattended; the launch result should report `blocked` as a normal outcome and say that the user has to answer in the new pane.
     Later the same launch should be rechecked, since the prompt count falls as rules are learned.
+  - Outcome, about 75 minutes after the first prompt (08:23 to 09:38, with the user answering guard prompts and switching the agent to build): the lead verified the change (19 scenario checks), archived it, rebased its branch on `main` and reported by `herdr agent prompt chezmoi-orch`, so the reporting target set by hand worked.
+    Five commits on the branch, none pushed at that point (the lead pushed afterwards, on the user's go, with its own session export); the orchestrator checked the branch (clean tree, fast-forward possible, no added line with the Neovim owner or repository values, gitleaks and `openspec validate --all --strict` clean) and fast-forwarded `main` with `git merge --ff-only`.
+  - A side effect no brief can prevent: a worktree-based change that runs `chezmoi init` regenerates the live `~/.config/chezmoi/chezmoi.toml` from the branch template, so until the merge the main checkout sees a config built from a template it does not have.
+    The lead said so in its report and named the window; `agent:launch` cannot remove it, but a brief for a change that edits the config template should state it and ask for a quick merge.
+  - What the brief could not carry: nothing needed to be added after the first prompt except the answers to guard prompts and the switch to build mode.
+    The model switch is not scriptable (no variant option), so the user did it in the pane.
+  - A lead's own diagnostics can leak a private name into its transcript even when it prints no value (a generic repository token became inferable).
+    A launch brief for a change that handles private values should tell the lead to say so when it happens, as this one did, so the export of that session is masked before it is committed.
 
 <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->
