@@ -235,6 +235,7 @@ MM .config, .local/share/fonts, .local/share/icons, three LXQt theme dirs (modes
 | 23 | `add-private-store-external` | F05, 2.8 | | full; added 2026-11-03 on request of the Neovim repository; after orders 2 and 3; the Neovim session S16 merged without it |
 | 24 | `add-repo-roadmap` | F34, process | | proposal, specs, brief; added 2026-11-03 on request, reworked 2026-11-04 (generated `ROADMAP.md`, global task `openspec:roadmap`); once applied, `ROADMAP.md` replaces this table and `TODO.md`, and this section is frozen |
 | 25 | `add-agent-launch-tasks` | 2.7 (mise), process | | proposal, specs; added 2026-11-04 on request; replaces `fix-prompt-delivery`; after 24 (the language rule for the global tasks) |
+| 26 | `add-secret-tasks` | 2.1, F10, F11, F12 | | proposal, design, specs, tasks; added 2026-11-09 on request of the Neovim repository's orchestrator; global tasks `secret:check` and `secret:rotate` for the encrypted environment file, probe table in the private store; after 24 (the Python rule), soft dependency on 23 |
 
 Changes 6 to 20 refine their artifacts at the start of their own session (`/opsx-continue`).
 

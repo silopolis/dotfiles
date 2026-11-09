@@ -68,6 +68,7 @@ Once `add-repo-roadmap` is applied, its generated `ROADMAP.md` replaces this lis
     * [ ] `add-repo-quality-gates` (audit 17)
     * [ ] `refresh-repo-docs` (audit 18)
     * [ ] `add-agent-launch-tasks` (audit 25): after line 10, for the language rule of the global tasks.
+    * [ ] `add-secret-tasks` (audit 26): after line 10, for the Python rule of the global tasks; the store external of line 9 is a soft dependency (the probe table lives in the private store).
 
 Later, with no change yet: development containers and DevPod as targets, OCI images as machines, real machines reached over SSH (with cem), more distros (Debian stable, Ubuntu, Arch), RPM-based distros, Zabbly packages for Debian testing (revisit at the forky freeze, early 2027).
 

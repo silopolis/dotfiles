@@ -19,7 +19,7 @@ This file is an operational complement to the change, not a replacement: the pro
 1. `AGENTS.md` (safety rules, writing for a public repository, conventions).
 2. `openspec/changes/add-repo-roadmap/` (proposal, specs for `openspec-repo-roadmap`, `global-mise-tasks` and `spec-workflow`) and `openspec list`.
 3. The seed of the order: the "Planned order of changes" in `TODO.md` (written 2026-11-07, 25 lines, some *planned* with no change yet, plus the mise packaging backlog and older bullets).
-   Then section 6 of `docs/audits/2026-10-30-environment.md` (the change map, rows 0 to 25: the finding or request each change answers) and finding F34.
+   Then section 6 of `docs/audits/2026-10-30-environment.md` (the change map, rows 0 to 26: the finding or request each change answers) and finding F34.
 4. `openspec/specs/global-mise-tasks/spec.md`, `openspec/specs/source-layout/spec.md` and `home/dot_config/mise/tasks/` (how global tasks are written and tested here), and the archived `adopt-chezmoiroot`.
 5. Format references, read-only, copying nothing private:
    - The Neovim configuration repository: `~/.config/nvim/ROADMAP.md` (sessions table, one section per session), `~/.config/nvim/.mise/tasks/roadmap`, `~/.config/nvim/.mise/lib/workflow/roadmap.py` and `~/.config/nvim/tests/workflow/test_roadmap.py`.
