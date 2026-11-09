@@ -57,13 +57,21 @@ Each step below is logged with its command, its result and any friction, so that
     Until the allowlist grows, a plan-mode launch cannot run unattended; the launch result should report `blocked` as a normal outcome and say that the user has to answer in the new pane.
     Later the same launch should be rechecked, since the prompt count falls as rules are learned.
   - Outcome, about 75 minutes after the first prompt (08:23 to 09:38, with the user answering guard prompts and switching the agent to build): the lead verified the change (19 scenario checks), archived it, rebased its branch on `main` and reported by `herdr agent prompt chezmoi-orch`, so the reporting target set by hand worked.
-    Five commits on the branch, none pushed; the orchestrator checked the branch (clean tree, fast-forward possible, no added line with the Neovim owner or repository values, gitleaks and `openspec validate --all --strict` clean) and fast-forwarded `main` with `git merge --ff-only`.
+    Five commits on the branch, none pushed at that point (the lead pushed afterwards, on the user's go, with its own session export); the orchestrator checked the branch (clean tree, fast-forward possible, no added line with the Neovim owner or repository values, gitleaks and `openspec validate --all --strict` clean) and fast-forwarded `main` with `git merge --ff-only`.
   - A side effect no brief can prevent: a worktree-based change that runs `chezmoi init` regenerates the live `~/.config/chezmoi/chezmoi.toml` from the branch template, so until the merge the main checkout sees a config built from a template it does not have.
     The lead said so in its report and named the window; `agent:launch` cannot remove it, but a brief for a change that edits the config template should state it and ask for a quick merge.
   - What the brief could not carry: nothing needed to be added after the first prompt except the answers to guard prompts and the switch to build mode.
     The model switch is not scriptable (no variant option), so the user did it in the pane.
   - A lead's own diagnostics can leak a private name into its transcript even when it prints no value (a generic repository token became inferable).
     A launch brief for a change that handles private values should tell the lead to say so when it happens, as this one did, so the export of that session is masked before it is committed.
+- 2026-11-09, cleanup of that launch, and what it shows for `agent:launch`:
+  - `herdr worktree create --cwd <repository>` made two workspaces in one call, 7 ms apart (herdr's server log): one labelled like the repository with a bare shell in the main checkout, and the one of the worktree.
+    herdr knows a repository only through a workspace whose pane sits inside it, and the orchestrator's workspace did not qualify (its root pane ran from a herdr configuration directory), so herdr made a source workspace of its own.
+    `herdr worktree list` now reports that workspace as the source of the repository (`source_workspace_id`), so later calls with `--workspace <it>` work and `--workspace <orchestrator workspace>` still fails with `not_git_worktree`.
+    For the design: `workspace:open` resolves the source workspace from `herdr worktree list --cwd <repository>` and reuses it, so a second launch does not create another one; whether a launch may create the source workspace at all is a question for the user.
+  - `scm:worktree:done <branch>` removed the worktree directory and the local branch after checking the merge into `origin/main`, and left the herdr workspace open.
+    The workspace had three tabs (the agent, a shell and a git client): the user's own tabs live next to the agent's, so closing the workspace closes them too, and the launch tasks must not close a workspace without saying what is in it.
+  - After `herdr workspace close`, `herdr agent get <name>` answered `agent_not_found`: the name goes away with the pane, as expected.
 
 
 <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->
