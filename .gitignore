@@ -11,3 +11,6 @@ home/dot_config/tmux/plugins
 .opencode/package.json
 .opencode/package-lock.json
 .opencode/bun.lock
+
+# Neovim rebuilds the compiled spell lists from the .add files
+*.add.spl
