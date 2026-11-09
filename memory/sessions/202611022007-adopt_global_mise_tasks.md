@@ -7977,7 +7977,7 @@ wB	2026-01-18-opencode
 wF	[redacted:private]-[redacted:private]-study
 wG	[redacted:repo]
 wH	[redacted:private]-km-study
-wJ	plannotator
+wJ	[redacted:private]
 wN	chezmoi
 wP	neovim
 wR	opencode-readonly-guard

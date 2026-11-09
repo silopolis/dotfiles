@@ -41,11 +41,12 @@ The public profile of the redaction tool rewrites each raw export before it ente
 
 The settings are in `.session-redact.toml` at the root of this repository: the public profile, the `dotfiles` terms directory of the private store, and the files that the tool's `--check` covers.
 Run the tool from the repository root; the terms come from the private store, never from this repository.
-The store's `dotfiles` directory sets the switch for sibling repository names to `redact`, so every sibling repository name is masked.
-The tool now keeps readable only the names in the store's public list, so the switch can go back to `keep` once that list holds the sibling repositories whose names may appear.
+The store's `dotfiles` directory sets the switch for sibling repository names to `keep`; since 2026-11-08 the tool keeps readable only the names in the store's public list, so every other sibling repository name is masked either way (`--explain` prints how many names are readable and how many are hidden).
+A sibling repository whose name may appear in these files is added to that public list first.
 Details the tool does not know are added for one export in a throwaway terms directory with mode 0700, selected with the environment variable `SESSION_REDACT_TERMS_DIR`, after reading the raw export for them.
-The tool matches a term right after a literal `\n` (JSON-escaped tool input) and a name next to a hyphen or an underscore since 2026-11-08; exports made before that date were covered by throwaway patterns for those two contexts.
-Words from the user's spell lists in the store count as private terms too, so a plain word added to a spell list is masked in every export, compound words included.
+The tool matches a term right after a literal `\n` (JSON-escaped tool input) and a name next to a hyphen or an underscore since 2026-11-08.
+Exports made before that date were re-run through the tool on 2026-11-09, which is idempotent and masked the 8 remaining terms in three of them, so that every file passes the check of the day.
+Words from the user's private spell lists in the store count as private terms too, so a plain word written there is masked in every export, compound words included; a public word belongs in the public list of the Neovim configuration repository.
 The tool and the store are recorded in the user's private notes; the tool is transitional.
 
 Redaction only knows what it is told.
