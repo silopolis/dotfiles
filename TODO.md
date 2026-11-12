@@ -43,7 +43,7 @@ Items marked *planned* have no change yet; create each with `/opsx-propose` when
 Once `add-repo-roadmap` is applied, its generated `ROADMAP.md` replaces this list, the packaging backlog and the older bullets move into its backlog, and this file is removed.
 
 1. [x] `fix-chezmoi-config-template` (audit 3): the config template, encryption, umask, Neovim external, the `features.incus` question.
-2. [ ] `make-install-scripts-idempotent` (audit 4): after it, a full apply is allowed after a reviewed dry run.
+2. [x] `make-install-scripts-idempotent` (audit 4): after it, a full apply is allowed after a reviewed dry run.
 3. [ ] `remove-brew-libvirt`: brew's libvirt, and a ban on it, on `qemu` and on brew's `incus`; first of the Incus group so that `virsh` and `incus` on `PATH` are the system ones.
 4. [ ] `fast-correct-shell-startup` (audit 7).
 5. [ ] `manage-xdg-basics` (audit 12): its install script runs only after item 2.

@@ -66,7 +66,7 @@ Every chezmoi command in this worktree takes `-S <worktree>` (`chezmoi -S <workt
 ## 6. Close
 
 - [x] 6.1 `openspec validate make-install-scripts-idempotent --strict`; `/opsx-verify make-install-scripts-idempotent`
-- [ ] 6.2 On the user's go: archive (`openspec archive make-install-scripts-idempotent --yes`); show the new `AGENTS.md` safety rule wording and write it after the user's go (full apply allowed after a reviewed dry run); tick item 2 of the "Planned order of changes" list in `TODO.md`; set row 4 of the change map in `docs/audits/2026-10-30-environment.md` to done with the archive date
-- [ ] 6.3 Rebase on `main`, `openspec validate --all --strict`, report to the orchestrator
+- [x] 6.2 On the user's go: archive (`openspec archive make-install-scripts-idempotent --yes`); show the new `AGENTS.md` safety rule wording and write it after the user's go (full apply allowed after a reviewed dry run); tick item 2 of the "Planned order of changes" list in `TODO.md`; set row 4 of the change map in `docs/audits/2026-10-30-environment.md` to done with the archive date
+- [x] 6.3 Rebase on `main` (a no-op: `main` stayed at `ea1b7e4`, the base of the branch), `openspec validate --all --strict`; the report to the orchestrator, with the last commit hash, follows the archive commit
 
 <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->

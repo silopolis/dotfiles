@@ -213,7 +213,7 @@ MM .config, .local/share/fonts, .local/share/icons, three LXQt theme dirs (modes
 | 1 | `harden-sensitive-targets` | F10, F11, F12, F05 (check) | | done, archived 2026-10-31 |
 | 2 | `adopt-chezmoiroot` | layout | | full |
 | 3 | `fix-chezmoi-config-template` | F03, F04, F07, F08, F09, F13, F41 | | done, archived 2026-11-08 |
-| 4 | `make-install-scripts-idempotent` | F01, F02, F24 (scripts), F27 | | full |
+| 4 | `make-install-scripts-idempotent` | F01, F02, F24 (scripts), F27 | | done, archived 2026-11-12 |
 | 5 | `reconcile-drift-and-supervised-apply` | F13, F14, F15 | Later steps: supervised full apply | full |
 | 6 | `fresh-machine-bootstrap` | F04, F05, F24, F25, F26, F38 | cem task T-012 | proposal, specs, draft tasks |
 | 7 | `fast-correct-shell-startup` | F06, F18 to F23, F33 | | proposal, specs, draft tasks |

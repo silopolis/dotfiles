@@ -69,7 +69,8 @@ Its location (`nvim.host`, `nvim.owner`, `nvim.repo`) is chezmoi data kept in th
 
 ## Safety rules
 
-- Never run a full `chezmoi apply` without reviewing `chezmoi apply --dry-run --verbose` with the user first; until `make-install-scripts-idempotent` is archived, do not run one at all.
+- A full `chezmoi apply` needs a reviewed dry run and the user present: review `chezmoi apply --dry-run --verbose` with the user first, then run it in a terminal where sudo can ask for a password.
+  The install scripts are idempotent since `make-install-scripts-idempotent`, but an apply also writes every target that drifted from the source (audit F13 to F15): the first one on the laptop is the supervised apply of `reconcile-drift-and-supervised-apply`.
 - Apply single targets with `--exclude=scripts`.
 - `chezmoi apply -R` also pulls into `~/.config/nvim`, fast-forward only, after asking for confirmation (chezmoi expects mode 0750 there, git made it 0775); `--force` skips the question, so run it only when the Neovim work is idle.
 - Edit the source, never the target, for managed files; bring live edits back with `chezmoi re-add` after a diff review.
