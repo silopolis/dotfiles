@@ -21,6 +21,15 @@ Candidates for `rationalize-package-ownership`, which owns package ownership.
   Check whether apt's `incus-extra` already holds `incus-migrate` and `incus-simplestreams` before adding them.
   The daemon stays with apt: it is a system service that needs root.
 
+## Follow-ups from changes
+
+* Desktop session open-files limit (from `make-install-scripts-idempotent`).
+  `/etc/security/limits.d/ulimit.conf` reaches only PAM login sessions (TTY, ssh): the systemd user manager starts the desktop session with a soft limit of 1024 (checked on 2026-11-12 on the KDE session).
+  systemd reads `~/.config/systemd/user.conf`, so a managed `[Manager]` section with `DefaultLimitNOFILE=` built from `system.limits.nofile` would raise it without sudo, from the next login.
+* Krew plugins per system (from `make-install-scripts-idempotent`).
+  Review `packages.darwin.krews` on the first macOS machine: colorize-managed-fields, neat and node-shell are available there, and the shared list `packages.common.krews` holds only the plugins that krew offers on all three systems.
+  A Windows machine would need a PowerShell krew script.
+
 ## Planned order of changes
 
 The order in which the open OpenSpec changes are applied and archived, written on 2026-11-07; tick an item when its change is archived.
