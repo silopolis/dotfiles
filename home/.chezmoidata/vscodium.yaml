@@ -1,7 +1,8 @@
-# VSCodium settings and extensions managed by chezmoi (see home/dot_config/VSCodium/User/modify_settings.json.tmpl).
+# VSCodium settings and extensions managed by chezmoi (see home/dot_config/VSCodium/User/modify_settings.json).
 # Public repository: never put keys, tokens or passwords here.
 # settings: merged over the live settings.json at apply time; keys not listed stay local.
 # extensions: installed when missing by .chezmoiscripts/run_onchange_after_20-vscodium-extensions.sh.tmpl; never removed.
+# The same script installs the .vsix files of ~/.local/share/vsix whose extension is not installed yet.
 vscodium:
   settings:
     "[markdown]": {"editor.defaultFormatter": "darkriszty.markdown-table-prettify"}

@@ -1,27 +1,73 @@
 {{- if eq .chezmoi.os "linux" -}}
 #!/usr/bin/env bash
-# Install missing VSCodium extensions. Never removes anything.
-# The list is in .chezmoidata/vscodium.yaml; its hash makes chezmoi re-run this
-# script whenever the list changes.
+# Install the VSCodium extensions of vscodium.extensions that are missing, then the local .vsix files whose extension is not
+# installed. Never removes or upgrades anything. A failed install is a warning, not a failure: one extension that Open VSX does
+# not offer must not stop the apply, and chezmoi would not retry the script until the list changes anyway.
+# The list is in .chezmoidata/vscodium.yaml; its hash makes chezmoi re-run this script whenever the list changes.
+# The .vsix directory is outside the repository, so adding a file there does not re-run the script.
 # extensions hash: {{ .vscodium.extensions | toJson | sha256sum }}
-set -uo pipefail
+# tools: {{ template "tools-present" (dict "root" . "tools" (list "codium")) }}
+{{ template "script-lib.sh" "vscodium-extensions" }}
 
-if ! command -v codium >/dev/null 2>&1; then
-  echo "vscodium-extensions: codium not found, skipping" >&2
-  exit 0
+load_brew {{ .brew.prefix | squote }}
+{{ template "tools-use" . }}
+
+extensions=({{ range .vscodium.extensions }}{{ . | squote }} {{ end }})
+vsix_dir=$HOME/.local/share/vsix
+
+need codium || exit 0
+
+# Without the list every extension would look missing: stop rather than install blindly.
+if ! listing=$(codium --list-extensions 2> /dev/null); then
+  warn "codium --list-extensions failed: nothing is installed"
+  exit 1
 fi
+# Extension ids are case-insensitive: compare in lower case.
+installed=$(printf '%s\n' "$listing" | tr '[:upper:]' '[:lower:]')
 
-installed="$(codium --list-extensions 2>/dev/null | tr '[:upper:]' '[:lower:]')"
-for ext in {{ .vscodium.extensions | join " " }}; do
-  if grep -qxF "${ext,,}" <<<"${installed}"; then
+for ext in "${extensions[@]}"; do
+  if grep -qxF "${ext,,}" <<< "$installed"; then
     continue
   fi
-  codium --install-extension "${ext}" || echo "vscodium-extensions: failed: ${ext}" >&2
+  log "installing $ext"
+  if run codium --install-extension "$ext"; then
+    installed+=$'\n'"${ext,,}"
+  else
+    warn "failed: $ext"
+  fi
 done
 
+# vsix_id <file>: the extension id (publisher.name) of a .vsix, from the package.json inside it;
+# without unzip or jq, or when the file is not a readable archive, the file name without its version suffix.
+vsix_id() {
+  local file=$1 id=''
+  if have unzip && have jq; then
+    id=$(unzip -p "$file" extension/package.json 2> /dev/null | jq -r 'select(.publisher and .name) | .publisher + "." + .name' 2> /dev/null || true)
+  fi
+  if [ -z "$id" ]; then
+    id=$(basename "$file" .vsix | sed -E 's/-[0-9]+(\.[0-9A-Za-z+_@-]*)*$//')
+  fi
+  printf '%s' "${id,,}"
+}
+
 # Extensions that are not on Open VSX: .vsix files kept outside this repository.
-for vsix in "${HOME}"/.local/share/vsix/*.vsix; do
-  [ -e "${vsix}" ] || continue
-  codium --install-extension "${vsix}" || echo "vscodium-extensions: failed: ${vsix}" >&2
+# A .vsix whose extension is already installed is skipped, whatever its version: upgrading it is a manual action.
+shopt -s nullglob
+for vsix in "$vsix_dir"/*.vsix; do
+  id=$(vsix_id "$vsix")
+  if [ -z "$id" ]; then
+    warn "$(basename "$vsix"): cannot tell which extension it holds, skipped"
+    continue
+  fi
+  if grep -qxF "$id" <<< "$installed"; then
+    log "$(basename "$vsix"): $id is installed, skipped"
+    continue
+  fi
+  log "installing $id from $vsix"
+  if run codium --install-extension "$vsix"; then
+    installed+=$'\n'"$id"
+  else
+    warn "failed: $vsix"
+  fi
 done
 {{- end }}

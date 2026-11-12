@@ -222,6 +222,45 @@ The vimrc SHALL set `nocompatible` before Vundle loads, so that `vim -Es` define
 - **WHEN** `vim -Es -n -u home/dot_config/vim/vimrc -i NONE -c 'if execute("command PluginInstall") !~ "vundle#installer#new" | cquit 2 | endif' -c qall` runs on a machine where the Vundle external is in place
 - **THEN** it exits 0
 
+### Requirement: Local extension files are installed only when missing
+
+The VSCodium script SHALL install a `.vsix` file of `~/.local/share/vsix` only when the extension it holds is not installed, SHALL identify the extension by the `publisher.name` inside the archive and by the file name when the archive cannot be read, and SHALL never remove or upgrade an extension.
+
+#### Scenario: Extension already installed
+
+- **WHEN** the extension of a `.vsix` file is installed, whatever the case of its id, and the rendered script runs
+- **THEN** no `codium --install-extension` call is made for it, and the output says it is skipped
+
+#### Scenario: Extension missing
+
+- **WHEN** the extension of a `.vsix` file is not installed and the script runs
+- **THEN** `codium --install-extension` is called once, with that file
+
+#### Scenario: Identification
+
+- **WHEN** a `.vsix` file is named differently from its `publisher.name`, with and without `jq` available
+- **THEN** with `jq` the id comes from the archive, and without it from the file name
+
+#### Scenario: Unreadable archive
+
+- **WHEN** a `.vsix` file is not an archive and its name without version holds an installed id
+- **THEN** it is skipped
+
+#### Scenario: Listing fails
+
+- **WHEN** `codium --list-extensions` fails
+- **THEN** the script exits 1 and installs nothing
+
+#### Scenario: One failed install
+
+- **WHEN** installing one declared extension fails
+- **THEN** the script warns, installs the other missing extensions, and exits 0
+
+#### Scenario: Provisioned laptop
+
+- **WHEN** the rendered script runs with the real `codium`, `unzip` and `jq` in live read-only mode
+- **THEN** it makes no install call and exits 0
+
 ### Requirement: Krew plugins come from a shared list and a list per system
 
 The krew script SHALL install the plugins of `packages.common.krews` plus those of the list for the current operating system, without duplicates, and SHALL render empty when that combined list is empty.

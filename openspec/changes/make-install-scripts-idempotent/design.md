@@ -68,7 +68,7 @@ Numbering by kind: 0x before, 1x package managers, 2x editors, 3x user setup (`m
 | `run_onchange_after_11-mise.sh.tmpl` | after | `dot_config/mise/config.toml`, presence of `mise` | `mise install --yes`, then `mise reshim` (shim cleanup) |
 | `run_onchange_after_12-pipx.sh.tmpl` | after | `dot_config/pipx/packages.json`, presence of `pipx` and `jq` | installs only venvs missing from `pipx list --short`, through a filtered copy of the spec file; reports undeclared venvs |
 | `run_onchange_after_13-krew.sh.tmpl` | after | the combined plugin list, presence of `kubectl` and `kubectl-krew` | Linux and macOS; installs only missing plugins; reports undeclared plugins; renders empty when the list is empty |
-| `run_onchange_after_20-vscodium-extensions.sh.tmpl` | after | extension list | as today; `.vsix` skipped when its `publisher.name` is installed |
+| `run_onchange_after_20-vscodium-extensions.sh.tmpl` | after | extension list, presence of `codium` | installs missing extensions, then the `.vsix` files of `~/.local/share/vsix` whose extension is not installed |
 | `run_onchange_after_21-vim-plugins.sh.tmpl` | after | `dot_config/vim/vimrc`, presence of `vim` | `vim -N -Es -n -u ~/.vimrc -i NONE +PluginInstall +qall`; YouCompleteMe build only when `vim.ycm_build` is true and the core library is missing |
 | `run_onchange_after_90-bat-cache.sh.tmpl` | after | `dot_config/bat/config`, `.chezmoiexternals/bat.toml.tmpl` | `bat cache --build` |
 
@@ -185,6 +185,18 @@ It is not an uninstall: no tool version is touched, only generated links, inside
 
 Proof, without touching the real shims: `reshim-sandbox.sh` runs the real mise binary offline in a scratch home and data directory with a fake `node` install, a stale shim, a current shim and a non-shim file (stale removed, missing added, current and non-shim kept, installed tool untouched, second run identical); `reshim-preview.sh` runs it against a symlink farm of the real installs and a copy of the real shims directory, and reports what a real reshim would change on this laptop (nothing: 137 shims before and after, then 138 once `jq` was installed), and fails when a stale shim is planted in the copy.
 In live mode the harness swaps `mise reshim` for `mise --version`, because the real command writes the shims directory.
+
+### VSCodium script
+
+- It is the list logic of today with the helper, the `codium` presence line and a quoted array instead of an unquoted word list.
+  Extension ids are compared in lower case, because ids are case-insensitive.
+- `codium --list-extensions` runs once, and each successful install is appended to the list, so a `.vsix` whose id was just installed from the list is not installed again.
+  When the listing fails the script fails before installing anything, instead of treating every extension as missing.
+- A `.vsix` is identified by `publisher.name` read from `extension/package.json` inside the archive (`unzip -p` and `jq`); when `unzip` or `jq` is absent, or the file is not a readable archive, by its file name without the version suffix (`sitoi.ai-commit-0.1.2.vsix` gives `sitoi.ai-commit`).
+  It is skipped when that id is installed, whatever its version: upgrading from a newer `.vsix` is a manual action.
+- A failed install is a warning and the script ends with exit 0, as today: one extension that Open VSX does not offer must not stop the apply, and chezmoi would not retry the script before the list changes.
+- The `.vsix` directory is outside the repository and is not part of the trigger.
+- The comment of `.chezmoidata/vscodium.yaml` named `modify_settings.json.tmpl`, which does not exist; it names `modify_settings.json` now (F27).
 
 ### Krew per system
 
