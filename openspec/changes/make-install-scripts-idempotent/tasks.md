@@ -41,11 +41,11 @@ Every chezmoi command in this worktree takes `-S <worktree>` (`chezmoi -S <workt
 
 ## 5. Checks
 
-- [ ] 5.1 Every rendered script passes `shellcheck -s bash` and the helper passes `bash -n`
-- [ ] 5.2 No escaped action and no literal path (`grep -rn '\\{\\{' home/.chezmoiscripts/` prints nothing; `rg -n '/home/[a-z]+/|\.local/share/chezmoi' home/.chezmoiscripts/` prints nothing)
-- [ ] 5.3 Full harness run, both modes: every script exits 0 with standard input from `/dev/null`, the sudo log and the refused-command log are empty in live mode
-- [ ] 5.4 `chezmoi -S <worktree> status --include=scripts` and `chezmoi -S <worktree> apply --dry-run --verbose` (a dry run only, never a real apply) list exactly the new and renamed scripts as pending, and render empty scripts as absent; record the list for `reconcile-drift-and-supervised-apply`, with the stale state keys of the removed scripts (`chezmoi -S <worktree> state get-bucket --bucket=entryState` keys only)
-- [ ] 5.5 Document `CHEZMOI_SCRIPTS_DRY_RUN`, its caveat under `chezmoi apply`, the harness, the refresh command of `packages.json`, and the local `tools.search` settings in `AGENTS.md` (Commands) (`rg -n 'CHEZMOI_SCRIPTS_DRY_RUN|pipx list --json|tools.search' AGENTS.md`)
+- [x] 5.1 Every rendered script passes `shellcheck -s bash` and the helper passes `bash -n` (`all.sh` runs both on the 10 real and the 10 scratch renders: 20 static checks, all pass)
+- [x] 5.2 No escaped action and no literal path (`grep -rn '\\{\\{' home/.chezmoiscripts/` prints nothing; `rg -n '/home/[a-z]+/|\.local/share/chezmoi' home/.chezmoiscripts/` prints nothing)
+- [x] 5.3 Full harness run, both modes: every script exits 0 with standard input from `/dev/null`, the sudo log and the refused-command log are empty in live mode (`/tmp/opencode/scripts-test/all.sh`: 139 checks pass on 2026-11-12)
+- [x] 5.4 `chezmoi -S <worktree> status --include=scripts` and `chezmoi -S <worktree> apply --dry-run --verbose --include=scripts` (a dry run only, never a real apply) list exactly ten scripts as pending: `00-prerequisites`, `01-decrypt-private-key`, `02-system-limits`, `10-brew`, `11-mise`, `12-pipx`, `13-krew`, `20-vscodium-extensions`, `21-vim-plugins`, `90-bat-cache`; none ran. The state keeps five stale keys of removed or renamed scripts (`00-pre-requesites`, `05-install`, `10-install-packages`, `bat-cache-build`, `decrypt-private-key`), harmless and not deleted; for `reconcile-drift-and-supervised-apply`, every one of the ten is expected to be a no-op, except that `11-mise` runs `mise reshim` (no change expected here) and `90-bat-cache` builds the empty bat cache for the first time
+- [x] 5.5 Document `CHEZMOI_SCRIPTS_DRY_RUN`, its caveat under `chezmoi apply`, the harness, the refresh command of `packages.json`, and the local `tools.search` settings in `AGENTS.md` (Commands) (`rg -n 'CHEZMOI_SCRIPTS_DRY_RUN|pipx list --json|tools.search' AGENTS.md`)
 - [ ] 5.6 Propose commits, one per group, each after the user validates its message:
   - `docs(chezmoi:spec): refresh make-install-scripts-idempotent against the tree`
   - `docs(chezmoi:docs): call TODO entries items instead of lines`

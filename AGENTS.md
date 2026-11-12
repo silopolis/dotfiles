@@ -46,10 +46,20 @@ Its location (`nvim.host`, `nvim.owner`, `nvim.repo`) is chezmoi data kept in th
 
 - `chezmoi status` and `chezmoi diff --exclude=externals`: what an apply would change.
 - `chezmoi apply --dry-run --verbose`: full preview, scripts included.
+- `chezmoi status --include=scripts`: the scripts an apply would run (`R`); a script that renders empty is not listed.
 - `chezmoi apply --exclude=scripts <target>`: apply one target without running scripts.
 - `chezmoi execute-template < file.tmpl` and `chezmoi cat <target>`: render a template or a target.
 - `chezmoi managed`, `chezmoi unmanaged <dir>`, `chezmoi doctor`.
 - `zsh -n <file>`, `bash -n <file>`, `shellcheck <file>`: shell checks.
+- Testing a script without running it: render it with `chezmoi -S <worktree> execute-template < home/.chezmoiscripts/<script>.tmpl`, then run the text with `CHEZMOI_SCRIPTS_DRY_RUN=1`, which makes every script print the change it would make instead of making it (read-only queries still run).
+  Never set that variable on `chezmoi apply`: chezmoi records a script as run once it exits 0, so the real apply would skip it afterwards.
+  The helper warns when it sees both.
+- The proof of a script is a harness kept outside the repository (`/tmp/opencode/scripts-test` during `make-install-scripts-idempotent`):
+  - isolated mode puts stubs for `sudo`, `apt-get`, `brew`, `pipx`, `mise`, `kubectl`, `codium`, `vim` and the others first on `PATH`, points `HOME` at a scratch directory and reads standard input from `/dev/null`, so a script can only call stubs that log their arguments;
+  - live read-only mode lets an allow-list of read-only queries reach the real tools and refuses and logs everything else, with `sudo` always a logging stub;
+  - a script passes when it exits 0 and both logs are empty.
+- Scripts look for their tools in the directories of `tools.search` (`home/.chezmoidata/tools.yaml`); to add directories or replace the list on one machine, set `extra` or `override` in the local config under `[data.tools.search]`, never in the data file.
+- `home/dot_config/pipx/packages.json` holds no path and no interpreter; refresh it with the `pipx list --json | jq` command in the header of `home/.chezmoiscripts/run_onchange_after_12-pipx.sh.tmpl`.
 - `openspec validate --all --strict`: check specs and changes.
 - `mise run hooks:install`: after a fresh clone, install the pre-commit secret scan as a `.git/hooks` shim, which every git version runs.
 - Startup time: `for i in 1 2 3; do /usr/bin/env time -f %e zsh -i -c exit; done` (or `date +%s.%N` around the call when GNU time is missing).
