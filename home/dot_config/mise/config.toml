@@ -47,6 +47,10 @@ antigravity-cli = "latest"
 "npm:acpx" = "latest"
 pi = "latest"
 
+# Used by the chezmoi install scripts: jq filters the pipx spec file, kubectl runs krew
+jq = "latest"
+kubectl = "latest"
+
 [settings]
 # aube (the default JS package manager) aborts on packages with install scripts
 npm.package_manager = "npm"
