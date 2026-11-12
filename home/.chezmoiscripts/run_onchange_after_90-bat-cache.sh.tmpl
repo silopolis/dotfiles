@@ -1,0 +1,20 @@
+{{- if eq .chezmoi.os "linux" -}}
+#!/usr/bin/env bash
+# Rebuild the bat cache (the custom themes and syntaxes of ~/.config/bat) when its inputs change.
+# It writes only the cache directory of bat, inside $HOME, and rebuilding gives the same cache.
+# bat reads the themes and syntaxes folders next to its config file, not the config file itself: the themes come from the
+# externals, so the externals declaration is the real input; the config is hashed as well, because a theme choice is made there.
+# Not covered: the upstream theme files, which the weekly refresh of the externals may change without re-running this script.
+# bat config hash: {{ include "dot_config/bat/config" | sha256sum }}
+# bat externals hash: {{ include ".chezmoiexternals/bat.toml.tmpl" | sha256sum }}
+# tools: {{ template "tools-present" (dict "root" . "tools" (list "bat")) }}
+{{ template "script-lib.sh" "bat-cache" }}
+
+load_brew {{ .brew.prefix | squote }}
+{{ template "tools-use" . }}
+
+need bat || exit 0
+
+log "bat cache --build"
+run bat cache --build
+{{ end -}}

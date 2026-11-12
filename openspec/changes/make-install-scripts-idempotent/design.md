@@ -70,7 +70,7 @@ Numbering by kind: 0x before, 1x package managers, 2x editors, 3x user setup (`m
 | `run_onchange_after_13-krew.sh.tmpl` | after | the combined plugin list, presence of `kubectl` and `kubectl-krew` | Linux and macOS; installs only missing plugins; reports undeclared plugins; renders empty when the list is empty |
 | `run_onchange_after_20-vscodium-extensions.sh.tmpl` | after | extension list, presence of `codium` | installs missing extensions, then the `.vsix` files of `~/.local/share/vsix` whose extension is not installed |
 | `run_onchange_after_21-vim-plugins.sh.tmpl` | after | `dot_config/vim/vimrc`, presence of `vim` | `vim -N -Es -n -u ~/.vimrc -i NONE +PluginInstall +qall`; YouCompleteMe build only when `vim.ycm_build` is true and the core library is missing |
-| `run_onchange_after_90-bat-cache.sh.tmpl` | after | `dot_config/bat/config`, `.chezmoiexternals/bat.toml.tmpl` | `bat cache --build` |
+| `run_onchange_after_90-bat-cache.sh.tmpl` | after | `dot_config/bat/config`, `.chezmoiexternals/bat.toml.tmpl`, presence of `bat` | `bat cache --build` |
 
 Hash lines use `{{ include "<path>" | sha256sum }}` (paths relative to `home/`) or `{{ .<data> | toJson | sha256sum }}`; nothing escaped.
 Package managers move to after-scripts so they read deployed files (Brewfile, `packages.json`, `vimrc`) instead of source paths, and so vim plugins install after Vundle (an external) and the vimrc exist.
@@ -197,6 +197,16 @@ In live mode the harness swaps `mise reshim` for `mise --version`, because the r
 - A failed install is a warning and the script ends with exit 0, as today: one extension that Open VSX does not offer must not stop the apply, and chezmoi would not retry the script before the list changes.
 - The `.vsix` directory is outside the repository and is not part of the trigger.
 - The comment of `.chezmoidata/vscodium.yaml` named `modify_settings.json.tmpl`, which does not exist; it names `modify_settings.json` now (F27).
+
+### Bat cache script
+
+- `bat cache --build` reads the `themes` and `syntaxes` folders next to the bat config file and writes the cache directory of bat; it does not read the config file.
+  The themes come from the externals, so the externals declaration is the real input, and the config is hashed too because the theme is chosen there (the intent of the script as it was written).
+  Both hash lines are real now: the old one was escaped, so editing the config never re-ran the script.
+- Rebuilding gives the same cache, writes only inside `$HOME`, and needs no sudo, so running it again is harmless; it runs when its hashes or the presence of `bat` change.
+- On this laptop the cache directory is empty (checked on 2026-11-12), so the script was never effective: its first run builds the cache.
+  Bat 0.26.1 lists the custom themes without a cache, so the visible effect is on syntaxes; the build is kept because it was the declared intent.
+- Live mode builds a real cache from the real config directory into a scratch directory (`--source` and `--target`), so the real cache is not written during the tests.
 
 ### Krew per system
 
