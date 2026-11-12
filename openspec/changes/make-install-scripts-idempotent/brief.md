@@ -5,13 +5,14 @@ This file is an operational complement to the change, not a replacement: the pro
 
 ## Where you work
 
-- Repository: this one, in a worktree `~/Work/trees/chezmoi-install-scripts-idempotent`, on branch `fix/install-scripts-idempotent`, started from `main`.
+- Repository: this one, in a worktree `~/Work/trees/dotfiles-install-scripts-idempotent`, on branch `fix/install-scripts-idempotent`, started from `main`.
   The orchestrator creates the worktree and your herdr tab; if you find yourself in the main checkout, stop and say so.
 - Your tab is in the herdr workspace of this repository, next to the tabs of the user and of the orchestrator: do not close, rename or type into a tab you did not open.
 - You start in plan mode.
   Your first output is a review of the change against the current tree, shown in chat; the user reads it and switches you to build mode once approved.
   The read-only guard asks for approval on commands it does not know yet; that is expected, the user answers in your pane.
-- Everything chezmoi reads lives under `home/` (`.chezmoiroot`, spec `source-layout`); the change was written before that move, so its paths and line numbers are stale.
+- Everything chezmoi reads lives under `home/` (`.chezmoiroot`, spec `source-layout`); the change was written before that move, so its paths and line numbers were stale when this brief was written.
+  The first commit of your branch refreshes the change documents against the tree (2026-11-12 review): once it is made, they are current and this note no longer applies to them.
 - The change `fix-chezmoi-config-template` is archived since 2026-11-08: the config now holds `umask = 0o027`, `encryption = "age"`, a `features` table and a `nvim` table, and `chezmoi diff` excludes externals.
   Read `openspec/specs/chezmoi-config/spec.md` and `openspec/specs/neovim-config/spec.md` before you touch data or scripts.
 
@@ -57,8 +58,14 @@ This file is an operational complement to the change, not a replacement: the pro
 ## Non-goals
 
 - Changing which packages are declared or which manager owns a tool (`rationalize-package-ownership`), distro and profile data beyond the Debian-family guard (`fresh-machine-bootstrap`), the macOS branches beyond keeping them.
-- The supervised full apply: `reconcile-drift-and-supervised-apply` runs it, after this change and after `test-second-apply-noop`.
-- Any edit to another repository or to `TODO.md` ordering: tick line 2 of `TODO.md` at archive time and nothing else.
+- The supervised full apply: `reconcile-drift-and-supervised-apply` runs it, after this change and after item 15 of the planned order, `test-second-apply-noop`, which is only a planned entry so far and has no change yet.
+- Any edit to another repository, and any edit to `TODO.md` beyond what the exceptions below allow: at archive time, tick item 2 of the "Planned order of changes" list (the `make-install-scripts-idempotent` entry).
+
+Exceptions decided by the user on 2026-11-12, after the plan-mode review (the design records them):
+
+- The krew script has one branch per operating system, with a shared list `packages.common.krews` and per-system lists; the darwin `brew bundle` call moves to the darwin branch of the brew script.
+- `packages.json` is synchronized with the venvs installed on this machine, in its own commit, so that the undeclared-package report starts empty.
+- `TODO.md` entries are called items and not lines (wording only, no reordering, in its own commit), and two backlog entries are added in another commit: the soft open-files limit of the desktop session, and the per-system review of the krew plugins.
 
 ## Rules
 
@@ -74,7 +81,9 @@ This file is an operational complement to the change, not a replacement: the pro
 ## Reporting
 
 - Report with one short line each time, at five points: reading done, plan ready, apply done, verify result, blocked (say on what).
-  Send it with `herdr agent prompt chezmoi-orch "<one line>"` when `herdr agent get chezmoi-orch` succeeds; agent names do not always survive (see `openspec/changes/add-agent-launch-tasks/observations.md`), so when it fails, prompt pane `wN:p1`, and when that fails too, write the line in your own pane for the user.
+  Send it with `herdr agent prompt chezmoi-orch "<one line>"` when `herdr agent get chezmoi-orch` succeeds.
+  Agent names can be lost when herdr restarts (see `openspec/changes/add-agent-launch-tasks/observations.md`), so when that fails, find the pane of the tab labelled `orch` in the workspace of this repository (`herdr tab list --workspace <id>`, then `herdr agent list`; on 2026-11-12 it is pane `wN:p1`) and prompt it by pane id; a pane id written in a brief can go stale, so check the tab label before you rely on it.
+  Only when both fail, write the line in your own pane for the user.
 - Keep a list of every friction you meet with the tooling (a lost or duplicated prompt, a slow start, a permission prompt that blocked work, a path or trust problem in the worktree, a command that behaved differently from its help); send it with the last report.
 - When a command or diagnostic of yours makes a private value inferable in your transcript, say so in the report, so that the export of your session is masked before it is committed.
 - Your session export is done at the end, when the user asks, following `memory/sessions/README.md`.
