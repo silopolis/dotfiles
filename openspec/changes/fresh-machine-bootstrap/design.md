@@ -43,7 +43,8 @@ This change only builds on it:
 ### Container test
 
 A `podman` (or `docker`) Debian or Kali image, running the bootstrap with `--exclude=encrypted` and a non-interactive profile; success is a zero exit and an empty `chezmoi status --exclude=encrypted`.
-Brew in a container is slow; the test may set `CHEZMOI_SCRIPTS_DRY_RUN=1` for package scripts in a first stage.
+Brew in a container is slow, so a first stage may run the package scripts in dry-run mode, but not through `CHEZMOI_SCRIPTS_DRY_RUN=1 chezmoi apply`: chezmoi records a `run_onchange_` script as run once it exits 0, so a later real apply in the same guest would skip it.
+A first stage that wants the dry run renders the scripts and runs them under the variable outside `chezmoi apply`, as the harness of `make-install-scripts-idempotent` does, or starts from a throwaway state.
 
 ## Risks / Trade-offs
 

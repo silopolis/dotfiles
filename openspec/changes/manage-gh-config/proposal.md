@@ -9,7 +9,7 @@ Audit section 2.7 lists gh as managed, which is true of the settings only.
 
 - Review `config.yml` (git protocol, editor, pager, aliases) and keep what is wanted; it stays a private file.
 - Keep the login state out of the repository explicitly: an ignore entry so that a recursive `chezmoi add` of the directory cannot pick it up.
-- Declare the extensions in use in chezmoi data and install them from one idempotent script step, replacing the install lines left in `05-install` by `make-install-scripts-idempotent`.
+- Declare the extensions in use in chezmoi data and install them from one idempotent script step, replacing the install lines that `make-install-scripts-idempotent` drops from `05-install` (the login and the retired copilot extension): nothing of gh is left in the install scripts after that change.
 - Decide how a new machine logs in: a documented manual step, or a guarded step that runs only in a terminal and only when no login exists. No token is ever written to the repository.
 - The `gh-dash` configuration stays in `manage-dev-tui-configs`; the retired gh-copilot extension and its config stay in `cleanup-dead-config`.
 

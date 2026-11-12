@@ -94,13 +94,14 @@ Rejected because every association added by the desktop would show as drift and 
 
 ### Refresh caches from an after script
 
-`.chezmoiscripts/run_onchange_after_30-desktop-database.sh.tmpl` embeds a hash of the rendered entries and of `mise-apps.yaml`, so it runs only when they change.
+`.chezmoiscripts/run_onchange_after_31-desktop-database.sh.tmpl` embeds a hash of the rendered entries and of `mise-apps.yaml`, so it runs only when they change.
+The number is 31 because the numbering scheme of `make-install-scripts-idempotent` (0x before, 1x package managers, 2x editors, 3x user setup, 9x caches) gives 30 to the folders script of `manage-xdg-basics`, which comes first.
 It runs `update-desktop-database ~/.local/share/applications` and `kbuildsycoca6`, each guarded by `command -v`, and touches nothing outside `$HOME`.
 Both commands are idempotent.
 
 ## Risks / Trade-offs
 
-- [Fresh machine: entries are skipped on the first apply because mise has not installed the application yet] → the mise install block in `05-install` is commented out today (F02); once `make-install-scripts-idempotent` runs mise before the targets, a single apply suffices; until then, document the second apply in the tasks.
+- [Fresh machine: entries are skipped on the first apply because mise has not installed the application yet] → the mise install block in `05-install` is commented out today (F02), and `make-install-scripts-idempotent` replaces it with an after-script, which chezmoi runs once the targets are written, so the first apply of a fresh machine still skips the entries and a second apply writes them; a single apply would need `mise install` before the targets, which `fresh-machine-bootstrap` may decide when it settles the bootstrap order; until then, document the second apply in the tasks.
 - [`latest` symlink missing or stale after a manual cleanup of `installs/`] → `mise install` recreates it; the entry check in the specs (`desktop-file-validate`, `Exec` path exists) shows the problem.
 - [mise renames the install directory scheme in a future release] → the directory is explicit data, one line to fix; the existence check keeps the menu clean meanwhile.
 - [A later apt or Flatpak install of Obsidian ships its own `obsidian.desktop`] → the user entry under `~/.local/share/applications` takes precedence; drop the application from `mise_apps` when switching channels.

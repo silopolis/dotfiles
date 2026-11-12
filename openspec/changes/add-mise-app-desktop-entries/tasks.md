@@ -22,8 +22,8 @@
 
 ## 4. Cache refresh script
 
-- [ ] 4.1 Create `.chezmoiscripts/run_onchange_after_30-desktop-database.sh.tmpl`: Linux guard, hash comment of `mise-apps.yaml` and of the shared template, `set -euo pipefail`, `update-desktop-database "$HOME/.local/share/applications"` and `kbuildsycoca6`, each behind `command -v` (`chezmoi execute-template < .chezmoiscripts/run_onchange_after_30-desktop-database.sh.tmpl | bash -n && shellcheck -s bash <(chezmoi execute-template < .chezmoiscripts/run_onchange_after_30-desktop-database.sh.tmpl)`)
-- [ ] 4.2 Run the rendered script twice by hand (`for i in 1 2; do chezmoi execute-template < .chezmoiscripts/run_onchange_after_30-desktop-database.sh.tmpl | bash || echo FAIL; done` prints no `FAIL`)
+- [ ] 4.1 Create `.chezmoiscripts/run_onchange_after_31-desktop-database.sh.tmpl`: Linux guard, hash comment of `mise-apps.yaml` and of the shared template, `set -euo pipefail`, `update-desktop-database "$HOME/.local/share/applications"` and `kbuildsycoca6`, each behind `command -v` (`chezmoi execute-template < .chezmoiscripts/run_onchange_after_31-desktop-database.sh.tmpl | bash -n && shellcheck -s bash <(chezmoi execute-template < .chezmoiscripts/run_onchange_after_31-desktop-database.sh.tmpl)`)
+- [ ] 4.2 Run the rendered script twice by hand (`for i in 1 2; do chezmoi execute-template < .chezmoiscripts/run_onchange_after_31-desktop-database.sh.tmpl | bash || echo FAIL; done` prints no `FAIL`)
 - [ ] 4.3 Check that KDE sees the entry (`grep -alF 'obsidian.desktop' ~/.cache/ksycoca6_*` lists a file; search "Obsidian" in the launcher; note in which menu folder it lands under the current Kali menu)
 - [ ] 4.4 Review `chezmoi apply --dry-run --verbose` with the user: only the refresh script and the new targets are pending, no other script is listed (once `make-install-scripts-idempotent` is archived; until then, run only this script as in 4.2 and record it as run)
 - [ ] 4.5 Propose commit `feat(sys:desktop): refresh desktop caches when mise app entries change`
@@ -40,7 +40,7 @@
 ## 6. Upgrade and absent install
 
 - [ ] 6.1 After the next `mise upgrade` of Obsidian, without applying, check the entry and icon still resolve (`test -x "$(sed -n 's/^Exec=\([^ ]*\).*/\1/p' ~/.local/share/applications/obsidian.desktop)" && test -e ~/.local/share/icons/hicolor/512x512/apps/obsidian.png`); if no upgrade is available, check that `latest` is a symlink to the versioned directory (`readlink ~/.local/share/mise/installs/github-obsidianmd-obsidian-releases/latest`)
-- [ ] 6.2 Document in `.chezmoidata/mise-apps.yaml` the second apply needed on a fresh machine until `make-install-scripts-idempotent` runs `mise install` before the targets (F02) (`grep -n F02 .chezmoidata/mise-apps.yaml`)
+- [ ] 6.2 Document in `.chezmoidata/mise-apps.yaml` the second apply needed on a fresh machine, because `make-install-scripts-idempotent` runs `mise install` in an after-script, once the targets are written (F02) (`grep -n F02 .chezmoidata/mise-apps.yaml`)
 
 ## 7. Close
 
