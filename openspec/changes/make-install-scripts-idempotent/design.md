@@ -137,7 +137,23 @@ Removing Vundle and the `Plugin 'ycm-core/YouCompleteMe'` line of the vimrc belo
 
 `home/dot_config/pipx/packages.json` is regenerated from `pipx list --json` (28 venvs: the 23 declared plus calcure, euporie, hike, ipython and pynvim).
 All 23 existing entries change too, because their recorded app paths and versions no longer match.
-`pipx install-all` falls back to the default Python when a recorded interpreter is missing, so the file stays usable on a fresh machine; the recorded paths hold the user name, as the file already did, and removing it belongs to `fresh-machine-bootstrap`.
+
+The file holds no absolute path.
+pipx writes `app_paths`, `man_paths`, `completion_paths` and their `_of_dependencies` forms after an install, and `pipx install-all` never reads them back: it installs the package at the recorded version, injects the recorded extras, and writes fresh metadata from the new venv.
+The six fields stay in the file, emptied (`[]` or `{}`), because pipx requires `app_paths` and `app_paths_of_dependencies`.
+`source_interpreter` is `null` for the same reason of portability: it was the Homebrew Python path, which does not exist on macOS or another prefix, and pipx prints a notice and uses its default Python when it is missing.
+The cost is the Python pin: all 28 venvs run Python 3.13 today, and a venv built from this file uses pipx's default Python (3.14 on this machine).
+`python_version` stays in the file as information; pipx does not use it to choose an interpreter.
+`pipx install-all --python <path>` would pin one interpreter for the whole run; whether to pin, and with which data key, is left to `rationalize-package-ownership`.
+The F24 part about user-specific paths is closed here for this file.
+
+The file is refreshed with:
+
+```sh
+pipx list --json | jq --indent 4 '(.. | objects | select(has("app_paths"))) |= (.app_paths = [] | .app_paths_of_dependencies = {} | .man_paths = [] | .man_paths_of_dependencies = {} | .completion_paths = [] | .completion_paths_of_dependencies = {}) | .venvs[].metadata.source_interpreter = null'
+```
+
+It stays plain JSON, not a template: nothing in it depends on the machine.
 
 ## Risks / Trade-offs
 

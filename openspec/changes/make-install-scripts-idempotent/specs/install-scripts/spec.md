@@ -89,6 +89,11 @@ Scripts SHALL contain no user-specific absolute path and SHALL guard distro-spec
 - **WHEN** `rg -n '/home/[a-z]+/|\.local/share/chezmoi' home/.chezmoiscripts/` runs in the repository
 - **THEN** it prints nothing (the Homebrew prefix comes from data)
 
+#### Scenario: No absolute path in the pipx spec file
+
+- **WHEN** `jq '[.. | strings | select(startswith("/"))] | length' home/dot_config/pipx/packages.json` runs in the repository
+- **THEN** it prints 0
+
 #### Scenario: apt only on the Debian family
 
 - **WHEN** the prerequisites script is rendered with `--override-data '{"chezmoi":{"osRelease":{"id":"fedora","idLike":"rhel"}}}'`
