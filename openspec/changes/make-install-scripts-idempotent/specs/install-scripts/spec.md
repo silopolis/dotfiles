@@ -208,10 +208,10 @@ Every tool that a script runs and that is not part of the base system SHALL be d
 - **WHEN** `grep -E '^(jq|kubectl) = ' home/dot_config/mise/config.toml` and `grep -x 'brew vim' home/dot_config/brewfile/Brewfile` run in the repository
 - **THEN** the first prints two lines and the second prints one
 
-#### Scenario: What the next apply installs
+#### Scenario: What the next apply installs on the provisioned laptop
 
-- **WHEN** `mise install --dry-run-code` runs against a scratch copy of the repository mise config, from a scratch directory
-- **THEN** it names `jq` as to be installed, names nothing else, and exits 1
+- **WHEN** `mise install --dry-run-code` runs against a scratch copy of the repository mise config, from a scratch directory, on the laptop of 2026-11-12
+- **THEN** it names no tool except `jq`, and never `kubectl` (an installed version satisfies `latest`); it exits 0 once `jq` is installed
 
 ### Requirement: Vim plugins can be installed from Ex mode
 

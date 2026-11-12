@@ -43,24 +43,29 @@ Every chezmoi command in this worktree takes `-S <worktree>` (`chezmoi -S <workt
 
 - [x] 5.1 Every rendered script passes `shellcheck -s bash` and the helper passes `bash -n` (`all.sh` runs both on the 10 real and the 10 scratch renders: 20 static checks, all pass)
 - [x] 5.2 No escaped action and no literal path (`grep -rn '\\{\\{' home/.chezmoiscripts/` prints nothing; `rg -n '/home/[a-z]+/|\.local/share/chezmoi' home/.chezmoiscripts/` prints nothing)
-- [x] 5.3 Full harness run, both modes: every script exits 0 with standard input from `/dev/null`, the sudo log and the refused-command log are empty in live mode (`/tmp/opencode/scripts-test/all.sh`: 139 checks pass on 2026-11-12)
-- [x] 5.4 `chezmoi -S <worktree> status --include=scripts` and `chezmoi -S <worktree> apply --dry-run --verbose --include=scripts` (a dry run only, never a real apply) list exactly ten scripts as pending: `00-prerequisites`, `01-decrypt-private-key`, `02-system-limits`, `10-brew`, `11-mise`, `12-pipx`, `13-krew`, `20-vscodium-extensions`, `21-vim-plugins`, `90-bat-cache`; none ran. The state keeps five stale keys of removed or renamed scripts (`00-pre-requesites`, `05-install`, `10-install-packages`, `bat-cache-build`, `decrypt-private-key`), harmless and not deleted; for `reconcile-drift-and-supervised-apply`, every one of the ten is expected to be a no-op, except that `11-mise` runs `mise reshim` (no change expected here) and `90-bat-cache` builds the empty bat cache for the first time
+- [x] 5.3 Full harness run, both modes: every script exits 0 with standard input from `/dev/null`, the sudo log and the refused-command log are empty in live mode (`/tmp/opencode/scripts-test/all.sh`: 155 checks pass on 2026-11-12, including the second-run, trigger-matrix, Debian-guard, krew-list and literal-path checks that `/opsx-verify` found missing from the harness; two deliberate breakages of the pipx and brew scripts make the matching checks fail)
+- [x] 5.4 `chezmoi -S <worktree> status --include=scripts` and `chezmoi -S <worktree> apply --dry-run --verbose --include=scripts` (a dry run only, never a real apply) list exactly ten scripts as pending: `00-prerequisites`, `01-decrypt-private-key`, `02-system-limits`, `10-brew`, `11-mise`, `12-pipx`, `13-krew`, `20-vscodium-extensions`, `21-vim-plugins`, `90-bat-cache`; none ran; the state keeps five stale keys of removed or renamed scripts (`00-pre-requesites`, `05-install`, `10-install-packages`, `bat-cache-build`, `decrypt-private-key`), harmless and not deleted; for `reconcile-drift-and-supervised-apply`, every one of the ten is expected to be a no-op, except that `11-mise` runs `mise reshim` (no change expected here) and `90-bat-cache` builds the empty bat cache for the first time
 - [x] 5.5 Document `CHEZMOI_SCRIPTS_DRY_RUN`, its caveat under `chezmoi apply`, the harness, the refresh command of `packages.json`, and the local `tools.search` settings in `AGENTS.md` (Commands) (`rg -n 'CHEZMOI_SCRIPTS_DRY_RUN|pipx list --json|tools.search' AGENTS.md`)
-- [ ] 5.6 Propose commits, one per group, each after the user validates its message:
+- [x] 5.6 Propose commits, one per group, each after the user validates its message (the plan grew from 10 to 15 commits with the declarations, the config template, the user's later requests and the verification fixes):
   - `docs(chezmoi:spec): refresh make-install-scripts-idempotent against the tree`
   - `docs(chezmoi:docs): call TODO entries items instead of lines`
   - `docs(chezmoi:docs): add the session limit and krew follow-ups to TODO`
   - `feat(chezmoi:scripts): add a shared script helper and package data`
-  - `chore(pkg:pipx): sync packages.json with the installed venvs`
+  - `chore(pkg:pipx): sync packages.json with installed venvs, drop recorded paths`
   - `fix(chezmoi:scripts): make before scripts idempotent and guarded`
+  - `feat(pkg:mise): declare jq and kubectl, which the install scripts use`
+  - `feat(pkg:brew): declare vim, now installed only as a dependency`
+  - `fix(editor:vim): set nocompatible before Vundle loads`
+  - `feat(chezmoi:config): keep local tools.search settings across init`
   - `refactor(chezmoi:scripts): split the install script per package manager`
   - `fix(chezmoi:scripts): skip vsix files whose extension is installed`
   - `fix(chezmoi:scripts): hash real inputs in run_onchange scripts`
   - `docs(chezmoi:docs): document the script dry-run mode and harness`
+  - `docs(chezmoi:spec): fix the verified scenarios and the commit list`
 
 ## 6. Close
 
-- [ ] 6.1 `openspec validate make-install-scripts-idempotent --strict`; `/opsx-verify make-install-scripts-idempotent`
+- [x] 6.1 `openspec validate make-install-scripts-idempotent --strict`; `/opsx-verify make-install-scripts-idempotent`
 - [ ] 6.2 On the user's go: archive (`openspec archive make-install-scripts-idempotent --yes`); show the new `AGENTS.md` safety rule wording and write it after the user's go (full apply allowed after a reviewed dry run); tick item 2 of the "Planned order of changes" list in `TODO.md`; set row 4 of the change map in `docs/audits/2026-10-30-environment.md` to done with the archive date
 - [ ] 6.3 Rebase on `main`, `openspec validate --all --strict`, report to the orchestrator
 
