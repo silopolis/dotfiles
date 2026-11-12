@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Decrypt the age identity when it is missing: the one script that prompts, for the passphrase of key.txt.age.
+# chezmoi sets CHEZMOI_EXECUTABLE for its scripts, so the binary that is applying decrypts, whatever PATH holds.
+{{ template "script-lib.sh" "decrypt-private-key" }}
+
+key="$HOME/.config/chezmoi/key.age"
+
+if [ -f "$key" ]; then
+  log "age identity present"
+  exit 0
+fi
+
+run mkdir -p "$(dirname "$key")"
+# Owner-only from the first byte: the umask of chezmoi would leave the file group-readable until the chmod.
+(umask 077 && run "${CHEZMOI_EXECUTABLE:-chezmoi}" age decrypt --output "$key" --passphrase {{ joinPath .chezmoi.sourceDir "key.txt.age" | squote }})
+run chmod 600 "$key"

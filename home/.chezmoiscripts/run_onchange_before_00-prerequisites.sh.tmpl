@@ -1,0 +1,38 @@
+{{- /*
+  Debian family only (os-release id or id_like names debian), and only when packages.linux.apt is not empty:
+  any other render is empty, and chezmoi neither runs nor lists an empty script.
+*/ -}}
+{{- $id := "" -}}
+{{- $like := "" -}}
+{{- if eq .chezmoi.os "linux" -}}
+{{-   $id = get .chezmoi.osRelease "id" -}}
+{{-   $like = get .chezmoi.osRelease "idLike" -}}
+{{- end -}}
+{{- if and (or (eq $id "debian") (has "debian" (splitList " " $like))) .packages.linux.apt -}}
+#!/usr/bin/env bash
+# Install the apt packages of packages.linux.apt that are missing; sudo only when some are.
+# This script sorts first on purpose: the other scripts and the externals may need these tools.
+# apt hash: {{ .packages.linux.apt | toJson | sha256sum }}
+{{ template "script-lib.sh" "prerequisites" }}
+
+packages=({{ range .packages.linux.apt }}{{ . | squote }} {{ end }})
+
+missing=()
+for package in "${packages[@]}"; do
+  # shellcheck disable=SC2016
+  status=$(dpkg-query -W -f='${db:Status-Abbrev}' "$package" 2> /dev/null || true)
+  case "$status" in
+    ii*) ;;
+    *) missing+=("$package") ;;
+  esac
+done
+
+if [ "${#missing[@]}" -eq 0 ]; then
+  log "all ${#packages[@]} apt packages are installed"
+  exit 0
+fi
+
+log "missing apt packages: ${missing[*]}"
+as_root "refresh the apt package index" apt-get update
+as_root "install ${missing[*]}" env DEBIAN_FRONTEND=noninteractive apt-get install -qy "${missing[@]}"
+{{ end -}}

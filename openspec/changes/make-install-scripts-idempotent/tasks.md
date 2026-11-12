@@ -19,9 +19,9 @@ Every chezmoi command in this worktree takes `-S <worktree>` (`chezmoi -S <workt
 
 ## 3. Before scripts
 
-- [ ] 3.1 Replace `00-pre-requesites` with `run_onchange_before_00-prerequisites.sh.tmpl`: Debian-family guard, list from data, `dpkg-query` check, `as_root apt-get` only for missing packages (harness, live mode: no sudo call; isolated mode with one package missing: one `apt-get install` of that package; `--override-data` with a Fedora `osRelease`: the render is empty)
-- [ ] 3.2 Rename the decrypt script to `run_onchange_before_01-decrypt-private-key.sh.tmpl`, `$HOME` instead of the literal path, `chezmoi` from `PATH` (`rg -n '/home/[a-z]+/' home/.chezmoiscripts` prints nothing; harness: identity present, nothing called; identity absent, scratch `HOME`, one `chezmoi age decrypt` call)
-- [ ] 3.3 Add `run_onchange_before_02-system-limits.sh.tmpl`: write only on difference, never lower (harness, live mode: no sudo call; override to a lower value: a warning and no sudo call; override to a higher value: one `install` call through the sudo stub)
+- [x] 3.1 Replace `00-pre-requesites` with `run_onchange_before_00-prerequisites.sh.tmpl`: Debian-family guard, list from data, `dpkg-query` check, `as_root apt-get` only for missing packages (harness, live mode: no sudo call; isolated mode with one package missing: one `apt-get install` of that package; `--override-data` with a Fedora `osRelease`: the render is empty)
+- [x] 3.2 Rename the decrypt script to `run_onchange_before_01-decrypt-private-key.sh.tmpl`, `$HOME` instead of the literal path, the binary from `CHEZMOI_EXECUTABLE` (`chezmoi` on `PATH` by hand), written owner-only (`rg -n '/home/[a-z]+/' home/.chezmoiscripts` prints nothing; harness: identity present, nothing called; identity absent, scratch `HOME`, one `chezmoi age decrypt` call)
+- [x] 3.3 Add `run_onchange_before_02-system-limits.sh.tmpl`: write only on difference, never lower (harness, live mode: no sudo call; override to a lower value: a warning and no sudo call; override to a higher value: one `install` call through the sudo stub)
 
 ## 4. After scripts
 

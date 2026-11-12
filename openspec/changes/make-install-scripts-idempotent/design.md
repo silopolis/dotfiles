@@ -60,7 +60,7 @@ Numbering by kind: 0x before, 1x package managers, 2x editors, 3x user setup (`m
 | Script | Phase | Trigger (hashed input) | Does |
 | --- | --- | --- | --- |
 | `run_onchange_before_00-prerequisites.sh.tmpl` | before | `packages.linux.apt` | Debian family only; installs missing apt packages; sudo only if some are missing |
-| `run_onchange_before_01-decrypt-private-key.sh.tmpl` | before | content | same logic, `$HOME` instead of a literal path, `chezmoi` from `PATH` |
+| `run_onchange_before_01-decrypt-private-key.sh.tmpl` | before | content | same logic, `$HOME` instead of a literal path, the binary from `CHEZMOI_EXECUTABLE` |
 | `run_onchange_before_02-system-limits.sh.tmpl` | before | `system.limits.nofile` | writes the limits file only when it differs and never with lower values; sudo only then |
 | `run_onchange_after_10-brew.sh.tmpl` | after | Brewfile (darwin: brews and casks) | Homebrew and brew-file if missing; `brew file install` against the deployed `~/.config/brewfile/Brewfile`; reports undeclared formulae, taps and casks; `rustup default stable` only when no default toolchain; warns when gh is not logged in; darwin branch: `brew bundle` |
 | `run_onchange_after_11-mise.sh.tmpl` | after | `dot_config/mise/config.toml` | `mise install --yes` |
@@ -77,7 +77,8 @@ The `.vsix` directory is outside the repository, so adding a file there does not
 
 ### Shared helper
 
-`.chezmoitemplates/script-lib.sh` is included right after the shebang with `{{ template "script-lib.sh" (dict "name" "<script>" "root" .) }}`; it has no shebang of its own.
+`.chezmoitemplates/script-lib.sh` is included right after the shebang with `{{ template "script-lib.sh" "<script name>" }}`; it has no shebang of its own.
+It holds no data beyond the script name: a script that needs data passes it to the function (`load_brew "{{ .brew.prefix }}"`), so a data change re-runs only the scripts that read it.
 It provides:
 
 - `set -euo pipefail`;
@@ -85,7 +86,7 @@ It provides:
 - `have` (`command -v` wrapper);
 - `run` (executes, or prints the command with `printf %q` when `CHEZMOI_SCRIPTS_DRY_RUN=1`; read-only queries are written without `run`, so they still execute);
 - `as_root <why> <command...>` (logs why, then calls `run sudo`, or `run` directly when already root);
-- `load_brew` (gives the script the environment of the user's shell: it exports `XDG_CONFIG_HOME` with the default `~/.config` and evaluates `brew shellenv` from `brew.prefix` when `HOMEBREW_PREFIX` is not set, so that scripts after a first Homebrew install find the tools);
+- `load_brew <prefix>` (gives the script the environment of the user's shell: it exports `XDG_CONFIG_HOME` with the default `~/.config` and evaluates `brew shellenv` from the prefix, which is the `brew.prefix` data, when `HOMEBREW_PREFIX` is not set, so that scripts after a first Homebrew install find the tools);
 - `report_undeclared <what> <installed> <declared>` (lists installed names that are not declared, removes nothing);
 - a warning when the dry-run variable is set while `CHEZMOI=1`.
 
@@ -111,8 +112,16 @@ mise is not covered: `mise prune --dry-run` lists stale versions, not undeclared
 - It sources no `brew-wrap` and exports no brew-file variable: the config's `env` table passes `HOMEBREW_BREWFILE_BACKUP`, `FULL_NAME`, `LEAVES` and `ON_REQUEST`, and the Brewfile path defaults to `~/.config/brewfile/Brewfile`.
   `HOMEBREW_BREWFILE_TOP_PACKAGES` does not change the report on this machine (`gcc` is declared), so it is not exported either.
 - When Homebrew is missing, the script runs brew-file's installer with `NONINTERACTIVE=1`; that installer calls sudo itself on a fresh machine, the one sudo that does not go through `as_root`.
-- The decrypt script finds `chezmoi` on `PATH`, as today: a path baked into the script would change after every chezmoi upgrade and make the script pending again.
-  How the binary reaches `PATH` on a fresh machine belongs to `fresh-machine-bootstrap`.
+### Before scripts
+
+- The prerequisites script renders empty unless the os-release `id` is `debian` or `id_like` names it (Ubuntu, Kali, Mint), and when `packages.linux.apt` is empty; chezmoi neither runs nor lists an empty script.
+  It checks each package with `dpkg-query` and calls sudo, for `apt-get update` and one `apt-get install`, only when a package is missing.
+- The decrypt script uses the binary that is applying, through `CHEZMOI_EXECUTABLE`, which chezmoi sets for every script it runs, and falls back to `chezmoi` on `PATH` when the script is run by hand.
+  A path rendered into the script would change after every chezmoi upgrade and make the script pending again, and `PATH` may not hold chezmoi on a fresh machine.
+  It writes the identity with umask 077, so the file is never group-readable, then `chmod 600` as before.
+- The limits script reads `system.limits.nofile`, checks at render time that both values are whole numbers with `0 < soft <= hard`, and renders empty when the data is absent.
+  It compares the file with the two wanted lines and exits when they match.
+  When the file holds a higher or non-numeric limit it warns and leaves the file alone; otherwise it writes with `sudo install -m 0644 /dev/stdin`, so root owns the file and the mode is explicit.
 
 ### Krew per system
 

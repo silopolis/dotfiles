@@ -1,0 +1,51 @@
+{{- /*
+  Open-files limits from system.limits.nofile; an empty render (no data, or not Linux) is neither run nor listed.
+  Data is checked at render time: whole numbers, soft not above hard.
+*/ -}}
+{{- $nofile := dig "system" "limits" "nofile" dict . -}}
+{{- if and (eq .chezmoi.os "linux") $nofile -}}
+{{-   $soft := $nofile.soft | int -}}
+{{-   $hard := $nofile.hard | int -}}
+{{-   if or (lt $soft 1) (gt $soft $hard) -}}
+{{-     fail "system.limits.nofile needs whole numbers with 0 < soft <= hard" -}}
+{{-   end -}}
+#!/usr/bin/env bash
+# Write /etc/security/limits.d/ulimit.conf only when it differs from system.limits.nofile, and never lower a limit.
+# sudo is called only to write; the file reaches PAM login sessions (TTY, ssh), not the systemd user manager.
+# limits hash: {{ .system.limits | toJson | sha256sum }}
+{{ template "script-lib.sh" "system-limits" }}
+
+file=/etc/security/limits.d/ulimit.conf
+soft={{ $soft }}
+hard={{ $hard }}
+want=$(printf '* soft nofile %s\n* hard nofile %s\n' "$soft" "$hard")
+
+if [ -f "$file" ] && [ "$(cat "$file")" = "$want" ]; then
+  log "$file already holds soft $soft and hard $hard"
+  exit 0
+fi
+
+# current <soft|hard>: the value of the last matching line of the file, empty when there is none
+current() {
+  [ -r "$file" ] || return 0
+  awk -v kind="$1" '$1 == "*" && $2 == kind && $3 == "nofile" { value = $4 } END { if (value != "") print value }' "$file"
+}
+
+# would_lower <declared> <current>: true when the file holds a higher limit, or one that is not a plain number
+would_lower() {
+  case "$2" in
+    '') return 1 ;;
+    *[!0-9]*) return 0 ;;
+  esac
+  [ "$1" -lt "$2" ]
+}
+
+current_soft=$(current soft)
+current_hard=$(current hard)
+if would_lower "$soft" "$current_soft" || would_lower "$hard" "$current_hard"; then
+  warn "$file holds soft ${current_soft:-none} and hard ${current_hard:-none}, above the declared $soft and $hard: left unchanged"
+  exit 0
+fi
+
+as_root "write $file (soft $soft, hard $hard)" install -m 0644 /dev/stdin "$file" <<< "$want"
+{{ end -}}

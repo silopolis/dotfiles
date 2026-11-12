@@ -1,11 +1,11 @@
 # shellcheck disable=SC2329
 # Shared helper of the chezmoi scripts: included right after the shebang with
-#   template "script-lib.sh" (dict "name" "<script>" "root" .)
+#   template "script-lib.sh" "<script name>"
+# It holds no data beyond the script name, so a data change reaches only the scripts that read that data.
 # Editing it makes every script that includes it run once more, all of them no-ops on a provisioned machine.
 set -euo pipefail
 
-script_name={{ .name | squote }}
-brew_prefix={{ .root.brew.prefix | squote }}
+script_name={{ . | squote }}
 
 log() { printf '%s: %s\n' "$script_name" "$*" >&2; }
 warn() { printf '%s: warning: %s\n' "$script_name" "$*" >&2; }
@@ -37,13 +37,14 @@ as_root() {
   fi
 }
 
-# load_brew: give the script the environment of the user's shell.
+# load_brew <prefix>: give the script the environment of the user's shell; the prefix comes from the brew.prefix data.
 # Homebrew keeps its trust file under XDG_CONFIG_HOME (else ~/.homebrew): without it, third-party taps are untrusted
 # and brew-file lists every installed tap formula as missing.
 load_brew() {
+  local prefix=${1:?load_brew needs the Homebrew prefix}
   export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
-  if [ -z "${HOMEBREW_PREFIX:-}" ] && [ -x "$brew_prefix/bin/brew" ]; then
-    eval "$("$brew_prefix/bin/brew" shellenv)"
+  if [ -z "${HOMEBREW_PREFIX:-}" ] && [ -x "$prefix/bin/brew" ]; then
+    eval "$("$prefix/bin/brew" shellenv)"
   fi
 }
 
