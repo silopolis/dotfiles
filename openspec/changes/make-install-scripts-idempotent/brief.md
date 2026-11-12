@@ -67,6 +67,20 @@ Exceptions decided by the user on 2026-11-12, after the plan-mode review (the de
 - `packages.json` is synchronized with the venvs installed on this machine, in its own commit, so that the undeclared-package report starts empty.
 - `TODO.md` entries are called items and not lines (wording only, no reordering, in its own commit), and two backlog entries are added in another commit: the soft open-files limit of the desktop session, and the per-system review of the krew plugins.
 
+Further exceptions decided by the user on 2026-11-12, during the build (the design records them too):
+
+- `jq` and `kubectl` are declared in the mise config, because the pipx and krew scripts run them.
+- `vim` is declared in the Brewfile, because the vim plugin script runs it and it was installed only as a dependency of another package.
+- `set nocompatible` moves to the first line of the vimrc, so that `vim -Es` can install the Vundle plugins.
+- `tools.search` makes the directories where the scripts look for tools configurable: a new data file, a pass-through in the config template so that `chezmoi init` keeps the local values, and a delta spec on `chezmoi-config`.
+- The mise script runs `mise reshim` after its install, as the cleanup of the shims of removed tools.
+
+Actions on this machine, each done with the user's explicit go and nothing else:
+
+- The mise config, the Brewfile and the vimrc were deployed, each as a single target with `--exclude=scripts`, and so was `packages.json`.
+- `mise install jq` installed `jq` 1.8.2.
+- No brew package was installed or removed, so the brew hook has committed nothing.
+
 ## Rules
 
 - Public repository: no secret values, no names of secret variables, no private hosts or IP addresses, no employer or client details, no private repository names.
