@@ -1,3 +1,6 @@
+" Vundle needs 'nocompatible' before it loads (see :h vundle): a compatible vim ignores the line
+" continuations of its commands, so `vim -Es` (which starts compatible) would load them empty.
+set nocompatible
 " ==============================================================================
 " ## Builtin Plugins {{{1
 " ------------------------------------------------------------------------------
@@ -662,7 +665,6 @@ endif
 " ------------------------------------------------------------------------------
 " ### Basic options {{{2
 " ------------------------------------------------------------------------------
-set nocompatible
 " Enable mouse in all modes (n, v, i, c, h)
 set mouse=a
 " Show (partial) command in the last line of the screen.
