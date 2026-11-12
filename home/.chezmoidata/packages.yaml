@@ -1,6 +1,19 @@
 packages:
   linux:
-    dpkgs:
+    # Installed by .chezmoiscripts/run_onchange_before_00-prerequisites.sh.tmpl when missing (Debian family only).
+    apt:
+      - build-essential
+      - procps
+      - curl
+      - file
+      - git
+      - wget
+      - btrfs-progs
+      - btrfsmaintenance
+      - btrfsd
+      - btrfs-assistant
+      - snapper
+      - git-credential-oauth
     brews:
     pipxs:
     bins:
@@ -17,3 +30,19 @@ packages:
     - 'git'
     casks:
     - 'google-chrome'
+
+system:
+  limits:
+    # Open-files limits written to /etc/security/limits.d/ulimit.conf by .chezmoiscripts/run_onchange_before_02-system-limits.sh.tmpl.
+    # The values of 2026-11-12; the script never lowers a limit.
+    nofile:
+      soft: 32768
+      hard: 65536
+
+vim:
+  # Build the YouCompleteMe core library when the vim plugins script runs and the library is missing.
+  ycm_build: false
+
+brew:
+  # The only place the Homebrew prefix is written for the scripts (Linuxbrew).
+  prefix: /home/linuxbrew/.linuxbrew

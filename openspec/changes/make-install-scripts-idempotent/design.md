@@ -84,9 +84,14 @@ It provides:
 - `log` and `warn` (prefixed with the script name, to stderr);
 - `have` (`command -v` wrapper);
 - `run` (executes, or prints the command with `printf %q` when `CHEZMOI_SCRIPTS_DRY_RUN=1`; read-only queries are written without `run`, so they still execute);
-- `as_root` (logs why, then calls `run sudo`, or `run` directly when already root);
-- `load_brew` (evaluates `brew shellenv` from `brew.prefix` when `brew` is not on `PATH`, so that scripts after a first Homebrew install find the tools);
+- `as_root <why> <command...>` (logs why, then calls `run sudo`, or `run` directly when already root);
+- `load_brew` (gives the script the environment of the user's shell: it exports `XDG_CONFIG_HOME` with the default `~/.config` and evaluates `brew shellenv` from `brew.prefix` when `HOMEBREW_PREFIX` is not set, so that scripts after a first Homebrew install find the tools);
+- `report_undeclared <what> <installed> <declared>` (lists installed names that are not declared, removes nothing);
 - a warning when the dry-run variable is set while `CHEZMOI=1`.
+
+`load_brew` exports `XDG_CONFIG_HOME` because Homebrew keeps its trust file in `$XDG_CONFIG_HOME/homebrew` and looks in `~/.homebrew` when the variable is unset.
+Without the file, third-party taps are untrusted and brew-file lists the 20 installed tap formulae of the Brewfile as missing (found with the live harness: `brew file install --dry-run` printed a `brew install` line for them in a bare environment, and printed nothing once `XDG_CONFIG_HOME` was set).
+A shell that sourced `rc.d` has the variable, but ssh commands, cron and `env -i` do not.
 
 An edit to the helper changes every script that includes it, so each runs once more; all of them are no-ops on a provisioned machine.
 
