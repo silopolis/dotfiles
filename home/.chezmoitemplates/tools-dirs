@@ -1,0 +1,43 @@
+{{- /*
+  The directories where the scripts look for tools, as a JSON list, without duplicates, in search order.
+  Source: tools.search in the data: `override` when it is not empty, otherwise `dirs` followed by `extra`.
+  Entries come out as an absolute path or as "~/x" (below the home directory, expanded by the consumer: findExecutable
+  gets the chezmoi home directory, the shell gets $HOME, so a rendered script holds no home path);
+  "<brew>/x" is brew.prefix plus /x.
+  A bad entry fails the render: a relative path would make findExecutable depend on the working directory,
+  and a colon, a quote or a newline would break the PATH or the shell script that receives the list.
+  Included with: includeTemplate "tools-dirs" .   (the root context)
+*/ -}}
+{{- $search := dig "tools" "search" dict . -}}
+{{- $entries := list -}}
+{{- if $search.override -}}
+{{-   $entries = $search.override -}}
+{{- else -}}
+{{-   $entries = concat (default (list) $search.dirs) (default (list) $search.extra) -}}
+{{- end -}}
+{{- $out := list -}}
+{{- range $entries -}}
+{{-   $dir := . -}}
+{{-   if not (kindIs "string" $dir) -}}
+{{-     fail (printf "tools.search: %v is not a string" $dir) -}}
+{{-   end -}}
+{{-   if hasPrefix "<brew>/" $dir -}}
+{{-     $dir = joinPath $.brew.prefix (trimPrefix "<brew>/" $dir) -}}
+{{-   end -}}
+{{-   if hasPrefix "~/" $dir -}}
+{{-     $rel := clean (trimPrefix "~/" $dir) -}}
+{{-     if or (eq $rel ".") (hasPrefix "../" $rel) (eq $rel "..") -}}
+{{-       fail (printf "tools.search: %q must name a directory below the home directory" $dir) -}}
+{{-     end -}}
+{{-     $dir = printf "~/%s" $rel -}}
+{{-   else if hasPrefix "/" $dir -}}
+{{-     $dir = clean $dir -}}
+{{-   else -}}
+{{-     fail (printf "tools.search: %q must be absolute, or start with ~/ or <brew>/" $dir) -}}
+{{-   end -}}
+{{-   if not (regexMatch "^[^:'\\n]*$" $dir) -}}
+{{-     fail (printf "tools.search: %q holds a colon, a quote or a newline" $dir) -}}
+{{-   end -}}
+{{-   $out = append $out $dir -}}
+{{- end -}}
+{{- $out | uniq | toJson -}}

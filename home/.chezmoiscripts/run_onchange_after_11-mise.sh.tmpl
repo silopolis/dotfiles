@@ -1,0 +1,24 @@
+{{- if eq .chezmoi.os "linux" -}}
+#!/usr/bin/env bash
+# Install the mise tools that the deployed global config declares and that are missing, then refresh the shims.
+# Nothing is pruned: no tool version is removed, only the generated shims are brought in line with what is installed.
+# mise config hash: {{ include "dot_config/mise/config.toml" | sha256sum }}
+# tools: {{ template "tools-present" (dict "root" . "tools" (list "mise")) }}
+{{ template "script-lib.sh" "mise" }}
+
+load_brew {{ .brew.prefix | squote }}
+{{ template "tools-use" . }}
+
+need mise || exit 0
+
+log "mise install"
+run mise install --yes
+
+# Shim cleanup. A shim is a generated link in the mise shims directory, one per executable of an installed tool.
+# After a tool is uninstalled or its directory is deleted, its shim can stay behind: the shim then counts as a present tool
+# for the tools-present line of the other scripts, and fails with "No version is set" when run.
+# `mise reshim` adds the missing shims and removes the mise-owned ones that no installed tool provides any more;
+# it leaves every other file of the directory alone, and does nothing on an up-to-date machine.
+log "mise reshim"
+run mise reshim
+{{ end -}}

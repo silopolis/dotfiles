@@ -1,0 +1,20 @@
+{{- /*
+  "tool=present tool=absent ...": whether each tool of .tools is an executable in one of the directories of tools-dirs,
+  for the hash comment of a script that skips when a tool is missing.
+  The lookup never reads the PATH of the process that renders (findExecutable gets the list), so an interactive shell,
+  cron and `env -i` render the same text, and the script runs again exactly when a tool appears or disappears there.
+  Included with: template "tools-present" (dict "root" . "tools" (list "jq" "pipx"))
+*/ -}}
+{{- $home := .root.chezmoi.homeDir -}}
+{{- $dirs := list -}}
+{{- range (includeTemplate "tools-dirs" .root | fromJson) -}}
+{{-   if hasPrefix "~/" . -}}
+{{-     $dirs = append $dirs (joinPath $home (trimPrefix "~/" .)) -}}
+{{-   else -}}
+{{-     $dirs = append $dirs . -}}
+{{-   end -}}
+{{- end -}}
+{{- range $i, $tool := .tools -}}
+{{- if $i }} {{ end -}}
+{{ $tool }}={{ if findExecutable $tool $dirs }}present{{ else }}absent{{ end }}
+{{- end -}}

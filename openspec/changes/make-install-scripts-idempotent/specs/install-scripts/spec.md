@@ -17,6 +17,7 @@ Every chezmoi script SHALL install nothing, write nothing outside `$HOME`, and c
 ### Requirement: Scripts never uninstall
 
 No script SHALL uninstall packages, remove taps, or delete caches; drift is reported instead.
+Regenerating the generated shims of mise is not an uninstall and is allowed, because it touches no installed tool and writes only inside `$HOME`.
 
 #### Scenario: Undeclared brew package
 
@@ -32,6 +33,21 @@ No script SHALL uninstall packages, remove taps, or delete caches; drift is repo
 
 - **WHEN** a krew plugin is installed but absent from the combined plugin list and the krew script runs
 - **THEN** it is still installed afterwards and the script output names it as undeclared
+
+#### Scenario: Stale mise shim
+
+- **WHEN** the mise shims directory holds a mise-owned shim that no installed tool provides, a shim that is missing for an installed tool, and a file that is not a shim, and `mise reshim` runs (real mise binary, scratch home and data directory, offline)
+- **THEN** the stale shim is gone, the missing shim exists, the other file is untouched, no installed tool is touched, and a second run changes nothing
+
+#### Scenario: The mise script refreshes the shims
+
+- **WHEN** the rendered mise script runs
+- **THEN** `mise reshim` is called after `mise install --yes`, and in dry-run mode it is printed and not called
+
+#### Scenario: Nothing to clean on the provisioned laptop
+
+- **WHEN** `mise reshim` is simulated against a symlink farm of the real installs and a copy of the real shims directory
+- **THEN** no shim would be removed and none added
 
 ### Requirement: System files written only when needed and never weakened
 
@@ -98,6 +114,113 @@ Scripts SHALL contain no user-specific absolute path and SHALL guard distro-spec
 
 - **WHEN** the prerequisites script is rendered with `--override-data '{"chezmoi":{"osRelease":{"id":"fedora","idLike":"rhel"}}}'`
 - **THEN** the rendered script is empty
+
+### Requirement: A skipped script runs again when its tool appears
+
+A script that skips when a tool is missing SHALL hash, in a comment, whether each tool it needs is present in the directories of `tools.search`, and SHALL NOT read the `PATH` of the process that renders it.
+
+#### Scenario: Tool appears
+
+- **WHEN** a script is rendered with a tool absent from every searched directory, and again after an executable file of that name is created in one of them (scratch home and Homebrew prefix through `--override-data`)
+- **THEN** the two renderings differ, and they are identical again once the file is removed
+
+#### Scenario: A file that is not executable does not count
+
+- **WHEN** a non-executable file named like the tool is created in a searched directory
+- **THEN** the rendering does not change
+
+#### Scenario: Rendering does not depend on PATH
+
+- **WHEN** a script is rendered under `PATH=/nonexistent`, under the normal `PATH`, and under a `PATH` that holds every tool in a directory the template does not search
+- **THEN** the three renderings are identical
+
+#### Scenario: Missing tool is a skip
+
+- **WHEN** a rendered script runs without one of its tools on `PATH`
+- **THEN** it prints a warning that names the tool and exits 0, and it changes nothing
+
+#### Scenario: Tool provided by a mise shim
+
+- **WHEN** the only copy of a tool is an executable in the mise shims directory of `$HOME` and the script runs
+- **THEN** the script finds it and does its work
+
+### Requirement: The directories searched for tools are configurable
+
+The directories where the scripts look for tools SHALL come from `tools.search`: a default list `dirs`, additional directories `extra` searched after it, and `override`, which replaces both when it is not empty.
+An entry SHALL be an absolute path, `~/x` or `<brew>/x`, and the scripts SHALL put the same directories on their own `PATH`.
+
+#### Scenario: Default list
+
+- **WHEN** the `tools-dirs` template is rendered without any local setting
+- **THEN** it lists the mise shims, `<brew.prefix>/bin`, `~/.local/bin`, `/usr/local/bin`, `/usr/bin` and `/bin`, in this order
+
+#### Scenario: Additional directories
+
+- **WHEN** the local config sets `extra`, with a duplicate of a default directory, a `~/` entry and a path with dot segments
+- **THEN** the list is the default one followed by the new directories, normalised, without duplicates
+
+#### Scenario: Override
+
+- **WHEN** the local config sets `override`
+- **THEN** the list holds those directories only, and `extra` and the defaults are ignored
+
+#### Scenario: Bad entry
+
+- **WHEN** an entry is relative, is `~` or `~/`, goes above the home directory, is not a string, or holds a colon or a quote
+- **THEN** the render fails with a message that names `tools.search`
+
+#### Scenario: Local config wins
+
+- **WHEN** the local config sets `extra` and `chezmoi data` is read
+- **THEN** `tools.search.extra` is the local value, and `dirs` is still the default list
+
+#### Scenario: A tool in an added directory
+
+- **WHEN** an executable exists only in a directory listed in `extra`
+- **THEN** the presence entry of the script is `absent` without that setting and `present` with it
+
+#### Scenario: Same directories at run time
+
+- **WHEN** a script runs with a tool that exists only in an added directory, and the tool is not on `PATH`
+- **THEN** the script finds it and does its work
+
+#### Scenario: PATH helper
+
+- **WHEN** `use_tool_dirs` is called with an existing directory missing from `PATH`, one already on `PATH`, a missing directory and a `~/` entry
+- **THEN** the missing existing directories are prepended in list order, the one already present keeps its place, the missing directory is skipped, and `~` is expanded to `$HOME`
+
+#### Scenario: Rendered script holds no home path
+
+- **WHEN** a script that calls `use_tool_dirs` is rendered
+- **THEN** its list keeps `~/` entries as they are
+
+#### Scenario: Isolated runs cannot reach real tools
+
+- **WHEN** the harness runs an isolated script whose `use_tool_dirs` lists a real directory
+- **THEN** it refuses to run it
+
+### Requirement: The tools the scripts use are declared
+
+Every tool that a script runs and that is not part of the base system SHALL be declared by one package manager of this repository, the highest in the install priority that offers it.
+
+#### Scenario: Declarations
+
+- **WHEN** `grep -E '^(jq|kubectl) = ' home/dot_config/mise/config.toml` and `grep -x 'brew vim' home/dot_config/brewfile/Brewfile` run in the repository
+- **THEN** the first prints two lines and the second prints one
+
+#### Scenario: What the next apply installs
+
+- **WHEN** `mise install --dry-run-code` runs against a scratch copy of the repository mise config, from a scratch directory
+- **THEN** it names `jq` as to be installed, names nothing else, and exits 1
+
+### Requirement: Vim plugins can be installed from Ex mode
+
+The vimrc SHALL set `nocompatible` before Vundle loads, so that `vim -Es` defines the Vundle commands completely.
+
+#### Scenario: Vundle commands under plain Ex mode
+
+- **WHEN** `vim -Es -n -u home/dot_config/vim/vimrc -i NONE -c 'if execute("command PluginInstall") !~ "vundle#installer#new" | cquit 2 | endif' -c qall` runs on a machine where the Vundle external is in place
+- **THEN** it exits 0
 
 ### Requirement: Krew plugins come from a shared list and a list per system
 

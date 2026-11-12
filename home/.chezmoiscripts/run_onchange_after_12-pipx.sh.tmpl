@@ -1,0 +1,44 @@
+{{- if eq .chezmoi.os "linux" -}}
+#!/usr/bin/env bash
+# Install the pipx venvs of the deployed spec file that are missing, through a copy of the file that holds only them,
+# and report the installed venvs that the file does not declare. Nothing is removed or upgraded.
+# The spec file holds no path and no interpreter; refresh it with:
+#   pipx list --json | jq --indent 4 '(.. | objects | select(has("app_paths"))) |= (.app_paths = [] | .app_paths_of_dependencies = {} | .man_paths = [] | .man_paths_of_dependencies = {} | .completion_paths = [] | .completion_paths_of_dependencies = {}) | .venvs[].metadata.source_interpreter = null'
+# packages.json hash: {{ include "dot_config/pipx/packages.json" | sha256sum }}
+# tools: {{ template "tools-present" (dict "root" . "tools" (list "pipx" "jq")) }}
+{{ template "script-lib.sh" "pipx" }}
+
+load_brew {{ .brew.prefix | squote }}
+{{ template "tools-use" . }}
+
+need pipx jq || exit 0
+
+spec=$HOME/.config/pipx/packages.json
+if [ ! -f "$spec" ]; then
+  warn "$spec is missing"
+  exit 1
+fi
+
+declared=$(jq -r '.venvs | keys[]' "$spec")
+installed=$(pipx list --short | awk '{ print $1 }')
+missing=$(LC_ALL=C comm -13 <(printf '%s\n' "$installed" | LC_ALL=C sort -u) <(printf '%s\n' "$declared" | LC_ALL=C sort -u))
+
+if [ -n "$missing" ]; then
+  log "missing venvs: $(printf '%s' "$missing" | tr '\n' ' ')"
+  if dry_run; then
+    log "would run: pipx install-all on a copy of the spec file that holds only these venvs"
+  else
+    # Inside $HOME on purpose: nothing is written outside it.
+    mkdir -p "${XDG_CACHE_HOME:-$HOME/.cache}"
+    work=$(mktemp -d "${XDG_CACHE_HOME:-$HOME/.cache}/pipx-spec.XXXXXX")
+    trap 'rm -rf "$work"' EXIT
+    names=$(printf '%s\n' "$missing" | jq -R . | jq -s .)
+    jq --argjson names "$names" '.venvs |= with_entries(select(.key as $k | $names | index($k) != null))' "$spec" > "$work/packages.json"
+    run pipx install-all "$work/packages.json"
+  fi
+else
+  log "all declared venvs are installed"
+fi
+
+report_undeclared "pipx venvs" "$installed" "$declared"
+{{ end -}}

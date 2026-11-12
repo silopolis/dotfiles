@@ -48,6 +48,44 @@ load_brew() {
   fi
 }
 
+# use_tool_dirs <dir>...: put the directories where the scripts look for tools on PATH (the list comes from the tools-use
+# template, so it is the one the tools-present line of the script was computed from; see tools.search in the data).
+# A directory that exists and is missing from PATH is prepended, in list order: with the default list a mise tool then wins over
+# Homebrew and the distribution (install priority: mise, brew, apt). A directory already on PATH keeps its place.
+use_tool_dirs() {
+  local dir front=''
+  for dir in "$@"; do
+    # "~/x" is below the home directory: expanded here, so that a rendered script holds no home path.
+    # The literal tilde is the marker the tools-dirs template writes, not a path to expand: the quotes are intended.
+    # shellcheck disable=SC2088
+    case "$dir" in
+      '~/'*) dir="$HOME/${dir#'~/'}" ;;
+    esac
+    [ -d "$dir" ] || continue
+    case ":$PATH:" in
+      *":$dir:"*) ;;
+      *) front="${front:+$front:}$dir" ;;
+    esac
+  done
+  if [ -n "$front" ]; then
+    PATH="$front:$PATH"
+  fi
+  export PATH
+}
+
+# need <tool>...: succeed when every tool is found; otherwise warn and fail, and the script ends with `exit 0` (a skip).
+# chezmoi records a skip like a run, and the script's hash comment holds one `tool=present|absent` entry per tool, looked up
+# in the directories of the tools-dirs template, so the script runs again at the apply after the tool appears there.
+need() {
+  local tool lacking=()
+  for tool in "$@"; do
+    have "$tool" || lacking+=("$tool")
+  done
+  [ "${#lacking[@]}" -eq 0 ] && return 0
+  warn "${lacking[*]} not found, skipping; the script runs again once it is installed in one of the directories of tools.search"
+  return 1
+}
+
 # report_undeclared <what> <installed names> <declared names>: both lists one name per line; lists the installed names
 # that are not declared and never removes anything.
 report_undeclared() {

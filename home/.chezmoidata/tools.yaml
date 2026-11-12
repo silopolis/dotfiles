@@ -1,0 +1,18 @@
+tools:
+  search:
+    # Where the install scripts look for the tools they need, and which directories they put on their own PATH, in this order.
+    # A script that skips for a missing tool hashes whether the tool is in one of these directories (template tools-present),
+    # so it runs again once the tool appears there; the PATH of the process that renders is never read.
+    # Entries: an absolute path, "~/..." (the home directory) or "<brew>/..." (brew.prefix); no colon, no quote.
+    dirs:
+      - "~/.local/share/mise/shims"
+      - "<brew>/bin"
+      - "~/.local/bin"
+      - "/usr/local/bin"
+      - "/usr/bin"
+      - "/bin"
+    # Local changes go in the local chezmoi config, table [data.tools.search] (kept by `chezmoi init`):
+    #   extra:    directories searched after the ones above
+    #   override: when not empty, the only directories searched (dirs and extra are ignored)
+    extra: []
+    override: []

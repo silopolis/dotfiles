@@ -1,4 +1,12 @@
 packages:
+  common:
+    # kubectl plugins that krew offers on every system it supports (Linux, macOS and Windows).
+    # The krew script installs this list plus the list of the current system, under packages.<os>.krews.
+    krews:
+      - explore
+      - get-all
+      - stern
+      - tail
   linux:
     # Installed by .chezmoiscripts/run_onchange_before_00-prerequisites.sh.tmpl when missing (Debian family only).
     apt:
@@ -17,19 +25,18 @@ packages:
     brews:
     pipxs:
     bins:
+    # Krew offers these on Linux and macOS only.
     krews:
       - colorize-managed-fields
-      - explore
-      - get-all
       - neat
       - node-shell
-      - stern
-      - tail
   darwin:
     brews:
     - 'git'
     casks:
     - 'google-chrome'
+    # To review on a macOS machine: colorize-managed-fields, neat and node-shell are available there too.
+    krews: []
 
 system:
   limits:

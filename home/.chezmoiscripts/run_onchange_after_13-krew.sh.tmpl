@@ -1,0 +1,39 @@
+{{- /*
+  Krew plugins: the shared list plus the list of the current system, without duplicates, sorted.
+  Linux and macOS only (Windows would need a PowerShell script); an empty list renders an empty script, which chezmoi neither runs nor lists.
+*/ -}}
+{{- $krews := concat (default (list) (dig "common" "krews" (list) .packages)) (default (list) (dig .chezmoi.os "krews" (list) .packages)) | uniq | sortAlpha -}}
+{{- if and (or (eq .chezmoi.os "linux") (eq .chezmoi.os "darwin")) $krews -}}
+#!/usr/bin/env bash
+# Install the krew plugins that are missing and report the installed ones that are not declared; nothing is removed.
+# krew plugins hash: {{ $krews | toJson | sha256sum }}
+# tools: {{ template "tools-present" (dict "root" . "tools" (list "kubectl" "kubectl-krew")) }}
+{{ template "script-lib.sh" "krew" }}
+
+load_brew {{ .brew.prefix | squote }}
+{{ template "tools-use" . }}
+
+plugins=({{ range $krews }}{{ . | squote }} {{ end }})
+
+# kubectl-krew is the krew plugin manager itself; `kubectl krew version` confirms that kubectl finds it
+need kubectl kubectl-krew || exit 0
+if ! kubectl krew version > /dev/null 2>&1; then
+  warn "kubectl does not find the krew plugin: skipping"
+  exit 0
+fi
+
+# Piped, krew prints plugin names only; the header guard covers a terminal.
+installed=$(kubectl krew list | awk '$1 != "PLUGIN" && $1 != "krew" { print $1 }')
+declared=$(printf '%s\n' "${plugins[@]}")
+missing=$(LC_ALL=C comm -13 <(printf '%s\n' "$installed" | LC_ALL=C sort -u) <(printf '%s\n' "$declared" | LC_ALL=C sort -u))
+
+if [ -n "$missing" ]; then
+  mapfile -t to_install <<< "$missing"
+  log "missing plugins: ${to_install[*]}"
+  run kubectl krew install "${to_install[@]}"
+else
+  log "all ${#plugins[@]} declared plugins are installed"
+fi
+
+report_undeclared "krew plugins" "$installed" "$declared"
+{{ end -}}

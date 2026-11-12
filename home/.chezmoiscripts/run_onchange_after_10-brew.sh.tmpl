@@ -1,0 +1,84 @@
+{{- if eq .chezmoi.os "linux" -}}
+#!/usr/bin/env bash
+# Homebrew and the Brewfile: install what the deployed Brewfile declares and is missing, never remove anything.
+# What brew-file would remove is only reported: formulae and taps from `brew file clean --dry-run`, casks by comparison.
+# Brewfile hash: {{ include "dot_config/brewfile/Brewfile" | sha256sum }}
+{{ template "script-lib.sh" "brew" }}
+
+load_brew {{ .brew.prefix | squote }}
+brewfile=${HOMEBREW_BREWFILE:-$HOME/.config/brewfile/Brewfile}
+
+# The Brewfile is a deployed target: a missing one means the apply did not write it, and brew-file would
+# create a new one from the installed packages instead of installing anything.
+if [ ! -f "$brewfile" ]; then
+  warn "$brewfile is missing"
+  exit 1
+fi
+
+if ! have brew || ! brew file version > /dev/null 2>&1; then
+  log "Homebrew or brew-file is missing: running the brew-file installer"
+  # Homebrew's installer calls sudo; NONINTERACTIVE=1 makes it use cached credentials and never ask, so cache them here.
+  if [ "$(id -u)" -ne 0 ]; then
+    as_root "cache sudo credentials for the Homebrew installer" -v
+  fi
+  run env NONINTERACTIVE=1 bash -c 'curl -fsSL https://raw.githubusercontent.com/rcmdnk/homebrew-file/install/install.sh | bash'
+  load_brew {{ .brew.prefix | squote }}
+fi
+
+if ! have brew; then
+  if dry_run; then
+    log "brew is not installed: the rest of this script needs it, stopping after the dry run"
+    exit 0
+  fi
+  warn "brew is still missing after the installer"
+  exit 1
+fi
+
+log "brew file install from $brewfile"
+run brew file install
+
+# Drift report, read only: nothing below installs, uninstalls or untaps.
+# brew-file ignores casks on Linux, so the casks are compared here; formulae and taps come from its own dry run.
+if clean_out=$(brew file clean --dry-run 2>&1); then
+  report_undeclared "brew formulae" "$(printf '%s\n' "$clean_out" | sed -n 's/^\$ brew uninstall --ignore-dependencies //p' | tr ' ' '\n')" ""
+  report_undeclared "brew taps" "$(printf '%s\n' "$clean_out" | sed -n 's/^\$ brew untap //p' | tr ' ' '\n')" ""
+else
+  warn "brew file clean --dry-run failed: no report for formulae and taps"
+fi
+declared_casks=$(awk '$1 == "cask" { gsub(/[",]/, "", $2); n = split($2, p, "/"); print p[n] }' "$brewfile")
+report_undeclared "brew casks" "$(brew list --cask 2> /dev/null || true)" "$declared_casks"
+
+# rustup is installed by brew without a toolchain: set the stable one when none is the default.
+if have rustup; then
+  case "$(rustup default 2> /dev/null || true)" in
+    *'(default)'*) ;;
+    *)
+      log "no default Rust toolchain: setting stable"
+      run rustup default stable
+      ;;
+  esac
+fi
+
+# gh reads its token from the environment or from a login; a login needs a terminal, so only warn.
+if have gh && ! gh auth status > /dev/null 2>&1; then
+  warn "gh is not logged in: run 'gh auth login' in a terminal"
+fi
+{{ else if eq .chezmoi.os "darwin" -}}
+#!/bin/bash
+# Homebrew packages of packages.darwin: the lists below are the trigger, the script changes when they do.
+{{ template "script-lib.sh" "brew" }}
+
+if ! have brew; then
+  warn "brew is not installed"
+  exit 1
+fi
+
+run brew bundle --file=/dev/stdin <<EOF
+{{ range .packages.darwin.brews -}}
+brew {{ . | quote }}
+{{ end -}}
+{{ range .packages.darwin.casks -}}
+cask {{ . | quote }}
+{{ end -}}
+EOF
+{{ end -}}

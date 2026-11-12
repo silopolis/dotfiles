@@ -1,0 +1,7 @@
+{{- /*
+  The call that gives a script the same directories as its tools-present line: use_tool_dirs '<dir>' '<dir>' ...
+  A "~/x" entry is passed with its literal tilde on purpose: use_tool_dirs expands it to $HOME/x when it runs.
+  Included with: template "tools-use" .   (the root context)
+*/ -}}
+# shellcheck disable=SC2088
+use_tool_dirs{{ range (includeTemplate "tools-dirs" . | fromJson) }} {{ . | squote }}{{ end }}

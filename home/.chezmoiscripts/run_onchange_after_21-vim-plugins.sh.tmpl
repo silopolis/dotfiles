@@ -1,0 +1,44 @@
+{{- if eq .chezmoi.os "linux" -}}
+#!/usr/bin/env bash
+# Install the Vundle plugins that the deployed vimrc declares (Vundle itself is a chezmoi external, already in place).
+# Build the YouCompleteMe core library only when vim.ycm_build is true and the library is missing.
+# vimrc hash: {{ include "dot_config/vim/vimrc" | sha256sum }}
+# tools: {{ template "tools-present" (dict "root" . "tools" (list "vim")) }}
+# Vim is a secondary editor since Neovim became the main one; this script only keeps its Vundle plugins in place.
+{{ template "script-lib.sh" "vim-plugins" }}
+
+load_brew {{ .brew.prefix | squote }}
+{{ template "tools-use" . }}
+
+ycm_build={{ .vim.ycm_build }}
+vimrc=$HOME/.vimrc
+bundle=$HOME/.vim/bundle
+
+need vim || exit 0
+
+if [ ! -f "$vimrc" ] || [ ! -d "$bundle/Vundle.vim" ]; then
+  warn "$vimrc or $bundle/Vundle.vim is missing: the vimrc and the Vundle external come with the apply"
+  exit 1
+fi
+
+log "vim PluginInstall"
+# Ex mode, silent, no viminfo, no swap file: plugins that are already present are left alone.
+# -N is required: Ex mode starts vi-compatible, which drops line continuations, and Vundle's own autoload file then fails (E10).
+if ! run vim -N -Es -n -u "$vimrc" -i NONE +PluginInstall +qall; then
+  warn "vim exited with an error: the plugins may be incomplete"
+fi
+
+if [ "$ycm_build" = true ]; then
+  ycm=$bundle/YouCompleteMe
+  if [ ! -f "$ycm/install.py" ]; then
+    warn "vim.ycm_build is true but $ycm is not installed"
+  elif compgen -G "$ycm/third_party/ycmd/ycm_core*.so" > /dev/null; then
+    log "YouCompleteMe core library already built"
+  elif have python3; then
+    log "building the YouCompleteMe core library"
+    run python3 "$ycm/install.py" --all
+  else
+    warn "python3 not found: cannot build YouCompleteMe"
+  fi
+fi
+{{ end -}}
