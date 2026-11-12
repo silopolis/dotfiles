@@ -6,6 +6,9 @@
 {{- $nvimHost := promptStringOnce . "nvim.host" "Neovim config repository host" "github.com" -}}
 {{- $nvimOwner := promptStringOnce . "nvim.owner" "Neovim config repository owner (empty: no external)" -}}
 {{- $nvimRepo := promptStringOnce . "nvim.repo" "Neovim config repository name (empty: no external)" -}}
+{{- /* Local settings of the install scripts, edited by hand in the config: kept as they are, never prompted. */ -}}
+{{- $toolsExtra := dig "tools" "search" "extra" (list) . -}}
+{{- $toolsOverride := dig "tools" "search" "override" (list) . -}}
 {{- $username := .chezmoi.username -}}
 {{ if eq .chezmoi.os "windows" }}
 {{- $username = trimPrefix (print (upper .chezmoi.hostname) "\\") $username -}}
@@ -41,6 +44,11 @@ color = "auto"
   host = {{ $nvimHost | quote }}
   owner = {{ $nvimOwner | quote }}
   repo = {{ $nvimRepo | quote }}
+
+# Directories where the install scripts look for tools, besides the defaults of .chezmoidata/tools.yaml
+[data.tools.search]
+  extra = {{ $toolsExtra | toJson }}
+  override = {{ $toolsOverride | toJson }}
 
 [git]
   autoAdd = false  # implied by autoCommit
