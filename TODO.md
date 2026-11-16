@@ -36,6 +36,7 @@ Candidates for `rationalize-package-ownership`, which owns package ownership.
   - where each key should live instead: a key file of its own with mode 0600, the keyring, or a credential helper;
   - whether the profile stops exporting them and shells source the file only in interactive shells.
   The wrapper that starts agents without them, `add-agent-env-wrapper`, protects agents and their children only: it does not replace this study.
+  The proposal `correct-shell-environment` carries the profile questions of this study together with `PATH`, locale and umask; its design starts from the findings in its proposal.
 * Agents running key-reading clients (parked by the user on 2026-11-16, depends on the agent-harness decision).
   Document, model and translation command-line clients read a key from the environment.
   Whether an agent may run them, and how each would get a key file of its own (mode 0600) instead of the environment, is a question for the agent-harness tooling (a planned darse module or a dedicated repository) more than for the dotfiles alone.
@@ -65,7 +66,7 @@ Once `add-repo-roadmap` is applied, its generated `ROADMAP.md` replaces this lis
 1. [x] `fix-chezmoi-config-template` (audit 3): the config template, encryption, umask, Neovim external, the `features.incus` question.
 2. [x] `make-install-scripts-idempotent` (audit 4): after it, a full apply is allowed after a reviewed dry run.
 3. [ ] `remove-brew-libvirt`: brew's libvirt, and a ban on it, on `qemu` and on brew's `incus`; first of the Incus group so that `virsh` and `incus` on `PATH` are the system ones.
-4. [ ] `fast-correct-shell-startup` (audit 7).
+4. [x] `fast-correct-shell-startup` (audit 7): silent and fast startup, archived 2026-11-16; its environment half is the proposal `correct-shell-environment` (audit 28), which has no place in this order yet and follows the study of secrets held by the desktop session below.
 5. [ ] `manage-xdg-basics` (audit 12): its install script runs only after item 2.
 6. [ ] `add-mise-app-desktop-entries`: after item 5 is archived, so that `mimeapps.list` has one owner.
 7. [ ] `cleanup-dead-config` (audit 16): proposal and specs only, needs design and tasks.

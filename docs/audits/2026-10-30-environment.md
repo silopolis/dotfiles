@@ -216,7 +216,7 @@ MM .config, .local/share/fonts, .local/share/icons, three LXQt theme dirs (modes
 | 4 | `make-install-scripts-idempotent` | F01, F02, F24 (scripts), F27 | | done, archived 2026-11-12 |
 | 5 | `reconcile-drift-and-supervised-apply` | F13, F14, F15 | Later steps: supervised full apply | full |
 | 6 | `fresh-machine-bootstrap` | F04, F05, F24, F25, F26, F38 | cem task T-012 | proposal, specs, draft tasks |
-| 7 | `fast-correct-shell-startup` | F06, F19, F20, F22, F33 (banners, load order) | | proposal, design, specs, tasks; narrowed 2026-11-16 to a silent and fast startup (the environment half moved to row 28), measured and reviewed the same day: compinit does not run twice on Kali, the zle errors appear only without a terminal, the login shell's second pass rebuilds the completion dump |
+| 7 | `fast-correct-shell-startup` | F06, F19, F20, F22, F33 (banners, load order) | | done, archived 2026-11-16; proposal, design, specs, tasks; narrowed 2026-11-16 to a silent and fast startup (the environment half moved to row 28), measured and reviewed the same day: compinit does not run twice on Kali, the zle errors appear only without a terminal, the login shell's second pass rebuilds the completion dump |
 | 8 | `port-omalap-shell-aliases` | F32 | 4.1 | proposal, specs, draft tasks |
 | 9 | `rationalize-package-ownership` | F16, F28 | 4.5, 6.1, 6.6, Later steps: brew to mise | proposal, specs, draft tasks |
 | 10 | `install-terminal-fonts` | F17 | 6.3 | proposal, specs, draft tasks |

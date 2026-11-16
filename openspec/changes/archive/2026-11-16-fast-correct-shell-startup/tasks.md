@@ -51,7 +51,7 @@
 ## 8. Close
 
 - [x] 8.1 Re-measure on the deployed configuration and record before and after in `design.md`, "Results", with the first-prompt hooks the method does not time
-- [ ] 8.2 `zsh -n`, `bash -n` and `shellcheck` (through `mise exec`, or say it cannot run) on every changed file; `openspec validate --all --strict`; `/opsx-verify fast-correct-shell-startup`; archive on the user's go, then check the merged spec's Purpose and that no modeline sits inside a requirement
-- [ ] 8.3 Rebase on `main`, validate, report the last commit hash; list the frictions met with the tooling
+- [x] 8.2 `zsh -n`, `bash -n` and `shellcheck` (through `mise exec`, or say it cannot run) on every changed file; `openspec validate --all --strict`; `/opsx-verify fast-correct-shell-startup`; archive on the user's go, then check the merged spec's Purpose and that no modeline sits inside a requirement
+- [x] 8.3 Rebase on `main`, validate, report the last commit hash; list the frictions met with the tooling
 
 <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->
