@@ -63,6 +63,8 @@ Its location (`nvim.host`, `nvim.owner`, `nvim.repo`) is chezmoi data kept in th
 - `openspec validate --all --strict`: check specs and changes.
 - `mise run hooks:install`: after a fresh clone, install the pre-commit secret scan as a `.git/hooks` shim, which every git version runs.
 - Startup time: `for i in 1 2 3; do /usr/bin/env time -f %e zsh -i -c exit; done` (or `date +%s.%N` around the call when GNU time is missing).
+- Agents started from an interactive shell, by hand or by herdr, run through the `opencode` function of `home/dot_config/shell/rc.d/445-tools_opencode.sh`, which removes the exported variables with secret-looking uppercase names from their environment (the pattern lives in that file and the names are computed at each call).
+  `command opencode` runs the real binary with the full environment: the user types it, an agent never does.
 - chezmoi comes from brew, and minimal non-interactive shells (ssh command, cron, `env -i`) do not load brew, so they do not find it.
   Run `eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"` first, or call `/home/linuxbrew/.linuxbrew/bin/chezmoi`.
   This holds until `fast-correct-shell-startup` fixes bash login startup (F22).

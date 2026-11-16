@@ -15,6 +15,7 @@ Source: request of the orchestrator of a fleet repository, 2026-11-15, decided b
 - **A bypass that is explicit**: `command opencode` runs the real binary with the full environment, and is documented as such.
 - **Tests** in a scratch directory with synthetic variables, in zsh and in bash, and a live check on a herdr-started agent (count of matching names in the agent process, never the names or values).
 - **`AGENTS.md`** gets one line in the Commands section: agents started from a shell run through this function.
+- **A signal for adoption**: the design section "Signal darse and the fleet" says what darse and the other fleet repositories can port (the function, the choices, the pattern to recheck, the test contract) and what does not travel; row 27 of the audit's change map records the pointer, and nothing is written to another repository.
 
 ## Capabilities
 

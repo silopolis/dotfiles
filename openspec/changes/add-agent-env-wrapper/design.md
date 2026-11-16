@@ -65,6 +65,25 @@ The order does not matter for correctness: the function runs `opencode` at call 
 
 The counts use `tr '\0' '\n' < /proc/<pid>/environ | cut -d= -f1 | grep -Ec <pattern>`, with the pid of the agent process from `herdr pane process-info`, never the names.
 
+### Signal darse and the fleet
+
+Nothing is written to darse or to any other repository: this section is the pointer they read, and each repository stays the sole judge of what it adopts.
+Row 27 of the audit's change map records the pointer, and the message of task 6.3 carries the commit hash once the change is archived.
+
+What a port takes as it stands:
+
+- the function of "A shell function, in its own rc.d file", one per agent (`codex`, `pi` and `goose` are the candidates, and the agent name is the only word to change);
+- the choices: names computed at each call and no list in the file, no keep-list, no switch an agent could set, `command <agent>` typed by the user as the only bypass;
+- the pattern, after the counts of "Pattern" are redone against the environment of the target machine (an inventory of what reads each variable comes first);
+- the test contract: the scenarios of the spec (stub binary, each shell under `env -i`, synthetic `DEMO_` set with canary values, counts and never names) are the portable tests, and the driver is a scratch harness kept outside the repository, so a port rewrites it from those scenarios.
+
+What does not travel:
+
+- the place of the file (`445` in the shell startup of this repository; a port puts the function in its own startup);
+- the live check, which depends on herdr and on where it types the command.
+
+The limits travel with it: interactive shells only, uppercase names only, bypass by binary path, and the desktop session keeps the variables until the backlog study of secrets held by the desktop session is done.
+
 ## Risks / Trade-offs
 
 - [Risk] The function covers only shells that source the rc.d files. → Documented in the proposal (impact): cron, ssh commands, desktop launchers and scripts that call the binary by path are not covered; the study in the backlog decides what else.
@@ -78,6 +97,6 @@ The counts use `tr '\0' '\n' < /proc/<pid>/environ | cut -d= -f1 | grep -Ec <pat
 
 ## Open Questions
 
-- Should the same function cover `codex`, `pi` and `goose` once the agent-harness decision is taken? Default: no, one function per agent when it is decided.
+- Should the same function cover `codex`, `pi` and `goose` once the agent-harness decision is taken? Default: no, one function per agent when it is decided, by the repository that decides its agent harness, from "Signal darse and the fleet".
 
 <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->

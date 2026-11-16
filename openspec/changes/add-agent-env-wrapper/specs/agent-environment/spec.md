@@ -2,8 +2,10 @@
 
 In the scenarios below:
 
-- the scratch directory is under `/tmp/opencode` with mode 0700; it holds a directory `bin` whose first file is a stub `opencode` that prints, as one number, how many entries of its own `/proc/$$/environ` have a name matching the pattern (`tr '\0' '\n' < /proc/$$/environ | cut -d= -f1 | grep -Ec '(TOKEN|SECRET|PASSWORD|PASSWD|API_?KEY|ACCESS_?KEY|PRIVATE_?KEY|CREDENTIAL)'`), and prints its arguments, one per line, after a marker line;
+- the scratch directory is under `/tmp/opencode` with mode 0700; it holds a directory `bin` whose first file is a stub `opencode` that appends one line to a call log (a file in the scratch directory), prints, as one number, how many entries of its own `/proc/$$/environ` have a name matching the pattern (`tr '\0' '\n' < /proc/$$/environ | cut -d= -f1 | grep -Ec '(TOKEN|SECRET|PASSWORD|PASSWD|API_?KEY|ACCESS_?KEY|PRIVATE_?KEY|CREDENTIAL)'`), and prints its arguments, one per line, after a marker line;
 - "the function" is the one defined by `home/dot_config/shell/rc.d/445-tools_opencode.sh`, loaded with `. <file>` in `zsh -c` or `bash -c` with `PATH` starting with that `bin`;
+- each shell of the driver starts under `env -i` with only `PATH`, `HOME` (a scratch directory) and the variables a scenario exports, so that the secret-named variables of the shell that runs the driver never enter a count;
+- every `chezmoi` command takes `-S <worktree>` when run from a worktree, and the scenarios that read `~/.config/shell/rc.d/445-tools_opencode.sh` pass only after the target is deployed (task 5.1), while the others read the source file;
 - "the synthetic set" is the exported variables `DEMO_API_KEY`, `DEMO_TOKEN`, `DEMO_DB_PASSWORD` (value with a space), `DEMO_APIKEY`, `DEMO_ACCESSKEY`, `DEMO_PRIVATE_KEY`, `DEMO_CREDENTIAL`, `DEMO_PASSWD` and `DEMO_SECRET_SAUCE`, each with a distinct canary value of 20 characters;
 - the scenarios never print a name of a real variable or a value.
 
@@ -23,7 +25,7 @@ The repository SHALL deploy `~/.config/shell/rc.d/445-tools_opencode.sh`, which 
 
 #### Scenario: Syntax and target
 
-- **WHEN** `bash -n` and `zsh -n` run on the source file, and `chezmoi diff --exclude=externals,scripts ~/.config/shell/rc.d/445-tools_opencode.sh` runs
+- **WHEN** `bash -n` and `zsh -n` run on the source file, and, once the target is deployed, `chezmoi -S <worktree> diff --exclude=externals,scripts ~/.config/shell/rc.d/445-tools_opencode.sh` runs
 - **THEN** all three print nothing and exit 0
 
 #### Scenario: Interactive shells load it
@@ -48,7 +50,7 @@ The names SHALL be computed from the environment at each call, with no list of n
 
 #### Scenario: No name is written in the file
 
-- **WHEN** `rg -n 'DEMO_|_KEY=|_TOKEN=' home/dot_config/shell/rc.d/445-tools_opencode.sh` runs, and every name of the environment file is searched in the source file with `rg -n -F -f` (run locally, the list never printed)
+- **WHEN** `rg -c 'DEMO_|_KEY=|_TOKEN=' home/dot_config/shell/rc.d/445-tools_opencode.sh` runs, and every name of the environment file is searched in the source file with `rg -c -F -f` (run locally, the list without empty lines, never printed, and a count instead of the matching lines, so a failure shows no name)
 - **THEN** both print nothing
 
 #### Scenario: A multi-line value does not break the call
