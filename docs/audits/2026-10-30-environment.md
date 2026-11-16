@@ -216,7 +216,7 @@ MM .config, .local/share/fonts, .local/share/icons, three LXQt theme dirs (modes
 | 4 | `make-install-scripts-idempotent` | F01, F02, F24 (scripts), F27 | | done, archived 2026-11-12 |
 | 5 | `reconcile-drift-and-supervised-apply` | F13, F14, F15 | Later steps: supervised full apply | full |
 | 6 | `fresh-machine-bootstrap` | F04, F05, F24, F25, F26, F38 | cem task T-012 | proposal, specs, draft tasks |
-| 7 | `fast-correct-shell-startup` | F06, F18 to F23, F33 | | proposal, specs, draft tasks |
+| 7 | `fast-correct-shell-startup` | F06, F19, F20, F22, F33 (banners, load order) | | proposal, design, specs, tasks; narrowed 2026-11-16 to a silent and fast startup (the environment half moved to row 28), measured and reviewed the same day: compinit does not run twice on Kali, the zle errors appear only without a terminal, the login shell's second pass rebuilds the completion dump |
 | 8 | `port-omalap-shell-aliases` | F32 | 4.1 | proposal, specs, draft tasks |
 | 9 | `rationalize-package-ownership` | F16, F28 | 4.5, 6.1, 6.6, Later steps: brew to mise | proposal, specs, draft tasks |
 | 10 | `install-terminal-fonts` | F17 | 6.3 | proposal, specs, draft tasks |
@@ -237,6 +237,7 @@ MM .config, .local/share/fonts, .local/share/icons, three LXQt theme dirs (modes
 | 25 | `add-agent-launch-tasks` | 2.7 (mise), process | | proposal, specs; added 2026-11-04 on request; replaces `fix-prompt-delivery`; after 24 (the language rule for the global tasks) |
 | 26 | `add-secret-tasks` | 2.1, F10, F11, F12 | | proposal, design, specs, tasks; added 2026-11-09 on request of the Neovim repository's orchestrator; global tasks `secret:check` and `secret:rotate` for the encrypted environment file, probe table in the private store; after 24 (the Python rule), soft dependency on 23 |
 | 27 | `add-agent-env-wrapper` | 2.1, F10, F11, F12 | | done, archived 2026-11-16; proposal, design, specs, tasks; added 2026-11-16 on request of the orchestrator of a fleet repository; a shell function `opencode` that removes secret-named variables from the agent's environment; no dependency; darse and the other fleet repositories read what is portable from this change's `design.md` (section "Signal darse and the fleet"), nothing written to another repository |
+| 28 | `correct-shell-environment` | F18, F21, F23, F33 (umask, highlighting order) | | proposal only, with the requirements moved from row 7; added 2026-11-16 when row 7 was narrowed; after row 7, and it includes or follows the backlog study of secrets held by the desktop session (`TODO.md`) |
 
 Changes 6 to 20 refine their artifacts at the start of their own session (`/opsx-continue`).
 
