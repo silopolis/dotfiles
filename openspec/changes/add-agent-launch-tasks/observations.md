@@ -94,6 +94,21 @@ Each step below is logged with its command, its result and any friction, so that
     For the design: `agent:launch` reports the pane id next to the name, and a check of "is the reporting target still named" belongs before a long wait.
   - The review took the lead most of a weekend of wall clock: opencode's footer showed 2 h 23 min for the plan turn, with the user answering guard prompts in between (the share spent waiting was not measured).
     One of its commands, `mise install --dry-run-code` (a read-only form), was refused by the read-only guard: a false positive to report to the guard's repository.
+- 2026-11-12, outcome of the second launch, from the launch (2026-11-09 18:05) to the merge:
+  - The lead built and archived `make-install-scripts-idempotent` in 17 commits above `main`, with a test harness at 155 of 155; the build phase ran from 13:19 to 18:26 on 2026-11-12, with the user answering guard prompts and five design questions in its pane.
+    The branch needed no rebase (`main` had not moved), so the orchestrator fast-forwarded it after a read-only check (clean worktree, `gitleaks`, strict validation, no private value in the added lines).
+  - Reports reached the orchestrator through `herdr agent prompt` by name once the name had been restored, and through the lead's own pane when the target was blocked: `herdr agent prompt` refuses a blocked agent (`agent_blocked`), so a report sent while the orchestrator waits for a question is lost unless the lead also writes it in its own pane.
+    For the design: the launch brief keeps the three-step fallback (name, pane of the tab labelled for the orchestrator, own pane), and the orchestrator reads the lead's pane after every question it has to answer.
+  - Windows that no brief can close: the lead deployed four files as single targets with the user's go before the merge, so for about an hour and a half the live files were ahead of `main`, and a brew change in that window would have made the brew hook commit the live Brewfile on `main` and break the fast-forward.
+    The brief said to touch no brew package, and none was touched.
+    A launch brief for a change that deploys before it merges should name this window and ask for a quick merge, as for the config template in the first launch.
+  - One real `sudo true` ran by mistake: a throwaway helper test used a bare `PATH` outside the harness, so the real `sudo` ran and failed at once because standard input was `/dev/null`.
+    The lead reported it by itself, as the brief asks (any real `sudo` is stop-and-ask); a harness that puts a logging `sudo` first on `PATH` for every test, not only for the scripts under test, would have made the mistake impossible.
+  - The lead printed unfiltered `herdr agent list` and `herdr workspace list` once each, which put the names, working directories and session titles of other projects into its transcript.
+    The export needed four throwaway patterns for them (the name of another project, the pane titles, two personal workspace labels, one workspace name).
+    For the design: `agent:launch` and its brief template should say to select fields with `jq` (name, status, pane id) in every herdr listing, as the briefs already say for `chezmoi data`.
+  - Cleanup in a shared workspace: `scm:worktree:done <branch> --keep-tab`, then `herdr tab close <tab id>`, removed the worktree, the local branch and the lead's tab and left the four other tabs of the workspace untouched; the remote branch never existed.
+    Closing the tab by id, after the merge check, is the safe way when the user's own tabs sit next to the agent's.
 
 
 <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->
