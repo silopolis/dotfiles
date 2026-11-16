@@ -54,3 +54,5 @@ kubectl = "latest"
 [settings]
 # aube (the default JS package manager) aborts on packages with install scripts
 npm.package_manager = "npm"
+# GitHub requests use the keyring login of gh: no token is kept in the shell environment, and anonymous calls are limited to 60 an hour
+github.credential_command = "gh auth token"
