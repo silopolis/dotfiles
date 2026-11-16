@@ -62,12 +62,13 @@ Its location (`nvim.host`, `nvim.owner`, `nvim.repo`) is chezmoi data kept in th
 - `home/dot_config/pipx/packages.json` holds no path and no interpreter; refresh it with the `pipx list --json | jq` command in the header of `home/.chezmoiscripts/run_onchange_after_12-pipx.sh.tmpl`.
 - `openspec validate --all --strict`: check specs and changes.
 - `mise run hooks:install`: after a fresh clone, install the pre-commit secret scan as a `.git/hooks` shim, which every git version runs.
-- Startup time: `for i in 1 2 3; do /usr/bin/env time -f %e zsh -i -c exit; done` (or `date +%s.%N` around the call when GNU time is missing).
+- Startup time: GNU `time` is not always installed (distribution package `time`), so put `date +%s.%N` around each run of `zsh -i -c exit` and `zsh -l -i -c exit`, alternate the shell kinds, take the median of at least 7 runs (startup varies by hundreds of milliseconds between runs minutes apart), and run them under a pseudo-terminal (`script -qec 'zsh -i -c exit' /dev/null`) so that the line editor integrations load as in a terminal.
+  `SHELL_RC_DEBUG=1` prints one debug line per startup file on standard error, and `SHELL_COMPLETION_REFRESH=1` regenerates the cached completion scripts at the next start.
 - Agents started from an interactive shell, by hand or by herdr, run through the `opencode` function of `home/dot_config/shell/rc.d/445-tools_opencode.sh`, which removes the exported variables with secret-looking uppercase names from their environment (the pattern lives in that file and the names are computed at each call).
   `command opencode` runs the real binary with the full environment: the user types it, an agent never does.
 - chezmoi comes from brew, and minimal non-interactive shells (ssh command, cron, `env -i`) do not load brew, so they do not find it.
   Run `eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"` first, or call `/home/linuxbrew/.linuxbrew/bin/chezmoi`.
-  This holds until `fast-correct-shell-startup` fixes bash login startup (F22).
+  Interactive bash login shells load brew since `fast-correct-shell-startup`; the non-interactive ones still do not, and what they load is the subject of `correct-shell-environment`.
 
 ## Safety rules
 
