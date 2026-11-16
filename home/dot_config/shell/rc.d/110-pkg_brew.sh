@@ -29,13 +29,16 @@ if [ -x "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
       fi
       ;;
     "zsh")
-      brew completions link &> /dev/null
+      # No duplicate in fpath, even when this file is sourced again (a re-sourced ~/.zshrc):
+      # the completion dump lists the files of fpath and is rebuilt when that list changes.
+      # `brew completions link` is not run here: its state is persistent, the brew install script sets it once.
+      typeset -U fpath
       zsh_completions="${HOMEBREW_PREFIX}/share/zsh-completions"
-      if [ $? -eq 0 ] && [ -d "$zsh_completions" ];then
+      if [ -d "$zsh_completions" ];then
         fpath=($zsh_completions $fpath)
       fi
       brew_completion="${HOMEBREW_PREFIX}/share/zsh/zsh-site-functions"
-      if [ $? -eq 0 ] && [ -d "$brew_completion" ];then
+      if [ -d "$brew_completion" ];then
         fpath=($brew_completion $fpath)
       fi
       ;;

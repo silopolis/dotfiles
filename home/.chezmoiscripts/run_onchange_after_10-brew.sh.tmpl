@@ -37,6 +37,16 @@ fi
 log "brew file install from $brewfile"
 run brew file install
 
+# Completions of the formulae and taps: the link is a persistent state that Homebrew keeps up on install, upgrade
+# and update. The shell startup used to run `brew completions link` at every start (about 0.7 s); it runs here, once.
+case "$(brew completions state 2> /dev/null || true)" in
+  'Completions are linked.'*) ;;
+  *)
+    log "brew completions are not linked: linking them"
+    run brew completions link
+    ;;
+esac
+
 # Drift report, read only: nothing below installs, uninstalls or untaps.
 # brew-file ignores casks on Linux, so the casks are compared here; formulae and taps come from its own dry run.
 if clean_out=$(brew file clean --dry-run 2>&1); then
