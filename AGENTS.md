@@ -75,6 +75,9 @@ Its location (`nvim.host`, `nvim.owner`, `nvim.repo`) is chezmoi data kept in th
 - `chezmoi apply -R` also pulls into `~/.config/nvim`, fast-forward only, after asking for confirmation (chezmoi expects mode 0750 there, git made it 0775); `--force` skips the question, so run it only when the Neovim work is idle.
 - Edit the source, never the target, for managed files; bring live edits back with `chezmoi re-add` after a diff review.
 - Never print, log or commit secret values; encrypted files are added with `chezmoi add --encrypt` and keep the `private_` attribute.
+  Compare secrets by hash in memory, never by value, and never print a masked form either: a masked display keeps the last characters.
+  To discard the standard output of a command in a pipe, write `cmd 2>/dev/null | next`: in zsh, `cmd 2>&1 >/dev/null | next` also sends standard output into the pipe (MULTIOS).
+  Removing a secret from the file that sets it does not remove it from processes that inherited it: check the parents (`grep -c` on `/proc/<pid>/environ`, counts only), and unset it in the shell startup.
 - Raw session exports contain private data: keep them in a scratch directory with mode 0700, commit only the redacted copies in `memory/sessions/`, and delete the raw files.
 - Anything that uses sudo, writes outside `$HOME`, uninstalls or deletes needs the user's explicit go.
 - Commits: propose the messages, commit only after the user validates them, never push without being asked.
@@ -93,6 +96,7 @@ Its location (`nvim.host`, `nvim.owner`, `nvim.repo`) is chezmoi data kept in th
 - Commits: `type(domain:subject): imperative lowercase summary`, English, subject at most 80 characters; domains in use include `shell`, `pkg`, `dev`, `term`, `git`, `chezmoi`, `sys`, `editor`, `kde`; for this repository's own process use `chezmoi:spec`, `chezmoi:audit`, `chezmoi:docs`.
 - Markdown: one sentence per line, no em or en dashes, no emoji, sentence-case headings, vim modeline as the last line.
 - Shell: POSIX-compatible where both bash and zsh source the file; shell-specific code goes in `case "$CURRENT_SHELL"` blocks.
+  An agent's shell is zsh, and four habits from bash fail there: a bare `echo ==` (equals expansion), two `<` redirections on one command (zsh concatenates them), an unmatched glob (the whole command aborts), and a variable holding a command with arguments (zsh does not split it: use an array or `${=var}`).
 - Install priority for tools: mise, brew, apt, vendor APT repository, Flatpak; GitHub `.deb` releases through bin.
 
 ## Workflow
