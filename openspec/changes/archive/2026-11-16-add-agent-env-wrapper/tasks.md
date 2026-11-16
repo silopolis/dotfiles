@@ -35,7 +35,7 @@
 ## 6. Close
 
 - [x] 6.1 `openspec validate add-agent-env-wrapper --strict` and `openspec validate --all --strict`; `/opsx-verify add-agent-env-wrapper`
-- [ ] 6.2 Archive (`openspec archive add-agent-env-wrapper --yes`) and tick the item in `TODO.md`
-- [ ] 6.3 With the user's go, tell the orchestrator of the fleet repository that asked, and nvim-orch, that the wrapper exists, with the commit hash and the pointer to the design section "Signal darse and the fleet" for the repositories that may port it (`herdr agent get <name>`); nothing is written to another repository
+- [x] 6.2 Archive (`openspec archive add-agent-env-wrapper --yes`) and tick the item in `TODO.md`
+- [x] 6.3 With the user's go, tell nvim-orch directly, and the orchestrator of the fleet repository that asked through chezmoi-orch, which knows who asked, that the wrapper exists, with the commit hash and the pointer to the design section "Signal darse and the fleet" for the repositories that may port it (`herdr agent get <name>`); nothing is written to another repository
 
 <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->
