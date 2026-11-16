@@ -78,6 +78,7 @@ Once `add-repo-roadmap` is applied, its generated `ROADMAP.md` replaces this lis
     * [ ] `refresh-repo-docs` (audit 18)
     * [ ] `add-agent-launch-tasks` (audit 25): after item 10, for the language rule of the global tasks.
     * [ ] `add-secret-tasks` (audit 26): after item 10, for the Python rule of the global tasks; the store external of item 9 is a soft dependency (the probe table lives in the private store).
+    * [ ] `add-agent-env-wrapper` (audit 27): no dependency; a shell function that starts opencode without secret-named variables, first part of the launcher decided on 2026-11-16 (the study of secrets held by the desktop session is in the follow-ups above).
 
 Later, with no change yet: development containers and DevPod as targets, OCI images as machines, real machines reached over SSH (with cem), more distros (Debian stable, Ubuntu, Arch), RPM-based distros, Zabbly packages for Debian testing (revisit at the forky freeze, early 2027).
 
