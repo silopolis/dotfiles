@@ -66,7 +66,8 @@ This file is an operational complement to the change, not a replacement: the pro
 
 ## Rules
 
-- Public repository: no secret values, no names of secret variables, no private hosts or IP addresses, no employer or client details, no private repository names.
+- Public repository: no secret values, no private hosts or IP addresses, no employer or client details, no private repository names.
+  Names of secret variables: only publicly well-known ones (a provider's documented convention), never a name specific to this workstation.
   Name only darse, cem, bosco, greffe and the Neovim configuration repository; call any other "a fleet repository".
 - Markdown: one sentence per line, no em or en dashes, no emoji, sentence-case headings, the vim modeline as the last line.
 - Python: standard library only, tested, no home path or user name in any file.

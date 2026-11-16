@@ -85,7 +85,11 @@ Its location (`nvim.host`, `nvim.owner`, `nvim.repo`) is chezmoi data kept in th
 
 ## Writing for a public repository
 
-- No secret values, no names of secret variables, no token scopes, no private hosts or IP addresses, no employer or client details.
+- No secret values, no token scopes, no private hosts or IP addresses, no employer or client details.
+- Names of secret variables: only publicly well-known ones, the names a provider documents as its convention and that public repositories already carry in the thousands.
+  A name specific to this workstation, or chosen by the user, stays out: it tells what is set here.
+  When in doubt, leave the name out and describe the variable instead.
+  Values stay secret whatever the name.
 - Open security issues are described in general terms, with a command that shows the details locally.
 - The same rule applies to cem, which will become public too.
 - Sibling repositories: name only those that are public or meant to be (darse, cem, bosco, greffe, the Neovim configuration repository); call any other "a fleet repository".
