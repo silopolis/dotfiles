@@ -111,4 +111,26 @@ Each step below is logged with its command, its result and any friction, so that
     Closing the tab by id, after the merge check, is the safe way when the user's own tabs sit next to the agent's.
 
 
+- 2026-11-16, third launch, with the global task and `--tab` in the source workspace: the lead of `add-agent-env-wrapper`.
+  - The launch was one command (`scm:worktree:new <branch> --base main --tab --workspace <id> --label <label> --agent-kind opencode --agent-name <name> --json -- --agent plan --model <model>`).
+    It took about 20 s, created the worktree and the tab, and returned the pane id and the name in its JSON; the agent name resolved and the orchestrator's own name still resolved for the lead's reports, so the fallbacks of the brief were not needed.
+    The first read of the new pane showed only the path line, so the footer with the mode and model could not be confirmed at launch; it showed in the lead's report a little later (plan, the planned model, high effort).
+  - One prompt, pointing at the brief, was accepted with `--wait --until working`.
+    The lead's review came back within about half an hour, and the user switched it to build mode in its pane.
+  - A claim of the brief was wrong: it said the lead inherits the revoked token variable, but the lead's shell had already dropped it, since new shells unset it at startup.
+    The lead found it during its review and said so.
+    For the design: a brief states facts about the environment only after a count taken from a process started the same way as the lead's.
+  - The change was built in one session with the user's go for the single-target deployment; the live check created a probe tab in the user's workspace, counted matching names by process id, and closed the tab by id, with the tab list identical afterwards.
+    For about an hour the deployed file was ahead of `main`; the review and fast-forward were quick, but the brief did not name this window.
+  - The lead rebased on a `main` that had moved by two commits, committed its own session export, and the orchestrator re-ran the lead's tests, the export checks and the spec checks before the fast-forward.
+    No conflict and nothing to fix; the review took a few minutes.
+  - Reporting: the lead's notice to another orchestrator named a path that the archive then moved, so it had to send a correction.
+    The change did not say which orchestrator had asked for it, so the lead relayed the final notice through the orchestrator of this repository.
+    For the design: a launch brief for a change that came from a request names the requester and says whether the notice goes before or after the archive.
+  - `openspec archive` frictions seen on this repository's side too: it dropped the preamble of a new spec (Purpose came out as TBD) and merged the delta file's trailing modeline into the middle of a main spec; both were fixed by hand.
+  - Other frictions the lead listed: the `shellcheck` shim failed with "No version is set"; there is no GNU `time` on `PATH`; in zsh `print '--- x'` reads an option and dropped three results; the startup banner of an interactive shell pollutes the output of `zsh -i -c`; startup time varies by hundreds of milliseconds between runs minutes apart, so a fixed millisecond criterion cannot be measured (interleaved runs and medians work); the commit hook flagged a synthetic test canary in the export, which a throwaway terms file masked without touching the scanner's allow list.
+  - The lead printed herdr listings once more, despite the brief: the names of agents of other projects, a task id and a workspace id came into its transcript and needed throwaway terms in the export.
+    For the design: the first message of the lead should repeat the rule to select fields with `jq` for every herdr listing, because the brief is read once at the start.
+  - Cleanup as in the second launch: `scm:worktree:done <branch> --keep-tab`, then `herdr tab close <id>`; the lead had pushed nothing, so no remote branch was left.
+
 <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->
