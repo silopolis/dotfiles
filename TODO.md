@@ -29,6 +29,19 @@ Candidates for `rationalize-package-ownership`, which owns package ownership.
 * Krew plugins per system (from `make-install-scripts-idempotent`).
   Review `packages.darwin.krews` on the first macOS machine: colorize-managed-fields, neat and node-shell are available there, and the shared list `packages.common.krews` holds only the plugins that krew offers on all three systems.
   A Windows machine would need a PowerShell krew script.
+* Secrets held by the desktop session (from the credential exposure of 2026-11, decided on 2026-11-16 not to be decided yet).
+  The login profile sources the private environment file and exports its variables, and the display manager's startup imports that environment into the systemd user manager, so every process of the graphical session holds every secret-named variable: terminal, multiplexer, browser, editors, agents.
+  A study should settle, before any change:
+  - what reads each variable inside the desktop session, and which services need which key (the inventory of 2026-11-15 is the starting evidence: most variables have no reader at all on this machine);
+  - where each key should live instead: a key file of its own with mode 0600, the keyring, or a credential helper;
+  - whether the profile stops exporting them and shells source the file only in interactive shells.
+  The wrapper that starts agents without them, `add-agent-env-wrapper`, protects agents and their children only: it does not replace this study.
+* Agents running key-reading clients (parked by the user on 2026-11-16, depends on the agent-harness decision).
+  Document, model and translation command-line clients read a key from the environment.
+  Whether an agent may run them, and how each would get a key file of its own (mode 0600) instead of the environment, is a question for the agent-harness tooling (a planned darse module or a dedicated repository) more than for the dotfiles alone.
+  Until it is studied, those clients are not allowed inside agent sessions, and the wrapper change keeps them out of its scope.
+* Check after the next reboot (from the credential exposure of 2026-11): a count, never a value, that the terminal, the multiplexer and the systemd user manager hold no GitHub token variable (`systemctl --user show-environment | cut -d= -f1 | grep -c`, and `grep -c` on `/proc/<pid>/environ`).
+  The revoked variable stays in the user manager until then; the profile no longer sets it and new shells unset it.
 
 ## Planned order of changes
 
