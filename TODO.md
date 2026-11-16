@@ -42,6 +42,13 @@ Candidates for `rationalize-package-ownership`, which owns package ownership.
   Until it is studied, those clients are not allowed inside agent sessions, and the wrapper change keeps them out of its scope.
 * Check after the next reboot (from the credential exposure of 2026-11): a count, never a value, that the terminal, the multiplexer and the systemd user manager hold no GitHub token variable (`systemctl --user show-environment | cut -d= -f1 | grep -c`, and `grep -c` on `/proc/<pid>/environ`).
   The revoked variable stays in the user manager until then; the profile no longer sets it and new shells unset it.
+* Commit identity and the history of this repository (from a fleet signal of 2026-11-16, decided by the user the same day).
+  The hosting account now keeps the e-mail address private and blocks pushes that expose it; the user lifted the block, and the public history already carries the real address in every commit.
+  A review of all refs (credential scanner, then the redaction tool's checks on `git log -p --all`, counts only, run from a scratch copy that was then deleted) found no credential and one private project name in early versions of a committed session export, published since 2026-10-31 and removed from the file by later re-redaction.
+  Decision: accept the history as it is, no rewrite (no pull request, no fork, and a rewrite changes every commit hash that the audit, this file and the session records cite).
+  The real name and address stay for new commits until the fleet strategy is decided; a study of that strategy was signalled to the coordination repository of the fleet.
+  If it settles on another identity, the change is small and lives in `home/dot_config/git/gitconfig`, which is global to the machine.
+  Before any other repository of the fleet goes public, the same review applies to its history.
 
 ## Planned order of changes
 
