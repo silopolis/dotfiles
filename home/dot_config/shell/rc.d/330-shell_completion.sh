@@ -48,6 +48,8 @@ esac
 ## Load completion scripts
 SHELL_COMP_DIR="${SHELL_COMP_DIR:-$XDG_CONFIG_HOME/$CURRENT_SHELL/completions.d}"
 for comp_script in "${SHELL_COMP_DIR}"/*.sh; do
+  # An empty directory leaves the pattern unexpanded: skip it instead of failing on it
+  [ -f "${comp_script}" ] || continue
   # shellcheck disable=SC3046,SC1090
   source "${comp_script}"
 done
@@ -55,10 +57,10 @@ done
 ## Source gcloud CLI completion
 case "${CURRENT_SHELL}" in
   "bash")
-    . /usr/share/google-cloud-sdk/completion.bash.inc
+    [ -f /usr/share/google-cloud-sdk/completion.bash.inc ] && . /usr/share/google-cloud-sdk/completion.bash.inc
     ;;
   "zsh")
-    . /usr/share/google-cloud-sdk/completion.zsh.inc
+    [ -f /usr/share/google-cloud-sdk/completion.zsh.inc ] && . /usr/share/google-cloud-sdk/completion.zsh.inc
     ;;
 esac
 

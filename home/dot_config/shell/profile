@@ -31,10 +31,30 @@ CURRENT_SHELL="$(ps -p $$ -o comm=)"
 
 export CURRENT_SHELL
 
-echo "Loading ${CURRENT_SHELL} login shell config..."
-
-if [ -f "$HOME/.config/${CURRENT_SHELL}/${CURRENT_SHELL}rc" ]; then
-  source "$HOME/.config/${CURRENT_SHELL}/${CURRENT_SHELL}rc"
+if [ -n "${SHELL_RC_DEBUG:-}" ]; then
+  echo "profile: ${CURRENT_SHELL} login shell" >&2
 fi
+
+# Who reads this file: interactive login shells (tmux panes, console logins), and the desktop session,
+# which the display manager's Xsession starts through ~/.zprofile without being interactive.
+case $- in
+  *i*)
+    # Interactive login shell: the shell's own rc file loads rc.d, once.
+    # zsh reads ~/.zshrc right after this file; bash reads only this file, so ask it for ~/.bashrc
+    # (Debian's convention; ~/.bashrc is the shared shellrc).
+    if [ "${CURRENT_SHELL}" = "bash" ] && [ -f "$HOME/.bashrc" ]; then
+      # shellcheck disable=SC1091
+      . "$HOME/.bashrc"
+    fi
+    ;;
+  *)
+    # Non-interactive login shell, the desktop session among them: loads what it always loaded,
+    # so that the environment of the graphical session does not change.
+    if [ -f "$HOME/.config/${CURRENT_SHELL}/${CURRENT_SHELL}rc" ]; then
+      # shellcheck disable=SC1090
+      . "$HOME/.config/${CURRENT_SHELL}/${CURRENT_SHELL}rc"
+    fi
+    ;;
+esac
 
 # vim: set syntax=sh :

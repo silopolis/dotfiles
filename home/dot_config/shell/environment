@@ -1,6 +1,8 @@
 ## Common ${XDG_CONFIG_HOME}/shell/environment file for any shell.
 
-echo "Loading environment config..."
+if [ -n "${SHELL_RC_DEBUG:-}" ]; then
+  echo "environment: sourcing the env_ files" >&2
+fi
 
 export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 

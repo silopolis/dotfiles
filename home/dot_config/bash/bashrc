@@ -9,8 +9,8 @@ case $- in
 esac
 
 ## Source common shell configuration
-if [ -f "$XDG_CONFIG_HOME/shell/shellrc" ]; then
-    source "$XDG_CONFIG_HOME/shell/shellrc"
+if [ -f "${XDG_CONFIG_HOME:-$HOME/.config}/shell/shellrc" ]; then
+    source "${XDG_CONFIG_HOME:-$HOME/.config}/shell/shellrc"
 fi
 
 
