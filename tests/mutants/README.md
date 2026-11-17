@@ -18,6 +18,9 @@ Expected failures: `exactly N` for a mutant whose failures are counted one by on
 | startup-generator-prints | tests/smoke/startup-silent.bats | home/dot_config/shell/rc.d/335-shell_completion_cache.sh | sed startup/generator-prints.sed | at least 4 |
 | startup-rc-twice | tests/smoke/startup-single.bats | home/dot_config/shell/profile | sed startup/rc-twice.sed | at least 2 |
 | startup-refresh-ignored | tests/unit/completion-cache.bats tests/smoke/startup-cache.bats | home/dot_config/shell/rc.d/335-shell_completion_cache.sh | sed startup/refresh-ignored.sed | at least 4 |
+| install-run-ignores-dry-run | tests/unit/install-scripts-isolated.bats | home/.chezmoitemplates/script-lib.sh | sed install/run-ignores-dry-run.sed | at least 10 |
+| install-need-always-ok | tests/unit/install-scripts-isolated.bats | home/.chezmoitemplates/script-lib.sh | sed install/need-always-ok.sed | at least 9 |
+| install-limits-lower | tests/unit/install-scripts-isolated.bats | home/.chezmoiscripts/run_onchange_before_02-system-limits.sh.tmpl | sed install/limits-lower.sed | at least 3 |
 | startup-unset-removed | tests/smoke/startup-behaviour.bats | home/dot_config/shell/rc.d/010-env_user.sh | sed startup/unset-removed.sed | at least 4 |
 
 The wrapper mutant replaces the `opencode` function with `opencode() { command env opencode "$@"; }`, which hands the whole environment to the binary.
@@ -29,5 +32,10 @@ The startup mutants and what they break:
 - `startup-rc-twice` makes `profile` source the shared configuration for an interactive login shell on top of the rc file of the shell, so `zsh -l -i` and `bash -l -i` make two passes (2).
 - `startup-refresh-ignored` makes `SHELL_COMPLETION_REFRESH=1` regenerate nothing: the refresh check of the unit file and of the smoke file fail in each shell (4).
 - `startup-unset-removed` stops `rc.d/010-env_user.sh` from dropping the inherited variable: three private-environment checks and the desktop replay check fail (4).
+
+The install-script mutants and what they break:
+- `install-run-ignores-dry-run` makes `run()` of the shared helper execute whatever the dry-run switch says, so every dry-run check that goes through `run` fails: the apt update, the limits install, the brew file install, the mise reshim, the bat cache, the VSCodium install and the brew completions link (10).
+- `install-need-always-ok` makes `need()` succeed for a missing tool, so the checks of a script that must skip when a tool is absent fail: mise, pipx, jq, kubectl, kubectl-krew, vim, bat and codium (9).
+- `install-limits-lower` makes the limits script declare half of the soft limit, so a file that already matches no longer does, and the content that is written is no longer the declared one (3).
 
 <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->

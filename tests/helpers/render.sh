@@ -84,10 +84,8 @@ dt_render() {
   while IFS= read -r t; do
     targets+=("$dest/$t")
   done < <(dt_render_targets)
-  set +e
-  env -i PATH="$dir/stubs:$PATH" HOME="$dir/home" LANG=C.UTF-8 "$chezmoi_bin" -S "$src" --config "$dir/chezmoi.toml" --persistent-state "$dir/state/chezmoistate.boltdb" --cache "$dir/cache" --destination "$dest" --no-tty --no-pager apply --exclude=scripts,externals,encrypted "${targets[@]}" > "$dir/apply.out" 2> "$dir/apply.err" < /dev/null
-  rc=$?
-  set -e
+  rc=0
+  env -i PATH="$dir/stubs:$PATH" HOME="$dir/home" LANG=C.UTF-8 "$chezmoi_bin" -S "$src" --config "$dir/chezmoi.toml" --persistent-state "$dir/state/chezmoistate.boltdb" --cache "$dir/cache" --destination "$dest" --no-tty --no-pager apply --exclude=scripts,externals,encrypted "${targets[@]}" > "$dir/apply.out" 2> "$dir/apply.err" < /dev/null || rc=$?
   if [ "$rc" -ne 0 ]; then
     printf 'dt_render: the render exited %s: %s\n' "$rc" "$(head -n 3 "$dir/apply.err")" >&2
     return "$rc"

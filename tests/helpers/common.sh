@@ -8,7 +8,8 @@
 #   DOTFILES_TEST_SOURCE       the tree under test: a directory holding .chezmoiroot and home/
 #                              (default DT_ROOT; the mutants point it at a scratch copy)
 #   DT_SECRET_PATTERN          the name fragments of the agent-environment requirement, as an extended regex
-#   dt_source_file RELATIVE    the path of a file of the source state, below the directory that .chezmoiroot names
+#   dt_source_root             the directory that .chezmoiroot names, below DOTFILES_TEST_SOURCE
+#   dt_source_file RELATIVE    the path of a file of the source state, below that directory
 #   dt_find_tool NAME          print the path of a usable tool, or return 1
 #   dt_resolve_tools [NAME...] export DT_TOOL_<NAME> for each tool found (default: DT_KNOWN_TOOLS) and
 #                              DT_TOOLS_RESOLVED=1: done once, before HOME is replaced by a scratch home
@@ -32,11 +33,15 @@ export DOTFILES_TEST_SOURCE
 # A test checks that this is the pattern of home/dot_config/shell/rc.d/445-tools_opencode.sh.
 DT_SECRET_PATTERN='(TOKEN|SECRET|PASSWORD|PASSWD|API_?KEY|ACCESS_?KEY|PRIVATE_?KEY|CREDENTIAL)'
 
-# dt_source_file RELATIVE: where chezmoi reads the file, whatever .chezmoiroot says (the mutants copy it too).
-dt_source_file() {
+# dt_source_root: where chezmoi reads the source state, whatever .chezmoiroot says (the mutants copy it too).
+dt_source_root() {
   local root
   root=$(cat "${DOTFILES_TEST_SOURCE:?}/.chezmoiroot" 2> /dev/null) || root=.
-  printf '%s\n' "$DOTFILES_TEST_SOURCE/${root:-.}/${1:?dt_source_file RELATIVE}"
+  printf '%s\n' "$DOTFILES_TEST_SOURCE/${root:-.}"
+}
+
+dt_source_file() {
+  printf '%s/%s\n' "$(dt_source_root)" "${1:?dt_source_file RELATIVE}"
 }
 
 # The home of the user who runs the suite: only the live tests and the tool lookup read it.
@@ -57,7 +62,7 @@ dt_brew_prefix() {
 }
 
 # The tools that tests look up through dt_find_tool; run.sh resolves them before it hides the real home.
-DT_KNOWN_TOOLS=(bats shellcheck script jq unzip python3 mise hostnamectl lscpu chezmoi git vim)
+DT_KNOWN_TOOLS=(bats shellcheck script jq unzip python3 mise hostnamectl lscpu chezmoi git vim bat)
 
 # dt_find_tool NAME: the first usable executable of that name on PATH.
 # A mise shim whose tool is not active in this directory is on PATH but fails when run: it is asked

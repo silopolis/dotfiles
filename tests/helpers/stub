@@ -1,0 +1,194 @@
+#!/usr/bin/env bash
+# Stub of the install-script harness (tests/helpers/harness.sh): one file, linked under the name of every tool it replaces.
+#   isolated mode: log the call, answer from $HARNESS_FIX/<tool> when present, change nothing
+#   live mode:     forward an allow-list of read-only calls to the real tool, refuse and log everything else
+# sudo is never executed in either mode: it is logged to sudo.log and exits with $SUDO_EXIT.
+# shellcheck disable=SC2153  # HARNESS_BIN and the other settings come from the env file sourced below
+set -u
+name=${0##*/}
+# Homebrew scrubs the environment of the commands it runs (brew-file calls brew back), so the settings live in a file beside the bin directory.
+# shellcheck disable=SC1091
+. "$(cd "$(dirname "$0")/.." && pwd)/env"
+mode=${HARNESS_MODE:?}
+log=${HARNESS_LOG:?}
+
+quote() { printf ' %q' "$@"; }
+record() { # tag args...
+  local tag=$1
+  shift
+  { printf '%s %s' "$tag" "$name"; quote "$@"; printf '\n'; } >> "$log/calls.log"
+}
+
+if [ "$name" = sudo ]; then
+  record sudo "$@"
+  { printf 'sudo'; quote "$@"; printf '\n'; } >> "$log/sudo.log"
+  # SUDO_EXEC=1 (isolated mode only, for writes aimed at a scratch path): run the command as the plain user, never elevated
+  if [ "${SUDO_EXEC:-0}" = 1 ] && [ "$mode" = isolated ]; then
+    exec "$@"
+  fi
+  exit "${SUDO_EXIT:-0}"
+fi
+
+if [ "$mode" = isolated ]; then
+  record stub "$@"
+  if [ -n "${HARNESS_FIX:-}" ] && [ -x "$HARNESS_FIX/$name" ]; then
+    exec "$HARNESS_FIX/$name" "$@"
+  fi
+  exit 0
+fi
+
+# live mode
+real_bin() {
+  # python3: a mise shim would fall back to the first python3 on PATH, which is this stub again (a loop); use Homebrew's own
+  if [ "$name" = python3 ] && [ -x "${HARNESS_PY3:-}" ]; then
+    printf '%s' "$HARNESS_PY3"
+    return 0
+  fi
+  # a mise shim falls back to the next executable of that name on PATH, which is this stub again (a loop): a directory of
+  # shims is used only when no other directory holds the tool
+  local d IFS=: pass
+  for pass in 1 2; do
+    for d in $REAL_PATH; do
+      [ "$d" = "$HARNESS_BIN" ] && continue
+      if [ -x "$d/$name" ] && [ ! -d "$d/$name" ]; then
+        case $d in */shims) [ "$pass" = 1 ] && continue ;; esac
+        printf '%s' "$d/$name"
+        return 0
+      fi
+    done
+  done
+  return 1
+}
+
+args=("$@")
+rewritten=0
+# allow: 0 = forward (possibly rewritten into its dry-run form), 1 = refuse
+allow() {
+  case "$name" in
+    dpkg-query)
+      case "${1:-}" in -W | --show | -s | --status | -l | --list) return 0 ;; esac
+      ;;
+    brew)
+      case "${1:-}" in
+        list | info | leaves | deps | uses | tap-info | --prefix | --cellar | --cache | --repository | --caskroom | --version | -v | shellenv) return 0 ;;
+        tap) [ $# -eq 1 ] && return 0 ;;
+        # the state of the completion links is read-only; `completions link` writes, and stays refused
+        completions) [ $# -eq 2 ] && [ "${2:-}" = state ] && return 0 ;;
+        file)
+          case "${2:-}" in
+            version) [ $# -eq 2 ] && return 0 ;;
+            clean) [ $# -eq 3 ] && [ "$3" = --dry-run ] && return 0 ;;
+            install)
+              if [ $# -eq 3 ] && [ "$3" = --dry-run ]; then return 0; fi
+              if [ $# -eq 2 ]; then
+                args=(file install --dry-run)
+                rewritten=1
+                return 0
+              fi
+              ;;
+          esac
+          ;;
+      esac
+      ;;
+    mise)
+      case "${1:-}" in
+        install)
+          local a tools=()
+          shift
+          for a in "$@"; do case "$a" in -*) ;; *) tools+=("$a") ;; esac; done
+          args=(install --dry-run-code "${tools[@]}")
+          rewritten=1
+          return 0
+          ;;
+        reshim)
+          # writes the shims directory: not run for real in live mode (reshim-preview.sh shows what it would change)
+          args=(--version)
+          rewritten=1
+          return 0
+          ;;
+        ls | --version | version) return 0 ;;
+      esac
+      ;;
+    pipx)
+      case "${1:-}" in list | --version) return 0 ;; esac
+      ;;
+    kubectl)
+      if [ "${1:-}" = krew ]; then
+        case "${2:-}" in list | version | info | search) return 0 ;; esac
+      fi
+      ;;
+    kubectl-krew)
+      # kubectl runs this plugin through PATH, so in live mode the stub is what it finds: forward the read-only forms
+      case "${1:-}" in list | version | info | search) return 0 ;; esac
+      ;;
+    codium)
+      case "${1:-}" in --list-extensions | --version) return 0 ;; esac
+      ;;
+    gh)
+      [ "${1:-}" = auth ] && [ "${2:-}" = status ] && return 0
+      [ "${1:-}" = --version ] && return 0
+      ;;
+    rustup)
+      [ $# -eq 1 ] && [ "$1" = default ] && return 0
+      [ "${1:-}" = show ] && return 0
+      [ "${1:-}" = toolchain ] && [ "${2:-}" = list ] && return 0
+      [ "${1:-}" = --version ] && return 0
+      ;;
+    unzip)
+      case "${1:-}" in -p | -l | -Z | -Z1 | -t) return 0 ;; esac
+      ;;
+    bat)
+      [ "${1:-}" = --version ] && return 0
+      # `bat cache --build` writes the real cache directory: build into a scratch target instead (real bat, real config dir as source)
+      if [ "$#" -eq 2 ] && [ "$1" = cache ] && [ "$2" = --build ]; then
+        args=(cache --build --source "$HOME/.config/bat" --target "$log/bat-target")
+        rewritten=1
+        return 0
+      fi
+      ;;
+    python3)
+      # brew-file is a Python script run through `env python3`: allow it for the same read-only forms as `brew file`, nothing else
+      if [ "$(basename "${1:-}")" = brew-file ]; then
+        case "${2:-}" in
+          version) [ $# -eq 2 ] && return 0 ;;
+          clean | install) [ $# -eq 3 ] && [ "$3" = --dry-run ] && return 0 ;;
+        esac
+      fi
+      ;;
+    vim)
+      [ "${1:-}" = --version ] && return 0
+      # +PluginInstall writes into the bundle directory: ask instead whether the vimrc loads and Vundle defines the command
+      local a rest=() found=0
+      for a in "$@"; do
+        case "$a" in +PluginInstall) found=1 ;; +qall) ;; *) rest+=("$a") ;; esac
+      done
+      if [ "$found" -eq 1 ]; then
+        args=("${rest[@]}" -c 'if exists(":PluginInstall") != 2 | cquit | endif' +qall)
+        rewritten=1
+        return 0
+      fi
+      ;;
+  esac
+  return 1
+}
+
+if allow "$@"; then
+  bin=$(real_bin) || {
+    record missing "$@"
+    printf 'harness: no real %s on REAL_PATH\n' "$name" >&2
+    exit 127
+  }
+  if [ "$rewritten" -eq 1 ]; then
+    { printf 'rewrite %s' "$name"; quote "$@"; printf ' ->'; quote "${args[@]}"; printf '\n'; } >> "$log/calls.log"
+  else
+    record fwd "$@"
+  fi
+  exec "$bin" "${args[@]}"
+fi
+
+record refused "$@"
+{ printf '%s' "$name"; quote "$@"; printf '\n'; } >> "$log/refused.log"
+printf 'harness: refused: %s' "$name" >&2
+quote "$@" >&2
+printf '\n' >&2
+exit "${REFUSE_EXIT:-1}"

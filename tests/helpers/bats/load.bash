@@ -30,6 +30,8 @@ DT_BATS_GLUE_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)
 . "$DT_BATS_GLUE_DIR/../compare.sh"
 # shellcheck source=/dev/null
 . "$DT_BATS_GLUE_DIR/../timing.sh"
+# shellcheck source=/dev/null
+. "$DT_BATS_GLUE_DIR/../script-fixtures.sh"
 
 BATS_LIB_PATH="$DT_TESTS_DIR/.lib${BATS_LIB_PATH:+:$BATS_LIB_PATH}"
 export BATS_LIB_PATH
@@ -41,7 +43,7 @@ require_tool() {
   local name var path
   for name in "$@"; do
     var=DT_TOOL_$(printf '%s' "${name^^}" | tr -c 'A-Z0-9\n' '_')
-    if [ -n "${DT_TOOLS_RESOLVED:-}" ]; then
+    if [ -n "${DT_TOOLS_RESOLVED:-}" ] && [[ " ${DT_KNOWN_TOOLS[*]} " == *" $name "* ]]; then
       path=${!var:-}
     else
       path=$(dt_find_tool "$name" 2> /dev/null) || path=
