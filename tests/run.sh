@@ -9,6 +9,7 @@
 #   DOTFILES_TEST_SOURCE     the tree under test (default: this repository), used by the mutants
 #   DOTFILES_TEST_TMPDIR     where the scratch directory of the run is made (default: TMPDIR, then /tmp)
 #   DOTFILES_TEST_REPORTS    where the report and the output are written (default: tests/.reports)
+#   DOTFILES_TEST_JOBS       the number of parallel jobs (default: the cores, at most 8; 1 for a live run)
 #
 # The suite never touches the real home: bats runs with a scratch HOME and a scratch TMPDIR, the
 # exported variables whose names match the secret pattern are removed from its environment (the names
@@ -69,7 +70,7 @@ jobs=1
 if [ "${DOTFILES_TEST_LIVE:-}" = 1 ]; then
   :
 elif command -v parallel > /dev/null 2>&1; then
-  jobs=$(dt_jobs)
+  jobs=${DOTFILES_TEST_JOBS:-$(dt_jobs)}
 else
   printf 'run.sh: GNU parallel not found, running serially\n' >&2
 fi
