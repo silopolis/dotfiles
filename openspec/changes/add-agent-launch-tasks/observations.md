@@ -133,4 +133,26 @@ Each step below is logged with its command, its result and any friction, so that
     For the design: the first message of the lead should repeat the rule to select fields with `jq` for every herdr listing, because the brief is read once at the start.
   - Cleanup as in the second launch: `scm:worktree:done <branch> --keep-tab`, then `herdr tab close <id>`; the lead had pushed nothing, so no remote branch was left.
 
+- 2026-11-17, fourth launch, same command as the third: the lead of `fast-correct-shell-startup`, a change that deploys files read by every new shell.
+  - The lead measured, reviewed and asked the user seven questions in one form, then built in six deployments, one file at a time with a diff and a rollback each, a new shell checked in a spare tab it closed by id, and the whole change took about three and a half hours of wall clock with the user answering.
+    The orchestrator re-measured after each deployment from its own pane (deployed against source, bytes at startup, interleaved timing), and the one discrepancy it found was its own glob matching three files.
+  - The stricter deployment rules of the brief held: no login or session break, the exported variable names of four shell kinds were compared between `main` and the worktree in memory (counts and sorted name sets, never values), and the brew install script change waits for the supervised apply.
+    For the design: a brief for a change that edits files every shell reads asks for that name-set proof before the file that sets the environment, and keeps the order from the least to the most risky.
+  - The first read of the lead's pane showed the footer with the mode and the model this time; the launch took one command again.
+  - Frictions the lead listed:
+    - herdr JSON nests agent fields under `.result.agent` and tab fields under `.result.tab`, so a top-level `jq` path gives null, and `herdr pane read` output is not JSON.
+    - zsh MULTIOS sent standard output into a pipe after `2>&1 >/dev/null` (a habit already in `AGENTS.md`), and a shell was needed to get it right.
+    - Plan mode blocked a write of the baseline in `/tmp` that the brief asked for, and the read-only guard blocked a `PATH=` assignment inside a child `zsh -c` string: a false positive for the guard's repository.
+    - The `shellcheck` shim fails with "No version is set", and `mise exec` did too; the lead called the binary under the mise installs.
+    - The `fr_FR` locale gives decimal commas in `printf` and `awk`, which broke arithmetic in the first version of a timing helper.
+    - `chezmoi apply` into a scratch destination fails with "could not open a new TTY" when a pre-created directory has a mode other than 0750: let chezmoi create the directories.
+    - `bash -i -c exit` prints `exit` itself, so a spec check had to use `true`; bash without `LANG` warns about `setlocale`, a finding for `correct-shell-environment`.
+    - `openspec archive` of a new capability left "Purpose TBD" and a trailing blank line after the modeline: the second time on this repository, fixed by hand again.
+    - `rtk` filtered some listings, and starship warns about a scan timeout in a scratch directory.
+  - Orchestration state: the orchestrator's briefs and scratch had lived in `/tmp/opencode`, which a reboot empties and which a lead in a worktree cannot read without a permission prompt; the user asked on 2026-11-17 to follow the other fleet repositories and keep them in a git-ignored `.state/` (rule in `AGENTS.md`, Workflow).
+    The first brief written there also needed the old harness scripts copied into the lead's worktree, for the same permission reason.
+  - Private values in the lead's transcript, masked in its export with a throwaway terms file: a cloud account address and a region prefix from a probe pane's prompt, the names of other projects' worktrees and a log file from one `find` listing, and a short hash of the desktop environment.
+    For the design: the brief repeats the rule on listings, and the `find` and prompt cases show it must also cover `find` over the user's directories and the prompt of a probe pane.
+  - Cleanup: `scm:worktree:done <branch> --keep-tab` removed the worktree and the branch, then `herdr tab close <id>` closed the lead's tab.
+
 <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->
