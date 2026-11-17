@@ -52,6 +52,7 @@ brew git-delta
 brew git-interactive-rebase-tool
 brew glab
 brew glow
+brew gnu-time
 brew go
 brew gping
 brew gron
@@ -91,6 +92,7 @@ brew neovim
 brew nerdctl
 brew nethogs
 brew nnn
+brew parallel
 brew peco
 brew pipx
 brew plantuml
@@ -102,7 +104,6 @@ brew rich-cli
 brew ripgrep
 brew ripgrep-all
 brew rustup
-brew sem-cli
 brew skm
 brew snitch
 brew starship
@@ -134,7 +135,6 @@ brew ttyd
 brew universal-ctags
 brew vale
 brew vifm
-brew vim
 brew vivid
 brew witr
 brew xplr
