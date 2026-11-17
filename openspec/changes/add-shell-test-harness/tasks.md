@@ -6,28 +6,28 @@
 
 ## 2. Tools and pins (with the user's go, once)
 
-- [ ] 2.1 Say in the pane what will be installed and downloaded (`mise install bats`, `mise run test:deps`), and wait for the go (the user's answer in the pane)
-- [ ] 2.2 `mise.toml`: the pin `"aqua:bats-core/bats-core" = "1.14.0"` and the four tasks `test`, `test:live`, `test:deps`, `test:mutants` (`mise tasks ls | rg -c '^test'` prints 4)
-- [ ] 2.3 `.gitignore`: `tests/.lib/` and `tests/.reports/` (`git check-ignore tests/.lib tests/.reports` prints both)
-- [ ] 2.4 `mise install bats` (`mise exec -- bats --version` prints `Bats 1.14.0`)
-- [ ] 2.5 `tests/deps.txt` with the three libraries, their tags and commits, and `tests/deps.sh`: anonymous shallow clone under `env -i` with a scratch home, commit check, move into place, no network when already at the pin (`mise run test:deps && for d in tests/.lib/*; do git -C $d rev-parse HEAD; done`)
-- [ ] 2.6 The strict pin fails as specified: a wrong commit in a scratch copy, an offline run with `tests/.lib` removed, an offline run with the libraries present (`https_proxy=http://127.0.0.1:9 mise run test:deps` exits 0 when present and non-zero with a library named when absent; the scratch copy exits non-zero with both commits in its message)
+- [x] 2.1 Say in the pane what will be installed and downloaded (`mise install aqua:bats-core/bats-core`, `mise run test:deps`), and wait for the go (the user's answer in the pane)
+- [x] 2.2 `mise.toml`: the pin `"aqua:bats-core/bats-core" = "1.14.0"` and the four tasks `test`, `test:live`, `test:deps`, `test:mutants` (`mise tasks ls | rg -c '^test'` prints 4)
+- [x] 2.3 `.gitignore`: `tests/.lib/` and `tests/.reports/` (`git check-ignore tests/.lib tests/.reports` prints both)
+- [x] 2.4 `mise install aqua:bats-core/bats-core` (`mise exec -- bats --version` prints `Bats 1.14.0`); the short name `bats` installs a second copy under `installs/bats`
+- [x] 2.5 `tests/deps.txt` with the three libraries, their tags and commits, and `tests/deps.sh`: anonymous shallow clone under `env -i` with a scratch home, commit check, move into place, no network when already at the pin (`mise run test:deps && for d in tests/.lib/*; do git -C $d rev-parse HEAD; done`)
+- [x] 2.6 The strict pin fails as specified: a wrong commit in a scratch copy, an offline run with `tests/.lib` removed, an offline run with the libraries present (`https_proxy=http://127.0.0.1:9 mise run test:deps` exits 0 when present and non-zero with a library named when absent; the scratch copy exits non-zero with both commits in its message)
 
 ## 3. Runner, helpers and the harness's own tests
 
-- [ ] 3.1 `tests/helpers/common.sh`, `scratch.sh`, `synth.sh`: repository root and `DOTFILES_TEST_SOURCE`, tool lookup, GNU time resolver, `env -i` runner, pseudo-terminal runner, names and canaries built from parts, the name that `010-env_user.sh` unsets read from the file (`bash -n tests/helpers/*.sh && shellcheck -s bash tests/helpers/*.sh`)
-- [ ] 3.2 `tests/helpers/bats/load.bash` and `setup_suite.bash`: library loading, `require_tool`, `require_shell`, `require_live`, each a skip that names what is missing (`bats --count tests/unit/harness.bats` prints a number above 0 once 3.4 is done)
-- [ ] 3.3 `tests/run.sh`: scratch home, `PARALLEL=--will-cite` for the one process, secret-named variables removed from the bats process, `--jobs` (serial for a live run or without GNU parallel, a `jobs: <n>` line), JUnit report into `tests/.reports/`, canary scan of the report and the output, run from any directory (`cd / && /path/to/tests/run.sh` prints the same counts as from the root)
+- [x] 3.1 `tests/helpers/common.sh`, `scratch.sh`, `synth.sh`: repository root and `DOTFILES_TEST_SOURCE`, tool lookup, GNU time resolver, `env -i` runner, pseudo-terminal runner, names and canaries built from parts, the name that `010-env_user.sh` unsets read from the file (`bash -n tests/helpers/*.sh && shellcheck -s bash tests/helpers/*.sh`)
+- [x] 3.2 `tests/helpers/bats/load.bash` and `setup_suite.bash`: library loading, `require_tool`, `require_shell`, `require_live`, each a skip that names what is missing (`bats --count tests/unit/harness.bats` prints a number above 0 once 3.4 is done)
+- [x] 3.3 `tests/run.sh`: scratch home, `PARALLEL=--will-cite` for the one process, secret-named variables removed from the bats process, `--jobs` (serial for a live run or without GNU parallel, a `jobs: <n>` line), JUnit report into `tests/.reports/`, canary scan of the report and the output, run from any directory (`cd / && /path/to/tests/run.sh` prints the same counts as from the root)
 - [ ] 3.4 `tests/unit/harness.bats`, the port of the old self-test: a stub logs and answers from a fixture, `sudo` logs and does not elevate, a live-mode call outside the allow-list is refused and logged, isolated mode refuses a real directory, `env -i` hides a synthetic secret-named variable, the leaked-canary check fails a run on a scratch copy (`bats tests/unit/harness.bats` passes)
-- [ ] 3.5 The skip for a missing tool, a missing library at load and a missing shell build (`PATH` without `shellcheck` gives a `<skipped` that names it; a missing library fails the file)
+- [x] 3.5 The skip for a missing tool, a missing library at load and a missing shell build (`PATH` without `shellcheck` gives a `<skipped` that names it; a missing library fails the file)
 
 ## 4. Port the wrapper suite (first: the pattern for the others)
 
-- [ ] 4.1 `tests/unit/agent-env.bats`: the 13 per-shell checks in zsh, system bash and Homebrew bash, registered per shell with `bats_test_function` and named `zsh ...`, `bash ...`, `brewbash ...`; the synthetic set and stub built at run time; the canary scan (`bats --count --filter '^(zsh|bash|brewbash) ' tests/unit/agent-env.bats` prints 39)
-- [ ] 4.2 The scenarios the driver did not cover: `bash -n` and `zsh -n`, no secret-like name in the file, the documentation line in `AGENTS.md`, an interactive zsh on the scratch render defines the function in `tests/smoke/` (`bats tests/unit/agent-env.bats tests/smoke/agent-env-interactive.bats` passes)
-- [ ] 4.3 `tests/smoke/agent-env-live.bats`: the deployed target equals the source, the lowercase-name count, the names of the user's environment file against the source (counts only) (`DOTFILES_TEST_LIVE=1 bats tests/smoke/agent-env-live.bats` passes, `bats tests/smoke/agent-env-live.bats` reports 3 skipped)
-- [ ] 4.4 The broken copy: `tests/mutants/wrapper/broken.sh` and its entry in `tests/mutants/README.md` (a run against it reports exactly 9 failures, 3 per shell)
-- [ ] 4.5 Compare with the old driver: 39 passes in the same three shells on the same code, and the same 9 failures on the broken copy (`tests/run.sh` prints the counts, `DOTFILES_TEST_SOURCE=<scratch copy with the broken file> bats tests/unit/agent-env.bats` prints 9 failures)
+- [x] 4.1 `tests/unit/agent-env.bats`: the 13 per-shell checks in zsh, system bash and Homebrew bash, registered per shell with `bats_test_function` and named `zsh ...`, `bash ...`, `brewbash ...`; the synthetic set and stub built at run time; the canary scan (`bats --count --filter '^(zsh|bash|brewbash) ' tests/unit/agent-env.bats` prints 39)
+- [x] 4.2 The scenarios the driver did not cover: `bash -n` and `zsh -n`, no secret-like name in the file, the documentation line in `AGENTS.md`, an interactive zsh on the scratch render defines the function in `tests/smoke/` (`bats tests/unit/agent-env.bats tests/smoke/agent-env-interactive.bats` passes)
+- [x] 4.3 `tests/smoke/agent-env-live.bats`: the deployed target equals the source, the lowercase-name count, the names of the user's environment file against the source (counts only) (`DOTFILES_TEST_LIVE=1 bats tests/smoke/agent-env-live.bats` passes, `bats tests/smoke/agent-env-live.bats` reports 3 skipped)
+- [x] 4.4 The broken copy: `tests/mutants/wrapper/broken.sh` and its entry in `tests/mutants/README.md` (a run against it reports exactly 9 failures, 3 per shell)
+- [x] 4.5 Compare with the old driver: 39 passes in the same three shells on the same code, and the same 9 failures on the broken copy (`tests/run.sh` prints the counts, `DOTFILES_TEST_SOURCE=<scratch copy with the broken file> bats tests/unit/agent-env.bats` prints 9 failures)
 
 ## 5. Port the shell startup suite
 

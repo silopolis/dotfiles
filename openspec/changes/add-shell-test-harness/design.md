@@ -32,7 +32,8 @@ Facts checked on 2026-11-17, with the tools of the laptop (chezmoi 2.73.3, mise 
   | bats-assert | v2.2.4 | `f1e9280eaae8f86cbe278a687e6ba755bc802c1a` |
   | bats-file | v0.4.0 | `13ad5e2ffcc360281432db3d43a306f7b3667d60` (a lightweight tag) |
 
-  bats-core v1.14.0 resolves to `eb7f42f8d608ac693d7a4b67474f6714ea68cfc5`; mise's aqua backend verifies the release asset, so the commit is informational.
+  bats-core v1.14.0 resolves to `eb7f42f8d608ac693d7a4b67474f6714ea68cfc5`.
+  The aqua registry entry is a `github_archive` (release v1.14.0 has no asset and the entry has no checksum), so mise downloads the source tarball of the tag and nothing verifies it: bats-core is pinned by tag only, and `mise exec -- bats --version` is the check (found at apply, 2026-11-17).
 - The mise registry maps `bats` to `aqua:bats-core/bats-core`.
 - bats 1.14 exits with an error when it finds no test (`--allow-empty-suite` reverts it), `run` honours `set -e`, `--report-formatter junit` writes `report.xml` into the directory of `--output`, which must exist, and `setup_suite.bash` is searched in the directory of the first test file only.
 - `chezmoi apply` with a generated configuration, a scratch home, cache, state and destination renders the shell targets in 1.1 s (64 entries) and the whole source state in 10.6 s (748 entries, 2.8 MB).
@@ -76,7 +77,7 @@ The pin is strict:
 
 Offline and 401: the fetch is anonymous.
 The clone runs under `env -i` with a scratch `HOME` (no `~/.gitconfig`, so no credential helper and no rewrite rule), `GIT_CONFIG_NOSYSTEM=1` and `GIT_TERMINAL_PROMPT=0`, so a token variable that the shell holds, or once held, cannot be sent to a host and GitHub has nothing to answer 401 to.
-`mise install bats` is a separate step that uses mise's own login (`credential_command`) and the aqua backend's checksum check.
+`mise install aqua:bats-core/bats-core` is a separate step that uses mise's own login (`credential_command`); the short name `bats` would install a second copy under `installs/bats`, because the pin key of `mise.toml` is the long name.
 Alternatives: git submodules (a pin by commit, but a heavier checkout and a second place that holds the version), vendoring the libraries (about 1 MB of third-party code in a public history), a mise `github:` backend for each library (a release asset check, but the libraries publish no asset and the tags would not give a commit).
 
 ### 2. Layout and levels
@@ -256,7 +257,7 @@ The default run does not call them.
 - [A test touches the real home, state or destination] → `env -i` with a scratch home, a scratch home for the bats process too, a destination that is an empty scratch directory, one render helper that is the only caller of `chezmoi apply`, and spec scenarios that list the real home before and after a run and search the sources with `rg`.
 - [A canary or a real value reaches a committed file or the report] → names and canaries built at run time, a scan of the report and the output after every run that fails the run, the redaction tool and the secret scanner on `tests/` before every commit, counts only.
 - [Fetching the libraries writes and deletes] → `test:deps` writes only below `tests/.lib/` (inside the repository, inside `$HOME`), builds in a sibling temporary directory and moves it into place, removes only that temporary directory on failure, and is idempotent (a library at its pinned commit is not touched).
-- [Scratch directories outside `$HOME`] → bats puts its temporary directories under `$TMPDIR` or `/tmp`; they are mode 0700, named by bats, removed by bats at the end (`--no-tempdir-cleanup` is a debugging flag, not used), and nothing else is written outside the home; `mise install bats` and `mise run test:deps` write under the home and download from GitHub, run once with the user's go.
+- [Scratch directories outside `$HOME`] → bats puts its temporary directories under `$TMPDIR` or `/tmp`; they are mode 0700, named by bats, removed by bats at the end (`--no-tempdir-cleanup` is a debugging flag, not used), and nothing else is written outside the home; `mise install aqua:bats-core/bats-core` and `mise run test:deps` write under the home and download from GitHub, run once with the user's go.
 - [`sudo`, installs, uninstalls, applies] → none runs: `sudo` is a logging stub in both modes, the harness refuses a real directory ahead of the stubs, the mise reshim runs against a sandbox with fake installs, and the only apply is the render into a scratch destination.
 - [A mutated copy is applied to the repository by mistake] → mutants are built from copies in a scratch directory, the suite reads its source from `DOTFILES_TEST_SOURCE`, and `git status --porcelain` is checked after `test:mutants`.
 - [The render depends on tools of the machine] → a stub `aqua`, a generated configuration, and a skip that names `hostnamectl` or `lscpu` for the two tests that render the configuration template.
@@ -269,7 +270,7 @@ The default run does not call them.
 ## Migration Plan
 
 1. Proposal, design, specs, tasks, the audit row and the `TODO.md` entry; commit after the user validates the message.
-2. With the user's go: `mise install bats` and `mise run test:deps`.
+2. With the user's go: `mise install aqua:bats-core/bats-core` and `mise run test:deps`.
 3. Port the wrapper suite first (the pattern for the others), with its broken copy; then the shell startup; then the install scripts; each with a mutant and a count against the old harness.
 4. Run the whole suite in both shells where the code runs in both, serially and with `--jobs`, then the scans on `tests/`, then show the `AGENTS.md` wording and write it.
 5. Verify, archive on the user's go, edit the `agent-environment` preamble in the archive commit, check the merged specs, rebase on `main`, validate, report.
@@ -284,6 +285,7 @@ Rollback: delete `tests/`, remove the pin and the four tasks from `mise.toml`, t
 - Does `openspec archive` keep the text outside requirement blocks of a main spec, and what does it write as the Purpose of a new capability?
   Verified on a scratch copy before the archive; the answer decides whether the two preamble edits are one hand edit each or one.
 - The exact failure counts of the startup and install mutants, and the final count of the startup suite, are fixed at apply and written to `tests/mutants/README.md` and `tasks.md`.
-- Whether `test:deps` should also verify the bats-core commit: the aqua backend already checks the release asset, so it does not now.
+- Whether the bats-core pin should be strict like the libraries: the aqua entry is a `github_archive` with no checksum, so nothing verifies the tarball today, and the extracted tree carries no commit to compare.
+  A `mise.lock` would record the checksum, but it would also lock gitleaks and hk; left as a tag pin until the user decides.
 
 <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->

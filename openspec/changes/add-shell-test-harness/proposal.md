@@ -39,7 +39,7 @@ Source: the user's decision of 2026-11-17 at the end of the `fast-correct-shell-
 - New tree `tests/` at the repository root, outside `home/`: never a chezmoi target, no ignore entry.
   It holds the runner, the helpers, the fixtures and the `.bats` files; `tests/.lib/` and `tests/.reports/` are git-ignored (two `.gitignore` lines).
 - `mise.toml` gains the `bats` pin and the tasks `test`, `test:live`, `test:deps` and `test:mutants`; `hk.pkl` is untouched.
-- `mise install bats` and `mise run test:deps` write under the user's home and download from GitHub: they are the only installs of this change, run once with the user's go.
+- `mise install aqua:bats-core/bats-core` and `mise run test:deps` write under the user's home and download from GitHub: they are the only installs of this change, run once with the user's go.
 - Nothing is deployed and no source-state file changes: the code under test is not edited, so the suite proves what is already archived.
 - `tests/global-mise-tasks/` (Python `unittest`, planned by `add-secret-tasks`, `add-repo-roadmap`, `add-agent-launch-tasks` and `add-incus-host-setup`) and `tests/machine/` (planned by `add-machine-lifecycle-test-infra`) keep their paths and their own runners; `tests/README.md` classifies them by level and no planned change is edited.
 - `add-machine-smoke-ci` (planned) can run the suite later: the one-command entry point and the JUnit report are what it calls; no workflow is added here.

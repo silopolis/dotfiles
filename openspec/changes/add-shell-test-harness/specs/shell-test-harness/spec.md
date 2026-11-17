@@ -107,7 +107,7 @@ It SHALL also classify `tests/global-mise-tasks/` and `tests/machine/` when thos
 
 #### Scenario: Live tests are tagged
 
-- **WHEN** `rg -L 'bats file_tags=.*live' tests/smoke/*-live.bats` runs
+- **WHEN** `rg --files-without-match 'bats file_tags=.*live' tests/smoke/*-live.bats` runs
 - **THEN** it prints nothing
 
 #### Scenario: The other suites are classified
