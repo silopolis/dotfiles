@@ -35,6 +35,7 @@ The audit and changes written before `adopt-chezmoiroot` use flat paths: prefix 
 | `openspec/` | Specs (`specs/`), active and archived changes (`changes/`), `config.yaml` |
 | `memory/sessions/` | Redacted transcripts of agent sessions, public profile; see its `README.md` |
 | `.opencode/` | OpenSpec commands and skills for opencode |
+| `.state/` | Git-ignored orchestration state of a checkout: `briefs/`, `tmp/` (mode 0700), `journal.md`; see Workflow |
 | `README.md`, `TODO.md`, `scripts/`, `mise.toml`, `hk.pkl`, `.gitleaks.toml` | Repository tooling, outside the source state |
 
 Neovim is its own repository, cloned at `~/.config/nvim` by the external `home/.chezmoiexternals/nvim.toml.tmpl`.
@@ -111,5 +112,14 @@ Its location (`nvim.host`, `nvim.owner`, `nvim.repo`) is chezmoi data kept in th
 One OpenSpec change per working session.
 `/opsx-apply <change>` to implement, `/opsx-verify <change>` to check, `/opsx-archive <change>` when done; then tick the cem checklist line named in the audit's change map.
 New work starts with `/opsx-propose` or `/opsx-explore`.
+
+Orchestration state lives in `.state/` of the checkout, as in the other fleet repositories, not in `/tmp/opencode`: it survives a reboot, an agent reads it without a permission prompt, and it is never committed (the ignore rule is a `.gitignore` line).
+- `briefs/<name>/`: what an orchestrator sends to an agent.
+  A brief for an agent that works in a worktree is written into that worktree's own `.state/briefs/`, because an agent that must read outside its own directory stops at a permission prompt nobody answers; the prompt that points at it carries an absolute path inside the worktree.
+- `tmp/`: scratch of the checkout, mode 0700, for what a session needs and does not keep.
+  Raw session exports are the exception: they stay in a scratch directory outside the repository until they are redacted and deleted.
+- `journal.md`: append-only log, one line per event (briefs written, prompts sent, worktrees created and removed, merges, pushes): `- YYYY-MM-DD HH:MM:SS <actor> <event>`.
+- `git worktree remove` deletes the ignored files of a worktree with it: a brief that must last is copied into its change folder, and nothing else lives only in a worktree's `.state/`.
+- Ignored files are not scanned by the commit hook, so a brief or a journal never holds a secret value.
 
 <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->
