@@ -1,0 +1,2 @@
+# synthetic stand-in for the launcher that broot writes into the real home
+br() { :; }

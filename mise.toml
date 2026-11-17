@@ -1,7 +1,26 @@
 [tools]
+"aqua:bats-core/bats-core" = "1.14.0"
 gitleaks = "8.30.1"
+shellcheck = "0.11.0"
 hk = { version = "2.10.0", workflow = "release.yml" }
 
 [tasks."hooks:install"]
 description = "Install the pre-commit secret scan as a .git/hooks shim, which every git version runs"
 run = "hk install --legacy"
+
+[tasks.test]
+description = "Run the unit and smoke tests of the shell code in a scratch home (JUnit report in tests/.reports/)"
+run = "tests/run.sh"
+
+[tasks."test:live"]
+description = "Run the whole suite, including the read-only tests that read this machine (serial)"
+env = { DOTFILES_TEST_LIVE = "1" }
+run = "tests/run.sh"
+
+[tasks."test:deps"]
+description = "Fetch the pinned bats helper libraries into tests/.lib (anonymous, no network once done)"
+run = "tests/deps.sh"
+
+[tasks."test:mutants"]
+description = "Prove that each suite can fail: run it against deliberately broken copies of the code under test"
+run = "tests/mutants/run.sh"

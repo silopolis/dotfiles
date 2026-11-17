@@ -17,3 +17,7 @@ home/dot_config/tmux/plugins
 
 # Orchestration state of a checkout: briefs, scratch, journal (see AGENTS.md, Workflow)
 .state/
+
+# Test suite: fetched helper libraries and JUnit reports (see tests/README.md)
+tests/.lib/
+tests/.reports/

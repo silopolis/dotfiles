@@ -1,0 +1,6 @@
+# Pinned bats helper libraries, fetched by tests/deps.sh into tests/.lib/<name>.
+# One library per line: name, URL, tag, commit that the tag resolves to (annotated tags peeled).
+# A tag that moves, or a commit that differs, makes `mise run test:deps` fail.
+bats-support https://github.com/bats-core/bats-support.git v0.3.0 24a72e14349690bcbf7c151b9d2d1cdd32d36eb1
+bats-assert https://github.com/bats-core/bats-assert.git v2.2.4 f1e9280eaae8f86cbe278a687e6ba755bc802c1a
+bats-file https://github.com/bats-core/bats-file.git v0.4.0 13ad5e2ffcc360281432db3d43a306f7b3667d60
