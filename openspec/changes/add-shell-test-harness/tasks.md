@@ -57,11 +57,11 @@
 
 ## 7. The whole suite
 
-- [ ] 7.1 `mise run test` in zsh and in bash, serial and with `--jobs` (the numbers of tests, failures and skips are equal in the two modes, and `tests/.reports/report.xml` parses)
-- [ ] 7.2 `mise run test:live` (exit 0, `jobs: 1`, the home listing hash equal before and after, the sudo and refused logs empty)
-- [ ] 7.3 `mise run test:mutants` (exit 0, `git status --porcelain` unchanged)
-- [ ] 7.4 The real home is left alone and no `~/.parallel` appears (`ls -lR --time-style=full-iso ~/.config/shell ~/.config/chezmoi | sha256sum` before and after, `test -e ~/.parallel; echo $?`)
-- [ ] 7.5 A missing tool and a missing second bash skip, with the message (`env PATH=<without shellcheck> tests/run.sh` exits 0 with a `<skipped` that names it)
+- [x] 7.1 `mise run test` in zsh and in bash, serial and with `--jobs` (the numbers of tests, failures and skips are equal in the two modes, and `tests/.reports/report.xml` parses)
+- [x] 7.2 `mise run test:live` (exit 0, `jobs: 1`, the home listing hash equal before and after, the sudo and refused logs empty)
+- [x] 7.3 `mise run test:mutants` (exit 0, `git status --porcelain` unchanged; 9 mutants: 1 for the wrapper, 5 for the shell startup, 3 for the install scripts)
+- [x] 7.4 The real home is left alone and no `~/.parallel` appears (`ls -lR --time-style=full-iso ~/.config/shell ~/.config/chezmoi | sha256sum` before and after, `test -e ~/.parallel; echo $?`)
+- [x] 7.5 A missing tool and a missing second bash skip, with the message (`env PATH=<without shellcheck> tests/run.sh` exits 0 with a `<skipped` that names it)
 
 ## 8. Review the new files before each commit
 
