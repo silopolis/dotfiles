@@ -184,7 +184,7 @@ The level of each check, by what it needs:
 | Suite | Unit | Smoke | Opt-in (live or compare) |
 | --- | --- | --- | --- |
 | Wrapper (`driver.sh`, spec `agent-environment`) | 44: 39 per-shell checks (13 in each of zsh, system bash, Homebrew bash), the canary scan, `bash -n` and `zsh -n` (2), no secret-like name in the file (1), the documentation line in `AGENTS.md` (1) | 1: an interactive zsh on the scratch render defines the function | 3 live: deployed target, lowercase names, names of the environment file |
-| Shell startup (spec `shell-startup`) | 53: the cache helper (17 checks in each of zsh and bash), the alias fixes (9 in each), shellcheck on the aliases file | 39: silent startup 9, single load 7 (six shell kinds and the dump header), behaviour invariants 15, cache with stub tools 8 | 5 compare (base ref: alias and function names in two shells, desktop replay, login names in two shells), 4 live (two timings, cache with real tools in two shells) |
+| Shell startup (spec `shell-startup`) | 53: the cache helper (17 checks in each of zsh and bash), the alias fixes (9 in each), shellcheck on the aliases file | 40: silent startup 10 (nine byte counts and the debug scenario), single load 7 (six shell kinds and the dump header), behaviour invariants 15, cache with stub tools 8 | 5 compare (base ref: alias and function names in two shells, desktop replay, login names in two shells), 4 live (two timings, cache with real tools in two shells) |
 | Install scripts (spec `install-scripts`) | 133: 61 isolated runs, 17 call counts, 4 second runs, 31 render checks, 20 static checks (10 scripts, two renders), plus 3 new for the brew completions block | 7: `mise reshim` in a sandbox with the real binary | 15 live |
 
 The behaviour invariants of the startup smoke are: the private environment in three shells, the `opencode` function in two, the desktop replay in two (the synthetic names are set, the unset name is not), login `PATH` equal to non-login `PATH` in two shells, no duplicate in `fpath`, the registrations with a filled cache in two shells, the bare-terminal bash login, and the lists of repository aliases and functions in two shells (every name the repository defines is defined).
@@ -200,7 +200,7 @@ What depends on this machine, and where it went:
 - The shim cleanup is smoke, not unit: it runs the real `mise` binary, but only in scratch directories, offline, with fake installs.
 - Everything that read the real home, the deployed targets, a real tool's state or the real timing is live.
 
-The ported counts are compared with the old ones at each suite: 39, about 101 (the startup harness had no count: the figure is that of the inventory above) and 155.
+The ported counts are compared with the old ones at each suite: 39, 102 (the startup harness had no count: the inventory above said 101 and the apply counted the debug scenario of the silent file apart) and 155.
 If the apply finds that an inventory figure is off, the spec scenario "Counts against the old harnesses" is amended before the archive, not the other way round.
 
 ### 9. Comparison with another ref
