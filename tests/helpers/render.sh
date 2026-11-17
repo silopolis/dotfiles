@@ -22,12 +22,18 @@
 #                                     destination), plus what the startup expects and no target manages: the
 #                                     synthetic broot launcher of tests/fixtures/ and a bin directory holding the
 #                                     real mise when it was found; sets DT_HOME
+#   dt_mise_vars                      the assignments that confine mise to DT_HOME, one per line (a test that builds its
+#                                     own environment adds them: mise asks for trust on a terminal when it finds an
+#                                     untrusted configuration in a directory above the scratch home)
 #   dt_start [VAR=value ...] -- COMMAND [ARGS...]
 #                                     run COMMAND under env -i from DT_HOME as a terminal of the desktop does:
 #                                     HOME, XDG_CONFIG_HOME, TERM, LANG, SHELL, PATH (DT_HOME/bin first), and mise
 #                                     confined to DT_HOME (it must not read a configuration above it)
 #   dt_start_pty [VAR=value ...] -- COMMAND [ARGS...]
 #                                     the same under a pseudo-terminal
+#   dt_start_pty_argv [VAR=value ...] -- COMMAND [ARGS...]
+#                                     build that command line in the array _dt_pty_argv, to run from DT_HOME (see
+#                                     dt_pty_argv); DT_START_PATH, when set, replaces the default PATH of the start
 #
 # The apply excludes scripts, externals and encrypted files, so nothing is installed, downloaded or decrypted,
 # and it never writes outside DIR. A failure prints the status and the first lines of chezmoi's standard error.
@@ -41,7 +47,7 @@
 # The shell targets: the three directories that hold the shell startup and the dot files that link into them.
 dt_render_targets() {
   printf '%s\n' .config/shell .config/zsh .config/bash .config/envrc \
-    .profile .bashrc .bash_aliases .bash_logout .zprofile .zshrc .zsh_aliases
+    .profile .bashrc .bash_aliases .bash_logout .zprofile .zshrc .zsh_aliases .hushlogin
 }
 
 dt_render_config() {
@@ -102,6 +108,8 @@ dt_prepare_home() {
   chmod 0700 -- "$home"
   cp -a -- "$render/." "$home/"
   mkdir -p -- "$home/bin" "$home/.config/mise-scratch"
+  mkdir -p -- "$home/.cache"
+  chmod 0700 -- "$home/.cache"
   install -D -m 0644 -- "$DT_TESTS_DIR/fixtures/broot-launcher" "$home/.config/broot/launcher/bash/br"
   mise_bin=${DT_TOOL_MISE:-$(dt_find_tool mise 2> /dev/null)} || mise_bin=
   if [ -n "$mise_bin" ]; then
@@ -111,27 +119,36 @@ dt_prepare_home() {
   export DT_HOME
 }
 
-# The environment of a terminal on the render. The mise variables keep mise from reading a configuration
-# in a directory above the scratch home: a scratch home below TMPDIR may sit inside a repository or a home.
+# The mise variables keep mise from reading a configuration in a directory above the scratch home:
+# a scratch home below TMPDIR may sit inside a repository or a home.
+dt_mise_vars() {
+  printf '%s\n' "MISE_CEILING_PATHS=$DT_HOME" "MISE_GLOBAL_CONFIG_FILE=$DT_HOME/.config/mise-scratch/config.toml" \
+    "MISE_SYSTEM_CONFIG_FILE=$DT_HOME/.config/mise-scratch/system.toml" "MISE_CONFIG_DIR=$DT_HOME/.config/mise-scratch" \
+    "MISE_DATA_DIR=$DT_HOME/.local/share/mise" "MISE_CACHE_DIR=$DT_HOME/.cache/mise" "MISE_STATE_DIR=$DT_HOME/.local/state/mise"
+}
+
+# The environment of a terminal on the render.
 _dt_start_vars() {
-  _dt_start=(
-    XDG_CONFIG_HOME="$DT_HOME/.config" TERM="${DT_TERM:-xterm-256color}" SHELL=/bin/zsh
-    MISE_CEILING_PATHS="$DT_HOME" MISE_GLOBAL_CONFIG_FILE="$DT_HOME/.config/mise-scratch/config.toml"
-    MISE_SYSTEM_CONFIG_FILE="$DT_HOME/.config/mise-scratch/system.toml" MISE_CONFIG_DIR="$DT_HOME/.config/mise-scratch"
-    MISE_DATA_DIR="$DT_HOME/.local/share/mise" MISE_CACHE_DIR="$DT_HOME/.cache/mise" MISE_STATE_DIR="$DT_HOME/.local/state/mise"
-  )
+  local mise_vars
+  mapfile -t mise_vars < <(dt_mise_vars)
+  _dt_start=(XDG_CONFIG_HOME="$DT_HOME/.config" TERM="${DT_TERM:-xterm-256color}" SHELL=/bin/zsh "${mise_vars[@]}")
 }
 
 dt_start() {
   _dt_split_args "$@"
   _dt_start_vars
-  (cd "$DT_HOME" && DT_PATH=$DT_HOME/bin:/usr/local/bin:/usr/bin:/bin dt_clean "${_dt_start[@]}" "${_dt_vars[@]}" -- "${_dt_cmd[@]}")
+  (cd "$DT_HOME" && DT_PATH=${DT_START_PATH:-$DT_HOME/bin:/usr/local/bin:/usr/bin:/bin} dt_clean "${_dt_start[@]}" "${_dt_vars[@]}" -- "${_dt_cmd[@]}")
+}
+
+dt_start_pty_argv() {
+  _dt_split_args "$@"
+  _dt_start_vars
+  DT_PATH=${DT_START_PATH:-$DT_HOME/bin:/usr/local/bin:/usr/bin:/bin} dt_pty_argv "${_dt_start[@]}" "${_dt_vars[@]}" -- "${_dt_cmd[@]}"
 }
 
 dt_start_pty() {
-  _dt_split_args "$@"
-  _dt_start_vars
-  (cd "$DT_HOME" && DT_PATH=$DT_HOME/bin:/usr/local/bin:/usr/bin:/bin dt_pty "${_dt_start[@]}" "${_dt_vars[@]}" -- "${_dt_cmd[@]}")
+  dt_start_pty_argv "$@" || return $?
+  (cd "$DT_HOME" && "${_dt_pty_argv[@]}" < /dev/null)
 }
 
 if [ "${BASH_SOURCE[0]}" = "$0" ]; then

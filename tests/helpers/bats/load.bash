@@ -26,6 +26,10 @@ DT_BATS_GLUE_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)
 . "$DT_BATS_GLUE_DIR/../fixtures.sh"
 # shellcheck source=/dev/null
 . "$DT_BATS_GLUE_DIR/../render.sh"
+# shellcheck source=/dev/null
+. "$DT_BATS_GLUE_DIR/../compare.sh"
+# shellcheck source=/dev/null
+. "$DT_BATS_GLUE_DIR/../timing.sh"
 
 BATS_LIB_PATH="$DT_TESTS_DIR/.lib${BATS_LIB_PATH:+:$BATS_LIB_PATH}"
 export BATS_LIB_PATH

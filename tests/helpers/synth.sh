@@ -8,6 +8,8 @@
 #   dt_keep_names              names that the secret pattern must leave alone (one is lowercase), one per line
 #   dt_late_name, dt_fake_name two more synthetic names that match the pattern (a variable exported late, and
 #                              a name that sits inside the value of another variable)
+#   dt_alpha_name, dt_beta_name the two names of the synthetic private environment file (the first matches the
+#                              secret pattern, the second does not)
 #   dt_canary N                canary number N (1 to 99), at least 20 characters
 #   dt_canary_spaced N         canary number N with a space inside, for a value that holds one
 #   dt_all_canaries            every canary of the run, one per line: the list the scans search for
@@ -54,6 +56,14 @@ dt_late_name() {
 
 dt_fake_name() {
   printf 'DEMO_FAKE_%s\n' "${DT_NAME_PART^^}"
+}
+
+dt_alpha_name() {
+  printf 'DEMO_ALPHA_%s\n' "${DT_NAME_PART^^}"
+}
+
+dt_beta_name() {
+  printf 'DEMO_BETA_SETTING\n'
 }
 
 dt_canary() {
