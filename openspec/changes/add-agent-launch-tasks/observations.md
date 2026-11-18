@@ -155,4 +155,28 @@ Each step below is logged with its command, its result and any friction, so that
     For the design: the brief repeats the rule on listings, and the `find` and prompt cases show it must also cover `find` over the user's directories and the prompt of a probe pane.
   - Cleanup: `scm:worktree:done <branch> --keep-tab` removed the worktree and the branch, then `herdr tab close <id>` closed the lead's tab.
 
+- 2026-11-18, fifth launch, the first change run by three agents in a row: `add-shell-test-harness`, a plan lead, a builder and a closer, in three tabs of the source workspace, one worktree.
+  - The plan lead (same launch command as before) reviewed the brief against the tree, inventoried the checks of the three old harnesses with a level for each, asked the user seven questions in one form, and committed the proposal with its own session export.
+    The user asked that the apply start in a new session: the orchestrator started a builder in a second tab of the same worktree with `herdr tab create --cwd <worktree>`, then `herdr agent start <name> --kind opencode --pane <pane> -- --agent build --model <model>`, in build mode directly, with a prompt that points at the brief and the change.
+  - The builder ran for about four hours of wall clock and used 70 percent of its context by the end of section 7; the user cut it there.
+    A hand-off note written by the builder into its own `.state/` (commits, exact commands, counts, the user's decisions, deviations still to record, fragile points, frictions, private-content kinds, advice for the rest) let a fresh closer take sections 8 to 10 with no loss.
+    For the design: the cut point is a section boundary, the note is a task of the cut, and a closer is started with the orchestrator's own pending files named as not to be staged.
+  - The orchestrator re-measured at every report from its own pane and found: an error in the design (the install backend of the test runner does not verify the release asset, found by the builder at the first install gate), a gap in the live allow-list of the harness (found by the first live run), and, at verify, four scenarios of the specs that had no test (found by the closer).
+    A second path of the loop caught a claim of the closer that was wrong ("already in main"), and a report whose statements the closer corrected after a self-check.
+  - Parallelism: the user suggested running the long test runs through sub-agents; the suggestion arrived after the builder had run them from one background script, which was equivalent because every run takes its own report and temporary directory.
+    For the design: a brief for a test-heavy change says so before the section starts.
+  - Orchestrator errors worth keeping: a `set -- $r` in a scan helper did not word-split in zsh (a habit already in `AGENTS.md`) and printed zero added lines; a scan through `rtk rg` truncated an output once; both were caught by comparing counts with plain `rg`, and the full scans were re-run.
+  - Frictions of the three sessions:
+    - `mise install` with the short name of a tool creates a second install next to the one the pin names, and `mise uninstall` leaves symlinks behind.
+    - A shim of a tool that is not active in a worktree fails, so tests resolve tools once before the scratch home is set.
+    - The test runner's parallel helper prints a citation notice and writes a state directory unless told otherwise (set per run, never exported from a startup file).
+    - `git commit | head` kills git on a broken pipe in the middle of the hook, and the commit is not made.
+    - `openspec archive` of a change with a new capability again left a placeholder Purpose and dropped the preamble, moved a modeline into the middle of a requirement, and left stray blank lines: the third time, fixed by hand each time.
+    - The commit subject limit is checked by no hook: one subject of 85 characters passed and was reworded at the final rebase.
+    - The Grep tool given one file path returned matches from the whole tree including the session exports.
+    - `herdr agent prompt` answers with no `ok` key, and `herdr tab create` fields sit under `.result.tab` and `.result.root_pane`.
+  - Private content in the three transcripts, masked in their exports: the login name through paths and listings, the full name and handle of the commit author from one command, the Homebrew prefix, the names of tools installed through mise, a few third-party formula names, and the key-shaped synthetic canary values of the old wrapper harness (masked by a throwaway terms file, because the commit hook takes them for keys).
+  - Cleanup: the closer's tab was closed by id after its export was committed; the worktree removal refused while the branch was not yet in `origin/main`, which is the intended check, and ran after the push.
+    The rule "a finished agent is closed once its session is exported" was written into `AGENTS.md` during this launch at the user's request.
+
 <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->
