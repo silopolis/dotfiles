@@ -37,6 +37,7 @@ The audit and changes written before `adopt-chezmoiroot` use flat paths: prefix 
 | `.opencode/` | OpenSpec commands and skills for opencode |
 | `.state/` | Git-ignored orchestration state of a checkout: `briefs/`, `tmp/` (mode 0700), `journal.md`; see Workflow |
 | `README.md`, `TODO.md`, `scripts/`, `mise.toml`, `hk.pkl`, `.gitleaks.toml` | Repository tooling, outside the source state |
+| `tests/` | The bats suite (unit, smoke, helpers, mutants): repository tooling, never a chezmoi target; see `tests/README.md` |
 
 Neovim is its own repository, cloned at `~/.config/nvim` by the external `home/.chezmoiexternals/nvim.toml.tmpl`.
 Its location (`nvim.host`, `nvim.owner`, `nvim.repo`) is chezmoi data kept in the local config only, so no repository name is written here.
@@ -55,10 +56,8 @@ Its location (`nvim.host`, `nvim.owner`, `nvim.repo`) is chezmoi data kept in th
 - Testing a script without running it: render it with `chezmoi -S <worktree> execute-template < home/.chezmoiscripts/<script>.tmpl`, then run the text with `CHEZMOI_SCRIPTS_DRY_RUN=1`, which makes every script print the change it would make instead of making it (read-only queries still run).
   Never set that variable on `chezmoi apply`: chezmoi records a script as run once it exits 0, so the real apply would skip it afterwards.
   The helper warns when it sees both.
-- The proof of a script is a harness kept outside the repository (`/tmp/opencode/scripts-test` during `make-install-scripts-idempotent`):
-  - isolated mode puts stubs for `sudo`, `apt-get`, `brew`, `pipx`, `mise`, `kubectl`, `codium`, `vim` and the others first on `PATH`, points `HOME` at a scratch directory and reads standard input from `/dev/null`, so a script can only call stubs that log their arguments;
-  - live read-only mode lets an allow-list of read-only queries reach the real tools and refuses and logs everything else, with `sudo` always a logging stub;
-  - a script passes when it exits 0 and both logs are empty.
+- The proof of the shell code is the bats suite under `tests/`: `mise run test` runs the unit and smoke levels in a scratch home and writes a JUnit report to `tests/.reports/`, and `mise run test:live` adds the read-only tests that read this machine.
+  `tests/README.md` describes the levels, the isolated and live read-only modes of the install-script harness, and the opt-in variables.
 - Scripts look for their tools in the directories of `tools.search` (`home/.chezmoidata/tools.yaml`); to add directories or replace the list on one machine, set `extra` or `override` in the local config under `[data.tools.search]`, never in the data file.
 - `home/dot_config/pipx/packages.json` holds no path and no interpreter; refresh it with the `pipx list --json | jq` command in the header of `home/.chezmoiscripts/run_onchange_after_12-pipx.sh.tmpl`.
 - `openspec validate --all --strict`: check specs and changes.
