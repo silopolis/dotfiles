@@ -63,6 +63,8 @@
 - [x] 7.4 The real home is left alone and no `~/.parallel` appears (`ls -lR --time-style=full-iso ~/.config/shell ~/.config/chezmoi | sha256sum` before and after, `test -e ~/.parallel; echo $?`)
 - [x] 7.5 A missing tool and a missing second bash skip, with the message (`env PATH=<without shellcheck> tests/run.sh` exits 0 with a `<skipped` that names it)
 
+- [x] 7.6 `tests/smoke/render.bats`, found missing by the verify: the five tests of the scratch render (`bats --count tests/smoke/render.bats` prints 5; a configuration with an encryption key, a destination that is reused or of mode 0755, a template that calls `hostnamectl` and a `.age` file in the source each make the test aimed at it fail)
+
 ## 8. Review the new files before each commit
 
 - [x] 8.1 The redaction tool, public profile, on the new files, counts only (`python3 ~/.config/nvim/scripts/session_redact.py --profile public --check <files>` prints 0 for every count)
