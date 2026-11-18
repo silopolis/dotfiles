@@ -436,9 +436,10 @@ limits_file() {
   count_calls br-drift 'uninstall|untap|brew remove' 0
 }
 
-@test "px-miss: no uninstall call is made" {
+@test "px-miss: no uninstall call is made, and the undeclared venv is named" {
   run_case px-miss isolated pipx-missing "$S12" ''
   count_calls px-miss 'uninstall' 0
+  grep -q -F -- 'unlistedtool' "$(dt_harness_logdir px-miss)/out.log" || fail "the output does not name the undeclared venv"
 }
 
 @test "kr-miss: no removal call is made" {
