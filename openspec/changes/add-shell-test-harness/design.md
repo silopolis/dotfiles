@@ -83,14 +83,14 @@ Alternatives: git submodules (a pin by commit, but a heavier checkout and a seco
 ### 2. Layout and levels
 
 ```
-tests/
+  tests/
   README.md            levels, the two modes of the install-script harness, variables, commands, scenario table
   run.sh               entry point (plain bash)
   deps.sh  deps.txt    the pinned libraries
-  helpers/*.sh         plain bash, no bats
-  helpers/bats/*.bash  the bats glue: load.bash, setup_suite.bash
+  helpers/*.sh         plain bash, no bats (and the stub of the install-script harness, `helpers/stub`)
+  helpers/bats/*.bash  the bats glue: load.bash, scripts.bash, setup_suite.bash
   fixtures/            small synthetic files (each under 4 KiB)
-  mutants/             the mutated copies of the proof of failure, and README.md
+  mutants/             run.sh, README.md, and the mutated copies by suite: wrapper/, startup/, install/
   unit/  smoke/        the .bats files; smoke/*-live.bats are the opt-in tests
   .lib/  .reports/     git-ignored
 ```
@@ -122,14 +122,16 @@ Plain scripts in `tests/helpers/`, sourced by tests and runnable alone, each wit
 
 | File | Provides |
 | --- | --- |
-| `common.sh` | repository root, `DOTFILES_TEST_SOURCE` (default: the repository root), tool lookup by `command -v` with a fixed extra list, the GNU time resolver |
-| `scratch.sh` | scratch directories (mode 0700), `env -i` runner with `PATH`, `HOME` and the named variables, pseudo-terminal runner (`script -qec`) |
+| `common.sh` | repository root, `DOTFILES_TEST_SOURCE` (default: the repository root), the tool lookup (`PATH` and `mise which`, resolved once, decision 13), the shell builds, the GNU time resolver |
+| `scratch.sh` | scratch directories (mode 0700), `env -i` runner with `PATH`, `HOME` and the named variables, pseudo-terminal runner (`script -qec`), both killed after `DT_TIMEOUT` seconds |
 | `synth.sh` | the synthetic variable set and the canaries, built from parts at run time, the list of canaries, the name that `010-env_user.sh` unsets (read from the file) |
-| `render.sh` | the generated chezmoi configuration, the stub `aqua`, the restricted render, the render of a git ref (`git archive`, read-only) |
+| `render.sh` | the generated chezmoi configuration, the stub `aqua`, the restricted render, the render of a git ref (`git archive`, read-only), the shells started on the render |
+| `compare.sh`, `timing.sh` | the listings (names only) that the comparison with another ref reads, and the timing rounds (GNU time by path, `date` otherwise) |
 | `harness.sh`, `stub` | the isolated and live read-only modes of the install-script harness (ported from `run.sh` and `stub`), the curated utility directory (`realbin`) |
-| `fixtures.sh` | the fixture builders: stub tools with state in the scratch home, package lists generated from the repository data, `.vsix` archives |
+| `fixtures.sh`, `script-fixtures.sh` | the fixture builders: stub tools with state in the scratch home, package lists generated from the repository data, `.vsix` archives; the named fixtures of the install-script cases |
+| `scripts.sh` | the render of the install scripts under the synthetic configuration, and the repository data that the expected figures come from |
 
-Bats glue in `tests/helpers/bats/`: `load.bash` (loads the three libraries, defines `require_tool`, `require_shell` and `require_live`, each a `skip` with a message that names what is missing), and `setup_suite.bash` (resolves tools once and checks the libraries).
+Bats glue in `tests/helpers/bats/`: `load.bash` (loads the three libraries and every plain helper, defines `require_tool`, `require_shell` and `require_live`, each a `skip` with a message that names what is missing), `scripts.bash` (the case runner of the install-script tests), and `setup_suite.bash` (resolves tools once and checks the libraries).
 The runner passes `--setup-suite-file` explicitly, because bats looks for `setup_suite.bash` in the directory of the first test file only and the suite has two directories.
 A plain helper returns a status and prints a reason; the glue turns that into a skip.
 That is the whole rule that keeps the helpers reusable.
@@ -212,7 +214,7 @@ This is the old before and after, as a tool for the next changes that touch the 
 
 ### 10. Reports, canary scan, parallel runs, GNU time
 
-- `tests/run.sh` creates `tests/.reports/`, runs `bats --report-formatter junit --output tests/.reports --setup-suite-file ... --jobs N -r tests/unit tests/smoke` (levels without a test file are left out), tees the output, then runs `rg -c -F -f <canaries>` on the report and the output and fails when the count is not 0, printing the count only.
+- `tests/run.sh` creates `tests/.reports/`, runs `bats --report-formatter junit --output tests/.reports --setup-suite-file ... --jobs N -r tests/unit tests/smoke` (levels without a test file are left out), passes the output through a filter that drops the lines which hold a canary (it does not `tee`, so a leaked canary never reaches the terminal), then scans the report and the raw output for the canaries and fails when the count is not 0, printing the count only.
   `N` is the number of cores capped at 8, 1 without GNU parallel (one line says so) or for a live run.
 - `PARALLEL=--will-cite` is set in the environment of that one bats process, never exported by a startup file (`rg -n 'will-cite' home` prints nothing); GNU parallel creates `~/.parallel` on a first run, and under the scratch home that is the scratch.
 - GNU time is resolved at run time by `common.sh`: `$HOMEBREW_PREFIX/opt/gnu-time/bin/time` when the variable is set and the file executable, then `time` found in the directories of the standard list if `--version` names GNU, else none.
@@ -225,11 +227,11 @@ This is the old before and after, as a tool for the next changes that touch the 
 `mise run test:mutants` runs `tests/run.sh` on one suite at a time with `DOTFILES_TEST_SOURCE` pointing at a scratch copy of `.chezmoiroot` and `home/` that one mutant has changed, and checks the failure count against the expected one in `tests/mutants/README.md`.
 A mutant is a small `sed` script or a replacement file; one that changes nothing (the source moved under it) is an error, so a stale mutant cannot pass for a proof.
 
-First mutants, with counts settled at apply:
+Mutants, with counts settled at apply (nine, in `tests/mutants/README.md`):
 
 - wrapper: the one-line broken function `opencode() { command env opencode "$@"; }`, 9 failures (3 per shell), as before;
-- startup: the cache keyed on the tool name only (tool-changed checks fail), a completion generator that prints, `profile` sourcing `rc.d` twice for an interactive login shell;
-- install scripts: `run()` of the shared helper that ignores `CHEZMOI_SCRIPTS_DRY_RUN` (every dry-run check fails), `need()` that always succeeds (the missing-tool skips fail), the limits script that writes a lower value.
+- startup (five): the cache keyed on the tool name only (tool-changed checks fail), a completion generator that prints, `profile` sourcing `rc.d` twice for an interactive login shell, a refresh that is ignored, the `unset` of `010-env_user.sh` removed;
+- install scripts (three): `run()` of the shared helper that ignores `CHEZMOI_SCRIPTS_DRY_RUN` (every dry-run check fails), `need()` that always succeeds (the missing-tool skips fail), the limits script that writes a lower value.
 
 The repository is never changed: mutants are built in the scratch directory, and `git status --porcelain` is the check.
 The default run does not call them.
@@ -250,6 +252,32 @@ The default run does not call them.
 - `tests/README.md` also holds the scenario table: each scenario of `agent-environment`, `shell-startup` and `install-scripts` with the file that proves it, or the reason it is manual.
 - Audit change map: row 29, `add-shell-test-harness`, process, no dependency, before the changes that touch the startup again.
   `TODO.md`: a sub-item of the planned order, ahead of `port-omalap-shell-aliases`, because renumbering the list would break the "item N" references written in it.
+
+### 13. Differences found at apply
+
+What the build changed against the decisions above, recorded so that the archived design says what the suite does:
+
+- **Pins**: `mise.toml` also pins `shellcheck = "0.11.0"`, the version already installed: the unpinned shim fails inside a worktree (`mise which` has no active tool there) and every static test would skip.
+  The aqua entry of bats-core has no checksum, so bats-core is pinned by tag only (open question 4).
+- **Tool lookup**: `run.sh` and the suite setup resolve the tools once, with the real home, before the scratch home is set, and export `DT_TOOL_<NAME>` for the names of `DT_KNOWN_TOOLS`.
+  `dt_find_tool` reads `PATH` only, asks `mise which` for a shim and passes over a dead one; it has no list of fixed extra directories and no scan of the mise installs, so a `PATH` without the tool makes it missing, as the spec scenario says.
+  `require_tool` consults the resolved list for the known names and looks up any other name live.
+- **`tests/deps.sh`** keeps the proxy and certificate variables when it clears the environment (the offline scenarios need `https_proxy`), and its scratch home and temporary clone sit below `tests/.lib`, so nothing is written outside `$HOME`.
+- **`tests/run.sh`** filters its output instead of using `tee`, unsets the four `XDG_*` variables, and passes `DOTFILES_TEST_REAL_HOME`, `DOTFILES_TEST_REAL_CONFIG` and two counts of the secret-like names of the real environment (taken before anything is hidden).
+- **Variables** beyond the four of the spec: `DOTFILES_TEST_TMPDIR`, `DOTFILES_TEST_REPORTS`, `DOTFILES_TEST_JOBS`, `DT_START_PATH`, `DT_TIMEOUT` and `DT_RENDER_PATH`, all in `tests/README.md`.
+- **Shell kinds**: `bash -l -c true` makes no pass of `rc.d` (`.bashrc` returns at once in a shell that is not interactive), so that test says 0; the spec says 1 only for `zsh -l -c true`.
+  The alias tests source the file in a bare zsh and a bare bash with a curated directory of utilities, where the spec says interactive shells.
+- **Silent startup** puts stub completion tools in the scratch home, so that a cold start regenerates eight caches and must stay silent; without them the mutant "a generator that prints" would not be caught.
+- **Render**: the targets also hold `.config/envrc` and `.hushlogin` (the login message of the distribution is suppressed by the managed `.hushlogin`).
+- **Install-script harness**: the scratch subdirectory is named `userhome` (the redaction tool flags a literal `/home/` segment); the values of the `[env]` table have `$HOME` replaced by the home of the run; the stub allows `brew completions state` in live mode (`completions link` stays refused) and prefers a real binary to a mise shim directory.
+- **Fixtures**: the pipx spec file is linked into the scratch home, never copied; the `.vsix` ids are synthetic; apt, limits, krew, VSCodium and pipx data come from the repository data through the synthetic configuration.
+- **GNU time and the brew prefix**: the prefix is `HOMEBREW_PREFIX` when it is set, else the parent of the `bin` directory of a `brew` found on `PATH`; no prefix is written in a file, and a distribution `time` is tried after the brew one.
+- **Live replacements**: `live-20-vscodium` and `live-11-mise` no longer check a real extension id; `mise-pending` passes when `mise install --dry-run-code` exits 0; the reshim preview uses a copy of the global mise config, trusted in the sandbox only.
+  Three old case names changed: `bat-live-scratch` is the test `live bat-scratch`, `vimrc-no-N` is `live vimrc`, and `mise-pending` is `live mise-pending`; the README maps them.
+- **Timeouts**: `dt_pty` and `dt_clean` kill a command after `DT_TIMEOUT` seconds (60), so a stuck shell fails its test instead of hanging the run.
+- **Files**: more helpers and bats glue than decision 3 first listed (`compare.sh`, `timing.sh`, `scripts.sh`, `script-fixtures.sh`, `bats/scripts.bash`), `unit/runner.bats` (the runner's own tests), and the startup smoke files `startup-silent`, `-single`, `-behaviour`, `-cache`, `-compare` and `-live`.
+- **The archive**: `openspec archive` was run on a scratch copy before the real one (task 10.2): the requirements merge, the three modified requirements of `install-scripts` replace theirs, the Purpose of the new capability is the placeholder "TBD - created by archiving change ...", the preamble of the new spec ("In the scenarios below") is dropped, the preamble of `agent-environment` is untouched (it still names the old scratch path), and the modeline stays once at the end of the file.
+  So after the real archive the Purpose and the preamble of `shell-test-harness` are written by hand, and so is the preamble of `agent-environment` (decision 12).
 
 ## Risks / Trade-offs
 
@@ -282,9 +310,8 @@ Rollback: delete `tests/`, remove the pin and the four tasks from `mise.toml`, t
 - Should a fast subset (the wrapper and the helper unit tests, a few seconds) run in the pre-commit hook next to the secret scan?
   `hk.pkl` is untouched here; the cost is a slower commit and the need for the libraries in every checkout, the gain is that the shell code is proved before it is committed.
   For the user.
-- Does `openspec archive` keep the text outside requirement blocks of a main spec, and what does it write as the Purpose of a new capability?
-  Verified on a scratch copy before the archive; the answer decides whether the two preamble edits are one hand edit each or one.
-- The exact failure counts of the startup and install mutants, and the final count of the startup suite, are fixed at apply and written to `tests/mutants/README.md` and `tasks.md`.
+- Answered at apply (decision 13, the archive): `openspec archive` keeps the text outside requirement blocks of an existing spec, writes a placeholder Purpose for a new capability and drops its preamble, so the archive commit has three hand edits: the Purpose and the preamble of `shell-test-harness`, and the preamble of `agent-environment`.
+- Settled at apply: the failure counts of the startup and install mutants are in `tests/mutants/README.md`, and the counts of the suites (48, 102, 158) are in decision 8 and `tasks.md`.
 - Whether the bats-core pin should be strict like the libraries: the aqua entry is a `github_archive` with no checksum, so nothing verifies the tarball today, and the extracted tree carries no commit to compare.
   A `mise.lock` would record the checksum, but it would also lock gitleaks and hk; left as a tag pin until the user decides.
 

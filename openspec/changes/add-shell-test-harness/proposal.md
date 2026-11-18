@@ -38,12 +38,13 @@ Source: the user's decision of 2026-11-17 at the end of the `fast-correct-shell-
 
 - New tree `tests/` at the repository root, outside `home/`: never a chezmoi target, no ignore entry.
   It holds the runner, the helpers, the fixtures and the `.bats` files; `tests/.lib/` and `tests/.reports/` are git-ignored (two `.gitignore` lines).
-- `mise.toml` gains the `bats` pin and the tasks `test`, `test:live`, `test:deps` and `test:mutants`; `hk.pkl` is untouched.
+- `mise.toml` gains the `bats` pin, a `shellcheck = "0.11.0"` pin (the version already installed: the shim of an unpinned shellcheck fails inside a worktree, and the static tests would all skip) and the tasks `test`, `test:live`, `test:deps` and `test:mutants`; `hk.pkl` is untouched.
 - `mise install aqua:bats-core/bats-core` and `mise run test:deps` write under the user's home and download from GitHub: they are the only installs of this change, run once with the user's go.
 - Nothing is deployed and no source-state file changes: the code under test is not edited, so the suite proves what is already archived.
 - `tests/global-mise-tasks/` (Python `unittest`, planned by `add-secret-tasks`, `add-repo-roadmap`, `add-agent-launch-tasks` and `add-incus-host-setup`) and `tests/machine/` (planned by `add-machine-lifecycle-test-infra`) keep their paths and their own runners; `tests/README.md` classifies them by level and no planned change is edited.
 - `add-machine-smoke-ci` (planned) can run the suite later: the one-command entry point and the JUnit report are what it calls; no workflow is added here.
 - The timing tests use GNU time when it is found at run time (never a hard-coded path) and `date` otherwise; GNU parallel runs the tests of `--jobs`, with its citation notice silenced for the run only.
 - Not covered, on purpose: CI, the live probe of the wrapper, and a fast subset in the pre-commit hook (an open question in the design).
+- The apply differs from the first design in several details (the tool lookup, more helpers and variables, nine mutants, the shape of the install-script harness): decision 13 of the design lists them.
 
 <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->

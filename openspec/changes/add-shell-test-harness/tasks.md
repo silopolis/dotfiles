@@ -65,21 +65,21 @@
 
 ## 8. Review the new files before each commit
 
-- [ ] 8.1 The redaction tool, public profile, on the new files, counts only (`python3 ~/.config/nvim/scripts/session_redact.py --profile public --check <files>` prints 0 for every count)
-- [ ] 8.2 The secret scanner on the tests (`gitleaks dir tests` exits 0)
-- [ ] 8.3 No literal secret-looking name, no home path, no user name, no host, no private repository name (`rg -n -e 'DEMO_[A-Z_]*(KEY|TOKEN|SECRET|PASSWORD|PASSWD|CREDENTIAL)' -e '/home/[a-z]+/' -e 'linuxbrew' tests` prints nothing)
-- [ ] 8.4 Plain helpers hold no bats (`rg -n -e '^@test' -e '\bbats_' -e '\bload\b' -e 'BATS_' tests/helpers/*.sh tests/run.sh tests/deps.sh` prints nothing)
+- [x] 8.1 The redaction tool, public profile, on the new files, counts only (`python3 ~/.config/nvim/scripts/session_redact.py --profile public --check <files>` prints 0 for every count)
+- [x] 8.2 The secret scanner on the tests (`gitleaks dir tests` exits 0)
+- [x] 8.3 No literal secret-looking name, no home path, no user name, no host, no private repository name (`rg -n -e 'DEMO_[A-Z_]*(KEY|TOKEN|SECRET|PASSWORD|PASSWD|CREDENTIAL)' -e '/home/[a-z]+/' -e 'linuxbrew' tests` prints nothing)
+- [x] 8.4 Plain helpers hold no bats (`rg -n -e '^@test' -e '\bbats_' -e '\bload\b' -e 'BATS_' tests/helpers/*.sh tests/run.sh tests/deps.sh` prints nothing)
 
 ## 9. Documents
 
-- [ ] 9.1 `tests/README.md`: the three levels as `###` headings, the isolated and live read-only modes, the four variables, the commands, the classification of `tests/global-mise-tasks/` and `tests/machine/`, the scenario table (`rg -c '^### (Unit|Smoke|E2E)' tests/README.md` prints 3, and the table rows equal `rg -c '^#### Scenario' openspec/specs/agent-environment/spec.md openspec/specs/shell-startup/spec.md openspec/specs/install-scripts/spec.md` summed)
-- [ ] 9.2 `tests/mutants/README.md`: each mutant, the file it changes, the expected count (`test -f tests/mutants/README.md`)
-- [ ] 9.3 Show the `AGENTS.md` wording of the design in the pane, then replace the bullet and its three sub-bullets after the user's go (`rg -n 'kept outside the repository' AGENTS.md` prints nothing, `rg -n 'mise run test' AGENTS.md` prints the line)
+- [x] 9.1 `tests/README.md`: the three levels as `###` headings, the isolated and live read-only modes, the four variables, the commands, the classification of `tests/global-mise-tasks/` and `tests/machine/`, the scenario table (`rg -c '^### (Unit|Smoke|E2E)' tests/README.md` prints 3, and the table rows equal `rg -c '^#### Scenario' openspec/specs/agent-environment/spec.md openspec/specs/shell-startup/spec.md openspec/specs/install-scripts/spec.md` summed)
+- [x] 9.2 `tests/mutants/README.md`: each mutant, the file it changes, the expected count (`test -f tests/mutants/README.md`)
+- [x] 9.3 Show the `AGENTS.md` wording of the design in the pane, then replace the bullet and its three sub-bullets after the user's go (`rg -n 'kept outside the repository' AGENTS.md` prints nothing, `rg -n 'mise run test' AGENTS.md` prints the line)
 
 ## 10. Close
 
 - [ ] 10.1 `openspec validate add-shell-test-harness --strict` and `openspec validate --all --strict`; `/opsx-verify add-shell-test-harness` (both commands print `valid`)
-- [ ] 10.2 Verify how `openspec archive` treats text outside requirement blocks on a scratch copy of the repository, before the real archive (`openspec archive add-shell-test-harness --yes` in the scratch copy, then `rg -n '^## Purpose|^In the scenarios below' <scratch>/openspec/specs/shell-test-harness/spec.md`)
+- [x] 10.2 Verify how `openspec archive` treats text outside requirement blocks on a scratch copy of the repository, before the real archive (`openspec archive add-shell-test-harness --yes` in the scratch copy, then `rg -n '^## Purpose|^In the scenarios below' <scratch>/openspec/specs/shell-test-harness/spec.md`)
 - [ ] 10.3 Archive on the user's go (`openspec archive add-shell-test-harness --yes`), then check the merged specs: `shell-test-harness` keeps a Purpose and its preamble, no modeline sits inside a requirement, and the `agent-environment` preamble is edited by hand and no longer names the old scratch path (`rg -n '/tmp/opencode' openspec/specs/agent-environment/spec.md openspec/specs/shell-startup/spec.md openspec/specs/install-scripts/spec.md` prints nothing)
 - [ ] 10.4 Tick the item in `TODO.md`; no cem checklist line names this change (`rg -n 'add-shell-test-harness' TODO.md`)
 - [ ] 10.5 Rebase on `main`, `openspec validate --all --strict`, report with the last commit hash and the list of frictions (`git log -1 --format=%h`)
