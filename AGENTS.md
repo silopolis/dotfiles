@@ -122,4 +122,8 @@ Orchestration state lives in `.state/` of the checkout, as in the other fleet re
 - `git worktree remove` deletes the ignored files of a worktree with it: a brief that must last is copied into its change folder, and nothing else lives only in a worktree's `.state/`.
 - Ignored files are not scanned by the commit hook, so a brief or a journal never holds a secret value.
 
+An agent that works a change (a lead, a builder, a closer) is finished when its work is merged or handed over and its session is exported.
+Then its tab is closed by id (`herdr tab close <id>`) and, when it had a worktree, the worktree goes with `scm:worktree:done <branch> --keep-tab`; the orchestrator does both, after the export is committed.
+A finished agent is not left open in a tab: it holds a context nobody uses, and a stale pane has been mistaken for a live one.
+
 <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->
