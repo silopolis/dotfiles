@@ -309,10 +309,11 @@ Rollback: delete `tests/`, remove the pin and the four tasks from `mise.toml`, t
 
 - Should a fast subset (the wrapper and the helper unit tests, a few seconds) run in the pre-commit hook next to the secret scan?
   `hk.pkl` is untouched here; the cost is a slower commit and the need for the libraries in every checkout, the gain is that the shell code is proved before it is committed.
-  For the user.
+  Left open by the user on 2026-11-18: `hk.pkl` stays untouched, and a later change can take the question up.
 - Answered at apply (decision 13, the archive): `openspec archive` keeps the text outside requirement blocks of an existing spec, writes a placeholder Purpose for a new capability and drops its preamble, so the archive commit has three hand edits: the Purpose and the preamble of `shell-test-harness`, and the preamble of `agent-environment`.
 - Settled at apply: the failure counts of the startup and install mutants are in `tests/mutants/README.md`, and the counts of the suites (48, 102, 158) are in decision 8 and `tasks.md`.
 - Whether the bats-core pin should be strict like the libraries: the aqua entry is a `github_archive` with no checksum, so nothing verifies the tarball today, and the extracted tree carries no commit to compare.
-  A `mise.lock` would record the checksum, but it would also lock gitleaks and hk; left as a tag pin until the user decides.
+  A `mise.lock` would record the checksum, but it would also lock gitleaks and hk.
+  Decided by the user on 2026-11-18: bats-core stays a tag pin, and `mise exec -- bats --version` is the check.
 
 <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->

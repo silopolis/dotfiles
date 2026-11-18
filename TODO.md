@@ -88,7 +88,7 @@ Once `add-repo-roadmap` is applied, its generated `ROADMAP.md` replaces this lis
 23. [ ] `test-purge` *planned*.
 24. [ ] `support-omarchy` *planned*: an Arch VM with the Omarchy installer; needs item 17.
 25. [ ] The rest, in the audit's order:
-    * [ ] `add-shell-test-harness` (audit 29): the bats suite that replaces the three scratch harnesses of the install scripts, the wrapper and the shell startup; first of this list on purpose (out of the audit's order), because `port-omalap-shell-aliases` and `correct-shell-environment` change the startup again and are proved by it; no dependency.
+    * [x] `add-shell-test-harness` (audit 29): the bats suite that replaces the three scratch harnesses of the install scripts, the wrapper and the shell startup, archived 2026-11-18; first of this list on purpose (out of the audit's order), because `port-omalap-shell-aliases` and `correct-shell-environment` change the startup again and are proved by it; no dependency.
     * [ ] `port-omalap-shell-aliases` (audit 8)
     * [ ] `rationalize-package-ownership` (audit 9): also owns the mise packaging backlog above
     * [ ] `install-terminal-fonts` (audit 10)

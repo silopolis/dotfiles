@@ -80,10 +80,10 @@
 
 ## 10. Close
 
-- [ ] 10.1 `openspec validate add-shell-test-harness --strict` and `openspec validate --all --strict`; `/opsx-verify add-shell-test-harness` (both commands print `valid`)
+- [x] 10.1 `openspec validate add-shell-test-harness --strict` and `openspec validate --all --strict`; `/opsx-verify add-shell-test-harness` (both commands print `valid`)
 - [x] 10.2 Verify how `openspec archive` treats text outside requirement blocks on a scratch copy of the repository, before the real archive (`openspec archive add-shell-test-harness --yes` in the scratch copy, then `rg -n '^## Purpose|^In the scenarios below' <scratch>/openspec/specs/shell-test-harness/spec.md`)
-- [ ] 10.3 Archive on the user's go (`openspec archive add-shell-test-harness --yes`), then check the merged specs: `shell-test-harness` keeps a Purpose and its preamble, no modeline sits inside a requirement, and the `agent-environment` preamble is edited by hand and no longer names the old scratch path (`rg -n '/tmp/opencode' openspec/specs/agent-environment/spec.md openspec/specs/shell-startup/spec.md openspec/specs/install-scripts/spec.md` prints nothing)
-- [ ] 10.4 Tick the item in `TODO.md`; no cem checklist line names this change (`rg -n 'add-shell-test-harness' TODO.md`)
+- [x] 10.3 Archive on the user's go (`openspec archive add-shell-test-harness --yes`), then check the merged specs: `shell-test-harness` keeps a Purpose and its preamble, no modeline sits inside a requirement, and the `agent-environment` preamble is edited by hand and no longer names the old scratch path (`rg -n '/tmp/opencode' openspec/specs/agent-environment/spec.md openspec/specs/shell-startup/spec.md openspec/specs/install-scripts/spec.md` prints nothing)
+- [x] 10.4 Tick the item in `TODO.md`; no cem checklist line names this change (`rg -n 'add-shell-test-harness' TODO.md`)
 - [ ] 10.5 Rebase on `main`, `openspec validate --all --strict`, report with the last commit hash and the list of frictions (`git log -1 --format=%h`)
 
 <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->

@@ -11,7 +11,7 @@ Every chezmoi script SHALL install nothing, write nothing outside `$HOME`, and c
 
 #### Scenario: Run each script on the provisioned laptop
 
-- **WHEN** each script is rendered with `chezmoi -S <worktree> execute-template` and run in the live read-only mode of the harness (read-only queries reach the real tools, every other command is refused and logged, `sudo` is a logging stub)
+- **WHEN** each script is rendered with `chezmoi -S <worktree> execute-template` and run by `mise run test:live` in the live read-only mode of the suite (read-only queries reach the real tools, every other command is refused and logged, `sudo` is a logging stub)
 - **THEN** the script exits 0, and the sudo log and the refused-command log are empty
 
 #### Scenario: Second run in a row
@@ -70,7 +70,7 @@ A script that manages a file outside `$HOME` SHALL write it only when its conten
 
 #### Scenario: Declared value higher than the live one
 
-- **WHEN** the declared limits are higher than the values in the file and the limits script runs in the harness
+- **WHEN** the declared limits are higher than the values in the file and the limits script runs in the isolated mode of the suite (stubs only, a scratch home)
 - **THEN** the only sudo call recorded installs the declared content into `/etc/security/limits.d/ulimit.conf`
 
 ### Requirement: Non-interactive scripts
@@ -201,7 +201,7 @@ An entry SHALL be an absolute path, `~/x` or `<brew>/x`, and the scripts SHALL p
 
 #### Scenario: Isolated runs cannot reach real tools
 
-- **WHEN** the harness runs an isolated script whose `use_tool_dirs` lists a real directory
+- **WHEN** the isolated mode of the suite runs a script whose `use_tool_dirs` lists a real directory
 - **THEN** it refuses to run it
 
 ### Requirement: The tools the scripts use are declared
