@@ -2111,7 +2111,7 @@ I'm going to test whether chezmoi's promptBool reads from stdin or detects a non
 [redacted:worktrees_root]/chezmoi-config-template/openspec/changes/add-private-store-external/proposal.md:8:It follows the Neovim external of `fix-chezmoi-config-template` (audit `docs/audits/2026-10-30-environment.md`, F05 and section 2.8) and is row 23 of the change map.
 [redacted:worktrees_root]/chezmoi-config-template/openspec/changes/add-private-store-external/proposal.md:12:- Ask once (`promptStringOnce`) for the store's location: `private.host` (default `github.com`), `private.owner`, `private.repo`.
 [redacted:worktrees_root]/chezmoi-config-template/openspec/changes/add-private-store-external/proposal.md:13:  The values are kept as a `[data.private]` table in the local chezmoi config only, never in this repository.
-[redacted:worktrees_root]/chezmoi-config-template/openspec/changes/add-private-store-external/proposal.md:14:- Add a `git-repo` external for `.local/share/chezmoi-private` with the same shape and guard as the Neovim one:
+[redacted:worktrees_root]/chezmoi-config-template/openspec/changes/add-private-store-external/proposal.md:14:- Add a `git-repo` external for `.local/share/[redacted:private]` with the same shape and guard as the Neovim one:
 [redacted:worktrees_root]/chezmoi-config-template/openspec/changes/add-private-store-external/proposal.md:17:  - `private = true`, so that the clone root is 0700, if chezmoi applies that attribute to a `git-repo` target; otherwise the umask 027 of `fix-chezmoi-config-template` is the rule.
 [redacted:worktrees_root]/chezmoi-config-template/openspec/changes/add-private-store-external/proposal.md:29:- `neovim-config` (created by `fix-chezmoi-config-template`): compiled spell lists are ignored by git everywhere.
 [redacted:worktrees_root]/chezmoi-config-template/openspec/changes/add-private-store-external/proposal.md:36:- Order: after `adopt-chezmoiroot` and `fix-chezmoi-config-template`, whose data pattern and guard it reuses.
@@ -2121,7 +2121,7 @@ I'm going to test whether chezmoi's promptBool reads from stdin or detects a non
 [redacted:worktrees_root]/chezmoi-config-template/openspec/changes/add-private-store-external/design.md:44:The questions are `private.host` (default `github.com`), `private.owner` and `private.repo`, emitted as `[data.private]` after `[data.nvim]`, the names the sender suggested.
 [redacted:worktrees_root]/chezmoi-config-template/openspec/changes/add-private-store-external/design.md:45:They sit next to the three `nvim` questions in `.chezmoi.toml.tmpl` and use `promptStringOnce`, so `chezmoi init` asks them once per machine and keeps the answers in the local config.
 [redacted:worktrees_root]/chezmoi-config-template/openspec/changes/add-private-store-external/design.md:51:`home/.chezmoiexternals/private-store.toml.tmpl`, separate from `nvim.toml.tmpl` so either can be read alone:
-[redacted:worktrees_root]/chezmoi-config-template/openspec/changes/add-private-store-external/design.md:58:{{- $hasClone := stat (joinPath .chezmoi.destDir ".local" "share" "chezmoi-private" ".git") -}}
+[redacted:worktrees_root]/chezmoi-config-template/openspec/changes/add-private-store-external/design.md:58:{{- $hasClone := stat (joinPath .chezmoi.destDir ".local" "share" "[redacted:private]" ".git") -}}
 [redacted:worktrees_root]/chezmoi-config-template/openspec/changes/add-private-store-external/design.md:59:{{- $hasLogin := stat (joinPath .chezmoi.destDir ".config" "gh" "hosts.yml") -}}
 [redacted:worktrees_root]/chezmoi-config-template/openspec/changes/add-private-store-external/design.md:68:{{ warnf "private store: no clone and no GitHub CLI login, skipping the external" }}
 [redacted:worktrees_root]/chezmoi-config-template/openspec/changes/add-private-store-external/design.md:72:The reasons are those of the Neovim external: an offline, cheap guard, HTTPS, no `clone.args`, a pull that is fast-forward only.
@@ -2908,21 +2908,21 @@ Found 100 matches (more matches available)
 
   Line 2877:     "content": "Mark done: point pending signals at the Neovim orchestrator, correct the S16 merge fact; commit after validation",
 
-  Line 2921: 13167:17033:  "command": "cd ~/.local/share/chezmoi\nexport SESSION_REDACT_TERMS_DIR=~/.local/share/chezmoi-private/dotfiles\necho \"== README alone\"; python3 ~/.config/nvim/scripts/session_redact.py --check memory/sessions/README.md | tr '\\n' ' '; echo \"exit=${pipestatus[1]}\"\nec
+  Line 2921: 13167:17033:  "command": "cd ~/.local/share/chezmoi\nexport SESSION_REDACT_TERMS_DIR=[redacted:private_store]/dotfiles\necho \"== README alone\"; python3 ~/.config/nvim/scripts/session_redact.py --check memory/sessions/README.md | tr '\\n' ' '; echo \"exit=${pipestatus[1]}\"\nec
 
-  Line 2922: 13180:17515:  "command": "cd ~/.local/share/chezmoi\nexport SESSION_REDACT_TERMS_DIR=~/.local/share/chezmoi-private/dotfiles\npython3 - <<'EOF'\nimport re, subprocess, glob, collections, os\nscript = os.path.expanduser(\"~/.config/nvim/scripts/session_redact.py\")\nmarker = re.compile
+  Line 2922: 13180:17515:  "command": "cd ~/.local/share/chezmoi\nexport SESSION_REDACT_TERMS_DIR=[redacted:private_store]/dotfiles\npython3 - <<'EOF'\nimport re, subprocess, glob, collections, os\nscript = os.path.expanduser(\"~/.config/nvim/scripts/session_redact.py\")\nmarker = re.compile
 
-  Line 2923: 13181:17553:  "command": "cd ~/.local/share/chezmoi\nexport SESSION_REDACT_TERMS_DIR=~/.local/share/chezmoi-private/dotfiles\nS=~/.config/nvim/scripts/session_redact.py\nf=memory/sessions/202610301854-harden_sensitive_targets.md\npython3 $S < $f > /tmp/opencode/main.cur.md\necho \"== 
+  Line 2923: 13181:17553:  "command": "cd ~/.local/share/chezmoi\nexport SESSION_REDACT_TERMS_DIR=[redacted:private_store]/dotfiles\nS=~/.config/nvim/scripts/session_redact.py\nf=memory/sessions/202610301854-harden_sensitive_targets.md\npython3 $S < $f > /tmp/opencode/main.cur.md\necho \"== 
 
-  Line 2924: 13182:17604:  "command": "cd ~/.local/share/chezmoi\nrm -f /tmp/opencode/main.cur.md\nexport SESSION_REDACT_TERMS_DIR=~/.local/share/chezmoi-private/dotfiles\nS=~/.config/nvim/scripts/session_redact.py\necho \"== files changed in the pushed range, current --check, only files with identity/repository/secret findings (
+  Line 2924: 13182:17604:  "command": "cd ~/.local/share/chezmoi\nrm -f /tmp/opencode/main.cur.md\nexport SESSION_REDACT_TERMS_DIR=[redacted:private_store]/dotfiles\nS=~/.config/nvim/scripts/session_redact.py\necho \"== files changed in the pushed range, current --check, only files with identity/repository/secret findings (
 
-  Line 2925: 13183:17642:  "command": "cd ~/.local/share/chezmoi\nexport SESSION_REDACT_TERMS_DIR=~/.local/share/chezmoi-private/dotfiles\npython3 - <<'EOF'\nimport re, subprocess, os, collections\nscript=os.path.expanduser(\"~/.config/nvim/scripts/session_redact.py\")\nmk=re.compile(r\"\\[redacte
+  Line 2925: 13183:17642:  "command": "cd ~/.local/share/chezmoi\nexport SESSION_REDACT_TERMS_DIR=[redacted:private_store]/dotfiles\npython3 - <<'EOF'\nimport re, subprocess, os, collections\nscript=os.path.expanduser(\"~/.config/nvim/scripts/session_redact.py\")\nmk=re.compile(r\"\\[redacte
 
   Line 2927: 13290:  "command": "herdr agent get chezmoi-wtasks | jq -c '.result.agent | {agent_session, tab_id}'; herdr agent list | jq -r '.result.agents[] | select((.name // \"\") | test(\"^nvim-(orch|s16|s19)$\")) | [.name, .agent_status, .tab_id] | @tsv'; sed -n '1150,1153p' ~/.config/nvim/ROADMAP.md | cut -c1-400; ls [redacted:repo]:scripts/session/export.py ~/.config/nvim/scripts/session_redact.py 2>&1 | sed \"s|$HOME|~|g\""
 
   Line 2929: 13366:  "command": "rtk rg -n -o '.{0,60}scripts/session/export\\.py.{0,40}' ~/.config/nvim/ROADMAP.md ~/.config/nvim/memory/sessions/README.md ~/.config/nvim/.[redacted:private]/tasks 2>/dev/null | cut -c1-200 | head -6; head -5 ~/.local/share/chezmoi/memory/sessions/202610301854-harden_sensitive_targets.md | cut -c1-200; for r in [redacted:repo] [redacted:repo] [redacted:private]-prep [redacted:repo]; do printf '%s ' $r; rtk git -C ~/Work/$r log -1 --format='%h %cr' -- scripts/session/export.py; done"
 
-  Line 2947:   "command": "ls -d ~/Work/*/scripts/session/export.py 2>/dev/null | sed \"s|$HOME|~|g\"; rtk ls ~/.config/nvim/scripts/session_redact.py; rtk ls ~/.local/share/chezmoi-private/dotfiles/; rtk grep -n '\"command\": ' memory/sessions/202611022007-adopt_global_mise_tasks.md | awk -F: '$1>13874' | cut -c1-1200 | head -12"
+  Line 2947:   "command": "ls -d ~/Work/*/scripts/session/export.py 2>/dev/null | sed \"s|$HOME|~|g\"; rtk ls ~/.config/nvim/scripts/session_redact.py; rtk ls [redacted:private_store]/dotfiles/; rtk grep -n '\"command\": ' memory/sessions/202611022007-adopt_global_mise_tasks.md | awk -F: '$1>13874' | cut -c1-1200 | head -12"
 
   Line 2957: ~/.config/nvim/scripts/session_redact.py  16.2K
 
@@ -2932,7 +2932,7 @@ Found 100 matches (more matches available)
 
   Line 3024:   "command": "sed -n '1,40p' ~/.config/nvim/scripts/session_redact.py; python3 [redacted:repo]:scripts/session/export.py --help 2>&1 | head -30"
 
-  Line 3042: $SESSION_REDACT_TERMS_DIR (default ~/.local/share/chezmoi-private/nvim),
+  Line 3042: $SESSION_REDACT_TERMS_DIR (default [redacted:private_store]/nvim),
 
   Line 3130: ses_e87b4ac57ffei4XO5Y1u4RmiDj  Neovim SIGABRT crash diagnosis                                                                  1:59 PM · 10/26/2026
 
@@ -8115,7 +8115,12 @@ The two leftovers are from earlier sessions, not mine, so I'm leaving them. Main
 
 **Output:**
 ```
-Rebasing (1/5)Rebasing (2/5)Rebasing (3/5)Rebasing (4/5)Rebasing (5/5)Successfully rebased and updated refs/heads/fix/chezmoi-config-template.
+Rebasing (1/5)
+Rebasing (2/5)
+Rebasing (3/5)
+Rebasing (4/5)
+Rebasing (5/5)
+Successfully rebased and updated refs/heads/fix/chezmoi-config-template.
 a3b5c51 docs(chezmoi:spec): archive fix-chezmoi-config-template
 566ebc6 fix(pkg:brew): re-apply the Brewfile after re-adding it
 1884d42 feat(editor:nvim): clone the Neovim config through a chezmoi external
@@ -8464,7 +8469,7 @@ The README says to export to a 0700 scratch directory, redact with the tool, che
 **Input:**
 ```json
 {
-  "command": "ls -d ~/Work/*/scripts/session/export.py 2>/dev/null | sed \"s|$HOME|~|g\"; echo \"== redact tool:\"; ls ~/.config/nvim/scripts/session_redact.py | sed \"s|$HOME|~|g\"; echo \"== private terms dir:\"; rtk ls ~/.local/share/chezmoi-private/ 2>&1 | head; echo \"== opencode:\"; command -v opencode; opencode --version 2>&1 | head -1"
+  "command": "ls -d ~/Work/*/scripts/session/export.py 2>/dev/null | sed \"s|$HOME|~|g\"; echo \"== redact tool:\"; ls ~/.config/nvim/scripts/session_redact.py | sed \"s|$HOME|~|g\"; echo \"== private terms dir:\"; rtk ls [redacted:private_store]/ 2>&1 | head; echo \"== opencode:\"; command -v opencode; opencode --version 2>&1 | head -1"
 }
 ```
 
@@ -8788,7 +8793,7 @@ Usage:
   session_redact.py [--profile private|public] --explain
 
 No private term lives in this script, nor in any repository. Terms live in
-the private store (default ~/.local/share/chezmoi-private, a clone of a
+the private store (default [redacted:private_store], a clone of a
 private repository; SESSION_REDACT_STORE overrides it) and are read in
 layers, later layers winning for single settings and adding to the lists:
 
@@ -9175,7 +9180,7 @@ Earlier exports keep reasoning blocks and tool details, so I'll use the full def
 20902:When there is no global directory, no project file and no `SESSION_REDACT_TERMS_DIR`, the project directory SHALL be the `nvim` directory of the store.
 20968:  4. SESSION_REDACT_TERMS_DIR, a directory of list files read as one more
 20972:With no global directory, no project file and no SESSION_REDACT_TERMS_DIR,
-21276:  "command": "cd ~/.local/share/chezmoi; S=${XDG_DATA_HOME:-$HOME/.local/share}/chezmoi-private; echo \"dotfiles dir (names only):\"; ls $S/dotfiles; echo; SESSION_REDACT_TERMS_DIR=$S/dotfiles python3 ~/.config/nvim/scripts/session_redact.py --profile pu
+21276:  "command": "cd ~/.local/share/chezmoi; S=${XDG_DATA_HOME:-$HOME/.local/share}/[redacted:private]; echo \"dotfiles dir (names only):\"; ls $S/dotfiles; echo; SESSION_REDACT_TERMS_DIR=$S/dotfiles python3 ~/.config/nvim/scripts/session_redact.py --profile pu
 
 ```
 

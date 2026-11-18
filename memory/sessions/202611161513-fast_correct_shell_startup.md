@@ -14018,7 +14018,7 @@ Usage:
   session_redact.py [--profile private|public] --explain
 
 No private term lives in this script, nor in any repository. Terms live in
-the private store (default ~/.local/share/chezmoi-private, a clone of a
+the private store (default [redacted:private_store], a clone of a
 private repository; SESSION_REDACT_STORE overrides it) and are read in
 layers, later layers winning for single settings and adding to the lists:
 

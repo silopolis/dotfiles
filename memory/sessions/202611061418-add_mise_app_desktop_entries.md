@@ -77,7 +77,7 @@ I have obisian installed through mise and works but:
 - Support for obsidian URLs in Firefox is broken
 ```The address wasn’t understood
 
-Firefox can’t connect to the server at obsidian://new?file=Inbox%2FClippings%2FLinux%2Fat_command_schedule_one_time_linux_jobs_without_cron-gabriel_canepa&vault=2026-05-01-obsidian&silent=true&clipboard&content=Obsidian%20is%20not%20able%20to%20access%20your%20clipboard.%20Try%20the%20troubleshooting%20instructions%20here%3A%20https%3A%2F%2Fhelp.obsidian.md%2Fweb-clipper%2Ftroubleshoot
+Firefox can’t connect to the server at obsidian://new?file=Inbox%2FClippings%2FLinux%2Fat_command_schedule_one_time_linux_jobs_without_cron-gabriel_canepa&vault=[redacted:private]&silent=true&clipboard&content=Obsidian%20is%20not%20able%20to%20access%20your%20clipboard.%20Try%20the%20troubleshooting%20instructions%20here%3A%20https%3A%2F%2Fhelp.obsidian.md%2Fweb-clipper%2Ftroubleshoot
 ```
 
 ---
@@ -160,7 +160,7 @@ Found 5 matches
 
   Line 1485:   Line 469:   - Side effect noted: a `mise settings get` on [redacted:private] ran pending prunes (herdr 0.9.3, obsidian 1.14.4; current 0.9.5 / 1.14.5 intact)
 
-  Line 7975: wA	2026-05-01-obsidian
+  Line 7975: wA	[redacted:private]
 
 
 ~/.local/share/chezmoi/dot_config/mise/config.toml:
@@ -168,7 +168,7 @@ Found 5 matches
 
 
 ~/.local/share/chezmoi/memory/sessions/202610301854-harden_sensitive_targets.md:
-  Line 13163: {"id":"cli:workspace:list","result":{"type":"workspace_list","workspaces":[{"active_tab_id":"w6558a2c3a6c122:t1","agent_status":"unknown","focused":false,"label":"[redacted:repo]","number":1,"pane_count":4,"tab_count":4,"workspace_id":"w6558a2c3a6c122"},{"active_tab_id":"w1:t1","agent_status":"unknown","focused":false,"label":"[redacted:repo]","number":2,"pane_count":5,"tab_count":5,"workspace_id":"w1"},{"active_tab_id":"w6:t4","agent_status":"unknown","focused":false,"label":"[redacted:repo]","number":3,"pane_count":3,"tab_count":3,"workspace_id":"w6"},{"active_tab_id":"w9:t9","agent_status":"working","focused":false,"label":"[redacted:repo]","number":4,"pane_count":4,"tab_count":4,"workspace_id":"w9"},{"active_tab_id":"wA:t3","agent_status":"unknown","focused":false,"label":"2026-05-01-obsidian","number":5,"pane_count":3,"tab_count":3,"workspace_id":"wA"},{"active_tab_id":"wB:t1","agent_status":"unknown","focused":false,"label":"2026-01-18-opencode","number":6,"pane_count":4,"tab_count":4,"workspace_id":"wB"},{"active_tab_id":"wF:t1","agent_status":"unknown","focused":false,"label":"[redacted:private]-[redacted:private]-study","number":7,"pane_count":4,"tab_count":4,"workspace_id":"wF"},{"active_tab_id":"wG:t1","agent_status":"working","focused":false,"label":"[redacted:repo]","number":8,"pane_count":3,"tab_count":3,"workspace_id":"wG"},{"active_tab_id":"wH:t1","agent_status":"unknown","focused":false,"label":"[redacted:private]-km-study","number":9,"pane_count":3,"tab_count":3,"workspace_id":"wH"},{"active_tab_id":"wJ:t1","agent_status":"unknown","focused":false,"label":"[redacted:private]","number":10,"pane_count":1,"tab_count":1,"workspace_id":"wJ"},{"active_tab_id":"wN:t1","agent_status":"working","focused":true,"label":"chezmoi","number":11,"pane_count":3,"tab_count":3,"workspace_id":"wN"},{"active_tab_id":"wP:t1","agent_status":"idle","focused":false,"label":"neovim","number":12,"pane_count":4,"tab_count":4,"workspace_id":"wP"}]}}
+  Line 13163: {"id":"cli:workspace:list","result":{"type":"workspace_list","workspaces":[{"active_tab_id":"w6558a2c3a6c122:t1","agent_status":"unknown","focused":false,"label":"[redacted:repo]","number":1,"pane_count":4,"tab_count":4,"workspace_id":"w6558a2c3a6c122"},{"active_tab_id":"w1:t1","agent_status":"unknown","focused":false,"label":"[redacted:repo]","number":2,"pane_count":5,"tab_count":5,"workspace_id":"w1"},{"active_tab_id":"w6:t4","agent_status":"unknown","focused":false,"label":"[redacted:repo]","number":3,"pane_count":3,"tab_count":3,"workspace_id":"w6"},{"active_tab_id":"w9:t9","agent_status":"working","focused":false,"label":"[redacted:repo]","number":4,"pane_count":4,"tab_count":4,"workspace_id":"w9"},{"active_tab_id":"wA:t3","agent_status":"unknown","focused":false,"label":"[redacted:private]","number":5,"pane_count":3,"tab_count":3,"workspace_id":"wA"},{"active_tab_id":"wB:t1","agent_status":"unknown","focused":false,"label":"[redacted:private]","number":6,"pane_count":4,"tab_count":4,"workspace_id":"wB"},{"active_tab_id":"wF:t1","agent_status":"unknown","focused":false,"label":"[redacted:private]-[redacted:private]-study","number":7,"pane_count":4,"tab_count":4,"workspace_id":"wF"},{"active_tab_id":"wG:t1","agent_status":"working","focused":false,"label":"[redacted:repo]","number":8,"pane_count":3,"tab_count":3,"workspace_id":"wG"},{"active_tab_id":"wH:t1","agent_status":"unknown","focused":false,"label":"[redacted:private]-km-study","number":9,"pane_count":3,"tab_count":3,"workspace_id":"wH"},{"active_tab_id":"wJ:t1","agent_status":"unknown","focused":false,"label":"[redacted:private]","number":10,"pane_count":1,"tab_count":1,"workspace_id":"wJ"},{"active_tab_id":"wN:t1","agent_status":"working","focused":true,"label":"chezmoi","number":11,"pane_count":3,"tab_count":3,"workspace_id":"wN"},{"active_tab_id":"wP:t1","agent_status":"idle","focused":false,"label":"neovim","number":12,"pane_count":4,"tab_count":4,"workspace_id":"wP"}]}}
 
 ```
 
@@ -2546,7 +2546,7 @@ _Thinking:_
 
 <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->
 166:  - Whole vault = 6 `.obsidian` files + empty `Modèles/` (14 KB); the 84 MB was the sync DB. Server side holds only "UTbox - Documentation utilisateur" (excluded). Checksums identical.
-177:    - `target` dropped from the list: the only one is source files in `tries/2026-05-01-obsidian/Inbox/…/custom_sbx/target` (Dockerfile, entrypoint.sh)
+177:    - `target` dropped from the list: the only one is source files in `tries/[redacted:private]/Inbox/…/custom_sbx/target` (Dockerfile, entrypoint.sh)
 187:- [x] 2.2 `~/Vaults/arkitekts-vault-01`, `~/Vaults/Copie Obsidian.zip` (535 MB)
 203:    - mise: see 4.3. Obsidian: config copied 17:58 (6 vaults registered, all paths exist, dictionary 67 words, backup in `[redacted:private]`). VSCodium: see 6.4
 204:  - [x] `.copilot/config.json`, `~/.config/mise/config.toml`, `htop`, `glow`, `lazydocker`, `ranger`, `vale`, `obsidian` (vault list), `VirtualBox`, `libvirt`, `gcloud`, `nvim` (Kali kept, [redacted:private] archived)
@@ -2918,16 +2918,16 @@ _Thinking:_
 2964:  "command": "set -e; T=/tmp/opencode/wtsmoke; cd \"$T/demo\"; export WORKTREES_ROOT=\"$T/trees\"; unset HERDR_ENV; mise run -q scm:worktree:new feat/sq >/dev/null 2>&1; W=\"$T/trees/origin-sq\"; echo x > \"$W/f\"; git -C \"$W\" add f; git -C \"$W\" commit -q -m \"add f\"; git merge -q --squash feat/sq >/dev/null; git commit -q -m \"squash sq\"; git push -q origin main 2>/dev/null; echo \"== done after squash merge\"; mise run -q scm:worktree:done sq 2>&1 | tail -2 || true; echo \"rc=$?\"; echo \"== cleanup\"; mise run -q scm:worktree:rm sq --force 2>&1 | tail -1; cd /; rm -rf \"$T\"; test ! -e \"$T\" && echo scratch-removed",
 13095:  "command": "cd ~/.local/share/chezmoi/memory/sessions && rtk rg -n -o '.{0,120}(opencode export|SESSION_REDACT_TERMS_DIR|--check|redact[a-z_./-]*\\.(py|sh)|session:export).{0,160}' 202610301854-harden_sensitive_targets.md | sed \"s|$HOME|~|g\" | head -40"
 13160:  "command": "cd ~/.local/share/chezmoi/memory/sessions && rtk wc -l 202610301854-harden_sensitive_targets.md; rtk rg -n -o '.{0,200}(export\\.py|SESSION_REDACT_TERMS_DIR=|session_redact\\.py <|keep_sibling|siblings?|fleet-names|terms dir|terms-dir).{0,200}' 202610301854-harden_sensitive_targets.md | sed \"s|$HOME|~|g\" | awk -F: '$1>13440' | tail -40"
-13167:17033:  "command": "cd ~/.local/share/chezmoi\nexport SESSION_REDACT_TERMS_DIR=~/.local/share/chezmoi-private/dotfiles\necho \"== README alone\"; python3 ~/.config/nvim/scripts/session_redact.py --check memory/sessions/README.md | tr '\\n' ' '; echo \"exit=${pipestatus[1]}\"\nec
-13180:17515:  "command": "cd ~/.local/share/chezmoi\nexport SESSION_REDACT_TERMS_DIR=~/.local/share/chezmoi-private/dotfiles\npython3 - <<'EOF'\nimport re, subprocess, glob, collections, os\nscript = os.path.expanduser(\"~/.config/nvim/scripts/session_redact.py\")\nmarker = re.compile
-13181:17553:  "command": "cd ~/.local/share/chezmoi\nexport SESSION_REDACT_TERMS_DIR=~/.local/share/chezmoi-private/dotfiles\nS=~/.config/nvim/scripts/session_redact.py\nf=memory/sessions/202610301854-harden_sensitive_targets.md\npython3 $S < $f > /tmp/opencode/main.cur.md\necho \"== 
-13182:17604:  "command": "cd ~/.local/share/chezmoi\nrm -f /tmp/opencode/main.cur.md\nexport SESSION_REDACT_TERMS_DIR=~/.local/share/chezmoi-private/dotfiles\nS=~/.config/nvim/scripts/session_redact.py\necho \"== files changed in the pushed range, current --check, only files with identity/repository/secret findings (
-13183:17642:  "command": "cd ~/.local/share/chezmoi\nexport SESSION_REDACT_TERMS_DIR=~/.local/share/chezmoi-private/dotfiles\npython3 - <<'EOF'\nimport re, subprocess, os, collections\nscript=os.path.expanduser(\"~/.config/nvim/scripts/session_redact.py\")\nmk=re.compile(r\"\\[redacte
+13167:17033:  "command": "cd ~/.local/share/chezmoi\nexport SESSION_REDACT_TERMS_DIR=[redacted:private_store]/dotfiles\necho \"== README alone\"; python3 ~/.config/nvim/scripts/session_redact.py --check memory/sessions/README.md | tr '\\n' ' '; echo \"exit=${pipestatus[1]}\"\nec
+13180:17515:  "command": "cd ~/.local/share/chezmoi\nexport SESSION_REDACT_TERMS_DIR=[redacted:private_store]/dotfiles\npython3 - <<'EOF'\nimport re, subprocess, glob, collections, os\nscript = os.path.expanduser(\"~/.config/nvim/scripts/session_redact.py\")\nmarker = re.compile
+13181:17553:  "command": "cd ~/.local/share/chezmoi\nexport SESSION_REDACT_TERMS_DIR=[redacted:private_store]/dotfiles\nS=~/.config/nvim/scripts/session_redact.py\nf=memory/sessions/202610301854-harden_sensitive_targets.md\npython3 $S < $f > /tmp/opencode/main.cur.md\necho \"== 
+13182:17604:  "command": "cd ~/.local/share/chezmoi\nrm -f /tmp/opencode/main.cur.md\nexport SESSION_REDACT_TERMS_DIR=[redacted:private_store]/dotfiles\nS=~/.config/nvim/scripts/session_redact.py\necho \"== files changed in the pushed range, current --check, only files with identity/repository/secret findings (
+13183:17642:  "command": "cd ~/.local/share/chezmoi\nexport SESSION_REDACT_TERMS_DIR=[redacted:private_store]/dotfiles\npython3 - <<'EOF'\nimport re, subprocess, os, collections\nscript=os.path.expanduser(\"~/.config/nvim/scripts/session_redact.py\")\nmk=re.compile(r\"\\[redacte
 13206:19686:  "command": "cd /tmp/opencode && python3 [redacted:repo]:scripts/session/export.py ses_e720ce42affen6d11Mjrfbnxpi --out-dir /tmp/opencode/session-raw --slug harden_sensitive_targets --full --force > /tmp/opencode/session-raw.paths 2>/tmp/opencode/session-raw.err; echo \"exit=$?\"\n
 13290:  "command": "herdr agent get chezmoi-wtasks | jq -c '.result.agent | {agent_session, tab_id}'; herdr agent list | jq -r '.result.agents[] | select((.name // \"\") | test(\"^nvim-(orch|s16|s19)$\")) | [.name, .agent_status, .tab_id] | @tsv'; sed -n '1150,1153p' ~/.config/nvim/ROADMAP.md | cut -c1-400; ls [redacted:repo]:scripts/session/export.py ~/.config/nvim/scripts/session_redact.py 2>&1 | sed \"s|$HOME|~|g\""
-13325:  "command": "ls -d ~/Work/*/scripts/session/export.py 2>/dev/null | sed \"s|$HOME|~|g\"; rtk ls ~/.local/share/chezmoi-private/dotfiles/; rtk read ~/.local/share/chezmoi-private/dotfiles/profile 2>/dev/null; opencode --version 2>&1 | head -1"
+13325:  "command": "ls -d ~/Work/*/scripts/session/export.py 2>/dev/null | sed \"s|$HOME|~|g\"; rtk ls [redacted:private_store]/dotfiles/; rtk read [redacted:private_store]/dotfiles/profile 2>/dev/null; opencode --version 2>&1 | head -1"
 13366:  "command": "rtk rg -n -o '.{0,60}scripts/session/export\\.py.{0,40}' ~/.config/nvim/ROADMAP.md ~/.config/nvim/memory/sessions/README.md ~/.config/nvim/.mise/tasks 2>/dev/null | cut -c1-200 | head -6; head -5 ~/.local/share/chezmoi/memory/sessions/202610301854-harden_sensitive_targets.md | cut -c1-200; for r in [redacted:repo] [redacted:repo] [redacted:private]-prep [redacted:repo]; do printf '%s ' $r; rtk git -C ~/Work/$r log -1 --format='%h %cr' -- scripts/session/export.py; done"
-13812:  "command": "set -e; S=/tmp/opencode/wt-export; rm -rf \"$S\"; mkdir -p -m 700 \"$S\" \"$S/terms\" \"$S/raw\"; chmod 700 \"$S/terms\" \"$S/raw\"; tar -C ~/.local/share/chezmoi-private --exclude=.git -chf - . | tar -C \"$S/terms\" -xf -; rm -f \"$S/terms/dotfiles/fleet-names.txt\"; rtk ls -1 \"$S/terms/dotfiles\"; find \"$S/terms\" -type l | wc -l; stat -c '%a %n' \"$S\" \"$S/terms\" \"$S/raw\" | sed \"s|$S|<S>|\"; git -C ~/.local/share/chezmoi-private status --short | wc -l; python3 [redacted:repo]:scripts/session/export.py --help 2>&1 | head -25"
+13812:  "command": "set -e; S=/tmp/opencode/wt-export; rm -rf \"$S\"; mkdir -p -m 700 \"$S\" \"$S/terms\" \"$S/raw\"; chmod 700 \"$S/terms\" \"$S/raw\"; tar -C [redacted:private_store] --exclude=.git -chf - . | tar -C \"$S/terms\" -xf -; rm -f \"$S/terms/dotfiles/fleet-names.txt\"; rtk ls -1 \"$S/terms/dotfiles\"; find \"$S/terms\" -type l | wc -l; stat -c '%a %n' \"$S\" \"$S/terms\" \"$S/raw\" | sed \"s|$S|<S>|\"; git -C [redacted:private_store] status --short | wc -l; python3 [redacted:repo]:scripts/session/export.py --help 2>&1 | head -25"
 13874:  "command": "S=/tmp/opencode/wt-export; cd /tmp/opencode && python3 [redacted:repo]:scripts/session/export.py ses_e6256e898ffeOM7EdjLhs55t0k --out-dir \"$S/raw\" --slug adopt_global_mise_tasks --full > \"$S/paths\" 2> \"$S/err\"; echo \"exit=$?\"; sed \"s|$HOME|~|g; s|$S|<S>|g\" \"$S/paths\"; sed \"s|$HOME|~|g; s|$S|<S>|g\" \"$S/err\" | tail -5; ls -l \"$S/raw\" | awk 'NR>1{print $1, $5, $9}'",
 
 ```
@@ -2944,7 +2944,7 @@ _Thinking:_
 **Input:**
 ```json
 {
-  "command": "ls -d ~/Work/*/scripts/session/export.py 2>/dev/null | sed \"s|$HOME|~|g\"; rtk ls ~/.config/nvim/scripts/session_redact.py; rtk ls ~/.local/share/chezmoi-private/dotfiles/; rtk grep -n '\"command\": ' memory/sessions/202611022007-adopt_global_mise_tasks.md | awk -F: '$1>13874' | cut -c1-1200 | head -12"
+  "command": "ls -d ~/Work/*/scripts/session/export.py 2>/dev/null | sed \"s|$HOME|~|g\"; rtk ls ~/.config/nvim/scripts/session_redact.py; rtk ls [redacted:private_store]/dotfiles/; rtk grep -n '\"command\": ' memory/sessions/202611022007-adopt_global_mise_tasks.md | awk -F: '$1>13874' | cut -c1-1200 | head -12"
 }
 ```
 
@@ -3039,7 +3039,7 @@ Usage:
   session_redact.py [--profile private|public] --check FILE...
 
 No private term lives in this script. They live in a terms directory,
-$SESSION_REDACT_TERMS_DIR (default ~/.local/share/chezmoi-private/nvim),
+$SESSION_REDACT_TERMS_DIR (default [redacted:private_store]/nvim),
 which is outside every repository. Files in it (all optional):
 
   profile            'private' (default) or 'public'
@@ -3142,7 +3142,7 @@ That's this session. Setting up the 0700 scratch area with a throwaway copy of t
 **Input:**
 ```json
 {
-  "command": "set -e; S=/tmp/opencode/obs-export; rm -rf \"$S\"; mkdir -p -m 700 \"$S\" \"$S/terms\" \"$S/raw\"; chmod 700 \"$S/terms\" \"$S/raw\"; tar -C ~/.local/share/chezmoi-private --exclude=.git -chf - . | tar -C \"$S/terms\" -xf -; rm -f \"$S/terms/dotfiles/fleet-names.txt\"; cat \"$S/terms/dotfiles/profile\"; cd /tmp/opencode && python3 [redacted:repo]:scripts/session/export.py ses_e4efce262ffeS3bDu0gR1sU9xA --out-dir \"$S/raw\" --slug add_mise_app_desktop_entries --full > \"$S/paths\" 2> \"$S/err\"; echo \"exit=$?\"; sed \"s|$HOME|~|g; s|$S|<S>|g\" \"$S/paths\"; tail -3 \"$S/err\" | sed \"s|$HOME|~|g; s|$S|<S>|g\"; ls -l \"$S/raw\" | awk 'NR>1{print $1,$5,$9}'"
+  "command": "set -e; S=/tmp/opencode/obs-export; rm -rf \"$S\"; mkdir -p -m 700 \"$S\" \"$S/terms\" \"$S/raw\"; chmod 700 \"$S/terms\" \"$S/raw\"; tar -C [redacted:private_store] --exclude=.git -chf - . | tar -C \"$S/terms\" -xf -; rm -f \"$S/terms/dotfiles/fleet-names.txt\"; cat \"$S/terms/dotfiles/profile\"; cd /tmp/opencode && python3 [redacted:repo]:scripts/session/export.py ses_e4efce262ffeS3bDu0gR1sU9xA --out-dir \"$S/raw\" --slug add_mise_app_desktop_entries --full > \"$S/paths\" 2> \"$S/err\"; echo \"exit=$?\"; sed \"s|$HOME|~|g; s|$S|<S>|g\" \"$S/paths\"; tail -3 \"$S/err\" | sed \"s|$HOME|~|g; s|$S|<S>|g\"; ls -l \"$S/raw\" | awk 'NR>1{print $1,$5,$9}'"
 }
 ```
 

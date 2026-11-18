@@ -11124,7 +11124,7 @@ The sequence is a scratch directory, then the exporter with `--full --no-childre
 
 **Output:**
 ```
-store: ~/.local/share/chezmoi-private
+store: [redacted:private_store]
 project file: [redacted:worktrees_root]/dotfiles-shell-test-harness/.session-redact.toml
 profile: public (project directory)
 fleet-names: keep (project directory)
@@ -11132,7 +11132,7 @@ fleet names: 6 readable, 5 hidden
 identity: auto (default), applied: yes
 path-aliases: auto (default), applied: yes
 check: memory/sessions/*.md
-layer global: ~/.local/share/chezmoi-private/session-redact
+layer global: [redacted:private_store]/session-redact
   config.toml
   ../nvim/spell/en.utf-8.add (2 entries)
   ../nvim/spell/fr.utf-8.add (5 entries)
@@ -11144,7 +11144,7 @@ layer global: ~/.local/share/chezmoi-private/session-redact
   allow.txt (16 entries)
   github-owners.txt (1 entries)
   private-repos.txt (16 entries)
-layer project: ~/.local/share/chezmoi-private/dotfiles
+layer project: [redacted:private_store]/dotfiles
   redact-terms.txt (21 entries)
 
 ```

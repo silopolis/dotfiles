@@ -8317,7 +8317,7 @@ I'm deciding that the matched values are from my own files, so showing them in t
 
 **Output:**
 ```
-store: ~/.local/share/chezmoi-private
+store: [redacted:private_store]
 project file: [redacted:worktrees_root]/dotfiles-shell-test-harness/.session-redact.toml
 profile: public (--profile)
 fleet-names: keep (project directory)
@@ -8325,7 +8325,7 @@ fleet names: 6 readable, 5 hidden
 identity: auto (default), applied: yes
 path-aliases: auto (default), applied: yes
 check: memory/sessions/*.md
-layer global: ~/.local/share/chezmoi-private/session-redact
+layer global: [redacted:private_store]/session-redact
   config.toml
   ../nvim/spell/en.utf-8.add (2 entries)
   ../nvim/spell/fr.utf-8.add (5 entries)
@@ -8337,7 +8337,7 @@ layer global: ~/.local/share/chezmoi-private/session-redact
   allow.txt (16 entries)
   github-owners.txt (1 entries)
   private-repos.txt (16 entries)
-layer project: ~/.local/share/chezmoi-private/dotfiles
+layer project: [redacted:private_store]/dotfiles
   redact-terms.txt (20 entries)
 
 ```

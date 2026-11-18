@@ -731,7 +731,7 @@ _Thinking:_
 ./openspec/changes/make-install-scripts-idempotent/design.md:54:| `run_onchange_after_90-bat-cache.sh.tmpl` | after | `dot_config/bat/config`, `.chezmoiexternals/bat.toml.tmpl` | `bat cache --build` |
 ./openspec/changes/fix-chezmoi-config-template/tasks.md:16:- [ ] 3.1 `git rm -r home/dot_config/chezmoi`; check the target is left alone (`chezmoi apply --dry-run --verbose ~/.config/chezmoi 2>&1 | grep -c remove` prints 0)
 ./openspec/changes/fix-chezmoi-config-template/tasks.md:35:- [ ] 5.1 In `home/dot_config/shell/rc.d/110-pkg_brew.sh`, after `chezmoi re-add "$target"`, add `chezmoi apply --exclude=scripts "$target"` (`zsh -n` and `bash -n` on the file)
-./openspec/changes/fresh-machine-bootstrap/tasks.md:25:- [ ] 4.3 Prove the skip path with no GitHub login in the container (bootstrap exits 0; `chezmoi managed | grep -c '^\.config/nvim$'` prints 0); once `add-private-store-external` is applied, the private store external is skipped too (`chezmoi managed | grep -c '^\.local/share/chezmoi-private$'` prints 0)
+./openspec/changes/fresh-machine-bootstrap/tasks.md:25:- [ ] 4.3 Prove the skip path with no GitHub login in the container (bootstrap exits 0; `chezmoi managed | grep -c '^\.config/nvim$'` prints 0); once `add-private-store-external` is applied, the private store external is skipped too (`chezmoi managed | grep -c '^\.local/share/[redacted:private]$'` prints 0)
 ./openspec/changes/fresh-machine-bootstrap/specs/machine-bootstrap/spec.md:15:- **THEN** chezmoi is initialized with that clone as its working tree and `chezmoi source-path` ends with `/home`
 ./openspec/changes/fresh-machine-bootstrap/design.md:6:- Literal paths: `dot_config/git/gitconfig:45,48` (`gh` credential helper), `dot_config/tmux/tmux.conf:199` (TPM), `dot_config/symlink_Joplin` and `symlink_joplin-desktop` (absolute targets under a cloud-synced folder), `dot_config/shell/aliases:293-294` (terraform completion), `dot_config/shell/rc.d/110-pkg_brew.sh:2,17`.
 ./openspec/changes/add-repo-roadmap/brief.md:20:4. `openspec/specs/global-mise-tasks/spec.md` and `dot_config/mise/tasks/` (how global tasks are written and tested here).
@@ -740,8 +740,8 @@ _Thinking:_
 ./openspec/changes/add-repo-roadmap/specs/global-mise-tasks/spec.md:28:- **WHEN** `shellcheck -x` runs on `dot_config/mise/lib/scm.sh` and on every shell file under `dot_config/mise/tasks/`
 ./openspec/changes/add-repo-roadmap/specs/global-mise-tasks/spec.md:33:- **WHEN** `python3 -m py_compile` runs on every Python file under `dot_config/mise/lib/` and `dot_config/mise/tasks/`, then `python3 -m unittest discover -s tests/global-mise-tasks` runs
 ./openspec/changes/add-repo-roadmap/specs/global-mise-tasks/spec.md:38:- **WHEN** `rg -n -e "$HOME" -e "$USER" dot_config/mise/lib dot_config/mise/tasks` runs
-./openspec/changes/add-private-store-external/tasks.md:11:- [ ] 2.2 Record the store's state read-only (`stat -c '%a' ~/.local/share/chezmoi-private`; `git -C ~/.local/share/chezmoi-private status -sb`; `git -C ~/.local/share/chezmoi-private rev-parse HEAD`)
-./openspec/changes/add-private-store-external/tasks.md:20:- [ ] 4.1 Write `home/.chezmoiexternals/private-store.toml.tmpl` as in the design (`chezmoi execute-template < home/.chezmoiexternals/private-store.toml.tmpl | grep -c '^\[".local/share/chezmoi-private"\]'` prints 1; `chezmoi managed | grep -c '^\.local/share/chezmoi-private$'` prints 1)
+./openspec/changes/add-private-store-external/tasks.md:11:- [ ] 2.2 Record the store's state read-only (`stat -c '%a' [redacted:private_store]`; `git -C [redacted:private_store] status -sb`; `git -C [redacted:private_store] rev-parse HEAD`)
+./openspec/changes/add-private-store-external/tasks.md:20:- [ ] 4.1 Write `home/.chezmoiexternals/private-store.toml.tmpl` as in the design (`chezmoi execute-template < home/.chezmoiexternals/private-store.toml.tmpl | grep -c '^\[".local/share/[redacted:private]"\]'` prints 1; `chezmoi managed | grep -c '^\.local/share/[redacted:private]$'` prints 1)
 ---
 // Secret scanning for this public repository (change harden-sensitive-targets).
 //
@@ -4612,7 +4612,7 @@ The repository only works on a machine that already went through it: the bootstr
 
 - [ ] 4.1 Decide with [redacted:private] `T-012` whether the external is skipped for some profiles, and if so add the condition to `.chezmoiexternals/nvim.toml.tmpl` (`chezmoi --override-data '{"profile":"<name>"}' managed | grep -c '^\.config/nvim$'` prints 0)
 - [ ] 4.2 Decide whether the branch and an SSH transport get data keys (`nvim.branch`, `nvim.protocol`); if yes, add the questions and use them in the external (`chezmoi execute-template < .chezmoiexternals/nvim.toml.tmpl`)
-- [ ] 4.3 Prove the skip path with no GitHub login in the container (bootstrap exits 0; `chezmoi managed | grep -c '^\.config/nvim$'` prints 0); once `add-private-store-external` is applied, the private store external is skipped too (`chezmoi managed | grep -c '^\.local/share/chezmoi-private$'` prints 0)
+- [ ] 4.3 Prove the skip path with no GitHub login in the container (bootstrap exits 0; `chezmoi managed | grep -c '^\.config/nvim$'` prints 0); once `add-private-store-external` is applied, the private store external is skipped too (`chezmoi managed | grep -c '^\.local/share/[redacted:private]$'` prints 0)
 
 ## 5. Test
 
@@ -20896,7 +20896,7 @@ Private terms SHALL be read from the private store, never from the repository.
 ### Requirement: Configuration layers
 
 The redaction step SHALL read its configuration from layers, in this order: built-in defaults; the global layer, the directory `session-redact/` of the private store (list files and an optional `config.toml`); the project layer, made of the project file `.session-redact.toml` and the project directory it names with `terms`; the directory named by `SESSION_REDACT_TERMS_DIR`; then the `--profile` option.
-The private store SHALL be `SESSION_REDACT_STORE`, else `$XDG_DATA_HOME/chezmoi-private`, else `~/.local/share/chezmoi-private`.
+The private store SHALL be `SESSION_REDACT_STORE`, else `$XDG_DATA_HOME/[redacted:private]`, else `[redacted:private_store]`.
 A single setting (`profile`, `fleet-names`, `identity`, `path-aliases`) SHALL take the value of the last layer that sets it.
 List files SHALL be the union of the layers' files in the same order, each entry once; a project layer SHALL be able to add an entry and SHALL have no way to remove one of another layer.
 When there is no global directory, no project file and no `SESSION_REDACT_TERMS_DIR`, the project directory SHALL be the `nvim` directory of the store.
@@ -20953,7 +20953,7 @@ Usage:
   session_redact.py [--profile private|public] --explain
 
 No private term lives in this script, nor in any repository. Terms live in
-the private store (default ~/.local/share/chezmoi-private, a clone of a
+the private store (default [redacted:private_store], a clone of a
 private repository; SESSION_REDACT_STORE overrides it) and are read in
 layers, later layers winning for single settings and adding to the lists:
 
@@ -21168,7 +21168,7 @@ I'm checking whether this repository has a `.session-redact.toml` and what the p
 **Input:**
 ```json
 {
-  "command": "cd ~/.local/share/chezmoi; ls -la .session-redact.toml 2>&1 | head -2; git ls-files | rtk grep -i redact; echo \"--- store:\"; S=${SESSION_REDACT_STORE:-${XDG_DATA_HOME:-$HOME/.local/share}/chezmoi-private}; ls -la $S 2>&1 | head -12; echo \"--- global dir (names only):\"; ls $S/session-redact 2>&1 | head; echo \"--- per-project dirs:\"; ls -d $S/*/ 2>/dev/null | xargs -n1 basename"
+  "command": "cd ~/.local/share/chezmoi; ls -la .session-redact.toml 2>&1 | head -2; git ls-files | rtk grep -i redact; echo \"--- store:\"; S=${SESSION_REDACT_STORE:-${XDG_DATA_HOME:-$HOME/.local/share}/[redacted:private]}; ls -la $S 2>&1 | head -12; echo \"--- global dir (names only):\"; ls $S/session-redact 2>&1 | head; echo \"--- per-project dirs:\"; ls -d $S/*/ 2>/dev/null | xargs -n1 basename"
 }
 ```
 
@@ -21273,7 +21273,7 @@ This repo has no `.session-redact.toml`, so I'm checking how the redactor finds 
 **Input:**
 ```json
 {
-  "command": "cd ~/.local/share/chezmoi; S=${XDG_DATA_HOME:-$HOME/.local/share}/chezmoi-private; echo \"dotfiles dir (names only):\"; ls $S/dotfiles; echo; SESSION_REDACT_TERMS_DIR=$S/dotfiles python3 ~/.config/nvim/scripts/session_redact.py --profile public --explain 2>&1 | cut -c1-200 | head -40",
+  "command": "cd ~/.local/share/chezmoi; S=${XDG_DATA_HOME:-$HOME/.local/share}/[redacted:private]; echo \"dotfiles dir (names only):\"; ls $S/dotfiles; echo; SESSION_REDACT_TERMS_DIR=$S/dotfiles python3 ~/.config/nvim/scripts/session_redact.py --profile public --explain 2>&1 | cut -c1-200 | head -40",
   "timeout": 60000
 }
 ```
@@ -21285,13 +21285,13 @@ fleet-names.txt
 profile
 redact-terms.txt
 
-store: ~/.local/share/chezmoi-private
+store: [redacted:private_store]
 project file: none
 profile: public (--profile)
 fleet-names: keep (terms-dir)
 identity: auto (default), applied: yes
 path-aliases: auto (default), applied: yes
-layer global: ~/.local/share/chezmoi-private/session-redact
+layer global: [redacted:private_store]/session-redact
   config.toml
   ../nvim/spell/fr.utf-8.add (5 entries)
   redact-terms.txt (9 entries)
@@ -21301,7 +21301,7 @@ layer global: ~/.local/share/chezmoi-private/session-redact
   public-repos.txt (96 entries)
   github-owners.txt (1 entries)
   private-repos.txt (16 entries)
-layer terms-dir: ~/.local/share/chezmoi-private/dotfiles
+layer terms-dir: [redacted:private_store]/dotfiles
   redact-terms.txt (19 entries)
 
 ```

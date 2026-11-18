@@ -1413,7 +1413,7 @@ _Thinking:_
 118: - **B-003** - Propose to [redacted:repo] the `.agents/` layout of `[redacted:repo]:ADR-104` ([redacted:repo] still uses `.opencode/command/`).
 119: - **B-004** - Evaluate trunk-based development as a fleet decision (not adopted here: `DR-001`).
 120: - **B-005** - [redacted:private]
-121: - **B-006** - Convert the 241 [redacted:private] opencode sessions created with 1.x so 2.x lists them, before the 2.x move (`DR-007`).
+121: - [redacted:private]
 122: - **B-007** - Before publishing [redacted:repo], separate the tool from personal instance data (migration records, machine facts, work, client and hosting details), in a private instance repository or as age-encrypted files like the dotfiles; decide between cleaning and restarting the history (72 commits on 2026-10-30, private details in about 23 files); add gitleaks to `hk.pkl`.
 123: 
 124: ## Changelog
@@ -1498,7 +1498,7 @@ mise.toml.jinja  1.6K
 251:  Triage (2026-10-15): the dispatch was received as `[redacted:repo]:T-050` (`ready` since 2026-08-27, `dispatch_origin: "[redacted:repo]:B-008"`, kept standalone outside `[redacted:repo]:M-003`), and `[redacted:repo]:DR-003` i
 == [redacted:repo]
 120:- **B-005** - [redacted:private]
-121:- **B-006** - Convert the 241 [redacted:private] opencode sessions created with 1.x so 2.x lists them, before the 2.x move (`DR-007`).
+121:- [redacted:private]
 122:- **B-007** - Before publishing [redacted:repo], separate the tool from personal instance data (migration records, machine facts, work, client and hosting deta
 == [redacted:repo]
 3807:  front matter de `T-087` lui-même portait (symétrique à `[redacted:repo]:B-007`) — restriction
