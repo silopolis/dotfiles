@@ -12,7 +12,8 @@
 #                                     it needs neither hostnamectl nor lscpu.
 #   dt_render DIR [SOURCE]            render the shell targets of SOURCE (default: DOTFILES_TEST_SOURCE) below DIR:
 #                                     DIR/destination (empty, mode 0750, made first: chezmoi creates neither the
-#                                     root nor the parent of a directory target), DIR/state, DIR/cache, DIR/stubs
+#                                     root nor the parent of a directory target; one that exists is an error, status
+#                                     2), DIR/state, DIR/cache, DIR/stubs
 #                                     (a stub aqua, which a template calls at render time) and DIR/chezmoi.toml.
 #                                     Prints the destination. The only place of the suite that applies anything.
 #   dt_render_ref REF DIR             the same for another git ref: `git archive` (read-only on the repository) into
@@ -74,13 +75,14 @@ dt_render() {
   local targets=()
   chezmoi_bin=${DT_TOOL_CHEZMOI:-$(dt_find_tool chezmoi)} || return 2
   mkdir -p -- "$dir/stubs" "$dir/state" "$dir/cache"
-  mkdir -m 0700 -- "$dir/home"
+  mkdir -m 0700 -- "$dir/home" || return 2
   printf '#!/bin/sh\necho "# stub aqua completion"\n' > "$dir/stubs/aqua"
   chmod 0755 "$dir/stubs/aqua"
   dt_render_config "$dir/chezmoi.toml"
-  # an empty destination of mode 0750 (what the umask of the configuration gives) with .config below it
-  mkdir -m 0750 -- "$dest"
-  mkdir -m 0750 -- "$dest/.config"
+  # an empty destination of mode 0750 (what the umask of the configuration gives) with .config below it:
+  # made here and never reused, so a destination that exists is an error and not a start from a used one
+  mkdir -m 0750 -- "$dest" || return 2
+  mkdir -m 0750 -- "$dest/.config" || return 2
   while IFS= read -r t; do
     targets+=("$dest/$t")
   done < <(dt_render_targets)

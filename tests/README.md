@@ -31,6 +31,7 @@ Where a unit test needs a real utility (`git`, `jq`, `unzip`, `python3`, `shellc
 Real interactive shells start on a scratch render of the shell targets, under a pseudo-terminal when the check is about a terminal, or a real tool runs in a sandbox of scratch directories (the real `mise reshim`).
 It runs by default and may take a few seconds per file.
 The render is one apply of the shell targets into an empty scratch destination, with a generated configuration and the scripts, externals and encrypted files left out; `helpers/render.sh` is the only place of the suite that applies anything.
+`smoke/render.bats` tests the render itself: synthetic identity values and no encryption key, no external and no encrypted file, no need of `hostnamectl` or `lscpu`, and a new destination of mode 0750 that the real home never sees.
 The tests that read this machine are the smoke files named `*-live.bats`, tagged `live`, and skipped unless `DOTFILES_TEST_LIVE=1`.
 
 ### E2E
