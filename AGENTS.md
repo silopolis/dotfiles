@@ -95,7 +95,7 @@ Its location (`nvim.host`, `nvim.owner`, `nvim.repo`) is chezmoi data kept in th
   Values stay secret whatever the name.
 - Open security issues are described in general terms, with a command that shows the details locally.
 - The same rule applies to cem, which will become public too.
-- Sibling repositories: name only those that are public or meant to be (darse, cem, bosco, greffe, the Neovim configuration repository); call any other "a fleet repository".
+- Sibling repositories: name only those that are public or meant to be (darse, cem, bosco, greffe, opencode-readonly-guard, the Neovim configuration repository); call any other "a fleet repository".
   A file that is committed here is public, so a private repository is not named even to say that it is private.
 
 ## Conventions
