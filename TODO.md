@@ -37,6 +37,7 @@ Candidates for `rationalize-package-ownership`, which owns package ownership.
   - whether the profile stops exporting them and shells source the file only in interactive shells.
   The wrapper that starts agents without them, `add-agent-env-wrapper`, protects agents and their children only: it does not replace this study.
   The proposal `correct-shell-environment` carries the profile questions of this study together with `PATH`, locale and umask; its design starts from the findings in its proposal.
+  Decided on 2026-11-20: the study runs inside that change, as the first section of its work, and not as a change of its own.
 * Agents running key-reading clients (parked by the user on 2026-11-16, depends on the agent-harness decision).
   Document, model and translation command-line clients read a key from the environment.
   Whether an agent may run them, and how each would get a key file of its own (mode 0600) instead of the environment, is a question for the agent-harness tooling (a planned darse module or a dedicated repository) more than for the dotfiles alone.
@@ -50,6 +51,9 @@ Candidates for `rationalize-package-ownership`, which owns package ownership.
   The real name and address stay for new commits until the fleet strategy is decided; a study of that strategy was signalled to the coordination repository of the fleet.
   If it settles on another identity, the change is small and lives in `home/dot_config/git/gitconfig`, which is global to the machine.
   Before any other repository of the fleet goes public, the same review applies to its history.
+* Bump the pre-commit hook runner (from the darse signal T-070, backlogged by the user on 2026-11-20).
+  The pin is `2.10.0` in `mise.toml` (line 5) and in the two `package://` addresses of `hk.pkl` (lines 8 and 9); darse measured `2.11.1` working end to end.
+  Read the release notes, change the three places together, run `mise run hooks:install` and the test suite, and check that the secret scan still runs on a commit.
 
 ## Planned order of changes
 
@@ -66,7 +70,7 @@ Once `add-repo-roadmap` is applied, its generated `ROADMAP.md` replaces this lis
 1. [x] `fix-chezmoi-config-template` (audit 3): the config template, encryption, umask, Neovim external, the `features.incus` question.
 2. [x] `make-install-scripts-idempotent` (audit 4): after it, a full apply is allowed after a reviewed dry run.
 3. [ ] `remove-brew-libvirt`: brew's libvirt, and a ban on it, on `qemu` and on brew's `incus`; first of the Incus group so that `virsh` and `incus` on `PATH` are the system ones.
-4. [x] `fast-correct-shell-startup` (audit 7): silent and fast startup, archived 2026-11-16; its environment half is the proposal `correct-shell-environment` (audit 28), which has no place in this order yet and follows the study of secrets held by the desktop session below.
+4. [x] `fast-correct-shell-startup` (audit 7): silent and fast startup, archived 2026-11-16; its environment half is the change `correct-shell-environment` (audit 28), second in the rest list of item 25, which includes the study of secrets held by the desktop session below.
 5. [ ] `manage-xdg-basics` (audit 12): its install script runs only after item 2.
 6. [ ] `add-mise-app-desktop-entries`: after item 5 is archived, so that `mimeapps.list` has one owner.
 7. [ ] `cleanup-dead-config` (audit 16): proposal and specs only, needs design and tasks.
@@ -89,6 +93,7 @@ Once `add-repo-roadmap` is applied, its generated `ROADMAP.md` replaces this lis
 24. [ ] `support-omarchy` *planned*: an Arch VM with the Omarchy installer; needs item 17.
 25. [ ] The rest, in the audit's order:
     * [x] `add-shell-test-harness` (audit 29): the bats suite that replaces the three scratch harnesses of the install scripts, the wrapper and the shell startup, archived 2026-11-18; first of this list on purpose (out of the audit's order), because `port-omalap-shell-aliases` and `correct-shell-environment` change the startup again and are proved by it; no dependency.
+    * [ ] `correct-shell-environment` (audit 28): `PATH`, locale, umask, the load order of highlighting, the guard of `shellrc` and what the desktop login shell loads, with the study of secrets held by the desktop session as its first section (decided on 2026-11-20); second of this list on purpose (out of the audit's order), because it follows the test suite that proves it and `port-omalap-shell-aliases` changes the same startup files.
     * [ ] `port-omalap-shell-aliases` (audit 8)
     * [ ] `rationalize-package-ownership` (audit 9): also owns the mise packaging backlog above
     * [ ] `install-terminal-fonts` (audit 10)
