@@ -7,7 +7,7 @@
 
 - [ ] 2.1 lazygit: review `chezmoi diff ~/.config/lazygit/config.yml`, then `chezmoi re-add ~/.config/lazygit/config.yml`; start and quit lazygit; `chezmoi status ~/.config/lazygit/config.yml` prints nothing
 - [ ] 2.2 VSCodium: `git mv home/dot_config/VSCodium home/dot_config/private_VSCodium`; `chezmoi diff ~/.config/VSCodium` shows no mode change
-- [ ] 2.3 Libvirt snippet: copy `~/.config/shell/rc.d/060-libvirt.sh` to `home/dot_config/shell/rc.d/060-env_libvirt.sh` (`chezmoi add` then `git mv` if needed); with the user's go delete the old live name; apply the new one alone (`chezmoi apply --exclude=scripts ~/.config/shell/rc.d/060-env_libvirt.sh`); new shell: `echo $LIBVIRT_DEFAULT_URI` unchanged
+- [ ] 2.3 Libvirt snippet: copy `~/.config/shell/rc.d/060-libvirt.sh` to `home/dot_config/shell/rc.d/060-env_libvirt.sh` (`chezmoi add` then `git mv` if needed); with the user's go delete the old live name; apply the new one alone (`chezmoi apply --exclude=scripts ~/.config/shell/rc.d/060-env_libvirt.sh`); new shell: `echo $LIBVIRT_DEFAULT_URI` unchanged; the `env_` name matters: the environment-only desktop login of `correct-shell-environment` loads only the `env_` files, so without this task the user manager stops holding the variable after its deployment (terminals keep it)
 - [ ] 2.4 With the user's go: delete `~/.config/shell/rc.d/190-env_path_user.sh`; new shell: `~/.local/bin` appears once in `PATH`, other entries in the same order
 - [ ] 2.5 Move `~/.config/bash/bashrc.original` and `~/.config/zsh/zshrc.bak` to `~/Archives/ulap01/` (`ls ~/Archives/ulap01/`)
 - [ ] 2.6 `chezmoi unmanaged ~/.config/shell ~/.config/bash ~/.config/zsh` prints nothing (or only ignored entries)

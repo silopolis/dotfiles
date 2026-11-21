@@ -38,6 +38,15 @@ Candidates for `rationalize-package-ownership`, which owns package ownership.
   The wrapper that starts agents without them, `add-agent-env-wrapper`, protects agents and their children only: it does not replace this study.
   The proposal `correct-shell-environment` carries the profile questions of this study together with `PATH`, locale and umask; its design starts from the findings in its proposal.
   Decided on 2026-11-20: the study runs inside that change, as the first section of its work, and not as a change of its own.
+  Done on 2026-11-21: the findings are in `openspec/changes/correct-shell-environment/findings.md` (counts and labels only) and the decisions in its design: the profile stops exporting the private file, a loader function exports it into the current shell on demand, and new shells unset inherited copies.
+  What is left is the build of that change (its tasks), the reboot check below, and the follow-ups below.
+* Per-tool keys instead of the environment (from decision 1 of `correct-shell-environment`, the target once the loader is in place).
+  The Neovim AI plugin accepts a key command in its key names and none is configured, so a note goes to the orchestrator of the Neovim repository; the command-line client that has a key-command setting belongs to `manage-ai-tool-configs`; the one editor extension that reads a key from the environment has its own key setting, empty today.
+  A key file of mode 0600 or the wallet (`secret-tool`, with `pam_kwallet` opening it at login) are the sources.
+  Agents running key-reading clients, below, is the same question seen from the agent side.
+* A managed `~/.zshenv` for non-interactive non-login zsh (from decision 4 of `correct-shell-environment`, kept out of that change on purpose).
+  Ssh commands, cron and scripts would load the environment part through it.
+  The review has to weigh its cost on every `zsh -c`, since the desktop login pass measures 0.23 s today.
 * Agents running key-reading clients (parked by the user on 2026-11-16, depends on the agent-harness decision).
   Document, model and translation command-line clients read a key from the environment.
   Whether an agent may run them, and how each would get a key file of its own (mode 0600) instead of the environment, is a question for the agent-harness tooling (a planned darse module or a dedicated repository) more than for the dotfiles alone.
