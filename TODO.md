@@ -43,6 +43,8 @@ Candidates for `rationalize-package-ownership`, which owns package ownership.
 * Per-tool keys instead of the environment (from decision 1 of `correct-shell-environment`, the target once the loader is in place).
   The Neovim AI plugin accepts a key command in its key names and none is configured, so a note goes to the orchestrator of the Neovim repository; the command-line client that has a key-command setting belongs to `manage-ai-tool-configs`; the one editor extension that reads a key from the environment has its own key setting, empty today.
   A key file of mode 0600 or the wallet (`secret-tool`, with `pam_kwallet` opening it at login) are the sources.
+  The Neovim repository's orchestrator recorded the item on 2026-11-21 in its roadmap, unscheduled, the route being a decision of the user in a change of its own; it will say which route is chosen.
+  Two facts from its reading of the plugin matter for that choice: a key command runs synchronously with no timeout, so a locked wallet would block the editor until the dialog is answered; and a provider switched to a key command stops reading the environment unless the plugin's shell-environment field is also set, so the loader of `correct-shell-environment` no longer helps that provider.
   Agents running key-reading clients, below, is the same question seen from the agent side.
 * A managed `~/.zshenv` for non-interactive non-login zsh (from decision 4 of `correct-shell-environment`, kept out of that change on purpose).
   Ssh commands, cron and scripts would load the environment part through it.
@@ -53,6 +55,7 @@ Candidates for `rationalize-package-ownership`, which owns package ownership.
   Until it is studied, those clients are not allowed inside agent sessions, and the wrapper change keeps them out of its scope.
 * Check after the next reboot (from the credential exposure of 2026-11): a count, never a value, that the terminal, the multiplexer and the systemd user manager hold no GitHub token variable (`systemctl --user show-environment | cut -d= -f1 | grep -c`, and `grep -c` on `/proc/<pid>/environ`).
   The revoked variable stays in the user manager until then; the profile no longer sets it and new shells unset it.
+  The exact probe, with its expected counts before and after the deployment of `correct-shell-environment`, is `openspec/changes/correct-shell-environment/manual-steps.md` (section "Reboot check before the change is deployed"); it also counts every process, so the terminal and the multiplexer are covered.
 * Commit identity and the history of this repository (from a fleet signal of 2026-11-16, decided by the user the same day).
   The hosting account now keeps the e-mail address private and blocks pushes that expose it; the user lifted the block, and the public history already carries the real address in every commit.
   A review of all refs (credential scanner, then the redaction tool's checks on `git log -p --all`, counts only, run from a scratch copy that was then deleted) found no credential and one private project name in early versions of a committed session export, published since 2026-10-31 and removed from the file by later re-redaction.

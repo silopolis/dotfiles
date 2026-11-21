@@ -1,12 +1,13 @@
 ## 1. Start
 
-- [ ] 1.1 Read `design.md`, `findings.md` and the specs of this change; `mise run test:deps` if `tests/.lib` is missing, then `mise run test` (baseline of 2026-11-21: 343 tests, 0 failures, 27 skipped)
+- [ ] 1.1 Read `design.md`, `findings.md`, `manual-steps.md` and the specs of this change; `mise run test:deps` if `tests/.lib` is missing, then `mise run test` (baseline of 2026-11-21: 343 tests, 0 failures, 27 skipped)
 - [ ] 1.2 Each group below writes its tests first and sees them fail on the current tree (`tests/run.sh <file>`), then the code, then sees them pass; every new mutant goes in `tests/mutants/` with its row in `tests/mutants/README.md` (`mise run test:mutants` exits 0)
 
 ## 2. Test helpers
 
 - [ ] 2.1 `tests/helpers/`: a runner for the shell kinds of the `shell-environment` spec (the desktop replay with the session's `PATH`, `LANG`, `SHELL`, `USER` and `LOGNAME`, the interactive kinds under a pseudo-terminal, the kinds started without `LANG`, `bash -c` as sshd starts it), printing counts only (`bash -n` and `shellcheck -s bash` on the helper; `bats tests/unit/harness.bats` passes)
 - [ ] 2.2 Synthetic fixtures made at run time: a zsh history file in extended format with multi-line entries, a second one with extra entries, and an inherited missing locale name (`rg -n 'DEMO_[A-Z_]*(KEY|TOKEN|SECRET|PASSWORD|PASSWD|CREDENTIAL)' tests` prints nothing)
+- [ ] 2.3 `tests/helpers/session-probe.sh`: the probe of `manual-steps.md` as a script that prints the 16 lines A1 to A16, counts and modes only, bash and zsh; `tests/unit/session-probe.bats` runs it on a synthetic private file of `DEMO_` names with stubs for `systemctl` and `getent` and checks the counts, and that no name of the synthetic file and no value is in its output; `bash -n` and `shellcheck -s bash`; the probe in `manual-steps.md` and the script stay identical (a test compares them)
 
 ## 3. PATH and the env_ files
 
@@ -73,6 +74,8 @@
 
 ## 11. Deployment, one target at a time, with the user present
 
+The exact steps, the expected output and the rollbacks are in `manual-steps.md` (step 1).
+
 Each step: `chezmoi -S <worktree> apply --exclude=scripts <targets>`, then a new interactive shell in a spare herdr tab (prompt, `alias cm`, a completion, `echo $PATH | tr : '\n' | sort | uniq -d` prints nothing), the tab closed by id; deletions only with the user's go.
 
 - [ ] 11.1 `rc.d/035-env_path_helper.sh`, `040`, `050`
@@ -84,6 +87,9 @@ Each step: `chezmoi -S <worktree> apply --exclude=scripts <targets>`, then a new
 
 ## 12. Session defaults, reboot and live checks (the user)
 
+The exact commands, the expected values before and after, and the rollbacks are in `manual-steps.md` (steps 2 to 6): it is the checklist to follow, and every line below is one of its steps.
+The probe prints counts only: run it in a terminal that did not run `secrets load`.
+
 - [ ] 12.1 Render the script, run it with `CHEZMOI_SCRIPTS_DRY_RUN=1` and review its lines with the user; then the user runs it in a terminal where sudo asks for the password
 - [ ] 12.2 At once: `getent passwd <user>` shows `umask=027` in the GECOS field (checked by a count), `sudo -l` works, `sudo touch /tmp/umask-check && stat -c %a /tmp/umask-check` prints `644` (then the file is removed with the user's go), `stat -c %a ~` prints `700`, `locale -a` lists `en_US.utf8`
 - [ ] 12.3 Reboot
@@ -93,7 +99,7 @@ Each step: `chezmoi -S <worktree> apply --exclude=scripts <targets>`, then a new
 
 ## 13. Close
 
-- [ ] 13.1 Record before and after in `design.md` ("Results"): desktop replay time and names, `PATH` entries, warnings, the live counts
+- [ ] 13.1 Record before and after in `design.md` ("Results"): desktop replay time and names, `PATH` entries, warnings, and the probe's lines A1 to A16 against the table of `manual-steps.md`
 - [ ] 13.2 `/opsx-verify correct-shell-environment`; archive on the user's go; then the merged `shell-startup` Purpose names the capability `shell-environment` instead of this change, and no modeline sits inside a requirement
 - [ ] 13.3 Rebase on `main`, `openspec validate --all --strict`, report the last commit hash with the frictions met
 

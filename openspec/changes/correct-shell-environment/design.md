@@ -189,6 +189,8 @@ The five decisions were taken with the user on 2026-11-21, one at a time, with t
 
 ## Migration Plan
 
+The steps that only the user can take (sudo, deletions, the reboot, the live probes) are written out, with their expected output and rollbacks, in `manual-steps.md`.
+
 1. Build: tests first, then code, `mise run test` green, `mise run test:mutants` green, shellcheck and `zsh -n` on every changed file.
 2. Deploy one target at a time with `chezmoi apply --exclude=scripts <target>`, each followed by a new interactive shell in a spare tab:
    1. `rc.d/035-env_path_helper.sh`, then each renamed `env_` file together with the removal of its old target (the user's go for each deletion);
