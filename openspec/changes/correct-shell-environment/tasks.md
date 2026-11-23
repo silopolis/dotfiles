@@ -21,9 +21,9 @@
 
 ## 4. Locale
 
-- [ ] 4.1 `tests/unit/locale.bats` (the filter of inherited missing locales, the default of an unset `LANG`, with a stub `locale -a`) and `tests/smoke/environment-locale.bats` (scenarios "No forced LC_ALL", "No locale warnings from the user's files" with `perl -e1` in every kind, "An inherited missing locale is dropped", "The man alias takes effect", skipped with a message when `fr_FR.UTF-8` is not generated)
-- [ ] 4.2 `rc.d/020-env_defaults.sh`: no `LC_ALL`; drop an inherited `LANG`, `LC_ALL` or `LC_*` naming a locale that `locale -a` does not list (names compared without case and without `-`); `LANG` default `en_US.UTF-8` when generated, else `C.UTF-8`; `LANGUAGE` default `en_US:en`; one `locale -a` call per start
-- [ ] 4.3 Mutant `env-lc-all-forced` (the old `LC_ALL` line back): at least the "No forced LC_ALL" tests fail
+- [x] 4.1 `tests/unit/locale.bats` (the filter of inherited missing locales, the default of an unset `LANG`, with a stub `locale -a`) and `tests/smoke/environment-locale.bats` (scenarios "No forced LC_ALL", "No locale warnings from the user's files" with `perl -e1` in every kind, "An inherited missing locale is dropped", "The man alias takes effect", skipped with a message when `fr_FR.UTF-8` is not generated)
+- [x] 4.2 `rc.d/020-env_defaults.sh`: no `LC_ALL`; drop an inherited `LANG`, `LC_ALL` or `LC_*` naming a locale that `locale -a` does not list (names compared without case and without `-`); `LANG` default `en_US.UTF-8` when generated, else `C.UTF-8`; `LANGUAGE` default `en_US:en`; one `locale -a` call per start
+- [x] 4.3 Mutant `env-lc-all-forced` (the old `LC_ALL` line back): at least the "No forced LC_ALL" tests fail
 
 ## 5. Keys on demand
 

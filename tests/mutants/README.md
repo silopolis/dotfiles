@@ -23,6 +23,7 @@ Expected failures: `exactly N` for a mutant whose failures are counted one by on
 | install-limits-lower | tests/unit/install-scripts-isolated.bats | home/.chezmoiscripts/run_onchange_before_02-system-limits.sh.tmpl | sed install/limits-lower.sed | at least 3 |
 | startup-unset-removed | tests/smoke/startup-behaviour.bats | home/dot_config/shell/rc.d/010-env_user.sh | sed startup/unset-removed.sed | at least 4 |
 | env-path-no-clean | tests/unit/path-helper.bats tests/unit/env-path-files.bats tests/smoke/environment-path.bats | home/dot_config/shell/rc.d/035-env_path_helper.sh | sed env/path-no-clean.sed | at least 8 |
+| env-lc-all-forced | tests/unit/locale.bats tests/smoke/environment-locale.bats | home/dot_config/shell/rc.d/020-env_defaults.sh | sed env/lc-all-forced.sed | at least 10 |
 
 The wrapper mutant replaces the `opencode` function with `opencode() { command env opencode "$@"; }`, which hands the whole environment to the binary.
 Three checks fail in each of the three shells: the synthetic set is not removed, a variable added later is not removed, and the secret-named names do not disappear from the list of what the stub sees.
@@ -36,6 +37,7 @@ The startup mutants and what they break:
 
 The environment mutants and what they break:
 - `env-path-no-clean` makes `_path_clean` return at once, so `PATH` keeps its duplicates, its missing directories and its empty entries: the helper's own `_path_clean` checks, the base `PATH` check, the unclean-start checks (no duplicate and no missing directory in any kind, an inherited directory that does not exist is dropped) and the four nested-shell checks fail (ten, plus the two `shellcheck` checks, which see an unreachable line).
+- `env-lc-all-forced` puts the old `LC_ALL` default back after `LANGUAGE`, so the locale of the session is overridden again: the unit checks of the filter and of the defaults, the check that the file sets no `LC_ALL`, the two "no forced LC_ALL" smoke checks, the check of a missing inherited locale and the check of the man alias fail (14, 12 when `fr_FR.UTF-8` is not generated).
 
 The install-script mutants and what they break:
 - `install-run-ignores-dry-run` makes `run()` of the shared helper execute whatever the dry-run switch says, so every dry-run check that goes through `run` fails: the apt update, the limits install, the brew file install, the mise reshim, the bat cache, the VSCodium install and the brew completions link (10).
