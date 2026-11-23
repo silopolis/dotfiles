@@ -12,6 +12,15 @@
 #                               It never prints a value. The pattern is the suite's own (DT_SECRET_PATTERN).
 #   dt_write_private_env FILE   a synthetic private environment file (what ~/.config/env is on a machine): two exports
 #                               with the names of dt_alpha_name and dt_beta_name and plain demo values
+#   dt_write_zsh_history FILE   a synthetic zsh history file in the extended format (`: <time>:<seconds>;<command>`): five
+#                               entries from 1700000100 to 1700000500, two of them on several lines (a backslash at the
+#                               end of a line continues the entry); mode 0600
+#   dt_write_zsh_history_extra FILE  a second one, five entries: one of the first file's (1700000300) and four others,
+#                               two of them between the first file's entries and one on two lines
+#   dt_write_bash_history FILE   a synthetic bash history file, four plain lines, one command typed twice; mode 0600
+#   dt_write_bash_history_extra FILE  a second one, five lines: the repeated command three times and two other lines
+#   dt_locale_generated NAME     succeed when `locale -a` lists the locale, names compared without case and without `-`
+#   dt_missing_locale            print the name of a locale that no machine generates (`locale -a` never lists it)
 #   dt_make_startup_tools DIR   DIR/bin/<tool> stubs for the eight tools whose completion scripts are cached (gh, glab,
 #                               infracost, docker, kubectl, minikube, kind, localstack): a call appends a line to the
 #                               file named by STUBLOG; `completion zsh` and `completion bash` print a script that
@@ -57,6 +66,66 @@ STUB
 
 dt_write_private_env() {
   printf 'export %s=demo-one\nexport %s=demo-two\n' "$(dt_alpha_name)" "$(dt_beta_name)" > "${1:?dt_write_private_env FILE}"
+}
+
+dt_write_zsh_history() {
+  local f=${1:?dt_write_zsh_history FILE}
+  (umask 077 && : > "$f")
+  chmod 0600 "$f"
+  cat >> "$f" << 'HISTORY'
+: 1700000100:0;echo demo-one
+: 1700000200:0;for i in 1 2; do\
+echo demo-loop $i\
+done
+: 1700000300:0;echo demo-three
+: 1700000400:0;echo 'demo-quote'\
+echo demo-four
+: 1700000500:0;echo demo-five
+HISTORY
+}
+
+dt_write_zsh_history_extra() {
+  local f=${1:?dt_write_zsh_history_extra FILE}
+  (umask 077 && : > "$f")
+  chmod 0600 "$f"
+  cat >> "$f" << 'HISTORY'
+: 1700000150:0;echo demo-extra-a
+: 1700000250:0;echo demo-extra-b
+: 1700000300:0;echo demo-three
+: 1700000450:0;echo demo-extra-c\
+echo demo-extra-d
+: 1700000600:0;echo demo-extra-e
+HISTORY
+}
+
+dt_write_bash_history() {
+  local f=${1:?dt_write_bash_history FILE}
+  (umask 077 && : > "$f")
+  chmod 0600 "$f"
+  printf '%s\n' 'echo demo-bash-one' 'ls demo-dir' 'echo demo-bash-one' 'echo demo-bash-two' >> "$f"
+}
+
+dt_write_bash_history_extra() {
+  local f=${1:?dt_write_bash_history_extra FILE}
+  (umask 077 && : > "$f")
+  chmod 0600 "$f"
+  printf '%s\n' 'echo demo-bash-one' 'echo demo-bash-one' 'echo demo-bash-one' 'echo demo-bash-three' 'ls demo-extra' >> "$f"
+}
+
+dt_locale_generated() {
+  local want have
+  want=${1:?dt_locale_generated NAME}
+  want=${want,,}
+  want=${want//-/}
+  while IFS= read -r have; do
+    have=${have,,}
+    [ "${have//-/}" = "$want" ] && return 0
+  done < <(locale -a 2> /dev/null)
+  return 1
+}
+
+dt_missing_locale() {
+  printf '%s\n' zz_ZZ.UTF-8
 }
 
 dt_make_startup_tools() {

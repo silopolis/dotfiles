@@ -5,9 +5,9 @@
 
 ## 2. Test helpers
 
-- [ ] 2.1 `tests/helpers/`: a runner for the shell kinds of the `shell-environment` spec (the desktop replay with the session's `PATH`, `LANG`, `SHELL`, `USER` and `LOGNAME`, the interactive kinds under a pseudo-terminal, the kinds started without `LANG`, `bash -c` as sshd starts it), printing counts only (`bash -n` and `shellcheck -s bash` on the helper; `bats tests/unit/harness.bats` passes)
-- [ ] 2.2 Synthetic fixtures made at run time: a zsh history file in extended format with multi-line entries, a second one with extra entries, the same two for bash (plain lines), and an inherited missing locale name (`rg -n 'DEMO_[A-Z_]*(KEY|TOKEN|SECRET|PASSWORD|PASSWD|CREDENTIAL)' tests` prints nothing)
-- [ ] 2.3 `tests/helpers/session-probe.sh`: the probe of `manual-steps.md` as a script that prints the 16 lines A1 to A16, counts and modes only, bash and zsh; `tests/unit/session-probe.bats` runs it on a synthetic private file of `DEMO_` names with stubs for `systemctl` and `getent` and checks the counts, and that no name of the synthetic file and no value is in its output; `bash -n` and `shellcheck -s bash`; the probe in `manual-steps.md` and the script stay identical (a test compares them)
+- [x] 2.1 `tests/helpers/`: a runner for the shell kinds of the `shell-environment` spec (the desktop replay with the session's `PATH`, `LANG`, `SHELL`, `USER` and `LOGNAME`, the interactive kinds under a pseudo-terminal, the kinds started without `LANG`, `bash -c` as sshd starts it), printing counts only (`bash -n` and `shellcheck -s bash` on the helper; `bats tests/unit/harness.bats` passes)
+- [x] 2.2 Synthetic fixtures made at run time: a zsh history file in extended format with multi-line entries, a second one with extra entries, the same two for bash (plain lines), and an inherited missing locale name (`rg -n 'DEMO_[A-Z_]*(KEY|TOKEN|SECRET|PASSWORD|PASSWD|CREDENTIAL)' tests` prints nothing)
+- [x] 2.3 `tests/helpers/session-probe.sh`: the probe of `manual-steps.md` as a script that prints the 16 lines A1 to A16, counts and modes only, bash and zsh; `tests/unit/session-probe.bats` runs it on a synthetic private file of `DEMO_` names with stubs for `systemctl` and `getent` and checks the counts, and that no name of the synthetic file and no value is in its output; `bash -n` and `shellcheck -s bash`; the probe in `manual-steps.md` and the script stay identical (a test compares them)
 
 ## 3. PATH and the env_ files
 

@@ -29,6 +29,8 @@ DT_BATS_GLUE_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)
 # shellcheck source=/dev/null
 . "$DT_BATS_GLUE_DIR/../compare.sh"
 # shellcheck source=/dev/null
+. "$DT_BATS_GLUE_DIR/../kinds.sh"
+# shellcheck source=/dev/null
 . "$DT_BATS_GLUE_DIR/../timing.sh"
 # shellcheck source=/dev/null
 . "$DT_BATS_GLUE_DIR/../script-fixtures.sh"
