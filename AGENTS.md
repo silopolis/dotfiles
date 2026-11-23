@@ -122,7 +122,9 @@ Orchestration state lives in `.state/` of the checkout, as in the other fleet re
 - Ignored files are not scanned by the commit hook, so a brief or a journal never holds a secret value.
 
 An agent that works a change (a lead, a builder, a closer) is finished when its work is merged or handed over and its session is exported.
-Then its tab is closed by id (`herdr tab close <id>`) and, when it had a worktree, the worktree goes with `scm:worktree:done <branch> --keep-tab`; the orchestrator does both, after the export is committed.
-A finished agent is not left open in a tab: it holds a context nobody uses, and a stale pane has been mistaken for a live one.
+Then its tab or workspace is closed by id and, when it had a worktree, the worktree goes with `scm:worktree:done <branch>`; the orchestrator does both, after the export is committed and pushed (`done` refuses while the branch is not in `origin/main` or an untracked file is left).
+A worker is opened as a linked worktree workspace of the primary workspace of the repository (`herdr worktree open --workspace <primary>`), so that herdr groups it; it is closed with `herdr workspace close <id>`, never with `--group`, which also closes the primary workspace and every other worker.
+A tab opened with `scm:worktree:new --tab` is closed with `herdr tab close <id>` and `done --keep-tab`.
+A finished agent is not left open: it holds a context nobody uses, and a stale pane has been mistaken for a live one.
 
 <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->

@@ -45,6 +45,11 @@ Source: request of the Neovim configuration repository (session S19, 2026-11-03)
   The help of `--prompt` warns that a text ending in `@file` may swallow the Enter.
 - **Tests.**
   Python unit tests with a fake `herdr` that counts how many times the text reached the input box (`tests/global-mise-tasks/`, at the repository root and so outside the source state: no ignore entry), plus a live check with one throwaway agent, with the user's go.
+- **Grouping and cleanup (added 2026-11-23).**
+  A launch opens the worker's workspace as a linked worktree workspace of the primary workspace of the repository (`herdr worktree open --workspace <primary>`), not as a tab inside it, so that herdr groups them; `scm:worktree:new --tab` keeps working for callers that want a tab.
+  The cleanup closes the linked workspace by id and never with `--group`, which would close the primary workspace and every other worker; `scm:worktree:rm` and `scm:worktree:done` do it before removing the worktree, and still refuse a dirty or unmerged one.
+  A project may add a hook that refuses the closing until its session export is committed (the dotfiles repository does: a finished agent is exported before it is closed); the generic tasks only call the hook and stay free of project rules.
+  The closing of a workspace that did not come from the tasks, or of the primary one, is refused.
 - **Replaces `fix-prompt-delivery`.**
   Every requirement of that change moves into the `agent-launch` capability, its directory is deleted (it holds planning only; git keeps the history), and its audit row is marked as superseded.
   Its closing duty moves here: when this change is applied, the Neovim repository is told, so that `session:start` can use the global tasks.

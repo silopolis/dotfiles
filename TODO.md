@@ -108,6 +108,7 @@ Once `add-repo-roadmap` is applied, its generated `ROADMAP.md` replaces this lis
 25. [ ] The rest, in the audit's order:
     * [x] `add-shell-test-harness` (audit 29): the bats suite that replaces the three scratch harnesses of the install scripts, the wrapper and the shell startup, archived 2026-11-18; first of this list on purpose (out of the audit's order), because `port-omalap-shell-aliases` and `correct-shell-environment` change the startup again and are proved by it; no dependency.
     * [ ] `correct-shell-environment` (audit 28): `PATH`, locale, umask, the load order of highlighting, the guard of `shellrc` and what the desktop login shell loads, with the study of secrets held by the desktop session as its first section (decided on 2026-11-20); second of this list on purpose (out of the audit's order), because it follows the test suite that proves it and `port-omalap-shell-aliases` changes the same startup files.
+    * [ ] `add-agent-launch-tasks` (audit 25): moved on 2026-11-23 to follow `correct-shell-environment` part 1 (it was after item 10), so that workers are grouped as linked workspaces and cleaned after their export; its dependency on `add-repo-roadmap` for the language rule of the global tasks stays and must be settled in its plan lead's review: either that rule lands first, or this change carries it.
     * [ ] `port-omalap-shell-aliases` (audit 8)
     * [ ] `rationalize-package-ownership` (audit 9): also owns the mise packaging backlog above
     * [ ] `install-terminal-fonts` (audit 10)
@@ -117,7 +118,6 @@ Once `add-repo-roadmap` is applied, its generated `ROADMAP.md` replaces this lis
     * [ ] `ignore-app-state` (audit 15)
     * [ ] `add-repo-quality-gates` (audit 17)
     * [ ] `refresh-repo-docs` (audit 18)
-    * [ ] `add-agent-launch-tasks` (audit 25): after item 10, for the language rule of the global tasks.
     * [ ] `add-secret-tasks` (audit 26): after item 10, for the Python rule of the global tasks; the store external of item 9 is a soft dependency (the probe table lives in the private store).
     * [x] `add-agent-env-wrapper` (audit 27): no dependency; a shell function that starts opencode without secret-named variables, first part of the launcher decided on 2026-11-16 (the study of secrets held by the desktop session is in the follow-ups above).
 
