@@ -192,5 +192,12 @@ Each step below is logged with its command, its result and any friction, so that
   - What herdr does: a primary workspace and its linked worktree workspaces form a group (`worktree` field of `herdr workspace list`); `herdr workspace close <id> --group` closes the primary workspace and every linked one, so a cleanup must close the linked workspace by id and never with `--group`.
   - By hand until this change is applied: `scm:worktree:new` without `--tab`, then `herdr worktree open --workspace <primary> --path <worktree> --label <label> --no-focus`, the agent started in the root pane of the new workspace; at the end, export first, then close the linked workspace by id, then `scm:worktree:done`.
   - Questions for the design: does `worktree open` accept a worktree that git created (the tasks' own start-commit file and mise trust stay as they are), does it ask for repository trust (`--trust-repository` is per request and needs the user's word once per repository), and what does it print.
+- 2026-11-23, seventh launch, the first grouped one: the build session of `correct-shell-environment` (Sonnet, build mode), opened as a linked worktree workspace.
+  Answers to the questions above:
+  - `scm:worktree:new` without `--tab` created the worktree, the mise trust and the start-commit file, and printed its JSON with empty `tab`, `pane` and `agent` fields.
+  - `herdr worktree open --workspace <primary> --path <worktree> --label <label> --no-focus` accepted that worktree (`already_open` false), asked for no repository trust and returned `workspace`, `tab`, `root_pane` and `worktree` under `.result`; the new workspace had one tab and one pane, and `herdr worktree list --workspace <primary>` then listed the main checkout and the linked worktree with their workspace ids.
+  - The tab of the new workspace is labelled `1`, not with the label given: the label names the workspace.
+  - `herdr agent start <name> --kind opencode --pane <root pane> -- --agent build --model <model>` worked in that root pane; the footer took about ten seconds to draw, so a check of the model reads the pane again before it concludes.
+  - Still to observe at the cleanup: closing that workspace by id without `--group` (the primary workspace and the orchestrator pane must stay), and `scm:worktree:done` after it.
 
 <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->
