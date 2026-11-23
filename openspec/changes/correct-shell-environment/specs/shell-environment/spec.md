@@ -93,8 +93,8 @@ In an interactive shell, the directories that mise's activation adds may come be
 
 #### Scenario: Inherited entries are kept
 
-- **WHEN** an interactive zsh and the desktop replay start with a scratch directory `inherited` at the end of `PATH`
-- **THEN** their `PATH` holds `inherited` once
+- **WHEN** an interactive zsh starts with a scratch directory `inherited` at the end of `PATH`, and the desktop replay runs on a render that holds a fixture file named like an `env_` file, sorted before `040`, which adds that directory to `PATH` (the replay sources `/etc/profile`, which resets the inherited `PATH` before any file of the user runs)
+- **THEN** the `PATH` of each holds `inherited` once
 
 #### Scenario: User bin directories first
 
@@ -174,18 +174,18 @@ zsh and bash SHALL keep their history in `$XDG_STATE_HOME/zsh/history` and `$XDG
 
 #### Scenario: First start moves the legacy file
 
-- **WHEN** a scratch home holds a synthetic `~/.zsh_history` of mode 0600 with multi-line entries and no new file, and an interactive zsh starts
-- **THEN** the new file holds every entry, its mode is 0600, its directory's mode is 0700, and `~/.zsh_history` is a symbolic link to it
+- **WHEN** a scratch home holds a synthetic `~/.zsh_history` of mode 0600 with multi-line entries and no new file, and an interactive zsh starts, and the same is done with a synthetic `~/.bash_history` and an interactive bash
+- **THEN** in each case the new file holds every entry, its mode is 0600, its directory's mode is 0700, and the legacy path is a symbolic link to it
 
 #### Scenario: Two shells at once
 
-- **WHEN** two interactive shells start at the same moment on such a home
+- **WHEN** two interactive shells of the same kind start at the same moment on such a home, in zsh and in bash
 - **THEN** both print nothing, and the new file holds every entry once
 
 #### Scenario: Merge after a trim
 
-- **WHEN** the legacy path is a regular file again, holding entries the new file lacks, and an interactive zsh starts
-- **THEN** the new file holds every entry of both files once, in timestamp order, its mode is 0600, and the legacy path is a symbolic link to it again
+- **WHEN** the legacy path is a regular file again, holding entries the new file lacks, and an interactive zsh starts, and the same is done for bash
+- **THEN** the new file holds every entry of both files once, its mode is 0600, and the legacy path is a symbolic link to it again; the zsh entries are in timestamp order, and the bash entries, whose file carries no timestamp, are those of the new file followed by the entries of the legacy file that it lacks, a repeated command kept as many times as it was typed
 
 ### Requirement: Dead startup files are removed
 

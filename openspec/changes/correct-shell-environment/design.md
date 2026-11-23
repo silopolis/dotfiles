@@ -103,7 +103,7 @@ The five decisions were taken with the user on 2026-11-21, one at a time, with t
   | `044-env_pkg_krew.sh` (from `150`) | `KREW_ROOT`, its bin directory |
   | `045-env_lang_go.sh` (from `200-lang_go`) | `GOPATH`, `GOBIN` |
   | `046-env_lang_rust.sh` (from `220`) | rustup's directory |
-  | `047-env_tools_mise.sh` (new) | mise's shims directory |
+  | `047-env_tools_mise.sh` (new) | mise's shims directory, `${MISE_DATA_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/mise}/shims` |
   | `050-env_path_user.sh` | the user's bin directories, last, so first on `PATH` |
 
   `060` stays free for the `060-env_libvirt.sh` that `reconcile-drift-and-supervised-apply` plans.
@@ -129,7 +129,8 @@ The five decisions were taken with the user on 2026-11-21, one at a time, with t
   - running shells append through the link into the new file;
   - a running shell that trims its history rewrites the old path as a regular file (zsh writes a copy and renames it over the link); the next shell that starts finds a regular file there again, merges it into the new file (every entry once, in timestamp order, written to a temporary file and moved into place) and puts the link back;
   - two shells that start at once: the second one's move, merge or link fails silently and it uses the new file;
-  - after the reboot no old shell is left, and the link at the old path can go.
+  - after the reboot no old shell is left, and the link at the old path can go;
+  - bash follows the same steps with `~/.bash_history` and `bash/history`: its running shells append through the link (`histappend`), one that truncates its file turns the link back into a regular file, and the next start merges it; a plain bash file carries no timestamp, so the merge keeps the entries of the new file, then those of the legacy file it lacks, a repeated command as many times as it was typed.
 - `shell/environment` is the loader of decision 4.
 
 ### Load order, before and after

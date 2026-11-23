@@ -51,7 +51,7 @@ A startup change SHALL NOT export the variables of the private environment file,
 
 #### Scenario: Interactive login shell
 
-- **WHEN** the names of the exported variables of `zsh -l -i` and `bash -l -i` are compared on the previous ref and on the change, and the `PATH` of `zsh -l -i` is compared with the one of `zsh -i`
-- **THEN** the names are equal except the names listed in the change's allow file, and the two `PATH` values are equal
+- **WHEN** the names of the exported variables of `zsh -l -i` and `bash -l -i` are compared on the previous ref and on the change, and the `PATH` of `zsh -l -i` is compared with the one of `zsh -i`, both started from the `PATH` that `/etc/profile` gives a login shell (read at run time from a login shell under a scratch home that holds no user file)
+- **THEN** the names are equal except the names listed in the change's allow file, and the two `PATH` values are equal, so that a second pass which adds or nests an entry makes the comparison fail
 
 <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->

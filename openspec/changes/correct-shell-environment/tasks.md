@@ -1,12 +1,12 @@
 ## 1. Start
 
-- [ ] 1.1 Read `design.md`, `findings.md`, `manual-steps.md` and the specs of this change; `mise run test:deps` if `tests/.lib` is missing, then `mise run test` (baseline of 2026-11-21: 343 tests, 0 failures, 27 skipped)
+- [x] 1.1 Read `design.md`, `findings.md`, `manual-steps.md` and the specs of this change; `mise run test:deps` if `tests/.lib` is missing, then `mise run test` (baseline of 2026-11-21: 343 tests, 0 failures, 27 skipped)
 - [ ] 1.2 Each group below writes its tests first and sees them fail on the current tree (`tests/run.sh <file>`), then the code, then sees them pass; every new mutant goes in `tests/mutants/` with its row in `tests/mutants/README.md` (`mise run test:mutants` exits 0)
 
 ## 2. Test helpers
 
 - [ ] 2.1 `tests/helpers/`: a runner for the shell kinds of the `shell-environment` spec (the desktop replay with the session's `PATH`, `LANG`, `SHELL`, `USER` and `LOGNAME`, the interactive kinds under a pseudo-terminal, the kinds started without `LANG`, `bash -c` as sshd starts it), printing counts only (`bash -n` and `shellcheck -s bash` on the helper; `bats tests/unit/harness.bats` passes)
-- [ ] 2.2 Synthetic fixtures made at run time: a zsh history file in extended format with multi-line entries, a second one with extra entries, and an inherited missing locale name (`rg -n 'DEMO_[A-Z_]*(KEY|TOKEN|SECRET|PASSWORD|PASSWD|CREDENTIAL)' tests` prints nothing)
+- [ ] 2.2 Synthetic fixtures made at run time: a zsh history file in extended format with multi-line entries, a second one with extra entries, the same two for bash (plain lines), and an inherited missing locale name (`rg -n 'DEMO_[A-Z_]*(KEY|TOKEN|SECRET|PASSWORD|PASSWD|CREDENTIAL)' tests` prints nothing)
 - [ ] 2.3 `tests/helpers/session-probe.sh`: the probe of `manual-steps.md` as a script that prints the 16 lines A1 to A16, counts and modes only, bash and zsh; `tests/unit/session-probe.bats` runs it on a synthetic private file of `DEMO_` names with stubs for `systemctl` and `getent` and checks the counts, and that no name of the synthetic file and no value is in its output; `bash -n` and `shellcheck -s bash`; the probe in `manual-steps.md` and the script stay identical (a test compares them)
 
 ## 3. PATH and the env_ files
@@ -15,7 +15,7 @@
 - [ ] 3.2 `rc.d/035-env_path_helper.sh`: `_path_prepend` (move to the front, skip a missing directory) and `_path_clean` (drop duplicates and missing directories), POSIX for both shells
 - [ ] 3.3 `rc.d/040-env_path_base.sh`: keep the inherited `PATH`, append the missing system directories, clean
 - [ ] 3.4 `110-pkg_brew.sh` split: `rc.d/041-env_pkg_brew.sh` holds `brew shellenv` and every `HOMEBREW_*` export, `110` keeps completions, `fpath` and the brew-file wrapper (`zsh -n`, `bash -n`; the brew hook still defined in `zsh -i`)
-- [ ] 3.5 Renames with `git mv`: `120-pkg-aqua.sh` to `042-env_pkg_aqua.sh` (an inherited `AQUA_BIN_DIR` kept as it is), `140-pkg_snap.sh` to `043-env_pkg_snap.sh`, `150-pkg_krew.sh` to `044-env_pkg_krew.sh`, `200-lang_go.sh` to `045-env_lang_go.sh`, `220-lang_rust.sh` to `046-env_lang_rust.sh`; new `047-env_tools_mise.sh` (mise's shims directory); `050-env_path_user.sh` through `_path_prepend`; each old target in `home/.chezmoiremove`
+- [ ] 3.5 Renames with `git mv`: `120-pkg-aqua.sh` to `042-env_pkg_aqua.sh` (an inherited `AQUA_BIN_DIR` kept as it is), `140-pkg_snap.sh` to `043-env_pkg_snap.sh`, `150-pkg_krew.sh` to `044-env_pkg_krew.sh`, `200-lang_go.sh` to `045-env_lang_go.sh`, `220-lang_rust.sh` to `046-env_lang_rust.sh`; new `047-env_tools_mise.sh` (mise's shims directory, `${MISE_DATA_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/mise}/shims`, which does not need `MISE_DATA_DIR` to be set); `050-env_path_user.sh` through `_path_prepend`; each old target in `home/.chezmoiremove`
 - [ ] 3.6 `tests/smoke/environment-path.bats`: scenarios "No duplicates and no missing directory", "Inherited entries are kept", "User bin directories first", "Nested shells do not grow PATH" (zsh, bash and from the desktop replay)
 - [ ] 3.7 Mutant `env-path-no-clean` (`_path_clean` returns at once): at least the duplicate and nested tests fail
 
@@ -30,7 +30,7 @@
 - [ ] 5.1 `tests/unit/secrets.bats`, zsh and bash: scenarios "Load in the calling shell and its children", "A child shell keeps what its parent loaded", "Unload and status", "No private file", and the `rg` half of "No name in the repository"
 - [ ] 5.2 `rc.d/446-tools_secrets.sh`: `secrets load|unload` and the count; at sourcing, without `DOTFILES_SECRETS`, unset the inherited names of the private file (names read from the file at each call, never written in the file); does nothing in a non-interactive shell
 - [ ] 5.3 `rc.d/010-env_user.sh`: keep `envrc` and the `unset` line that `dt_unset_name` parses, stop sourcing the private file
-- [ ] 5.4 `tests/smoke/environment-keys.bats`: scenarios "Every shell kind", "Inherited copies are dropped", "The revoked variable stays unset"; update `tests/smoke/startup-behaviour.bats` (private environment and desktop replay now count 0 synthetic names) and keep the mutant `startup-unset-removed` failing as before
+- [ ] 5.4 `tests/smoke/environment-keys.bats`: scenarios "Every shell kind", "Inherited copies are dropped", "The revoked variable stays unset"; update `tests/smoke/startup-behaviour.bats` (private environment and desktop replay now count 0 synthetic names, and the bypass check of the `opencode` function counts 3 secret-named names instead of 4, since startup no longer exports the private file's name) and keep the mutant `startup-unset-removed` failing as before
 - [ ] 5.5 Mutant `env-keys-at-startup` (`010` sources the private file again): at least the "Every shell kind" tests fail
 - [ ] 5.6 Live test in `tests/smoke/environment-live.bats`: no name of the user's private file in the shell source (names in memory, a count printed)
 
@@ -47,8 +47,8 @@
 
 - [ ] 7.1 `git mv` `930-highlighting.sh` to `999-highlighting.sh`, old target in `home/.chezmoiremove`; test of scenario "Last file"; mutant `env-highlighting-not-last`
 - [ ] 7.2 Remove `005-dbg_prof_enable.sh`, `995-dbg_prof_results.sh`, `130-pkg-flatpack.sh`, `200-lang_python.sh`, each in `home/.chezmoiremove`; test of scenario "Source and removal list" over every removed or renamed target of this change
-- [ ] 7.3 `tests/unit/history.bats`: scenarios "Paths", "First start moves the legacy file", "Two shells at once", "Merge after a trim" on synthetic history files in a scratch home
-- [ ] 7.4 `rc.d/320-shell_history.sh`: `HISTFILE` under `$XDG_STATE_HOME` for zsh and bash, directories 0700, the move and link, the merge at start when the old path is a regular file (temporary file and move, silent on every failure)
+- [ ] 7.3 `tests/unit/history.bats`: scenarios "Paths", "First start moves the legacy file", "Two shells at once", "Merge after a trim" on synthetic zsh and bash history files in a scratch home
+- [ ] 7.4 `rc.d/320-shell_history.sh`: `HISTFILE` under `$XDG_STATE_HOME` for zsh and bash, directories 0700, the move and link of `~/.zsh_history` and `~/.bash_history`, the merge at start when the old path is a regular file (temporary file and move, silent on every failure)
 - [ ] 7.5 Mutant `env-history-no-merge`: at least the merge test fails
 
 ## 8. Session defaults script
