@@ -1,8 +1,8 @@
 # Implement OpenSpec change tasks
 **Session ID:** ses_e720ce42affen6d11Mjrfbnxpi
 **Created:** 10/30/2026, 6:54:42 PM
-**Updated:** 11/21/2026, 3:40:18 PM
-<!-- session-export: through msg_1fe8d0b85002hv5nLwXyZzYNDg -->
+**Updated:** 11/23/2026, 12:58:00 PM
+<!-- session-export: through msg_208452fb8002aNaT7HywPKy5XJ -->
 <!-- session-children: ses_e6d11c8cdffe3dVrtrei30j3UH, ses_e6d11a624ffePObu4C6kjRjMqm, ses_e5d4eb5acffeRUqJZnqfA4P79V, ses_e59f634a1ffesueefDocoCa7EX, ses_e59c25af7ffe4pZPkaq4Tu1UDq, ses_e597b7d90ffeW3158tg2BQlOTj -->
 <!-- session-children-skipped -->
 
@@ -86105,7 +86105,7 @@ briefs dir content for signals: add-shell-test-harness correct-shell-environment
 
 ---
 
-## Assistant (Build · Claude Sonnet 5.5)
+## Assistant (Build · Claude Sonnet 5.5 · 16.9s)
 
 _Thinking:_
 I'm checking which banned term triggered the hit in the resume, since the file is ignored and the match is expected. It's most likely the "[redacted:private]" path on line 12, which also appeared in the old resume.
@@ -86124,6 +86124,3724 @@ Je passe à l'export : d'abord le brut, dans un dossier scratch en mode 0700, é
 {
   "command": "cd ~/.local/share/chezmoi; chmod 600 .state/resume.md\nS=/tmp/opencode/export-scratch; mkdir -p $S/raw $S/out && chmod 700 $S\npython3 ~/Work/[redacted:private]/scripts/session/export.py --full --no-children --force --out-dir $S/raw --slug orchestration_wrapper_startup_harness ses_e720ce42affen6d11Mjrfbnxpi > $S/export.log 2>&1; echo \"exit=$?\"\ntail -2 $S/export.log | cut -c1-140\nRAW=$(ls $S/raw/*.md | head -1); echo \"raw: $(basename $RAW), $(stat -c %s $RAW) bytes, $(wc -l < $RAW) lines\"\n/usr/bin/grep -a -m1 'session-export: through' $RAW | cut -c1-120\necho \"files in raw: $(ls $S/raw | wc -l)\"\necho \"previous committed export: $(wc -l < memory/sessions/202610301854-harden_sensitive_targets.md) lines\"",
   "timeout": 300000
+}
+```
+
+**Output:**
+```
+exit=0
+/tmp/opencode/export-scratch/raw/202610301854-orchestration_wrapper_startup_harness.md
+raw: 202610301854-orchestration_wrapper_startup_harness.md, 5707524 bytes, 86140 lines
+<!-- session-export: through msg_1fe8d0b85002hv5nLwXyZzYNDg -->
+files in raw: 1
+previous committed export: 70263 lines
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 112.7s)
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; S=/tmp/opencode/export-scratch; R=~/.config/nvim/scripts/session_redact.py\nRAW=$(ls $S/raw/*.md | head -1)\npython3 $R < $RAW > $S/out/pass1.md 2>$S/out/pass1.err; echo \"pass1 exit=$? lines $(wc -l < $S/out/pass1.md) bytes $(stat -c %s $S/out/pass1.md); stderr lines $(wc -l < $S/out/pass1.err)\"\npython3 $R < $S/out/pass1.md > $S/out/pass2.md 2>/dev/null; cmp -s $S/out/pass1.md $S/out/pass2.md && echo \"idempotent: yes\" || echo \"idempotent: NO\"\numask 077\npython3 $R --check --folder-report $S/folders.txt $S/out/pass1.md > $S/chk.out 2>&1; echo \"check on the new export: exit=$?\"\nsed 's/\\x1b\\[[0-9;]*m//g' $S/chk.out | /usr/bin/grep -a -E ': [1-9][0-9]*$'; echo '(non-zero categories end)'\necho \"folder report: $( [ -f $S/folders.txt ] && echo \"$(stat -c '%a' $S/folders.txt), $(wc -l < $S/folders.txt) lines\" || echo none)\"\numask 002\necho \"tokens: $(/usr/bin/grep -a -o -E '\\[redacted:[a-z_]+\\]' $S/out/pass1.md | sort | uniq -c | sort -nr | head -9 | awk '{printf \"%s %s; \", $1, $2}')\"",
+  "timeout": 600000
+}
+```
+
+**Output:**
+```
+pass1 exit=0 lines 86132 bytes 5717294; stderr lines 0
+idempotent: yes
+check on the new export: exit=0
+(non-zero categories end)
+folder report: 600, 0 lines
+tokens: 3057 [redacted:private]; 426 [redacted:worktrees_root]; 388 [redacted:user_username]; 352 [redacted:repo]; 317 [redacted:envvar]; 286 [redacted:private_store]; 42 [redacted:user_fullname]; 30 [redacted:secret]; 22 [redacted:user_email]; 
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 19.6s)
+
+_Thinking:_
+The check came back clean with exit 0, and the folder scan found nothing, so no segments were flagged. Now I'm running the scans for identity values, banned names, token shapes, secret-looking names, and IPs, noting that dashes don't apply to transcripts. I also need to check store-directory words and the private repo name. The `[redacted:secret]` hits, around 30 of them, are probably key-shaped canary values in test fixtures, so I'll confirm that.
+
+I'm going through the leftover items now: the export's uppercase secret-looking names, which I need to compare against the repository's allowed list of public provider-documented names while setting aside the DEMO_ ones. I also want to check which readable names remain compared with the raw output, since the 317 envvar redactions look like the tool masking private names.
+
+
+_Thinking:_
+Le `--check` sort à 0 sur le nouvel export, le rapport du folder scan est vide et la seconde passe est identique. Je poursuis avec mes propres contrôles: identité, noms interdits, formes de jetons, noms de variables et adresses IP.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; S=/tmp/opencode/export-scratch; O=$S/out/pass1.md; umask 077\npython3 - $O <<'EOF'\nimport os, re, sys\nfrom pathlib import Path\nt = Path(sys.argv[1]).read_text(encoding=\"utf-8\")\ndef n(p, flags=0): return len(re.findall(p, t, flags))\nH = Path.home()\nidf = H/\".local/share/[redacted:private]/session-redact/identity.txt\"\nvals = [l.split(\"=\",1)[-1].strip() for l in idf.read_text(encoding=\"utf-8\").splitlines() if l.strip() and not l.strip().startswith(\"#\")] if idf.exists() else []\nprint(\"identity values present:\", sum(1 for v in vals if len(v) >= 3 and re.search(r'(?<![A-Za-z0-9])%s(?![A-Za-z0-9])' % re.escape(v), t, re.I)), \"of\", len(vals))\nprint(\"login name /home/<user> forms:\", n(r'/home/(?!linuxbrew|user\\b)[A-Za-z0-9_-]+'))\nprint(\"absolute worktree root:\", n(r'/Work/trees/'))\nprint(\"banned names ([redacted:private]|[redacted:private]|[redacted:private]|[redacted:repo]|[redacted:private]):\", n(r'(?i)\\b([redacted:private]|[redacted:private]|[redacted:private]|[redacted:repo]|[redacted:private])\\b'))\nprint(\"token shapes:\", n(r'gh[pousr]_[A-Za-z0-9]{20,}') + n(r'sk-[A-Za-z0-9_-]{20,}') + n(r'AGE-SECRET-KEY-[A-Z0-9]+') + n(r'-----BEGIN [A-Z ]*PRIVATE KEY-----') + n(r'AKIA[0-9A-Z]{16}') + n(r'xox[abp]-[A-Za-z0-9-]{10,}'))\nnames = sorted(set(re.findall(r'\\b[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*_(?:API_?KEY|TOKEN|SECRET|PASSWORD|PASSWD|CREDENTIAL|ACCESS_?KEY|PRIVATE_?KEY)\\b', t)))\nprint(\"secret-looking uppercase names:\", len(names), \"non-DEMO:\", [x for x in names if not x.startswith(\"DEMO_\")])\nips = re.findall(r'\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b', t)\nprint(\"IPv4:\", len(ips), \"non-loopback:\", len([i for i in ips if not i.startswith((\"127.\", \"0.\"))]), sorted({i for i in ips if not i.startswith((\"127.\", \"0.\"))})[:6])\nprint(\"e-mail shapes:\", n(r'[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[a-z]{2,}'))\nprint(\"NUL symbol:\", t.count(\"\\u2400\"))\nEOF\necho '--- readable text that this session wrote about the private repo or the store (word counts)'\necho \"private_store alias: $(/usr/bin/grep -a -c -F 'private_store' $O); store dir word readable: $(/usr/bin/grep -a -c -F '[redacted:private]' $O); '[redacted:repo]': $(/usr/bin/grep -a -c -F '[redacted:repo]' $O)\"\necho '--- gitleaks and key detector'\nmise x -- gitleaks dir --redact --no-banner $O 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | tail -1\nhk util detect-private-key $O > /dev/null 2>&1; echo \"detect-private-key exit=$?\"\numask 002",
+  "timeout": 300000
+}
+```
+
+**Output:**
+```
+identity values present: 0 of 5
+login name /home/<user> forms: 0
+absolute worktree root: 13
+banned names ([redacted:private]|[redacted:private]|[redacted:private]|[redacted:repo]|[redacted:private]): 0
+token shapes: 10
+secret-looking uppercase names: 16 non-DEMO: ['ANTHROPIC_API_KEY', 'AWS_SECRET_ACCESS_KEY', 'AZURE_OPENAI_API_KEY', 'BRAVE_API_KEY', 'GEMINI_API_KEY', 'GITHUB_TOKEN', 'MISTRAL_API_KEY', 'MOONSHOT_API_KEY', 'OPENAI_API_KEY', 'SYN_PASSWD', 'TAVILY_API_KEY', 'XAI_API_KEY', 'X_ACCESSKEY']
+IPv4: 47 non-loopback: 0 []
+e-mail shapes: 0
+NUL symbol: 0
+--- readable text that this session wrote about the private repo or the store (word counts)
+private_store alias: 254; store dir word readable: 0; '[redacted:repo]': 0
+--- gitleaks and key detector
+3:42PM INF no leaks found
+detect-private-key exit=0
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 17.2s)
+
+_Thinking:_
+I'm checking whether the worktree root count of 13 comes from a tilde form like `[redacted:worktrees_root]/` that the redactor leaves in place, since the redacted token count is 426. Earlier the export showed zero, so I want to see which path forms actually produced those matches and look at their surrounding context.
+
+I'm checking the 13 worktree-root hits against the tilde form `[redacted:worktrees_root]/`, which the brief itself uses and the redactor passes under its path rules. I'll compare against earlier exports to see whether these counts are normal.
+
+I'm checking the remaining candidates for the token-shape count of 10, looking at which pattern matched, and printing only length and a short prefix so no real secret gets exposed. I'll also check whether `SYN_PASSWD` and `X_ACCESSKEY` were already in the previously committed export, since those would make them accepted names.
+
+I'm checking whether the 13 worktree-root hits are tilde-form paths and whether earlier exports had similar counts. For the token-shape matches, I'll look at which patterns fired and print only lengths and short prefixes so nothing sensitive is exposed. I also want to confirm whether `SYN_PASSWD` and `X_ACCESSKEY` were already in the committed export.
+
+
+_Thinking:_
+Trois éléments ressemblant à des jetons, 13 racines de worktrees lisibles et deux noms inhabituels (`SYN_PASSWD`, `X_ACCESSKEY`) sont à examiner avant installation. Je les compare au dernier export commité, sans afficher la valeur complète d'un éventuel jeton.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; S=/tmp/opencode/export-scratch; O=$S/out/pass1.md; OLD=memory/sessions/202610301854-harden_sensitive_targets.md\npython3 - $O $OLD <<'EOF'\nimport re, sys\nfrom pathlib import Path\nnew = Path(sys.argv[1]).read_text(encoding=\"utf-8\"); old = Path(sys.argv[2]).read_text(encoding=\"utf-8\")\npats = {\"gh token shape\": r'gh[pousr]_[A-Za-z0-9]{20,}', \"sk- shape\": r'sk-[A-Za-z0-9_-]{20,}', \"age secret key\": r'AGE-SECRET-KEY-[A-Z0-9]+', \"private key block\": r'-----BEGIN [A-Z ]*PRIVATE KEY-----', \"aws key id\": r'AKIA[0-9A-Z]{16}', \"slack\": r'xox[abp]-[A-Za-z0-9-]{10,}'}\nfor k, p in pats.items():\n    m = list(re.finditer(p, new))\n    if not m: continue\n    print(f\"{k}: new {len(m)}, old {len(re.findall(p, old))}\")\n    for x in m[:10]:\n        s = x.group(0); pre = new[max(0, x.start()-3):x.start()]\n        print(f\"   len {len(s)}, starts '{s[:3]}', preceded by '{pre}', has '-' parts {len(s.split('-'))}, all lowercase words: {bool(re.fullmatch(r'[a-z0-9_-]+', s))}\")\nprint(\"--- SYN_PASSWD and X_ACCESSKEY in the old committed export:\", len(re.findall(r'SYN_PASSWD', old)), len(re.findall(r'X_ACCESSKEY', old)), \"| new:\", len(re.findall(r'SYN_PASSWD', new)), len(re.findall(r'X_ACCESSKEY', new)))\nprint(\"--- worktrees root readable forms, new:\", {f: len(re.findall(re.escape(f), new)) for f in (\"[redacted:worktrees_root]/\", \"/Work/trees/\")}, \"| old:\", {f: len(re.findall(re.escape(f), old)) for f in (\"[redacted:worktrees_root]/\", \"/Work/trees/\")})\nEOF",
+  "timeout": 120000
+}
+```
+
+**Output:**
+```
+age secret key: new 10, old 6
+   len 16, starts 'AGE', preceded by 'r\"', has '-' parts 4, all lowercase words: False
+   len 16, starts 'AGE', preceded by 'r\"', has '-' parts 4, all lowercase words: False
+   len 16, starts 'AGE', preceded by 'r\"', has '-' parts 4, all lowercase words: False
+   len 16, starts 'AGE', preceded by 'r\"', has '-' parts 4, all lowercase words: False
+   len 16, starts 'AGE', preceded by '' '', has '-' parts 4, all lowercase words: False
+   len 16, starts 'AGE', preceded by '=0
+', has '-' parts 4, all lowercase words: False
+   len 16, starts 'AGE', preceded by 'E '', has '-' parts 4, all lowercase words: False
+   len 16, starts 'AGE', preceded by 'EY|', has '-' parts 4, all lowercase words: False
+   len 16, starts 'AGE', preceded by 'EY|', has '-' parts 4, all lowercase words: False
+   len 16, starts 'AGE', preceded by 'EY|', has '-' parts 4, all lowercase words: False
+--- SYN_PASSWD and X_ACCESSKEY in the old committed export: 1 2 | new: 11 7
+--- worktrees root readable forms, new: {'[redacted:worktrees_root]/': 0, '/Work/trees/': 13} | old: {'[redacted:worktrees_root]/': 0, '/Work/trees/': 11}
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 14.6s)
+
+_Thinking:_
+I'm checking the matches for the "age secret key" pattern, which came back at only 16 characters, far shorter than a real age key. That length lines up with the literal pattern text, so these look like the search regex being quoted rather than actual secrets.
+
+I'm comparing the "AGE-SECRET-KEY-1" matches, which are 16 characters, the usual prefix that appears in commands rather than a real key, and the old export has the same count. Next I'm turning to the `/Work/trees/` matches, where the count rose from 11 to 13, and checking the characters just before each one to see what path prefix is involved.
+
+I'm going to print the eight characters before each of the 13 `/Work/trees/` matches, plus the next dozen, to check for any private project names. The folder scan and the check both came back clean, but I want to confirm that none of the following segments starts with something other than a known public prefix like "dotfiles-" or "nvim-".
+
+
+_Thinking:_
+Les 10 formes de clé age font 16 caractères, comme le préfixe AGE-SECRET-KEY-1 des motifs de recherche, et l'ancien export en a 6 pareils. Je vérifie maintenant les 13 racines de worktrees lisibles, sans afficher leurs noms.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; S=/tmp/opencode/export-scratch; O=$S/out/pass1.md\npython3 - $O <<'EOF'\nimport re, sys\nfrom pathlib import Path\nt = Path(sys.argv[1]).read_text(encoding=\"utf-8\")\nrows = []\nfor m in re.finditer(r'/Work/trees/', t):\n    pre = t[max(0, m.start()-9):m.start()]\n    nxt = re.match(r'[A-Za-z0-9._-]*', t[m.end():]).group(0)\n    kind = \"dotfiles-*\" if nxt.startswith(\"dotfiles-\") else (\"nvim-*\" if nxt.startswith(\"nvim-\") else (\"empty\" if not nxt else \"other\"))\n    rows.append((pre, kind, len(nxt)))\nfrom collections import Counter\nprint(Counter((p.replace(\"\\n\", \"\\\\n\"), k) for p, k, _ in rows).most_common(8))\nprint(\"kinds:\", Counter(k for _, k, _ in rows))\nEOF\necho '--- the same shapes in the committed export (kinds only)'\npython3 - memory/sessions/202610301854-harden_sensitive_targets.md <<'EOF'\nimport re, sys\nfrom collections import Counter\nfrom pathlib import Path\nt = Path(sys.argv[1]).read_text(encoding=\"utf-8\")\nc = Counter()\nfor m in re.finditer(r'/Work/trees/', t):\n    nxt = re.match(r'[A-Za-z0-9._-]*', t[m.end():]).group(0)\n    c[\"dotfiles-*\" if nxt.startswith(\"dotfiles-\") else (\"nvim-*\" if nxt.startswith(\"nvim-\") else (\"empty\" if not nxt else \"other\"))] += 1\nprint(dict(c))\nEOF",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+[(('\\n      1 ', 'empty'), 4), (('\\n      2 ', 'empty'), 2), ((' "W=$HOME', 'empty'), 1), (('\\n     18 ', 'empty'), 1), (('\\n      3 ', 'empty'), 1), (('home/user', 'empty'), 1), (('src=$HOME', 'dotfiles-*'), 1), ((':\\", n(r\'', 'empty'), 1)]
+kinds: Counter({'empty': 12, 'dotfiles-*': 1})
+--- the same shapes in the committed export (kinds only)
+{'empty': 10, 'dotfiles-*': 1}
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 9.7s)
+
+_Thinking:_
+I'm checking that the regex and path matches in my scans are harmless: the counts are just output prefixes, and the one `dotfiles-*` hit is a public repo, so it's fine. Next I'm moving on to installing the target session memory file.
+
+I'm reading row 21 of the README now so I can extend it with the sixth and seventh launches in the same style, leaving out the names of non-public repositories and agents.
+
+
+_Thinking:_
+Ces 13 occurrences sont bénignes (préfixes `uniq -c`, motif de mes contrôles, `$HOME/Work/trees`, `/home/user`), comme 11 dans l'ancien export. Je lis maintenant la ligne 21 du README.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\n/usr/bin/grep -a -n '^| `202610301854-harden_sensitive_targets.md`' memory/sessions/README.md | cut -d: -f1\nL=$(/usr/bin/grep -a -n '^| `202610301854-harden_sensitive_targets.md`' memory/sessions/README.md | cut -d: -f1 | head -1)\nsed -n \"${L}p\" memory/sessions/README.md | fold -w 230 | sed -n '1,40p'",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+21
+| `202610301854-harden_sensitive_targets.md` | `ses_e720ce42affen6d11Mjrfbnxpi` | Orchestrator session of the repository. Change `harden-sensitive-targets`: apply, hook probes, verify, archive; then the rtk and system git hook fin
+dings, the signal to the project factory, the first export, the hand-over of the git source evaluation, and the state of the other agents' changes; then the roadmap and launch changes (`add-repo-roadmap`, `add-agent-launch-tasks`,
+ which replaces `fix-prompt-delivery`), the model of one worktree per branch and one workspace per worktree, the rule on naming sibling repositories, and the fixes to the redaction store; then the fixes to the redaction tool, the 
+first launch of a change lead in its own checkout and workspace (`fix-chezmoi-config-template`) with its log, and the merge; then the cleanup of that launch, two spell-list words moved to the public list, a change proposal for glo
+bal secret tasks (the request was withdrawn and the proposal stays in the plan), the re-redaction of older exports, the preparation of the next launch, the second change-lead launch and its merge, the revocation of an exposed toke
+n and the removal of its line from the encrypted environment, the shell startup that drops an inherited copy, the pitfalls of zsh recorded for the fleet, the inventory of what reads each secret-named variable, and the proposal of 
+a wrapper that starts the agent without them; then the third change-lead launch (`add-agent-env-wrapper`) and its merge, the rule that names of secret variables are public conventions only and its specification, the review of the 
+history for the commit identity, the fourth launch (`fast-correct-shell-startup`) with the commits made by the brew hook, the `.state/` folder of orchestration state, the fifth launch (`add-shell-test-harness`) with its plan lead,
+ a builder and a closing session started by the orchestrator in new tabs of the same checkout, the rule that a finished agent is closed once its export is committed, the logs of the launches, and the export of those sessions. Re-e
+xported in full on 2026-11-18 (a continued session is overwritten, not duplicated), main session only: the sub-agent sessions are not exported, their summaries are in the main file. Redacted with the public profile, plus a throwaw
+ay terms file for this export: the quoted text of two private backlog items of a sibling repository, the owner-and-name alternation of the Neovim repository found in scan commands, a cloud region from a shell prompt, the name and 
+workspace of another project, the titles of other agent sessions and personal workspace labels printed by herdr listings, a course folder printed by a file listing, and the masked display of the revoked token with its last charact
+ers; for the part since 2026-11-16 the terms were added to the store first (see Redaction), so the file is the store's own output: the names of other projects' directories, workspaces and agents read from listings, the title forma
+t of other panes, two applications named in a package listing, a variable name chosen on this workstation, and the quoted canary values of the old wrapper harness |
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 152.4s)
+
+_Thinking:_
+I'm extending the sixth launch entry and weaving in the new redaction work, then adding it before the existing re-export date line, which will list both re-exports.
+
+I'm now working through the rest of the entry: the shell-environment study counts, a consent round trip with the Neovim configuration repository's orchestrator, the lead's artifacts and export, the backlog follow-ups, and the manual steps and reboot checks. I'm also making sure the date line lists both re-exports.
+
+I'm planning the Redaction section of the README to include a new sentence about the folder scan: since 2026-11-21 the public profile checks folder names recorded by opencode's database, counts segments that match neither a tracked document, a public repository name, nor an entry in the store's public folder list, and leaves the user to classify each reported segment as public or private. After that I'll run the README and export checks again.
+
+
+Je remplace l'export par la nouvelle sortie, j'étends la ligne 21 et j'ajoute au README une phrase sur le folder scan, qui n'y figure pas encore.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; S=/tmp/opencode/export-scratch; N=memory/sessions/202610301854-harden_sensitive_targets.md\ninstall -m 0644 $S/out/pass1.md $N\npython3 - <<'EOF'\nfrom pathlib import Path\np = Path(\"memory/sessions/README.md\"); s = p.read_text(encoding=\"utf-8\")\ndef rep(a, b):\n    global s\n    assert s.count(a) == 1, (s.count(a), a[:70]); s = s.replace(a, b)\nrep(\"and the export of those sessions. Re-exported in full on 2026-11-18 (a continued session is overwritten, not duplicated), main session only:\",\n    \"and the export of those sessions; then, after the re-export of 2026-11-18, the redaction work (names of other projects and the path of the private store moved into the store, older exports re-redacted, the read-only guard repository named among the public siblings), \"\n    \"the sixth launch (`correct-shell-environment`: a plan lead that ran a read-only study of the environment each kind of shell provides, with counts only, and five decisions taken with the user), \"\n    \"a consent round trip with the orchestrator of the Neovim configuration repository about the store's layers and the new folder scan of the redaction tool, the re-measure and fast-forward of the lead's artifacts (design, five specs, tasks), \"\n    \"the lead's export, the follow-ups recorded in the backlog, two signals (one to the Neovim configuration repository about key commands for its AI plugin, one to the read-only guard repository about blocks that look like false positives), \"\n    \"the fix of the mode of the temporary directory for the token analysis tool, and the manual steps and reboot checks written out. \"\n    \"Re-exported in full on 2026-11-18 and again on 2026-11-21 (a continued session is overwritten, not duplicated), main session only:\")\nrep(\"and the quoted canary values of the old wrapper harness |\",\n    \"and the quoted canary values of the old wrapper harness; the export of 2026-11-21 needed no throwaway terms file, and the folder scan found no segment in it |\")\nrep(\"The tool matches a term right after a literal `\\\\n`\",\n    \"Since 2026-11-21 the public profile also scans folder names: it reads the folder paths that opencode's database records and counts the segments that the checked files still hold and that no tracked document, public repository name or entry of the store's list of public folder segments accepts; the user classifies a reported segment, as public (a line in that list) or as private (a term), and the tool names a segment only in a report file with mode 0600 that is read outside the repository.\\n\"\n    \"The tool matches a term right after a literal `\\\\n`\")\np.write_text(s, encoding=\"utf-8\")\nEOF\nF=memory/sessions/README.md\nprintf 'rows %s | dashes %s | banned %s | modeline last %s\\n' \"$(/usr/bin/grep -a -c -E '^\\| ' $F)\" \"$(/usr/bin/grep -a -c -E '[–—]' $F)\" \"$(/usr/bin/grep -a -c -i -w -E '[redacted:private]|[redacted:private]|[redacted:private]|[redacted:repo]|[redacted:private]|nvim-s26|nvim-orch|rog-orch|[redacted:private]' $F)\" \"$(tail -1 $F | /usr/bin/grep -a -c 'vim: set ts=2')\"\npython3 ~/.config/nvim/scripts/session_redact.py --check $F memory/sessions/*.md > /tmp/opencode/c.out 2>&1; echo \"--check README + all 15 exports: exit=$? nonzero=$(sed 's/\\x1b\\[[0-9;]*m//g' /tmp/opencode/c.out | /usr/bin/grep -a -c -E ': [1-9][0-9]*$')\"; rm -f /tmp/opencode/c.out\necho \"export: $(wc -l < $N) lines, $(stat -c %s $N) bytes; through: $(/usr/bin/grep -a -m1 -o 'through msg_[A-Za-z0-9]*' $N)\"\necho \"login name in it: $(/usr/bin/grep -a -c -w [redacted:user_username] $N); store dir word: $(/usr/bin/grep -a -c -F [redacted:private] $N)\"\nmise x -- gitleaks dir --redact --no-banner memory/sessions 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | tail -1\n/home/linuxbrew/.linuxbrew/bin/git status --short",
+  "timeout": 600000
+}
+```
+
+**Output:**
+```
+rows 16 | dashes 0 | banned 0 | modeline last 1
+--check README + all 15 exports: exit=0 nonzero=0
+export: 86132 lines, 5717294 bytes; through: through msg_1fe8d0b85002hv5nLwXyZzYNDg
+login name in it: 0; store dir word: 0
+3:46PM INF no leaks found
+ M TODO.md
+ M memory/sessions/202610301854-harden_sensitive_targets.md
+ M memory/sessions/README.md
+ M openspec/changes/correct-shell-environment/design.md
+ M openspec/changes/correct-shell-environment/tasks.md
+?? openspec/changes/correct-shell-environment/manual-steps.md
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 21.0s)
+
+_Thinking:_
+I'm checking whether the other 14 exports need a second pass, but the store hasn't changed and the earlier run --check passed, so I'm leaning toward skipping them. I'm also comparing the new export's size against the old one, which went from 70263 to 86132 lines.
+
+Next I'm cleaning up: deleting the raw, scratch, and folder-report files, then updating the resume with the export result. I'm also drafting two commit messages, one for the manual-steps work and one for the export, and checking their lengths. The TODO.md edits mix the Neovim reply facts with the reboot-check pointer, so I'm thinking about whether the first message needs a body line to cover them.
+
+I'm settling on a commit subject that names the orchestrator session and the date, then I'll check its character count with a quick command. After that I'll run the diff stat and do the cleanup, update the resume, and write the final answer in French.
+
+
+L'export est installé et tous les contrôles passent. Je nettoie le scratch, je mesure l'écart avec l'ancien export et je compte la longueur des messages de commit.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; G=/home/linuxbrew/.linuxbrew/bin/git\nrm -rf /tmp/opencode/export-scratch; test ! -e /tmp/opencode/export-scratch && echo 'scratch, raw export and folder report deleted'\n$G diff --numstat -- memory/sessions | awk '{printf \"%s: +%s -%s\\n\", substr($3, 17, 40), $1, $2}'\necho \"store head $($G -C [redacted:private_store] rev-parse --short HEAD) (unchanged since 71292df: $([ \"$($G -C [redacted:private_store] rev-parse --short HEAD)\" = 71292df ] && echo yes || echo NO))\"\nfor m in 'docs(chezmoi:spec): write out the manual steps and reboot checks' 'docs(chezmoi:memory): re-export the orchestrator session of 2026-11-21'; do printf '%s chars: %s\\n' \"${#m}\" \"$m\"; done\necho \"validate: $(openspec validate --all --strict 2>&1 | tail -1)\"",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+scratch, raw export and folder report deleted
+202610301854-harden_sensitive_targets.md: +15894 -25
+README.md: +2 -1
+store head 71292df (unchanged since 71292df: yes)
+64 chars: docs(chezmoi:spec): write out the manual steps and reboot checks
+70 chars: docs(chezmoi:memory): re-export the orchestrator session of 2026-11-21
+validate: Totals: 38 passed, 0 failed (38 items)
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 12.7s)
+
+_Thinking:_
+I'm checking the 25 deleted lines in the new export against the old one, to see whether any masked content got exposed. The plan is to compare the tokens on the removed lines with those on the added lines.
+
+I'm checking whether any redacted content became readable in the new export. The plan is to compare the `[redacted:` token counts on the removed lines against the corresponding added lines, and investigate if the added side has fewer.
+
+
+Il y a 25 lignes supprimées par rapport à l'ancien export. Je vérifie qu'aucune n'a rendu lisible quelque chose qui était masqué, en comparant les marqueurs de masquage avant et après.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; G=/home/linuxbrew/.linuxbrew/bin/git\n$G diff -U0 -- memory/sessions/202610301854-harden_sensitive_targets.md > /tmp/opencode/exp.diff\npython3 - <<'EOF'\nimport re\nfrom collections import Counter\nrem, add = [], []\nhunks = []\ncur = None\nfor l in open(\"/tmp/opencode/exp.diff\", encoding=\"utf-8\", errors=\"replace\").read().split(\"\\n\"):\n    if l.startswith(\"@@\"):\n        cur = {\"r\": [], \"a\": []}; hunks.append(cur)\n    elif cur is not None and l.startswith(\"-\") and not l.startswith(\"---\"): cur[\"r\"].append(l[1:])\n    elif cur is not None and l.startswith(\"+\") and not l.startswith(\"+++\"): cur[\"a\"].append(l[1:])\ntok = re.compile(r'\\[redacted:[a-z_]+\\]')\nbad = 0; changed = 0\nfor h in hunks:\n    if not h[\"r\"]: continue\n    changed += len(h[\"r\"])\n    cr = Counter(tok.findall(\"\\n\".join(h[\"r\"]))); ca = Counter(tok.findall(\"\\n\".join(h[\"a\"])))\n    lost = {k: cr[k] - ca.get(k, 0) for k in cr if cr[k] > ca.get(k, 0)}\n    if lost: bad += 1; print(\"hunk with fewer markers after:\", lost, \"| removed lines\", len(h[\"r\"]), \"added\", len(h[\"a\"]))\nprint(\"hunks with removals:\", sum(1 for h in hunks if h[\"r\"]), \"| removed lines:\", changed, \"| hunks where a marker disappeared:\", bad)\n# shape of the removed lines: header, and 'through' marker lines\nrr = [x for h in hunks for x in h[\"r\"]]\nprint(\"removed lines that are the export header or marker:\", sum(1 for x in rr if x.startswith((\"**Updated:**\", \"<!-- session-export\"))))\nprint(\"removed lines containing a marker:\", sum(1 for x in rr if tok.search(x)), \"of\", len(rr))\nEOF\nrm -f /tmp/opencode/exp.diff",
+  "timeout": 120000
+}
+```
+
+**Output:**
+```
+hunks with removals: 22 | removed lines: 25 | hunks where a marker disappeared: 0
+removed lines that are the export header or marker: 2
+removed lines containing a marker: 22 of 25
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 15.6s)
+
+_Thinking:_
+I'm checking that no markers disappeared in the diff, and about 22 lines changed their markers, probably new redaction terms replacing old ones. Next I'm updating the resume with the export result and the journal, firming up the note about the session re-export in the session-end state, and adding to the first item under what's waiting on the user.
+
+I'm adding the export commit message to the first item under what's waiting on the user, then making the session re-export note firm in the session-end state.
+
+
+Aucun marqueur n'a disparu, donc rien n'est devenu lisible. Je termine en mettant à jour la note de reprise avec le résultat de l'export, puis le journal.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; python3 - <<'EOF'\nfrom pathlib import Path\np = Path(\".state/resume.md\"); s = p.read_text(encoding=\"utf-8\")\ndef rep(a, b):\n    global s\n    assert s.count(a) == 1, (s.count(a), a[:70]); s = s.replace(a, b)\nrep(\"plus uncommitted: `manual-steps.md` (new), `tasks.md`, `design.md`, `TODO.md` (the manual steps written out, the reply of the Neovim orchestrator on key commands); the session re-export may be uncommitted too, see the journal's last lines.\",\n    \"plus UNCOMMITTED: `manual-steps.md` (new), `tasks.md`, `design.md`, `TODO.md` (the manual steps written out, the reply of the Neovim orchestrator on key commands), and the RE-EXPORT of this session: `memory/sessions/202610301854-harden_sensitive_targets.md` (86,132 lines, through `msg_1fe8d0b85002hv5nLwXyZzYNDg` at about 15:40 on 2026-11-21; the turns after it are not in it) with README row 21 extended and a README sentence on the folder scan; checks: the tool's `--check` exits 0 on it and on all 15 exports, second pass identical, 0 identity values, 0 store directory words, no workstation-specific variable name, 0 folder segments, gitleaks and the key detector clean, no redaction marker lost against the previous export; the raw file and the scratch are deleted.\")\nrep(\"1. The word \\\"commit\\\" for `manual-steps.md` and its edits, proposed message `docs(chezmoi:spec): write out the manual steps and reboot checks` (64 characters); then \\\"push\\\" for `7ebe727` and that commit (and the export commit if made).\",\n    \"1. The word \\\"commit\\\" for TWO commits, messages proposed: `docs(chezmoi:spec): write out the manual steps and reboot checks` (64 characters; `manual-steps.md`, `tasks.md`, `design.md`, `TODO.md`) and `docs(chezmoi:memory): re-export the orchestrator session of 2026-11-21` (70 characters; the export file and the README); stage by explicit paths; then \\\"push\\\" for `7ebe727` and those two (the store has nothing outgoing).\")\np.write_text(s, encoding=\"utf-8\")\nEOF\nchmod 600 .state/resume.md\nprintf -- '- %s chezmoi-orch (wN:p1) orchestrator session re-exported before a compaction into memory/sessions/202610301854-harden_sensitive_targets.md (86132 lines, through msg_1fe8d0b85002hv5nLwXyZzYNDg), README row 21 and the Redaction section extended; checks clean (--check 0 on 15 exports and the README, second pass identical, folder scan 0, no marker lost); scratch deleted; resume note updated; NOT committed: awaiting the commit word for two commits (manual steps, export), then push\\n' \"$(date '+%Y-%m-%d %H:%M:%S')\" >> .state/journal.md\ntail -1 .state/journal.md | cut -c1-150\n/usr/bin/grep -a -c -E '[–—]' .state/resume.md\nG=/home/linuxbrew/.linuxbrew/bin/git; $G status --short | tr '\\n' ' '; echo\necho \"main $($G rev-parse --short HEAD), origin/main $($G rev-parse --short origin/main); store $($G -C [redacted:private_store] rev-parse --short HEAD)\"",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+- 2026-11-21 15:47:00 chezmoi-orch (wN:p1) orchestrator session re-exported before a compaction into memory/sessions/202610301854-harden_sensitive_tar
+0
+ M TODO.md  M memory/sessions/202610301854-harden_sensitive_targets.md  M memory/sessions/README.md  M openspec/changes/correct-shell-environment/design.md  M openspec/changes/correct-shell-environment/tasks.md ?? openspec/changes/correct-shell-environment/manual-steps.md 
+main 7ebe727, origin/main 57bd76b; store 71292df
+
+```
+
+**Tool: todowrite**
+
+**Input:**
+```json
+{
+  "todos": [
+    {
+      "content": "Etat exact, planification (recoupements), brief du constructeur, note de reprise, journal",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "content": "Exporter la session orchestrateur: redaction, controles, folder scan, README, scratch supprime",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "content": "Utilisateur: dire 'commit' pour les deux commits proposes (manual steps, export), puis 'push'",
+      "status": "in_progress",
+      "priority": "high"
+    },
+    {
+      "content": "Utilisateur: go pour lancer le constructeur (recette dans .state/resume.md), en attente ('hold on')",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "content": "Utilisateur: redemarrer ce pane via la fonction opencode apres le commit de l'export (il detient les dix cles); la nouvelle session aura son propre export",
+      "status": "pending",
+      "priority": "medium"
+    }
+  ]
+}
+```
+
+**Output:**
+```
+[
+  {
+    "content": "Etat exact, planification (recoupements), brief du constructeur, note de reprise, journal",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "content": "Exporter la session orchestrateur: redaction, controles, folder scan, README, scratch supprime",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "content": "Utilisateur: dire 'commit' pour les deux commits proposes (manual steps, export), puis 'push'",
+    "status": "in_progress",
+    "priority": "high"
+  },
+  {
+    "content": "Utilisateur: go pour lancer le constructeur (recette dans .state/resume.md), en attente ('hold on')",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "content": "Utilisateur: redemarrer ce pane via la fonction opencode apres le commit de l'export (il detient les dix cles); la nouvelle session aura son propre export",
+    "status": "pending",
+    "priority": "medium"
+  }
+]
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 13.7s)
+
+Le contexte est persisté, la suite est préparée et la session est exportée. Rien n'est commité, parce que les messages attendent ta validation.
+
+## Contexte persisté (`.state/`, ignoré par git)
+- **`resume.md`** est réécrit (128 lignes). Il contient :
+  - l'état exact des deux dépôts ;
+  - l'avancement de `correct-shell-environment` et la recette de lancement du constructeur, prête à copier ;
+  - ce qui attend ta décision ;
+  - les recoupements de planification, les procédures qui ont marché, les règles et les pièges rencontrés.
+- **Journal :** les lignes ajoutées couvrent la persistance et l'export.
+- **Brief du constructeur :** `.state/briefs/correct-shell-environment/builder-brief.md` couvre la partie 1, les groupes 1 à 7 de `tasks.md`, avec les tests d'abord. Il interdit le déploiement, sudo, le reboot et le push. À côté : `builder-prompt.txt` et les notes du lead (`decisions.md`, `handoff.md`).
+- **Scripts de l'étude du lead :** `.state/tmp/study-env/`. Ils recalculent la racine du dépôt depuis leur propre emplacement, donc ils doivent aller dans `<worktree>/.state/tmp/study/`. La recette le fait.
+
+## Planification : recoupements vérifiés
+- **`home/.chezmoiremove` :** `correct-shell-environment`, `manage-xdg-basics` et `cleanup-dead-config` y écrivent tous. Le conflit est trivial, et celui qui arrive en second rebase.
+- **Fichier `060-libvirt.sh` :** c'est la seule vraie décision à prendre. Quand `profile` ne charge plus que les fichiers `env_`, le gestionnaire utilisateur perd la variable qu'il définit, jusqu'à la tâche 2.3 de `reconcile-drift`. Tu choisiras au groupe 11 : faire les tâches 2.3 et 2.4 avant `profile`, ou accepter l'intérim.
+- **`remove-brew-libvirt` :** il ne cite `110-pkg_brew.sh` que comme contexte. Je vérifierai à son lancement s'il le modifie.
+- **`port-[redacted:private]-shell-aliases` et `manage-xdg-basics` :** aucun numéro ne collisionne, et l'ordre prévu reste valable.
+- **Charge de la machine :** swap entre 48 et 90 % dans la journée, 14 kills par le noyau depuis le boot. Je garde au plus deux agents vivants en même temps.
+
+## Export
+- **Fichier :** `memory/sessions/202610301854-harden_sensitive_targets.md`, 86 132 lignes, jusqu'au message `msg_1fe8d0b85002hv5nLwXyZzYNDg` (environ 15 h 40). Les tours suivants n'y sont pas.
+- **Redaction :** le store seul, sans fichier de termes temporaire.
+- **`--check`** sort à 0 sur le nouvel export, le README et les 15 exports. La seconde passe est identique, et le folder scan ne trouve aucun segment.
+- **Autres contrôles :** 0 valeur d'identité, 0 occurrence du nom du dossier du store, gitleaks et le détecteur de clés propres. Aucun nom de variable propre au poste n'est lisible, et aucun marqueur de masquage n'a disparu face à l'ancien export.
+- **README :** la ligne 21 est étendue, et une phrase sur le folder scan est ajoutée à la section Redaction.
+- **Nettoyage :** le brut et le scratch sont supprimés.
+
+## Ce qui attend ton mot
+1. **« commit »** pour deux commits, à indexer par chemins explicites :
+   - `docs(chezmoi:spec): write out the manual steps and reboot checks` (64 caractères) : `manual-steps.md`, `tasks.md`, `design.md`, `TODO.md`.
+   - `docs(chezmoi:memory): re-export the orchestrator session of 2026-11-21` (70 caractères) : l'export et le README.
+2. **« push »** pour `7ebe727` et ces deux commits. Le store n'a rien à pousser.
+3. **Le go du constructeur :** toujours en attente depuis ton « hold on ».
+4. **Redémarrage de ce pane :** tout ce processus détient les dix clés, par la chaîne de processus (comptes seulement, rien n'a été affiché). Après le commit de l'export, redémarre-le via la fonction `opencode`. La nouvelle session aura son propre fichier d'export, et celui-ci reste définitif pour la session actuelle.
+
+---
+
+## User
+
+1. commit
+2. push
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 19.2s)
+
+_Thinking:_
+I'm going to make two separate commits using explicit file paths, then push, but I want to check the working tree status first.
+
+
+Je fais les deux commits par chemins explicites, puis le push.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; G=/home/linuxbrew/.linuxbrew/bin/git\n$G status --short\necho '--- commit 1: manual steps'\n$G add TODO.md openspec/changes/correct-shell-environment/design.md openspec/changes/correct-shell-environment/tasks.md openspec/changes/correct-shell-environment/manual-steps.md\n$G diff --cached --stat | tail -5 | cut -c1-110\nenv -u GITHUB_TOKEN HK_STASH=none $G commit -q -m \"docs(chezmoi:spec): write out the manual steps and reboot checks\" -m \"A checklist for what only the user can do for correct-shell-environment: a 16-line probe that prints counts and modes only, the values measured before the change and expected after it, six steps with their go marks and rollbacks (deployment, the sudo script with a dry run first, the reboot, the probe after it, history, the agent probe), and a reboot check that can run before the deployment. The tasks and the design point to it, and the backlog records the facts of the Neovim orchestrator on key commands.\" 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | tail -2; echo \"exit=${pipestatus[1]}\"\necho '--- commit 2: export'\n$G add memory/sessions/202610301854-harden_sensitive_targets.md memory/sessions/README.md\n$G diff --cached --stat | tail -3 | cut -c1-110\nenv -u GITHUB_TOKEN HK_STASH=none $G commit -q -m \"docs(chezmoi:memory): re-export the orchestrator session of 2026-11-21\" -m \"Full re-export of the orchestrator session through the manual steps of correct-shell-environment, redacted with the store alone. The folder scan of the redaction tool found no segment in it, and no redaction marker was lost against the previous export. The README row and the redaction section describe the new scan.\" 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | tail -2; echo \"exit=${pipestatus[1]}\"\n$G log --oneline -4 | cut -c1-100; echo \"dirty: $($G status --short | wc -l)\"",
+  "timeout": 180000
+}
+```
+
+**Output:**
+```
+ M TODO.md
+ M memory/sessions/202610301854-harden_sensitive_targets.md
+ M memory/sessions/README.md
+ M openspec/changes/correct-shell-environment/design.md
+ M openspec/changes/correct-shell-environment/tasks.md
+?? openspec/changes/correct-shell-environment/manual-steps.md
+--- commit 1: manual steps
+ TODO.md                                            |   3 +
+ .../changes/correct-shell-environment/design.md    |   2 +
+ .../correct-shell-environment/manual-steps.md      | 155 +++++++++++++++++++++
+ .../changes/correct-shell-environment/tasks.md     |  10 +-
+ 4 files changed, 168 insertions(+), 2 deletions(-)
+  gitleaks – 3:57PM INF no leaks found
+✔ gitleaks
+exit=0
+--- commit 2: export
+ .../202610301854-harden_sensitive_targets.md       | 15919 ++++++++++++++++++-
+ memory/sessions/README.md                          |     3 +-
+ 2 files changed, 15896 insertions(+), 26 deletions(-)
+  gitleaks – 3:57PM INF no leaks found
+✔ gitleaks
+exit=0
+325f914 docs(chezmoi:memory): re-export the orchestrator session of 2026-11-21
+11082bc docs(chezmoi:spec): write out the manual steps and reboot checks
+7ebe727 docs(chezmoi:docs): record the follow-ups of correct-shell-environment
+57bd76b docs(chezmoi:memory): export the correct-shell-environment lead session
+dirty: 0
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 174.7s)
+
+Les deux commits sont faits. Avant de pousser, je rescanne les trois commits sortants, puis je pousse le dépôt. Le store n'a rien à pousser.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; G=/home/linuxbrew/.linuxbrew/bin/git; ST=[redacted:private_store]\necho \"outgoing: $($G log --format='%h %s' origin/main..HEAD | cut -c1-90 | tr '\\n' ';')\"\n$G diff origin/main HEAD -- . ':!memory/sessions' | /usr/bin/grep -a '^+' | /usr/bin/grep -a -v '^+++' > /tmp/opencode/added.txt\nprintf 'added lines outside exports %s | banned %s | dashes %s | e-mail %s | tokens %s\\n' \"$(wc -l < /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -i -w -E '[redacted:private]|[redacted:private]|[redacted:private]|[redacted:repo]|[redacted:private]' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -E '[–—]' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -E '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[a-z]{2,}' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -E 'gh[pousr]_[A-Za-z0-9]{20,}|sk-[A-Za-z0-9_-]{20,}' /tmp/opencode/added.txt)\"\nrm -f /tmp/opencode/added.txt\npython3 ~/.config/nvim/scripts/session_redact.py --check memory/sessions/*.md > /tmp/opencode/c.out 2>&1; echo \"--check all exports: exit=$? nonzero=$(sed 's/\\x1b\\[[0-9;]*m//g' /tmp/opencode/c.out | /usr/bin/grep -a -c -E ': [1-9][0-9]*$')\"; rm -f /tmp/opencode/c.out\nmise x -- gitleaks git --redact --no-banner --log-opts='origin/main..HEAD' . 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | tail -1\nenv -u GITHUB_TOKEN $G push origin main 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | tail -2; echo \"push exit=${pipestatus[1]}\"\nenv -u GITHUB_TOKEN $G fetch -q origin 2>&1 | tail -1; env -u GITHUB_TOKEN $G -C $ST fetch -q origin 2>&1 | tail -1\necho \"repo ahead/behind: $($G rev-list --count origin/main..HEAD)/$($G rev-list --count HEAD..origin/main), head $($G rev-parse --short HEAD) | store: $($G -C $ST rev-list --count origin/main..HEAD)/$($G -C $ST rev-list --count HEAD..origin/main), head $($G -C $ST rev-parse --short HEAD), uncommitted line kept local: $($G -C $ST status --short | wc -l)\"\necho \"validate: $(openspec validate --all --strict 2>&1 | tail -1)\"",
+  "timeout": 240000
+}
+```
+
+**Output:**
+```
+outgoing: 325f914 docs(chezmoi:memory): re-export the orchestrator session of 2026-11-21;11082bc docs(chezmoi:spec): write out the manual steps and reboot checks;7ebe727 docs(chezmoi:docs): record the follow-ups of correct-shell-environment;
+added lines outside exports 178 | banned 0 | dashes 0 | e-mail 0 | tokens 0
+--check all exports: exit=0 nonzero=0
+4:00PM INF no leaks found
+To https://github.com/silopolis/dotfiles.git
+   57bd76b..325f914  main -> main
+push exit=0
+repo ahead/behind: 0/0, head 325f914 | store: 0/0, head 71292df, uncommitted line kept local: 1
+validate: Totals: 38 passed, 0 failed (38 items)
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 10.7s)
+
+Je mets à jour la note de reprise et le journal avec les hashes finaux.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; python3 - <<'EOF'\nfrom pathlib import Path\np = Path(\".state/resume.md\"); s = p.read_text(encoding=\"utf-8\")\ndef rep(a, b):\n    global s\n    assert s.count(a) == 1, (s.count(a), a[:70]); s = s.replace(a, b)\na0 = s.index(\"- Repository: `main` = `7ebe727`\"); a1 = s.index(\"- Store: `71292df` pushed\")\ns = s[:a0] + (\"- Repository: `main` = `origin/main` = `325f914`, tree clean, nothing unpushed, `openspec validate --all --strict` 38/38; no worktree except the main checkout; no builder or lead running.\\n\"\n \"  Pushed on 2026-11-21 at 16:00: `7ebe727` (follow-ups in `TODO.md`), `11082bc` (manual steps and reboot checks of `correct-shell-environment`), `325f914` (re-export of this orchestrator session through about 15:40, `memory/sessions/202610301854-harden_sensitive_targets.md`, 86,132 lines, README row 21 and a Redaction paragraph on the folder scan).\\n\"\n \"  The turns after that export (the commits, the push, this note) are in no export: the next export of this session, if it continues, overwrites the same file with `--full`.\\n\") + s[a1:]\nrep(\"1. The word \\\"commit\\\" for TWO commits, messages proposed: `docs(chezmoi:spec): write out the manual steps and reboot checks` (64 characters; `manual-steps.md`, `tasks.md`, `design.md`, `TODO.md`) and `docs(chezmoi:memory): re-export the orchestrator session of 2026-11-21` (70 characters; the export file and the README); stage by explicit paths; then \\\"push\\\" for `7ebe727` and those two (the store has nothing outgoing).\\n2. The go to launch the builder\",\n    \"1. (Done 2026-11-21: committed and pushed, nothing left to commit or push.)\\n2. The go to launch the builder\")\nrep(\"3. Whether to restart this pane through the `opencode` function after the export is committed (ends the key exposure of this process), or only compact.\",\n    \"3. Whether to restart this pane through the `opencode` function (the export is committed and pushed: ends the key exposure of this process), or only compact.\")\np.write_text(s, encoding=\"utf-8\")\nEOF\nchmod 600 .state/resume.md\nprintf -- '- %s chezmoi-orch (wN:p1) committed and pushed on the user word: 11082bc (manual steps and reboot checks) and 325f914 (orchestrator session re-export); main = origin/main = 325f914 with 7ebe727; store 71292df in sync (its other-session uncommitted line stays local); scans clean, validate 38/38; resume note updated; builder launch still on hold\\n' \"$(date '+%Y-%m-%d %H:%M:%S')\" >> .state/journal.md\nprintf 'resume: dashes %s, banned %s, lines %s\\n' \"$(/usr/bin/grep -a -c -E '[–—]' .state/resume.md)\" \"$(/usr/bin/grep -a -c -i -w -E '[redacted:private]|[redacted:private]|[redacted:repo]|[redacted:private]' .state/resume.md)\" \"$(wc -l < .state/resume.md)\"\n/home/linuxbrew/.linuxbrew/bin/git status --short | wc -l",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+resume: dashes 0, banned 1, lines 129
+0
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 11.5s)
+
+_Thinking:_
+I'm checking which word is flagged in resume.md: the broader pattern gives one hit, and the narrower one still gives one. The match looks like the "[redacted:private]" store path, which is git-ignored and never committed, so it's fine.
+
+I'm also checking whether "[redacted:private]" appears in the signal-identity-strategy path the resume mentions, but the single hit is most likely the store path, which isn't committed, so it's fine.
+
+
+Les deux commits sont faits et poussés. `main` et `origin/main` sont à `325f914`, 0 en avance et 0 en retard. Le store est à `71292df`, aussi en synchro.
+
+## Commits poussés
+- `7ebe727` : les suivis dans `TODO.md` et la clause de la tâche 2.3 de `reconcile-drift`.
+- `11082bc` : `manual-steps.md`, plus `tasks.md`, `design.md` et `TODO.md` (4 fichiers, 168 lignes ajoutées).
+- `325f914` : le ré-export de cette session, 86 132 lignes jusqu'à environ 15 h 40, avec la ligne 21 du README et le paragraphe sur le folder scan.
+
+## Contrôles avant le push
+- Les 178 lignes ajoutées hors exports ne contiennent aucun nom interdit, tiret, e-mail ni forme de jeton.
+- Le `--check` du redacteur sort à 0 sur les 15 exports. gitleaks est propre sur les trois commits sortants.
+- `openspec validate --all --strict` : 38/38.
+- Le store n'avait rien à pousser. Sa ligne non commitée d'une autre session reste dans son répertoire de travail, et ne part avec aucun de mes commits.
+
+## Ce qui n'est dans aucun export
+Les tours qui suivent l'export (ces deux commits, le push, la mise à jour de la note) ne sont pas dans le fichier. Si cette session continue, un nouvel export avec `--full` écrase le même fichier. Après un redémarrage du pane, la nouvelle session aura son propre fichier.
+
+## Note de reprise
+`.state/resume.md` donne l'état final avec les hashes, et marque le commit et le push comme faits. Le journal a une ligne de plus. La note mentionne le nom du dossier du store, mais elle est ignorée par git et n'est jamais commitée.
+
+## Ce qui reste
+1. **Le constructeur** (groupes 1 à 7 de `correct-shell-environment`) : le brief, le prompt et la recette de lancement sont prêts. Il attend toujours ton « go », depuis ton « hold on ».
+2. **Redémarrer ce pane** via la fonction `opencode`, que tu tapes toi-même. Ce processus détient les dix clés par sa chaîne de processus, et je n'ai rien affiché. L'export est commité et poussé, donc c'est le bon moment.
+3. **Au groupe 11**, une décision sur `060-libvirt.sh` : faire les tâches 2.3 et 2.4 de `reconcile-drift` avant de déployer `profile`, ou accepter l'intérim.
+4. **Charge de la machine** : je garde au plus deux agents vivants en même temps. Ferme les anciens `nvim` avant de lancer le constructeur, car 14 sur 20 ont plus de 24 heures.
+
+---
+
+## User
+
+resume
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 55058.0s)
+
+_Thinking:_
+Resume is in plan mode, so this stays read-only. I'll read the resume note and check the current state: the journal tail, git, openspec, herdr agents, and memory. It may be picking up after a compaction, so I'll lay out next steps once I've looked.
+
+
+Plan mode is active, so I'll only read: the resume note, the end of the journal, the repository state and the agents.
+**Tool: read**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/.state/resume.md"
+}
+```
+
+**Output:**
+```
+<path>~/.local/share/chezmoi/.state/resume.md</path>
+<type>file</type>
+<content>
+1: # Resume note of chezmoi-orch, written 2026-11-21 before a compaction
+2: 
+3: Git-ignored, factual, no secret values.
+4: Read it, then `AGENTS.md` (Workflow section, safety rules, writing for a public repository), then `.state/journal.md` (last 20 lines), then `openspec list`.
+5: 
+6: ## Who and where
+7: 
+8: - Role: orchestrator of the dotfiles repository (`~/.local/share/chezmoi`, public, `github.com/silopolis/dotfiles`), herdr name `chezmoi-orch`, pane `wN:p1`, session `ses_e720ce42affen6d11Mjrfbnxpi` (the one exported in `memory/sessions/202610301854-harden_sensitive_targets.md`).
+9: - If `herdr agent get chezmoi-orch` fails after a herdr restart or a pane restart, rename the pane: `herdr agent rename wN:p1 chezmoi-orch`.
+10: - Workspace `wN`: only the tab `wN:t1` orch is left (the user's `editor` tab is gone: not touched).
+11: - `/compact` and restarting a pane are user actions; never send keys to my own pane.
+12: - Private store: `[redacted:private_store]` (never print terms; no hooks there).
+13: - This pane started before the wrapper existed: its whole process chain holds all ten keys of the private environment file (counts only, measured on 2026-11-21).
+14:   Nothing was printed, but a restart through the `opencode` function (the user types it) ends that; after it the session id changes, so the export of the new session is a NEW file with its own README row, and `202610301854-harden_sensitive_targets.md` is final for this session.
+15: 
+16: ## State at the end of this session
+17: 
+18: - Repository: `main` = `origin/main` = `325f914`, tree clean, nothing unpushed, `openspec validate --all --strict` 38/38; no worktree except the main checkout; no builder or lead running.
+19:   Pushed on 2026-11-21 at 16:00: `7ebe727` (follow-ups in `TODO.md`), `11082bc` (manual steps and reboot checks of `correct-shell-environment`), `325f914` (re-export of this orchestrator session through about 15:40, `memory/sessions/202610301854-harden_sensitive_targets.md`, 86,132 lines, README row 21 and a Redaction paragraph on the folder scan).
+20:   The turns after that export (the commits, the push, this note) are in no export: the next export of this session, if it continues, overwrites the same file with `--full`.
+21: - Store: `71292df` pushed, 0 ahead and 0 behind; its working copy carries ONE uncommitted line of `session-redact/public-folders.txt` that another session wrote at 12:04 on 2026-11-21: not mine, never commit it with mine.
+22: - Delivered since the previous resume (all pushed unless noted): the redaction work (`1649908`, `13c7e1e`, `711b14d`), `3a39713` (places `correct-shell-environment` in `TODO.md`, backlogs the hk bump), `890872e` and `4aa8cad` (brief, study, design, five specs, tasks of `correct-shell-environment`), `57bd76b` (export of its planning lead), `7ebe727` (follow-ups in `TODO.md` and a clause in `reconcile-drift` task 2.3, LOCAL).
+23: - Store commits pushed this session: `61b37f9` (mine: other-project terms, store path alias), six commits of `nvim-s26` (consented: 34 of 35 dotfiles-only entries to the global layer, line 52 kept; `public-folders.txt` for the folder scan), `71292df` (mine: two folder segments the user classified as public).
+24: - The redaction tool in `~/.config/nvim/scripts/session_redact.py` now has the FOLDER SCAN: it reads opencode's database, takes the segments of the folder paths it records, and counts those the checked files still hold (category `folder names`); `--folder-report FILE` (mode 0600) is the only place that names a segment; accepted segments come from `public-folders.txt` of the store's global layer (46 entries) and the public repository names.
+25:   A new project folder can make `--check` of old exports fail with no change in the repository: the user classifies the report lines (all public so far), I add them in a store commit of my own.
+26: - Tools fixed: `/tmp/opencode` is mode 750 (TokenScope refuses a group-write bit); `tokenscope` works (about 279K tokens of active context at 14:44 on 2026-11-21).
+27: 
+28: ## The change in flight: `correct-shell-environment`
+29: 
+30: Designed with the user on 2026-11-21 (five decisions in `.state/briefs/correct-shell-environment/decisions.md`, folded into `design.md`):
+31: 1. keys on demand: `secrets load` loader, new shells and the desktop hold none, inherited copies unset;
+32: 2. umask 027 from the login (account comment field read by `pam_umask`), 022 forced for sudo, home 0700, one system install script (needs sudo, the user's go);
+33: 3. locale: no `LC_ALL`, a missing inherited locale dropped, `en_US.UTF-8` generated by the same script;
+34: 4. the desktop login pass loads only the `env_` files (0.23 s and 55 names against 0.62 s and 108), `shellrc` interactive-only again;
+35: 5. highlighting last (`999`), four stub files and `zsh/zshrc` and `bash/bashrc` removed, `HISTFILE` under XDG state with a migration.
+36: 
+37: Artifacts on `main`: `openspec/changes/correct-shell-environment/` (`proposal.md`, `design.md`, `findings.md`, `brief.md`, `tasks.md` with 13 groups, `manual-steps.md` UNCOMMITTED, five specs: new `shell-environment`, deltas for `shell-startup`, `agent-environment`, `install-scripts`, `shell-test-harness`).
+38: Builder material, ready and git-ignored in `.state/briefs/correct-shell-environment/`: `builder-brief.md` (part 1 = groups 1 to 7: shell code, tests first, a mutant per requirement; no deployment, no sudo, no reboot), `builder-prompt.txt` (first prompt, `__WORKTREE__` placeholder), `decisions.md`, `handoff.md` (planning lead's notes), `brief.md`; the lead's study scripts are in `.state/tmp/study-env/` (they compute the repository root from their own location, so in the builder's worktree they go to `.state/tmp/study/`).
+39: The user said "hold on" to launching the builder: ask again.
+40: 
+41: ### Launch recipe for the builder (copy and run when the user says go)
+42: 
+43: ```sh
+44: cd ~/.local/share/chezmoi
+45: mise run scm:worktree:new feat/correct-shell-environment --base main --tab --workspace wN --label env-build --agent-kind opencode --agent-name chezmoi-env-builder --json -- --agent build --model anthropic/claude-sonnet-5-5 > .state/tmp/launch.json 2> .state/tmp/launch.err
+46: W=$(jq -r .path .state/tmp/launch.json); P=$(jq -r .pane .state/tmp/launch.json)
+47: mkdir -p $W/.state/briefs/correct-shell-environment $W/.state/tmp/study && chmod 700 $W/.state/tmp
+48: cp .state/briefs/correct-shell-environment/{builder-brief,decisions,handoff,brief}.md $W/.state/briefs/correct-shell-environment/
+49: cp -rp .state/tmp/study-env/. $W/.state/tmp/study/
+50: herdr pane read $P --lines 30 | /usr/bin/grep -a -E 'Build|Sonnet|xhigh'      # footer: Build, Claude Sonnet 5.5
+51: herdr agent prompt chezmoi-env-builder "$(sed "s#__WORKTREE__#$W#g" .state/briefs/correct-shell-environment/builder-prompt.txt)" --wait --until working --timeout 20000
+52: ```
+53: 
+54: Then journal the three events (brief copied, worktree and tab created, prompt sent).
+55: Push `main` first when it holds commits the builder must start from (the branch starts from the local `main`, which is fine, but the user's push word decides what is public).
+56: The builder cuts itself at about 70% with a hand-off note; a second build session takes groups 8 to 10 (the session-defaults script, documents, checks before deployment); groups 11 and 12 are done with the user present (`manual-steps.md` is the checklist); `/opsx-verify`, archive on the user's go, then the closer export and `scm:worktree:done`.
+57: 
+58: ## What is waiting for the user
+59: 
+60: 1. (Done 2026-11-21: committed and pushed, nothing left to commit or push.)
+61: 2. The go to launch the builder (recipe above).
+62: 3. Whether to restart this pane through the `opencode` function (the export is committed and pushed: ends the key exposure of this process), or only compact.
+63: 4. At the start of group 11 (deployment), one decision: the live libvirt snippet `060-libvirt.sh` is not an `env_` file, so once `profile` is environment-only the user manager loses the variable it sets until `reconcile-drift-and-supervised-apply` task 2.3 adopts it as `060-env_libvirt.sh`; either do tasks 2.3 and 2.4 of that change by hand, with the user's go, before deploying `profile` (task 11.6), or accept the interim.
+64: 5. The machine is under memory pressure (swap 48 to 90% during the day, 14 kernel out-of-memory kills since boot on 2026-11-11, two of them agents; 14 of 20 `nvim` instances older than 24 hours; no out-of-memory daemon installed).
+65:    Another fleet repository owns the machine's memory policy (a planned item exists there; the Neovim orchestrator's signal was a data point, no reply owed).
+66:    Consequence for me: keep at most two agents of this repository alive at once, and ask the user to close stale editors before starting another.
+67: 
+68: ## Planning for what comes after
+69: 
+70: Overlaps checked on 2026-11-21 between `correct-shell-environment` and the planned changes:
+71: - `home/.chezmoiremove` is shared by `correct-shell-environment` (many entries), `manage-xdg-basics` (two fonts files), `cleanup-dead-config` (one stale line) and `reconcile-drift` (none): a trivial conflict for whoever lands second, who rebases.
+72: - `reconcile-drift-and-supervised-apply` tasks 2.3 and 2.4 own the two live unmanaged `rc.d` files (see decision 4 above); its proposal says most managed files change to 0640 and 0750 at the supervised apply (umask 027), which is consistent with the login umask decision.
+73: - `port-[redacted:private]-shell-aliases` adds `aliases` entries and `rc.d/8NN-*` files: no number collides with 035, 041 to 047, 446 or 999; it runs after `correct-shell-environment` as the planned order says, and a new `rc.d` file must not export anything the desktop needs unless it is named `NNN-env_*.sh`.
+74: - `remove-brew-libvirt` mentions the brew hook in `110-pkg_brew.sh` only as context: check at its launch whether it edits that file; if it does, it waits for the builder's group 3 (the split of `110`).
+75: - `manage-xdg-basics` (48 tasks, designed): no shell-startup file in common (user-dirs, fontconfig, `.chezmoiremove`); can run beside the builder.
+76: - `add-private-store-external`: its clone mode relies on chezmoi's umask 027; unaffected.
+77: 
+78: Candidate tracks in the order I would propose (one at a time, the user chooses):
+79: 1. The builder, part 1 (above).
+80: 2. `remove-brew-libvirt` (item 3 of the planned order, small), after checking the `110` point.
+81: 3. `manage-xdg-basics` (item 5), or `add-repo-roadmap` (item 10: its brief is in the change folder, by hand per the launch protocol; it needs paths of a fleet repository for its first prompt, and the Neovim repository now has a `ROADMAP.md` that could be the model: ask the user which repository to use).
+82: `add-secret-tasks` (audit 26) stays "keep as planned", not built.
+83: 
+84: Follow-ups recorded in `TODO.md` (uncommitted for the last ones): per-tool keys instead of the environment (the Neovim orchestrator recorded its half in its roadmap, unscheduled; it will say which route the user chooses; its facts: a key command runs synchronously with no timeout, and a provider switched to one stops reading the environment), a managed `~/.zshenv`, the hk bump (2.10.0 to 2.11.1 in `mise.toml:5` and `hk.pkl:8-9`), the reboot check (its exact probe is `manual-steps.md`, line A16 covers every process).
+85: 
+86: ## Reports and signals
+87: 
+88: - Delivered: the identity-strategy signal is STILL undelivered (`.state/briefs/signal-identity-strategy/signal-identity-strategy.md`, for the coordination repository's orchestrator; no agent runs there; the user decided on 2026-11-16 to keep the real name and address on new commits).
+89: - Delivered 2026-11-21: key commands for the Neovim AI plugin (to `nvim-orch`, answered, information only); four read-only guard blocks that look like false positives (to `rog-orch`, times and reasons from the guard's own log, no reply owed).
+90: - Read, no action: the Neovim orchestrator's out-of-memory signal (the item exists elsewhere, corrected by it).
+91: - Still to report when convenient: `openspec archive` drops the Purpose and preamble of new specs, moves a modeline, adds blank lines (third time; a note to the tool's owners or a ticket); the cem checklist `cles-en-main:migrations/2026-10-[redacted:private]-to-[redacted:private]/checklist.md` item 4.4 names secret variable names in a repository that will go public (cem's orchestrator should reword it; flagged once, no decision recorded).
+92: - darse: T-073 (our zsh habits and secret handling) is `ready`, a decision task; read its Resolution at the next re-import.
+93: - Optional store clean-up: seven dotfiles entries duplicate an entry of a project or global layer (a store commit of my own, later).
+94: 
+95: ## Procedures that worked (repeat them)
+96: 
+97: - Launch a lead in a tab of this workspace: `mise run scm:worktree:new <branch> --base main --tab --workspace wN --label <label> --agent-kind opencode --agent-name <name> --json -- --agent plan --model anthropic/claude-opus-5-5`; copy the brief and anything the lead must read into the worktree's own `.state/`; one prompt with `herdr agent prompt <name> "<text>" --wait --until working --timeout 20000` pointing at the brief by absolute path.
+98:   Footer to check: `Plan · Claude Opus 5.5 · xhigh` (read with `herdr pane read <pane> --lines 30`, filter with `/usr/bin/grep -a`).
+99: - A build or closing session in the same worktree: `herdr tab create --workspace wN --cwd <worktree> --label <l> --no-focus`, then `herdr agent start <name> --kind opencode --pane <pane> -- --agent build --model anthropic/claude-sonnet-5-5`, then the prompt.
+100: - When a lead reports: re-measure from my own pane before trusting it (counts, scans over the added lines, `gitleaks git --log-opts='main..<branch>'`, `openspec validate --all --strict`, claims about the machine checked on the machine), review the diff, fast-forward `main` locally, push only on the user's word.
+101:   Three of the lead's four corrections this session were my own mistakes: say so, and fix the brief in both copies.
+102: - Export of a session: scratch `/tmp/opencode/export-scratch` (mode 0700: `raw`, `out`); `python3 ~/Work/[redacted:private]/scripts/session/export.py --full --no-children --force --out-dir <scratch>/raw --slug <slug> <session id>`; redact with `python3 ~/.config/nvim/scripts/session_redact.py < raw > out` (public profile through the root `.session-redact.toml`, the store alone, no throwaway layer needed any more); checks: `--check` exits 0 on the new file, the README and all exports, a second pass is identical on every file, counts of identity values, sibling names, token shapes, secret-looking names (only public ones and `DEMO_`), IPv4 (loopback only), `gitleaks dir`, `hk util detect-private-key`; if the folder scan reports segments, write `--folder-report` to a 0600 file outside the repository, do not read it in the pane, the user classifies by line number; install and add the README row (no dashes); commit after the user validates the message; delete the scratch and the report.
+103: - Finish an agent: after its export is committed and pushed, `herdr tab close <tab id>` and `mise run scm:worktree:done <branch> --keep-tab` (it refuses while the branch is not in `origin/main` or while an untracked file is left: delete only a stray file that no process uses, never `--force`).
+104: - Commit: `env -u GITHUB_TOKEN HK_STASH=none /home/linuxbrew/.linuxbrew/bin/git commit`; push: `env -u GITHUB_TOKEN git push origin main` (this shell still holds the revoked variable; new shells drop it); the store pushes too, only commits that are mine and the consented ones.
+105: - A cross-repository consent request (here the store): read-only checks first (counts and line numbers, never terms), reply by `herdr agent prompt` with exclusions and checks, check each commit it reports (`--check`, second pass over all exports), push only on the user's word and the other agent's go.
+106: 
+107: ## Rules the user set or confirmed
+108: 
+109: - Names of secret variables: only publicly well-known ones (a provider's documented convention), never a name specific to this workstation; the private repository's name never in a committed file; neutral alias `private_store` for its directory.
+110: - Orchestration state lives in `.state/` of the checkout, not `/tmp/opencode`.
+111: - Close a finished agent's tab (and worktree) once its session is exported; the orchestrator does it.
+112: - History of this repository accepted as it is; real name and address stay for new commits for now.
+113: - Commit messages are proposed first and committed only after the user says "commit"; push only on "push".
+114: - An agent never prints the environment, `chezmoi data`, `chezmoi dump-config`, `systemctl --user show-environment` or an unfiltered herdr listing; facts about keys come as counts or booleans, computed in memory.
+115: - A permission prompt in another agent's pane is read (`herdr pane read`), reported to the user and left to him: never answered by me.
+116: 
+117: ## Habits that bit me, again
+118: 
+119: - zsh: `set -- $var` and `$var` holding several words do not split; `echo ==` is equals-expansion; an unmatched glob aborts the command; `2>&1 >/dev/null | next` also pipes stdout; `mapfile` is bash-only.
+120: - Tool calls sent in the same batch run in parallel: a `chmod` and the command it fixes must share a shell line (TokenScope ran before the `chmod`).
+121: - Plan mode blocks `herdr agent prompt` to another agent: draft the message, wait for build mode.
+122: - `rtk` condenses or hides output (`rtk ls` hid files): use `/usr/bin/grep -a`, plain `rg`, `/usr/bin/ls` for anything that decides something.
+123: - A scan helper that prints zero added lines, or a `wc` on a directory, is a bug until the count is shown beside it: verify by listing (I wrongly read a spec directory as empty).
+124: - `umask` prints `0002` in bash and `002` in zsh: normalise before comparing; reading `/proc/<pid>/environ` of other users prints errors: wrap the loop body in `{ ...; } 2>/dev/null`.
+125: - A fleet agent can exit after its last message (`nvim-s26`): check `herdr agent list` before relying on a name.
+126: - `scm:worktree:done` refuses on an untracked file (an editor's grammar server writes `.spell/`): check no process uses it, delete that directory only.
+127: - `git commit | head` kills git on SIGPIPE in the hook.
+128: 
+129: <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->
+
+(End of file - total 129 lines)
+</content>
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; G=/home/linuxbrew/.linuxbrew/bin/git; ST=[redacted:private_store]\ntail -6 .state/journal.md | cut -c1-170\necho \"--- repo: HEAD $($G rev-parse --short HEAD), origin/main $($G rev-parse --short origin/main), ahead/behind $($G rev-list --count origin/main..HEAD)/$($G rev-list --count HEAD..origin/main), dirty $($G status --short | wc -l)\"\n$G log --oneline -3 | cut -c1-90\necho \"--- store: HEAD $($G -C $ST rev-parse --short HEAD), dirty: $($G -C $ST status --short | tr '\\n' ' ')\"\necho \"--- worktrees:\"; $G worktree list | cut -c1-110\necho \"--- tabs wN: $(herdr tab list 2>/dev/null | jq -r '.result.tabs[] | select((.id // .tab_id) | tostring | startswith(\"wN\")) | \"\\(.id // .tab_id)=\\(.label // .name)\"' 2>/dev/null | tr '\\n' ' ')\"\necho \"--- agents: $(herdr agent list 2>/dev/null | jq -r '.result.agents[]? | select(.name != null) | \"\\(.name)@\\(.pane_id)\"' 2>/dev/null | tr '\\n' ' ')\"\necho \"--- this pane session: $(herdr agent get chezmoi-orch 2>/dev/null | jq -r '.result.agent.agent_session.value' 2>/dev/null)\"\necho \"--- memory: swap $(awk '/SwapTotal/{t=$2}/SwapFree/{f=$2}END{printf \"%.0f%%\", (t-f)*100/t}' /proc/meminfo), available $(awk '/MemAvailable/{printf \"%.1f GB\", $2/1048576}' /proc/meminfo), kernel kills since boot $(journalctl -k --no-pager -q 2>/dev/null | /usr/bin/grep -a -c -i 'out of memory: killed process'), nvim >24h $(ps -eo comm,etimes --no-headers | awk '$1==\"nvim\" && $2>86400{n++} $1==\"nvim\"{t++} END{print n+0 \"/\" t+0}')\"\ndate '+%Y-%m-%d %H:%M'",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+- 2026-11-21 14:45:06 chezmoi-orch (wN:p1) TokenScope fixed: /tmp/opencode mode 775 -> 750 (the plugin refuses a group-write bit: mode & 0o022); it ran after the change; 
+- 2026-11-21 14:46:45 chezmoi-orch (wN:p1) signal delivered to rog-orch: ~/.local/state/orchestration/briefs/202611211446-chezmoi-signal-guard-false-positives.md (four gu
+- 2026-11-21 14:51:48 chezmoi-orch (wN:p1) nvim-orch reply read (information): per-provider key commands recorded in its roadmap, unscheduled, route is the user decision;
+- 2026-11-21 15:40:16 chezmoi-orch (wN:p1) context persisted before a compaction: .state/resume.md rewritten (state, correct-shell-environment in flight, launch recipe fo
+- 2026-11-21 15:47:00 chezmoi-orch (wN:p1) orchestrator session re-exported before a compaction into memory/sessions/202610301854-harden_sensitive_targets.md (86132 lines
+- 2026-11-21 16:00:23 chezmoi-orch (wN:p1) committed and pushed on the user word: 11082bc (manual steps and reboot checks) and 325f914 (orchestrator session re-export); m
+--- repo: HEAD 325f914, origin/main 325f914, ahead/behind 0/0, dirty 0
+325f914 docs(chezmoi:memory): re-export the orchestrator session of 2026-11-21
+11082bc docs(chezmoi:spec): write out the manual steps and reboot checks
+7ebe727 docs(chezmoi:docs): record the follow-ups of correct-shell-environment
+--- store: HEAD 71292df, dirty:  M session-redact/public-folders.txt 
+--- worktrees:
+~/.local/share/chezmoi 325f914 [main]
+--- tabs wN: wN:t1=orch wN:tY=firefox 
+--- agents: [redacted:private]-t-279b-orch@w6558a2c3a6c122:pS [redacted:private]-t-279b-s6@w6558a2c3a6c122:p1D cem-orch@wG:p7 
+--- this pane session: 
+--- memory: swap 50%, available 3.2 GB, kernel kills since boot 0, nvim >24h 0/0
+2026-11-23 11:04
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 72.1s)
+
+_Thinking:_
+The machine has evidently been rebooted, since the kernel kill and nvim counters reset to zero, and I want to check the uptime. The date has moved on two days, and the agent list has changed: chezmoi-orch is gone and its pane session is empty, so herdr probably lost the name on restart. The other agents (nvim-orch, rog-orch, [redacted:private]-orch) are gone as well, leaving only [redacted:private] and cem.
+
+The memory and swap readings are in, and I can see a firefox tab in the list. The resume note has a few stale references to uncommitted files, though everything is pushed now, so I'll note that for later since I can't edit while in plan mode. The reboot check in TODO.md looks runnable as a read-only probe, but I need to confirm whether this is still the same session before running anything.
+
+I'm checking whether the session itself survived the reboot, since the opencode process may have been restarted and its keys would then be different. I'll look at the uptime, my own process chain, and whether the herdr pane still holds my agent name, using only read-only checks.
+
+I'm going to run the reboot probe from the doc, but only read-only: I'll pipe the extracted block straight into bash instead of writing it to a file. I also want the uptime, my own process chain, and any unnamed herdr agents, plus a remote-only check with ls-remote rather than a fetch.
+
+
+_Thinking:_
+Since 2026-11-21 the date has moved to 2026-11-23, the out-of-memory counter is back to 0, and `chezmoi-orch` has dropped off the herdr list, which suggests a reboot. I'm checking read-only what that means for the pending check.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\necho \"uptime since: $(uptime -s)\"\necho \"--- herdr agents, including unnamed, in workspace wN\"\nherdr agent list 2>/dev/null | jq -r '.result.agents[]? | select((.pane_id // \"\") | startswith(\"wN\")) | \"\\(.name // \"(no name)\") \\(.pane_id) \\(.agent_status // \"-\")\"' 2>/dev/null\necho \"--- my own process chain: how many of the ten names of the private file each ancestor holds\"\npython3 - <<'EOF'\nimport os, re\nfrom pathlib import Path\nf = Path(os.environ.get(\"XDG_CONFIG_HOME\", str(Path.home()/\".config\")))/\"env\"\nnames = []\nfor l in f.read_text(encoding=\"utf-8\", errors=\"replace\").splitlines():\n    m = re.match(r'^\\s*(?:export\\s+)?([A-Za-z_][A-Za-z0-9_]*)=', l)\n    if m and m.group(1) not in names: names.append(m.group(1))\nnb = {n.encode() for n in names}\npid = os.getpid(); out = []\nwhile pid > 1:\n    st = Path(f\"/proc/{pid}/stat\").read_text(); comm = st[st.index(\"(\")+1:st.rindex(\")\")]; ppid = int(st[st.rindex(\")\")+2:].split()[1])\n    try:\n        keys = {e.split(b\"=\",1)[0] for e in Path(f\"/proc/{pid}/environ\").read_bytes().split(b\"\\0\") if b\"=\" in e}\n        h = len(nb & keys); g = int(b\"GITHUB_TOKEN\" in keys)\n    except Exception: h = g = \"?\"\n    out.append(f\"{comm}:{h}/{len(names)} gh:{g}\"); pid = ppid\nprint(\" <- \".join(out[:7]))\nEOF\necho \"--- remote main (read-only): $(env -u GITHUB_TOKEN /home/linuxbrew/.linuxbrew/bin/git ls-remote origin refs/heads/main 2>/dev/null | cut -c1-7)\"\necho \"--- new briefs in the shared directory since 2026-11-21 16:00 (names only)\"\n/usr/bin/find ~/.local/state/orchestration/briefs -newermt '2026-11-21 16:00' -type f -printf '%f\\n' 2>/dev/null | sort",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+uptime since: 2026-11-22 10:53:21
+--- herdr agents, including unnamed, in workspace wN
+(no name) wN:p1 blocked
+(no name) wN:pY idle
+--- my own process chain: how many of the ten names of the private file each ancestor holds
+python3:0/10 gh:0 <- zsh:0/10 gh:0 <- opencode:0/10 gh:0 <- zsh:10/10 gh:0 <- herdr:10/10 gh:0 <- systemd:?/10 gh:?
+--- remote main (read-only): 325f914
+--- new briefs in the shared directory since 2026-11-21 16:00 (names only)
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 17.8s)
+
+_Thinking:_
+I'm noting that the machine rebooted on 2026-11-22 at 10:53, and my opencode process shows 0/10 with gh at 0. That points to my being restarted through the `opencode` function, which was stripped. The parent zsh pane shell holds 10/10 because it loads the private file at startup, and herdr also holds 10/10 since it inherited the session environment from the user manager.
+
+I'm checking whether this session is the same one, so I'm looking up the herdr agent's session value for pane wN:p1, since the reboot check needs that answer. The probe itself is read-only and can run now, though renaming the agent would change herdr state, which plan mode doesn't allow, so I'll only plan that step.
+
+
+_Thinking:_
+The machine rebooted, so this pane lost its keys while the shell still holds them, and herdr dropped the name `chezmoi-orch` from pane `wN:p1`, which waits for build mode to fix. I'm running the read-only reboot probe from manual-steps.md now.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\necho \"agent session of pane wN:p1: $(herdr agent list 2>/dev/null | jq -r '.result.agents[]? | select(.pane_id==\"wN:p1\") | .agent_session.value // \"none\"' 2>/dev/null)\"\npython3 -c '\nimport re\nt = open(\"openspec/changes/correct-shell-environment/manual-steps.md\", encoding=\"utf-8\").read()\nb = re.findall(r\"```sh\\n(.*?)```\", t, re.S); assert len(b) == 1; print(b[0], end=\"\")\n' | bash 2>&1 | cut -c1-110\necho \"--- expected before deployment (manual-steps.md): A3 0, A16 0, A1 10, A2 10, A4 1\"",
+  "timeout": 180000
+}
+```
+
+**Output:**
+```
+agent session of pane wN:p1: ses_e720ce42affen6d11Mjrfbnxpi
+A1 private-file names in the user manager: 10
+A2 secret-pattern names in the user manager: 10
+A3 GITHUB_TOKEN in the user manager: 0
+A4 LC_ALL in the user manager: 1
+A5 locale in the user manager: LANG=fr_FR.UTF-8 LANGUAGE=en_US 
+A6 readable processes: 113, holding at least one private-file name: 79
+A16 readable processes holding GITHUB_TOKEN: 0
+A7 user manager umask: 0002
+A8 plasmashell umask: 0002
+A9 this shell umask: 0002
+A10 GECOS carries umask=027: 0
+A11 home mode: 755
+A12 en_US.UTF-8 generated: 0
+A13 sudoers umask file present: 0
+A14 old history path: regular
+A15 XDG history file: absent
+--- expected before deployment (manual-steps.md): A3 0, A16 0, A1 10, A2 10, A4 1
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 18.8s)
+
+_Thinking:_
+The reboot check passes cleanly on every item, so the TODO for it can be ticked, though that change needs a commit and I'm in plan mode for now. The session id hasn't changed; the user resumed the same session, so the export file keeps its existing name, which means the note on line 14 claiming a new file is wrong.
+
+I'm going through the resume note's stale lines next, the ones the reboot and the new commits have made wrong: the pane restart, the tab list, the unpushed commit, the uncommitted manual-steps file, and the memory figures. Then I'll rename the pane so agents can report, and tick the reboot check in TODO.md with its result.
+
+Next I'm checking the other plan items: updating the resume note and journal, and asking whether to launch the builder. Memory has dropped to 3.2 GB available with swap at 50%, down from 6.6 GB, so I want to see what's holding it before deciding the builder can run alongside the test suite.
+
+
+_Thinking:_
+The reboot check passed with all values as expected, and the session id shows this resumed the same session, so the next export will overwrite the same file. I'm checking what holds memory, since only 3.2 GB is free, before proposing next steps.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "echo \"MemAvailable $(awk '/MemAvailable/{printf \"%.1f GB\", $2/1048576}' /proc/meminfo), swap used $(awk '/SwapTotal/{t=$2}/SwapFree/{f=$2}END{printf \"%.1f of %.1f GB\", (t-f)/1048576, t/1048576}' /proc/meminfo)\"\necho \"pressure (some/full avg60): $(awk '{print $3}' /proc/pressure/memory | tr '\\n' ' ')\"\npython3 - <<'EOF'\nimport re\nfrom pathlib import Path\nrows = {}\nfor p in Path(\"/proc\").iterdir():\n    if not p.name.isdigit(): continue\n    try:\n        st = (p/\"status\").read_text()\n        comm = re.search(r'^Name:\\s*(.*)$', st, re.M).group(1)\n        sw = int((re.search(r'^VmSwap:\\s*(\\d+)', st, re.M) or [0, 0])[1]); rss = int((re.search(r'^VmRSS:\\s*(\\d+)', st, re.M) or [0, 0])[1])\n    except Exception: continue\n    r = rows.setdefault(comm, [0, 0, 0]); r[0] += 1; r[1] += rss; r[2] += sw\nprint(f\"{'name':<18}{'n':>3} {'rss GB':>7} {'swap GB':>8}\")\nfor k, (n, rss, sw) in sorted(rows.items(), key=lambda x: -(x[1][1] + x[1][2]))[:8]:\n    print(f\"{k:<18}{n:>3} {rss/1048576:>7.1f} {sw/1048576:>8.1f}\")\nEOF\necho \"opencode processes older than 24 h: $(ps -eo comm,etimes --no-headers | awk '$1==\"opencode\" && $2>86400{n++} $1==\"opencode\"{t++} END{print n+0 \" of \" t+0}')\"",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+MemAvailable 3.0 GB, swap used 7.8 of 15.8 GB
+pressure (some/full avg60): avg60=0.00 avg60=0.00 
+name                n  rss GB  swap GB
+opencode           11     5.5      1.0
+Isolated Web Co    14     4.7      1.4
+WebExtensions       1     1.2      2.0
+obsidian            8     1.0      0.6
+firefox-esr         1     0.5      0.3
+insync              1     0.1      0.3
+Web Content         3     0.2      0.0
+plasmashell         1     0.2      0.1
+opencode processes older than 24 h: 0 of 11
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 845.8s)
+
+_Thinking:_
+Memory is tight: about 3 GB free with 7.8 GB in swap, though there are no pressure stalls. Firefox's content processes and extensions take a lot, and opencode is the largest user at around 5.5 GB. A builder would add another opencode instance plus a parallel bats run, so I'm weighing whether that fits.
+
+I'm drafting a plan with a few questions for the user: whether to approve the housekeeping (renaming the pane, ticking the reboot-check TODO with a commit, and fixing the resume note), and whether to start the builder now given how tight memory is.
+
+I'm going to keep the TODO item as a checked entry and add a "Done on" line beneath it, matching how the secrets item is recorded. I'll also check whether the "Values before" table needs touching; since those figures were measured on 2026-11-21, I think it can stay as it is.
+
+
+The state is clear: the repository and the store are in sync, the machine rebooted, the reboot check passes, and this pane no longer holds the keys. This is what I'd do once you switch me to build mode:
+
+## Findings since 2026-11-21
+- **Reboot:** the machine rebooted on 2026-11-22 at 10:53. You resumed this same session (`ses_e720ce42affen6d11Mjrfbnxpi`) through the `opencode` function.
+- **Keys:** my process now holds 0 of the 10 keys and no GitHub variable. The shell of the pane still holds 10, which is expected until `correct-shell-environment` is deployed.
+- **The reboot check from `TODO.md` passes** (probe from `manual-steps.md`, read-only):
+
+  | Line | Measured | Expected |
+  | --- | --- | --- |
+  | A3 (GitHub variable in the user manager) | 0 | 0 |
+  | A16 (processes holding it) | 0 of 113 | 0 |
+  | A1 (private-file names in the user manager) | 10 | 10 |
+  | A2 (secret-pattern names in the user manager) | 10 | 10 |
+  | A4 (`LC_ALL` in the user manager) | 1 | 1 |
+
+- **herdr lost the name:** pane `wN:p1` is registered without a name. Until I rename it, a builder can't report to `chezmoi-orch`.
+- **Resume note out of date:** `.state/resume.md` says a restart would create a new session and a new export file. That's wrong, because the session id is unchanged, so the next export overwrites the same file. It also still marks `7ebe727` and `manual-steps.md` as local and the restart as pending.
+- **Memory:** 3.0 GB available, swap at 7.8 of 15.8 GB, no pressure stalls. Firefox holds about 9 GB (resident plus swap) and the 11 `opencode` processes about 6.5 GB. There are no old `nvim` instances and no out-of-memory kills since the reboot.
+- **Other tabs:** the `firefox` tab `wN:tY` in the workspace isn't mine, and I won't touch it.
+
+## Plan (build mode)
+1. `herdr agent rename wN:p1 chezmoi-orch`, then check it with `herdr agent get chezmoi-orch`.
+2. In `TODO.md`, record on the reboot-check item that it's done, with the values above. Proposed message: `docs(chezmoi:docs): record the passed reboot check` (50 characters). I'll commit once you say "commit" and push once you say "push".
+3. Correct `.state/resume.md` on the points above and add the journal lines.
+4. If you give the go, launch the builder for groups 1 to 7 using the recipe in the note, which I'll re-check before running it. With 3 GB available, adding an agent plus the bats suite is tight but workable. Closing some Firefox tabs would give it room.
+**Tool: question**
+
+**Input:**
+```json
+{
+  "questions": [
+    {
+      "header": "Housekeeping",
+      "question": "Should I do steps 1 to 3 when you switch me to build mode: rename the pane, record the reboot check in TODO.md (one commit, message above), and correct the resume note?",
+      "options": [
+        {
+          "label": "Yes, all three (Recommended)",
+          "description": "Rename the pane, edit TODO.md and show you the diff before the commit, correct the note and the journal."
+        },
+        {
+          "label": "Rename and note only",
+          "description": "No TODO.md commit for now."
+        }
+      ]
+    },
+    {
+      "header": "Builder",
+      "question": "Should I launch the correct-shell-environment builder (groups 1 to 7: shell code and tests, no deployment, no sudo, no reboot) right after?",
+      "options": [
+        {
+          "label": "Launch it now",
+          "description": "The worktree, the env-build tab, a Sonnet agent and the brief, with the check of its footer. Memory: 3 GB available."
+        },
+        {
+          "label": "After I close Firefox tabs",
+          "description": "I wait for you to free memory, then launch it."
+        },
+        {
+          "label": "Keep it on hold",
+          "description": "Nothing launched. I'll ask again later."
+        }
+      ]
+    }
+  ]
+}
+```
+
+**Output:**
+```
+User has answered your questions: "Should I do steps 1 to 3 when you switch me to build mode: rename the pane, record the reboot check in TODO.md (one commit, message above), and correct the resume note?"="Yes, all three (Recommended)", "Should I launch the correct-shell-environment builder (groups 1 to 7: shell code and tests, no deployment, no sudo, no reboot) right after?"="Option 2.
+Meanwhile, check that the recipe includes the grouping of worktrees into the main checkout workspace, and their cleanup once work is done and worker session exported". You can now continue with the user's answers in mind.
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 301.8s)
+
+_Thinking:_
+I'm checking that the recipe groups the worktree into workspace wN, since the last launch did place the tab there. Steps 1-3 are a yes if we're in build mode, and the Firefox tabs need closing first.
+
+I'm wondering whether herdr has its own notion of grouping worktrees under the main checkout's workspace, since the recipe only uses `--workspace wN`. I'll look at the `herdr worktree` and `herdr workspace` help, and check whether scm:worktree:new calls herdr's worktree command. I also need to confirm the cleanup steps (done with keep-tab, then closing the tab by id) are covered in the recipe.
+
+I'm planning to amend the recipe in resume.md, since the orchestrator is the one doing cleanup, not the builder. Before that I want to check the herdr help for worktree and workspace commands, plus the scm:worktree:new and done task sources, to see whether grouping under the main checkout's workspace is handled there.
+
+
+_Thinking:_
+Steps 1 to 3 are queued for build mode, which starts once you've closed some Firefox tabs. Meanwhile I'm read-only checking whether the recipe groups the worktree into this workspace and cleans it up afterwards.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "ls -l ~/.config/mise/tasks/scm/worktree/ 2>&1 | awk '{print $1, $5, $9}'\necho '--- herdr top-level commands'; herdr --help 2>&1 | sed -n '1,60p' | cut -c1-140 | /usr/bin/grep -a -i -E 'worktree|workspace|tab|usage|commands' | head -20\necho '--- herdr worktree help'; herdr worktree --help 2>&1 | head -40 | cut -c1-150",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+total  
+-rwxrwxr-x 4387 done
+-rwxrwxr-x 3526 ls
+-rwxrwxr-x 6705 new
+-rwxrwxr-x 3472 rm
+--- herdr top-level commands
+herdr — terminal workspace manager for AI coding agents
+Usage: herdr [options]
+       herdr channel set <stable|preview>
+       herdr workspace <subcommand> ...
+       herdr worktree <subcommand> ...
+       herdr tab <subcommand> ...
+Common commands:
+  herdr channel set <stable|preview> Choose the stable or preview update channel
+  herdr channel <subcommand>       Manage the stable or preview update channel
+  herdr workspace <subcommand>     Workspace helpers over the socket API
+  herdr worktree <subcommand>      Git worktree helpers over the socket API
+  herdr tab <subcommand>           Tab helpers over the socket API
+Advanced commands:
+--- herdr worktree help
+Manage Git worktree-backed workspaces
+
+Usage: herdr worktree [COMMAND]
+
+Commands:
+  list    List worktree workspaces
+  create  Create and open a Git worktree
+  open    Open an existing Git worktree
+  remove  Remove a worktree checkout
+
+Are you an AI? Use these resources ONLY IF your task specifically asks you to:
+  Help a human understand or set up Herdr for the first time:
+    https://herdr.dev/agent-guide.md
+  Debug or investigate a problem with Herdr:
+    https://herdr.dev/llms.txt
+  Control Herdr panes, agents, or workspaces:
+    SKIP if a Herdr skill is already in your context. Otherwise run: herdr --skill
+
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 17.5s)
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "for c in list create open remove; do echo \"=== herdr worktree $c --help\"; herdr worktree $c --help 2>&1 | /usr/bin/grep -a -v -E '^(Are you an AI|  Help a human|    https|  Debug|  Control|    SKIP)' | head -24 | cut -c1-150; done\necho \"=== herdr worktree list (fields only)\"; herdr worktree list 2>/dev/null | jq -c '.result | if type==\"object\" then keys else (.[0] // {} | keys) end' 2>/dev/null; herdr worktree list 2>&1 | head -8 | cut -c1-150",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+=== herdr worktree list --help
+List worktree workspaces
+
+Usage: herdr worktree list [OPTIONS]
+
+Options:
+      --workspace <ID>
+          
+
+      --cwd <PATH>
+          
+
+      --trust-repository
+
+=== herdr worktree create --help
+Create and open a Git worktree
+
+Usage: herdr worktree create [OPTIONS]
+
+Options:
+      --workspace <ID>
+          
+
+      --cwd <PATH>
+          
+
+      --branch <NAME>
+          
+
+      --base <REF>
+          
+
+      --path <PATH>
+          
+
+      --label <TEXT>
+          
+
+      --focus
+=== herdr worktree open --help
+Open an existing Git worktree
+
+Usage: herdr worktree open [OPTIONS]
+
+Options:
+      --workspace <ID>
+          
+
+      --cwd <PATH>
+          
+
+      --path <PATH>
+          
+
+      --branch <NAME>
+          
+
+      --label <TEXT>
+          
+
+      --focus
+          
+
+      --no-focus
+=== herdr worktree remove --help
+Remove a worktree checkout
+
+Usage: herdr worktree remove [OPTIONS]
+
+Options:
+      --workspace <ID>
+          
+
+      --force
+          
+
+      --trust-repository
+
+=== herdr worktree list (fields only)
+["source","type","worktrees"]
+{"id":"cli:worktree:list","result":{"source":{"repo_key":"~/.local/share/chezmoi/.git","repo_name":"chezmoi","repo_root":"~/.local
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 221.8s)
+
+_Thinking:_
+I'm working out how herdr's native worktree feature fits in: `herdr worktree create` makes a worktree and its workspace together, grouped under the repo. Our recipe instead runs a git worktree and opens a tab inside an existing workspace, so it doesn't line up with herdr's version.
+
+I'm going to read through the full herdr worktree list output, since it's read-only, and check the scm:worktree:new script to see whether it hands off to herdr's worktree command when that's available. I also recall an earlier decision of one worktree per branch and one workspace per worktree, which my later tab-based launches seem to contradict, so I want to sort out which model actually holds. I suspect herdr shows worktree workspaces nested under the main checkout's workspace in the sidebar.
+
+
+_Thinking:_
+Herdr's worktree-backed workspaces aren't used by our recipe, which opens a plain tab in `wN`. I'm now checking what herdr records and what `scm:worktree:new` and `done` do.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "herdr worktree list 2>/dev/null | jq '.result | {source: (.source | {repo_name, repo_root, repo_key, workspace_id: (.workspace_id // null)} ), type, worktrees: [.worktrees[]? | {keys: (keys)}][0:1], count: (.worktrees | length)}' 2>/dev/null\necho '--- worktrees entries (selected fields)'\nherdr worktree list 2>/dev/null | jq -r '.result.worktrees[]? | [(.branch // \"-\"), (.path // \"-\"), (.workspace_id // \"-\"), (.is_main // .main // \"-\")|tostring] | @tsv' 2>/dev/null | sed \"s#$HOME#~#g\" | head\necho '--- workspace wN as herdr sees it (selected fields)'\nherdr workspace list 2>/dev/null | jq -c '.result.workspaces[]? | select(.id==\"wN\" or (.id|tostring|startswith(\"wN\"))) | del(.tabs) ' 2>/dev/null | cut -c1-400",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+{
+  "source": {
+    "repo_name": "chezmoi",
+    "repo_root": "~/.local/share/chezmoi",
+    "repo_key": "~/.local/share/chezmoi/.git",
+    "workspace_id": null
+  },
+  "type": "worktree_list",
+  "worktrees": [
+    {
+      "keys": [
+        "branch",
+        "is_bare",
+        "is_detached",
+        "is_linked_worktree",
+        "is_prunable",
+        "label",
+        "open_workspace_id",
+        "path"
+      ]
+    }
+  ],
+  "count": 1
+}
+--- worktrees entries (selected fields)
+main	~/.local/share/chezmoi	-	-
+--- workspace wN as herdr sees it (selected fields)
+
+```
+
+**Tool: read**
+
+**Input:**
+```json
+{
+  "filePath": "~/.config/mise/tasks/scm/worktree/new"
+}
+```
+
+**Output:**
+```
+<path>~/.config/mise/tasks/scm/worktree/new</path>
+<type>file</type>
+<content>
+1: #!/usr/bin/env -S usage bash
+2: #MISE description="Create a git worktree for a new branch, optionally with a herdr tab and an agent"
+3: #MISE alias="scm:wt:new"
+4: #USAGE arg "<branch>" help="New branch, <type>/<name>; the worktree directory is <prefix>-<name>"
+5: #USAGE flag "--base <ref>" default="origin/main" help="Commit the branch starts from"
+6: #USAGE flag "--path <dir>" help="Worktree directory (default: $WORKTREES_ROOT or [redacted:worktrees_root], then <prefix>-<name>)"
+7: #USAGE flag "--prefix <prefix>" help="Name prefix (else $WORKTREES_PREFIX, var scm_worktrees_prefix, {repo})"
+8: #USAGE flag "--tab" help="Open a herdr tab in the worktree"
+9: #USAGE flag "--workspace <label>" help="herdr workspace label or id for --tab (default: $HERDR_WORKSPACE_ID)"
+10: #USAGE flag "--label <text>" help="Tab label (default: the worktree name)"
+11: #USAGE flag "--env <kv>" var=#true help="KEY=VALUE for the tab and the post-create hook (repeatable)"
+12: #USAGE flag "--agent-kind <kind>" help="Start this herdr agent kind (for example opencode) in the tab"
+13: #USAGE flag "--agent-name <name>" help="herdr agent name, [a-z][a-z0-9_-]{0,31}, server-wide"
+14: #USAGE flag "--prompt <text>" help="First prompt sent to the agent"
+15: #USAGE flag "--generic" help="Run even in a repository that defines its own worktree:new or worktree:rm"
+16: #USAGE flag "--json" help="Print the result as JSON on stdout"
+17: #USAGE arg "[agent_args]..." var=#true help="Arguments passed to the agent, after -- (they may use flags of their own, such as --agent plan)"
+18: # Generic: nothing here is specific to one repository. A project can add behaviour
+19: # with the tasks scm:worktree:hook:post-create and scm:worktree:hook:incident.
+20: # Hook protocol: post-create runs inside the new worktree with WT_PATH, WT_BRANCH,
+21: # WT_NAME, WT_STEM, WT_REPO and WT_ENV_FILE; KEY=VALUE lines it writes to
+22: # WT_ENV_FILE become tab environment.
+23: # shellcheck shell=bash
+24: set -euo pipefail
+25: 
+26: # shellcheck disable=SC1091
+27: source "${MISE_CONFIG_DIR:-$HOME/.config/mise}/lib/scm.sh"
+28: 
+29: branch=${usage_branch:?}
+30: base=${usage_base:-origin/main}
+31: env_pairs=()
+32: agent_args=()
+33: [[ -n ${usage_env:-} ]] && eval "env_pairs=(${usage_env})"
+34: [[ -n ${usage_agent_args:-} ]] && eval "agent_args=(${usage_agent_args})"
+35: 
+36: src=$(scm_origin_dir)
+37: main=$(scm_preflight "$src")
+38: scm_require_trusted "$main" "so its project hooks and settings cannot be found"
+39: 
+40: if [[ -z ${usage_generic:-} ]]; then
+41:   for own in worktree:new worktree:rm; do
+42:     scm_has_task "$main" "$own" && scm_die "this repository defines its own '$own'; use it, or pass --generic"
+43:   done
+44: fi
+45: 
+46: [[ $branch == */* ]] || scm_warn "branch '$branch' has no <type>/ segment; the name stem is the whole branch"
+47: stem=${branch#*/}
+48: stem=${stem//\//-}
+49: prefix=$(scm_prefix "$main" "${usage_prefix:-}")
+50: name="${prefix}-${stem}"
+51: path=${usage_path:-$(scm_worktrees_root)/$name}
+52: path=${path/#\~/$HOME}
+53: repo=$(scm_repo_name "$main")
+54: 
+55: # Refuse duplicates: nothing is created when anything exists.
+56: git -C "$main" show-ref --verify --quiet "refs/heads/$branch" && scm_die "branch '$branch' already exists locally"
+57: git -C "$main" show-ref --verify --quiet "refs/remotes/origin/$branch" && scm_die "branch '$branch' already exists on origin"
+58: if git -C "$main" remote get-url origin >/dev/null 2>&1; then
+59:   if git -C "$main" ls-remote --exit-code --heads origin "$branch" >/dev/null 2>&1; then
+60:     scm_die "branch '$branch' already exists on origin"
+61:   fi
+62: fi
+63: [[ -e $path ]] && scm_die "path '$path' already exists"
+64: 
+65: if [[ $base == origin/* ]]; then
+66:   git -C "$main" fetch --quiet origin 2>/dev/null || scm_warn "could not fetch origin; using the local $base"
+67: fi
+68: git -C "$main" rev-parse --verify --quiet "$base^{commit}" >/dev/null || scm_die "base '$base' does not exist"
+69: 
+70: mkdir -p "$(dirname "$path")"
+71: git -C "$main" worktree add --no-track -b "$branch" "$path" "$base" >&2
+72: scm_check_source "$main"
+73: # Start commit, so scm:worktree:done can tell whether the branch has commits of its own.
+74: git -C "$main" rev-parse --verify "refs/heads/$branch" >"$(scm_base_file "$path")"
+75: scm_info "worktree: $path ($branch from $base)"
+76: 
+77: # Trust the new worktree only when the source checkout is trusted, before any project task.
+78: if scm_trusted "$main"; then
+79:   mise trust "$path" >&2
+80: fi
+81: 
+82: # Project hook: may write KEY=VALUE lines to WT_ENV_FILE (tab environment).
+83: env_file=$(mktemp)
+84: trap 'rm -f "$env_file"' EXIT
+85: hook_env=("WT_PATH=$path" "WT_BRANCH=$branch" "WT_NAME=$name" "WT_STEM=$stem" "WT_REPO=${repo:-$(basename "$main")}" "WT_ENV_FILE=$env_file")
+86: ((${#env_pairs[@]})) && hook_env+=("${env_pairs[@]}")
+87: if ! scm_run_hook "$path" scm:worktree:hook:post-create "${hook_env[@]}"; then
+88:   scm_die "post-create hook failed; the worktree is left at $path (remove it with: mise run scm:worktree:rm $stem --force)"
+89: fi
+90: 
+91: tab_id='' pane_id='' agent=''
+92: if [[ -n ${usage_tab:-} ]]; then
+93:   workspace=${usage_workspace:-${HERDR_WORKSPACE_ID:-}}
+94:   [[ -n $workspace ]] || scm_die "--tab needs --workspace or HERDR_WORKSPACE_ID"
+95:   workspace=$(scm_workspace_id "$workspace") || scm_die "herdr workspace '$workspace' not found (or ambiguous)"
+96:   tab_env=()
+97:   for kv in "${env_pairs[@]}"; do tab_env+=(--env "$kv"); done
+98:   while IFS= read -r kv; do
+99:     [[ $kv == *=* ]] && tab_env+=(--env "$kv")
+100:   done <"$env_file"
+101:   created=$(herdr tab create --workspace "$workspace" --cwd "$path" --label "${usage_label:-$name}" "${tab_env[@]}" --no-focus) \
+102:     || scm_die "herdr could not create the tab (the worktree exists at $path)"
+103:   tab_id=$(jq -r '.result.tab.tab_id' <<<"$created")
+104:   pane_id=$(jq -r '.result.root_pane.pane_id' <<<"$created")
+105:   printf '%s\n' "$tab_id" >"$(scm_tab_file "$path")"
+106:   scm_info "tab: $tab_id (pane $pane_id)"
+107: 
+108:   if [[ -n ${usage_agent_kind:-} ]]; then
+109:     agent=${usage_agent_name:-}
+110:     if [[ -z $agent ]]; then
+111:       agent=$(tr '[:upper:]' '[:lower:]' <<<"$name" | tr -c 'a-z0-9_\n-' '-' | cut -c1-32)
+112:       [[ $agent =~ ^[a-z] ]] || agent="w-$agent"
+113:       agent=${agent:0:32}
+114:     fi
+115:     [[ $agent =~ ^[a-z][a-z0-9_-]{0,31}$ ]] || scm_die "bad agent name '$agent'"
+116:     scm_start_agent "$agent" "$usage_agent_kind" "$pane_id" "${agent_args[@]}" \
+117:       || scm_die "herdr could not start agent '$agent' (the worktree and tab $tab_id are left in place)"
+118:     scm_info "agent: $agent ($usage_agent_kind ${agent_args[*]})"
+119:     if [[ -n ${usage_prompt:-} ]]; then
+120:       scm_prompt_agent "$agent" "$usage_prompt" || scm_warn "could not send the prompt to '$agent' (it is running; send it by hand)"
+121:     fi
+122:   fi
+123: fi
+124: 
+125: if [[ -n ${usage_json:-} ]]; then
+126:   jq -n --arg path "$path" --arg branch "$branch" --arg name "$name" --arg tab "$tab_id" \
+127:     --arg pane "$pane_id" --arg agent "$agent" \
+128:     '{path: $path, branch: $branch, name: $name, tab: $tab, pane: $pane, agent: $agent}'
+129: else
+130:   printf '%s\n' "$path"
+131: fi
+
+(End of file - total 131 lines)
+</content>
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 30.9s)
+
+_Thinking:_
+So the worktree command makes a git worktree first, and then opens a tab for it in the main checkout's workspace. Herdr's worktree list only knows about the main checkout as a worktree, so whether the new one shows up depends on what git reports. Since no herdr workspace was opened for it, I'm expecting the workspace id to come back null.
+
+I'm weighing whether the user wants a plain tab inside the main workspace or herdr's native worktree workspace, which would be grouped under the main checkout as a child. The `--workspace` flag on `herdr worktree create` looks like it names the source checkout, so the native option seems to match the "grouping" wording more literally.
+
+I'm going to check whether herdr has a native grouping for worktree workspaces under the main checkout, since the current recipe only opens a tab inside wN. Running `herdr worktree list --workspace wN` should show whether the source maps to wN.
+
+Next I'm reading the done and rm commands to confirm how cleanup works. Done verifies the merge and then calls rm, which removes the worktree, branch, and tab unless `--keep-tab` is passed. I'll need that flag because I close the tab by id first.
+
+
+_Thinking:_
+`scm:worktree:new` puts the worktree in a tab inside workspace `wN`, not in herdr's own worktree workspaces. I'm reading the cleanup side next to see which grouping you mean.
+
+
+**Tool: read**
+
+**Input:**
+```json
+{
+  "filePath": "~/.config/mise/tasks/scm/worktree/done"
+}
+```
+
+**Output:**
+```
+<path>~/.config/mise/tasks/scm/worktree/done</path>
+<type>file</type>
+<content>
+1: #!/usr/bin/env -S usage bash
+2: #MISE description="Clean up merged worktrees: verify the merge into main (git or a merged pull request), then run scm:worktree:rm"
+3: #MISE alias="scm:wt:done"
+4: #USAGE arg "[target]" help="Stem, name, branch or path; omit with --all-merged"
+5: #USAGE flag "--all-merged" help="Clean every clean worktree whose branch has commits of its own, merged into main"
+6: #USAGE flag "--force" help="Skip the checks of a target and discard (same as scm:worktree:rm --force)"
+7: #USAGE flag "--keep-tab" help="Do not close the herdr tab"
+8: # Merged: the branch tip is in origin/main, or GitHub has a merged pull request from the
+9: # branch into main whose head commit is the local tip (squash and rebase merges).
+10: # A branch with no commits of its own since its start is never cleaned as merged: it would
+11: # look merged, being an ancestor of origin/main; remove it with scm:worktree:rm.
+12: # shellcheck shell=bash
+13: set -euo pipefail
+14: 
+15: # shellcheck disable=SC1091
+16: source "${MISE_CONFIG_DIR:-$HOME/.config/mise}/lib/scm.sh"
+17: 
+18: here=$(dirname "$(readlink -f "$0")")
+19: rm_task=$here/rm
+20: [[ -x $rm_task ]] || rm_task=$here/executable_rm
+21: [[ -x $rm_task ]] || scm_die "cannot find the sibling task scm:worktree:rm"
+22: 
+23: src=$(scm_origin_dir)
+24: main=$(scm_preflight "$src")
+25: 
+26: git -C "$main" fetch --quiet origin 2>/dev/null || scm_warn "could not fetch origin; checking against the local origin/main"
+27: git -C "$main" rev-parse --verify --quiet origin/main >/dev/null || scm_die "origin/main does not exist"
+28: 
+29: rm_args=(--reason "done")
+30: [[ -n ${usage_force:-} ]] && rm_args+=(--force)
+31: [[ -n ${usage_keep_tab:-} ]] && rm_args+=(--keep-tab)
+32: 
+33: clean_one() { # path
+34:   "$rm_task" "$1" "${rm_args[@]}" </dev/null
+35: }
+36: 
+37: if [[ -n ${usage_all_merged:-} ]]; then
+38:   [[ -z ${usage_target:-} ]] || scm_die "give a target or --all-merged, not both"
+39:   done_count=0 skipped=0
+40:   skip() { scm_info "skip $1: $2"; skipped=$((skipped + 1)); }
+41:   # Read the whole list first: the steps below run commands that could read stdin.
+42:   mapfile -t lines < <(git -C "$main" worktree list --porcelain; echo)
+43:   path='' branch=''
+44:   for line in "${lines[@]}"; do
+45:     case $line in
+46:       "worktree "*) path=${line#worktree }; branch='' ;;
+47:       "branch "*) branch=${line#branch refs/heads/} ;;
+48:       "")
+49:         if [[ -n $path && $path != "$main" && -n $branch ]]; then
+50:           name=$(basename "$path")
+51:           own=0
+52:           scm_own_commits "$main" "$path" "$branch" || own=$?
+53:           if ((own == 1)); then
+54:             skip "$name" "'$branch' has no commits of its own"
+55:           elif ((own == 2)); then
+56:             skip "$name" "cannot tell whether '$branch' has commits of its own (clean it with: mise run scm:worktree:done $name)"
+57:           elif [[ -n $(git -C "$path" status --porcelain 2>/dev/null) ]]; then
+58:             skip "$name" "uncommitted or untracked files"
+59:           else
+60:             rc=0
+61:             proof=$(scm_merged "$main" "$branch") || rc=$?
+62:             if ((rc != 0)); then
+63:               skip "$name" "'$branch' is not in origin/main and has no merged pull request with the same head$(scm_merged_hint "$rc")"
+64:             else
+65:               scm_info "$name: merged ($proof)"
+66:               clean_one "$path" && done_count=$((done_count + 1))
+67:             fi
+68:           fi
+69:         fi
+70:         path=''
+71:         ;;
+72:     esac
+73:   done
+74:   scm_info "done: $done_count cleaned, $skipped skipped"
+75:   exit 0
+76: fi
+77: 
+78: target=${usage_target:-}
+79: [[ -n $target ]] || scm_die "give a target, or --all-merged"
+80: rc=0
+81: found=$(scm_find_worktree "$main" "$target") || rc=$?
+82: ((rc == 0)) || scm_die "$([[ $rc -eq 2 ]] && echo "'$target' matches several worktrees" || echo "no worktree matches '$target'")"
+83: IFS=$'\t' read -r path branch <<<"$found"
+84: 
+85: if [[ -z ${usage_force:-} ]]; then
+86:   [[ -n $branch ]] || scm_die "worktree $path has no branch (detached HEAD); remove it with: mise run scm:worktree:rm $(basename "$path")"
+87:   own=0
+88:   scm_own_commits "$main" "$path" "$branch" || own=$?
+89:   ((own != 1)) || scm_die "branch '$branch' has no commits of its own, so there is nothing merged to clean; remove it with: mise run scm:worktree:rm $(basename "$path")"
+90:   rc=0
+91:   proof=$(scm_merged "$main" "$branch") || rc=$?
+92:   ((rc == 0)) || scm_die "branch '$branch' is not in origin/main and has no merged pull request with the same head$(scm_merged_hint "$rc"): merge it first (or use --force to discard)"
+93:   scm_info "$(basename "$path"): merged ($proof)"
+94: fi
+95: clean_one "$path"
+
+(End of file - total 95 lines)
+</content>
+```
+
+**Tool: read**
+
+**Input:**
+```json
+{
+  "filePath": "~/.config/mise/tasks/scm/worktree/rm"
+}
+```
+
+**Output:**
+```
+<path>~/.config/mise/tasks/scm/worktree/rm</path>
+<type>file</type>
+<content>
+1: #!/usr/bin/env -S usage bash
+2: #MISE description="Remove a git worktree and its local branch (low-level; scm:worktree:done checks the merge first)"
+3: #MISE alias="scm:wt:rm"
+4: #USAGE arg "<target>" help="Stem, name, branch or path of the worktree"
+5: #USAGE flag "--force" help="Remove a dirty worktree and discard an unmerged branch"
+6: #USAGE flag "--keep-tab" help="Do not close the herdr tab"
+7: #USAGE flag "--reason <why>" default="rm" hide=#true help="Passed to the hook: rm or done"
+8: # Order: refuse (dirty, unmerged) -> project hook scm:worktree:hook:post-remove (inside the
+9: # worktree, still trusted) -> untrust -> git worktree remove -> branch -> prune -> close tab.
+10: # The remote branch is never touched. Afterwards the source checkout must still have
+11: # no core.worktree setting (exit status 3 otherwise).
+12: # shellcheck shell=bash
+13: set -euo pipefail
+14: 
+15: # shellcheck disable=SC1091
+16: source "${MISE_CONFIG_DIR:-$HOME/.config/mise}/lib/scm.sh"
+17: 
+18: target=${usage_target:?}
+19: force=${usage_force:-}
+20: reason=${usage_reason:-rm}
+21: 
+22: src=$(scm_origin_dir)
+23: main=$(scm_preflight "$src")
+24: 
+25: rc=0
+26: found=$(scm_find_worktree "$main" "$target") || rc=$?
+27: ((rc == 0)) || scm_die "$([[ $rc -eq 2 ]] && echo "'$target' matches several worktrees" || echo "no worktree matches '$target'")"
+28: IFS=$'\t' read -r path branch <<<"$found"
+29: name=$(basename "$path")
+30: stem=${branch#*/}
+31: stem=${stem//\//-}
+32: 
+33: if [[ -z $force ]]; then
+34:   if [[ -n $(git -C "$path" status --porcelain 2>/dev/null) ]]; then
+35:     scm_die "worktree $path has uncommitted or untracked files (commit them, or use --force to discard)"
+36:   fi
+37:   if [[ -n $branch ]]; then
+38:     # Merged into origin/main, into the main checkout's HEAD, or through a merged pull request.
+39:     rc=0
+40:     scm_merged "$main" "$branch" HEAD >/dev/null || rc=$?
+41:     ((rc == 0)) || scm_die "branch '$branch' has commits that are not in origin/main and no merged pull request with the same head$(scm_merged_hint "$rc") (merge it first, or use --force to discard)"
+42:   fi
+43: fi
+44: 
+45: tab_id=
+46: tab_file=$(scm_tab_file "$path" || true)
+47: [[ -n $tab_file && -f $tab_file ]] && tab_id=$(<"$tab_file")
+48: 
+49: if [[ -n $force ]]; then
+50:   mise -C "$path" trust --show 2>&1 | grep -q ': untrusted$' \
+51:     && scm_warn "the mise config of $path is not trusted: its post-remove hook is skipped"
+52: else
+53:   scm_require_trusted "$path" "so its post-remove hook would be skipped and leave data behind (or use --force)"
+54: fi
+55: repo=$(scm_repo_name "$main")
+56: scm_run_hook "$path" scm:worktree:hook:post-remove \
+57:   "WT_PATH=$path" "WT_BRANCH=$branch" "WT_NAME=$name" "WT_STEM=$stem" \
+58:   "WT_REPO=${repo:-$(basename "$main")}" "WT_REASON=$reason" "WT_TAB=$tab_id" \
+59:   || scm_warn "post-remove hook failed; continuing with the removal"
+60: 
+61: # Untrust while the directory still exists (mise keys trust on the real path).
+62: mise trust --untrust "$path" >/dev/null 2>&1 || true
+63: 
+64: if [[ -n $force ]]; then
+65:   git -C "$main" worktree remove --force "$path" >&2
+66: else
+67:   git -C "$main" worktree remove "$path" >&2
+68: fi
+69: if [[ -n $branch ]]; then
+70:   git -C "$main" branch -D "$branch" >&2 || scm_warn "could not delete local branch '$branch'"
+71: fi
+72: git -C "$main" worktree prune
+73: 
+74: if [[ -n $tab_id && -z ${usage_keep_tab:-} ]]; then
+75:   if [[ ${HERDR_TAB_ID:-} == "$tab_id" ]]; then
+76:     scm_warn "tab $tab_id is the one running this task; close it by hand"
+77:   else
+78:     herdr tab close "$tab_id" >/dev/null 2>&1 || scm_warn "could not close tab $tab_id"
+79:   fi
+80: fi
+81: 
+82: scm_check_source "$main"
+83: scm_info "removed $path (branch ${branch:-none}); the remote branch is kept"
+
+(End of file - total 83 lines)
+</content>
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "echo '--- herdr worktree list --workspace wN (source workspace id, open workspace ids)'\nherdr worktree list --workspace wN 2>/dev/null | jq -c '.result | {source_ws: .source.workspace_id, worktrees: [.worktrees[] | {branch, open_workspace_id, is_linked_worktree, label}]}' 2>/dev/null\necho '--- workspace objects: fields that could express grouping'\nherdr workspace list 2>/dev/null | jq -c '[.result.workspaces[]? | keys] | add | unique' 2>/dev/null\nherdr workspace list 2>/dev/null | jq -c '.result.workspaces[]? | select((.workspace_id // .id // \"\") | tostring | test(\"^wN\")) | with_entries(select(.key | test(\"id|label|name|repo|worktree|parent|group|cwd|source\"))) ' 2>/dev/null | cut -c1-300\necho '--- workspaces that herdr opened as worktree workspaces anywhere (count, fields)'\nherdr workspace list 2>/dev/null | jq -c '[.result.workspaces[]? | select(has(\"worktree\") or has(\"worktree_path\") or has(\"repo_key\") or has(\"parent_workspace_id\"))] | length' 2>/dev/null",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+--- herdr worktree list --workspace wN (source workspace id, open workspace ids)
+{"source_ws":null,"worktrees":[{"branch":"main","open_workspace_id":"wN","is_linked_worktree":false,"label":"chezmoi"}]}
+--- workspace objects: fields that could express grouping
+["active_tab_id","agent_status","focused","label","number","pane_count","tab_count","workspace_id","worktree"]
+{"active_tab_id":"wN:t1","label":"chezmoi","workspace_id":"wN"}
+--- workspaces that herdr opened as worktree workspaces anywhere (count, fields)
+4
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 7.6s)
+
+_Thinking:_
+I'm checking which herdr workspaces carry a `worktree` field, since the main checkout is open as workspace wN. I want to see whether that field links each worktree workspace back to its repo's main workspace, which would explain how the sidebar groups them. This is a read-only look.
+
+
+_Thinking:_
+Four workspaces already use herdr's `worktree` field, and I'm reading its structure to see how a worktree workspace links back to the main checkout's workspace.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "herdr workspace list 2>/dev/null | jq -c '.result.workspaces[]? | select(.worktree != null) | {workspace_id, label, worktree: (.worktree | if type==\"object\" then (with_entries(.value |= (if type==\"string\" then (sub(\"/home/[a-z]+\"; \"~\")) else . end))) else . end)}' 2>/dev/null | cut -c1-420\necho '--- wN worktree field'\nherdr workspace list 2>/dev/null | jq -c '.result.workspaces[]? | select(.workspace_id==\"wN\") | .worktree' 2>/dev/null | sed \"s#/home/[a-z]*#~#g\"",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+{"workspace_id":"w9","label":"darse","worktree":{"checkout_path":"`darse`","is_linked_worktree":false,"repo_key":"`darse:.git`","repo_name":"darse","repo_root":"`darse`"}}
+{"workspace_id":"wR","label":"rog","worktree":{"checkout_path":"`opencode-readonly-guard`","is_linked_worktree":false,"repo_key":"`opencode-readonly-guard:.git`","repo_name":"opencode-readonly-guard","repo_root":"`opencode-readonly-guard`"}}
+{"workspace_id":"wG","label":"cles-en-main","worktree":{"checkout_path":"`cles-en-main`","is_linked_worktree":false,"repo_key":"`cles-en-main:.git`","repo_name":"cles-en-main","repo_root":"`cles-en-main`"}}
+{"workspace_id":"wZ","label":"[redacted:private]","worktree":{"checkout_path":"~/Work/[redacted:private]","is_linked_worktree":false,"repo_key":"~/Work/[redacted:private]/.git","repo_name":"[redacted:private]","repo_root":"~/Work/[redacted:private]"}}
+--- wN worktree field
+null
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 25.9s)
+
+_Thinking:_
+I'm noting that "[redacted:private]" showed up in a tool output, but it's a private repo name and the export redacts it, so I'll keep it out of my reply. Next I'm working out how herdr ties workspaces to repos through the `worktree` field, and that darse, rog, cles-en-main and another fleet workspace are worktree workspaces of their main checkouts.
+
+The `worktree` field is null for wN, yet herdr still reports wN as main's open workspace, so it looks like the association was made outside herdr's worktree feature. Herdr's own `worktree create` would make a linked-worktree workspace grouped under the repo's main workspace, whereas our recipe adds a tab inside wN instead.
+
+I'm checking whether the recipe actually groups worktrees under the main checkout, and how cleanup should work once the work is done and the session is exported. The current tab-in-wN approach groups them visually but doesn't register them as worktree workspaces in herdr. The native `herdr worktree create` path is the likely fix, though wN's null worktree field leaves it unclear how grouping attaches, so I want to confirm that before recommending it.
+
+I'm laying out what the export cleanup needs: herdr's worktree remove handles the checkout and branch, but the tab close and export ordering live in the orchestrator procedure, not in the launch recipe, so I'll need to add an explicit close step there. I also want to check whether the remote branch exists, since the worktree:new step refuses if it already does.
+
+The leftover note about the remote branch name is still open: the worktree:new step refuses if it exists on origin, and the earlier check found it absent, so the name is free to reuse. Next I'm reading herdr's built-in guide for how worktree workspaces get grouped.
+
+
+_Thinking:_
+herdr links each workspace to its repository via the `worktree` field: darse, rog, cles-en-main and one other carry it, while the main checkout's wN has null. I'm checking herdr's docs on how worktree workspaces group under their main checkout before comparing the two approaches.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "herdr --skill 2>/dev/null > /dev/null; echo \"skill exit=$?\"\nherdr --skill 2>/dev/null | /usr/bin/grep -a -n -i -E 'worktree|group|linked|parent|sidebar' | cut -c1-200 | head -40",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+skill exit=0
+28:Then print the relevant command group by running the group without a subcommand:
+35:herdr worktree
+103:Both installations must support machine API forwarding, and the remote server must already be running and API-compatible. Forwarding never installs, starts, or restarts a server and never falls ba
+109:Default to a sibling pane in the current tab and the current working directory. Do not create a workspace, tab, worktree, or different cwd unless the user explicitly requests that topology or loca
+208:- Parse IDs from JSON responses. Do not derive them from sidebar order or examples.
+209:- Do not close workspaces, tabs, panes, or sessions you did not create unless the user explicitly asked. Ordinary CLI/API closes do not inherit the TUI's last-pane confirmation. `workspace close -
+210:- Use `--trust-repository` only after the user has verified the repository. It grants per-request Git trust; it is not a routine retry for a failed worktree command.
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 4.1s)
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "herdr --skill 2>/dev/null | sed -n '20,60p;105,125p;200,215p' | cut -c1-230",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+## Learn the current CLI
+
+The installed binary is the authority for command syntax. Start with:
+
+```bash
+herdr --help
+```
+
+Then print the relevant command group by running the group without a subcommand:
+
+```bash
+herdr agent
+herdr pane
+herdr workspace
+herdr tab
+herdr worktree
+herdr terminal
+herdr notification
+herdr integration
+herdr session
+herdr machine
+```
+
+Do not run bare `herdr` for discovery; it launches or attaches the TUI. Do not probe a mutating nested command by omitting arguments. Commands such as `herdr workspace create` are valid with defaults and will execute.
+
+Most control commands return JSON. Read identifiers and state from those responses instead of predicting them.
+
+## Understand layout, panes, and agents
+
+Choose the primitive that matches the job:
+
+- Workspace, tab, and pane topology organize terminal locations.
+- Pane commands control raw terminals, shells, tests, servers, input, and output.
+- Agent commands control the recognized coding agent currently occupying a pane.
+
+A pane exists whether or not it contains an agent. `agent start` requires an existing available shell pane and never creates, splits, or moves layout. Use pane commands for ordinary processes. Use agent commands when Herdr must va
+
+Agent commands accept either a unique live agent name or the pane ID currently hosting that agent. They do not accept terminal IDs or bare agent-kind labels. Names must match `[a-z][a-z0-9_-]{0,31}` and be unique among live agents
+
+`idle` and `done` normally indicate the agent is ready for input; neither guarantees that an unfamiliar approval dialog was recognized or that a retained agent is in the foreground. The CLI/API uses the server's seen state to dist
+
+`herdr machine list` lists saved connection profiles, not a cross-machine pane inventory; add `--json` for scripts. Only add, remove, enable, or disable profiles when the user asks. Removing a profile disconnects the client but do
+
+## Start and coordinate an agent
+
+Default to a sibling pane in the current tab and the current working directory. Do not create a workspace, tab, worktree, or different cwd unless the user explicitly requests that topology or location.
+
+Honor a direction requested by the user. Otherwise inspect the caller pane:
+
+```bash
+herdr pane layout --pane "$HERDR_PANE_ID"
+```
+
+Split a wide pane to the right and a narrow or tall pane down. Avoid repeated same-direction splits that create unusably narrow columns or short rows. Keep the user's focus in the calling pane and explicitly preserve the caller's 
+
+```bash
+herdr pane split --current --direction right --cwd "$PWD" --no-focus
+```
+
+Replace `right` with `down` when appropriate. Read the new pane ID from `.result.pane.pane_id`.
+
+An available shell pane must be at its interactive prompt, with the shell itself in the foreground and no foreground command, editor, or agent running. Start a supported agent in that pane with a useful unique name:
+`--lines` asks Herdr for more rows from the pane's available screen and host scrollback. Alternate-screen rows do not enter ordinary host scrollback. For supported idle agents, Herdr can collect application-owned history and resto
+
+If a larger recent read still does not reveal the completed response, ask the agent to write it as Markdown in a temporary directory and reply only with the file path, then read that file on the same machine. Use this only as a fa
+
+## Safety and coordination rules
+
+- Use `--no-focus` for background work unless the user asked to switch context.
+- Use `--current`, an explicit pane ID, or a unique agent name. Do not rely on another client's focused pane.
+- Parse IDs from JSON responses. Do not derive them from sidebar order or examples.
+- Do not close workspaces, tabs, panes, or sessions you did not create unless the user explicitly asked. Ordinary CLI/API closes do not inherit the TUI's last-pane confirmation. `workspace close --group` closes the primary workspa
+- Use `--trust-repository` only after the user has verified the repository. It grants per-request Git trust; it is not a routine retry for a failed worktree command.
+- Client and server versions can differ after an update. Check `herdr status` before relying on new server features. A missing method is not permission to stop or upgrade a server.
+- Never run `herdr server stop` from an active session unless the user explicitly intends to stop the server and its pane processes.
+- Never kill the main Herdr process. Use named test sessions for experiments that need an isolated server.
+- CLI server errors are JSON on stderr with exit status 1. CLI syntax errors exit with status 2.
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 7.4s)
+
+_Thinking:_
+The `workspace close --group` line apparently closes a primary workspace, which suggests herdr groups a primary workspace together with its linked worktree workspaces. I'll read line 209 in full and check the `herdr workspace` group help, since running the bare group command just prints help and is safe to do.
+
+
+_Thinking:_
+The docs mention a `workspace close --group` command that closes a primary workspace with its worktree workspaces, so herdr does have groups. I'm reading that line in full along with the `herdr workspace` help next.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "herdr --skill 2>/dev/null | sed -n '209p' | fold -w 200\necho '=== herdr workspace'; herdr workspace 2>&1 | /usr/bin/grep -a -v -E '^(Are you an AI|  Help a human|    https|  Debug|  Control|    SKIP)' | head -30 | cut -c1-160\necho '=== herdr workspace close --help'; herdr workspace close --help 2>&1 | /usr/bin/grep -a -v -E '^(Are you an AI|  Help a human|    https|  Debug|  Control|    SKIP)' | head -20 | cut -c1-160",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+- Do not close workspaces, tabs, panes, or sessions you did not create unless the user explicitly asked. Ordinary CLI/API closes do not inherit the TUI's last-pane confirmation. `workspace close --gro
+up` closes the primary workspace and its linked worktree workspaces; never add it merely to bypass `workspace_group_close_required`.
+=== herdr workspace
+herdr workspace commands:
+  herdr workspace list
+  herdr workspace create [--cwd PATH] [--label TEXT] [--env KEY=VALUE] [--focus] [--no-focus]
+  herdr workspace get <workspace_id>
+  herdr workspace focus <workspace_id>
+  herdr workspace rename <workspace_id> <label>
+  herdr workspace report-metadata <workspace_id> --source ID [--token NAME=VALUE] [--clear-token NAME] [--seq N] [--ttl-ms N]
+  herdr workspace close <workspace_id> [--group]
+=== herdr workspace close --help
+Close a workspace
+
+Usage: herdr workspace close <workspace_id>
+
+Arguments:
+  <workspace_id>
+
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 1076.2s)
+
+_Thinking:_
+I've confirmed that herdr groups a primary workspace with its linked worktree workspaces, so `herdr worktree create --workspace wN` would put the new worktree under the repository's main workspace. Our current recipe doesn't do that, since it only creates a git worktree and a tab.
+
+I'm checking whether the native cleanup path handles the branch. `git worktree remove` leaves the branch in place, so I'd need to confirm what `herdr worktree remove --force` does with it, and I'll have to verify that in a real run.
+
+I'm weighing two ways to keep herdr's grouping while still using our git, mise, and hook setup. One option is to keep `scm:worktree:new` and then open the worktree under the primary workspace with `herdr worktree open`, rather than as a tab. I still need to check whether closing that workspace and running the done step cleanly handles the branch.
+
+I'm weighing whether to drop the `--tab` flag and open the worktree with `herdr worktree open` instead, so it sits under the main workspace while the git, mise, hook, and base-file steps still run. The cleanup order is the open question: either finish `scm:worktree:done` first and then close the workspace, or close the workspace first, and closing it would kill the agent pane, so that only happens after the export.
+
+I'm planning the cleanup order: export the worker session, commit and push, then close only the linked builder workspace, never the group, so the main workspace and I stay open. After that I'll run the done task to remove the worktree and branch, and check that only the main workspace remains. I still need to confirm at launch whether `herdr worktree open` accepts a git-created worktree and what fields its JSON result contains.
+
+Checking whether `herdr worktree open` needs the repository trust flag, and whether a linked worktree workspace can be closed without taking the group with it. The grouping should attach to the main workspace since its open ID already matches the repo.
+
+I'm working out how the cleanup recipe needs to change: the launch and close steps have to be written into the recipe section, not just the procedure notes. I also need to update AGENTS.md's workflow paragraph, since it still says to close a tab by id, and that would become a committed doc change I'd propose to the user first.
+
+I'm reworking the builder brief so its fallback reporting step looks for the linked workspace's primary group rather than the old orch tab. That means pointing it at the main workspace labeled chezmoi, with its id taken from `herdr worktree list`. Then I'll present the plan for adopting herdr's linked worktree workspaces and ask the user to confirm.
+
+I'm laying out two choices for the builder's topology: keep it as a tab inside the main workspace, or open it as a linked worktree workspace grouped under that workspace. I'm recommending the grouped linked workspace, and I need the user's call on that, on passing the repository trust flag if herdr requires it, and on a later committed AGENTS.md update. I'll keep the reply short and use the question tool, since this is still plan mode.
+
+
+Your two points check out as follows. The current recipe does clean up, but it doesn't group the worktree the way herdr does.
+
+## What the recipe does today
+- **Grouping:** no. `scm:worktree:new --tab --workspace wN` creates the git worktree, then a plain tab inside `wN`. herdr has its own model, a primary workspace with its "linked worktree workspaces", which `herdr workspace close --group` closes together. Our tab doesn't use it: `herdr worktree list` would show the builder's worktree with no workspace of its own (`open_workspace_id` empty).
+- **Cleanup:** yes, but the order isn't enforced.
+  - `scm:worktree:done` checks the merge into `origin/main`, then hands over to `rm`.
+  - `rm` refuses a dirty or unmerged worktree and runs the project's hook. It then removes the mise trust, the git worktree and the local branch, and closes the tab unless `--keep-tab` is given.
+  - Nothing in these tasks requires the export first. That ordering is my procedure: export, commit, push, then close by id and `done --keep-tab`. That part is only in the "Procedures" section of the resume note, not in the launch recipe.
+
+## Plan (build mode)
+1. **Launch with grouping:**
+   - `scm:worktree:new` without `--tab`. It keeps the duplicate checks, the mise trust, the project hook and the start-commit file that `done` needs.
+   - Then `herdr worktree open --workspace wN --path <worktree> --label env-build --no-focus`, which opens the worktree as a linked workspace grouped under `wN`.
+   - I read the new workspace's id and root pane from the JSON, start the agent there (`herdr agent start chezmoi-env-builder --kind opencode --pane <pane> -- --agent build --model anthropic/claude-sonnet-5-5`), check the status line and send the prompt.
+2. **Cleanup in the recipe:**
+   1. Export the builder's session, commit and push it.
+   2. `herdr workspace close <linked workspace id>`, never with `--group`, which would also close `wN` and this pane.
+   3. `mise run scm:worktree:done feat/correct-shell-environment`, which removes the worktree, the branch and the prune entry.
+   4. Check that `herdr worktree list --workspace wN` shows only `main`, then add the journal lines.
+3. **Documents:**
+   - Rewrite the recipe in `.state/resume.md` (launch and cleanup), and the reporting fallback in `builder-brief.md`. The builder will no longer sit in a tab of `wN`. The fallback becomes: find the primary workspace of the group, then its `orch` tab.
+   - Propose an edit to the Workflow paragraph of `AGENTS.md`, which today says "tab closed by id … `--keep-tab`". That one needs a commit, so I'll propose the message.
+4. **Still to verify when it runs:** I can't test these in plan mode, because those commands write.
+   - Whether `worktree open` accepts a worktree created by git.
+   - Which fields its JSON returns.
+   - Whether it asks for herdr's repository trust.
+   - That closing a linked workspace without `--group` is accepted.
+
+   If one of these fails, I fall back to the tab in `wN`, which has worked six times.
+**Tool: question**
+
+**Input:**
+```json
+{
+  "questions": [
+    {
+      "header": "Topology",
+      "question": "For the builder and the agents after it: should I use a linked worktree workspace grouped under wN (herdr's model), or keep the tab inside wN?",
+      "options": [
+        {
+          "label": "Linked workspace (Recommended)",
+          "description": "scm:worktree:new without --tab, then herdr worktree open --workspace wN. The cleanup closes that workspace by id and never uses --group."
+        },
+        {
+          "label": "Keep the tab in wN",
+          "description": "The recipe stays as it is. Only the cleanup is added to the recipe section."
+        }
+      ]
+    },
+    {
+      "header": "Repository trust",
+      "question": "If herdr refuses to open the worktree without --trust-repository (its per-request Git trust), may I pass it for this repository?",
+      "options": [
+        {
+          "label": "Yes, for this repository",
+          "description": "You've verified it: it's your dotfiles repository."
+        },
+        {
+          "label": "Ask me at that point",
+          "description": "I stop and show you the refusal."
+        }
+      ]
+    },
+    {
+      "header": "AGENTS.md",
+      "question": "Should I also update the Workflow paragraph of AGENTS.md to match (closing the workspace by id, never --group), as a commit proposed for your validation?",
+      "options": [
+        {
+          "label": "Yes, propose the commit",
+          "description": "I'll show you the diff and the message first."
+        },
+        {
+          "label": "Not now",
+          "description": "Only the resume note and the builder brief change."
+        }
+      ]
+    }
+  ]
+}
+```
+
+**Output:**
+```
+User has answered your questions: "For the builder and the agents after it: should I use a linked worktree workspace grouped under wN (herdr's model), or keep the tab inside wN?"="Linked workspace (Recommended)", "If herdr refuses to open the worktree without --trust-repository (its per-request Git trust), may I pass it for this repository?"="Yes, for this repository", "Should I also update the Workflow paragraph of AGENTS.md to match (closing the workspace by id, never --group), as a commit proposed for your validation?"="yes.
+scm:worktree:new should probably be updated too". You can now continue with the user's answers in mind.
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 1946.4s)
+
+_Thinking:_
+I'm checking whether the mise task file for worktree new is managed by chezmoi, by looking for the source under home/dot_config/mise/tasks.
+
+I'm checking whether `scm:worktree:new` has a chezmoi source under `home/dot_config/mise/tasks`, and whether the repo's specs and tests cover those global mise tasks. Since these tasks are shared across repos, changing their behavior would be an OpenSpec change rather than a quick edit.
+
+
+_Thinking:_
+I'm checking the `scm:worktree:new` task's origin, spec coverage and tests, read-only, since other repos may depend on it if this repo manages it.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; C=/home/linuxbrew/.linuxbrew/bin/chezmoi; G=/home/linuxbrew/.linuxbrew/bin/git\nfor f in new done rm ls; do printf '%-5s source: %s\\n' $f \"$($C source-path ~/.config/mise/tasks/scm/worktree/$f 2>&1 | sed \"s#$HOME#~#\")\"; done\nprintf 'lib: %s\\n' \"$($C source-path ~/.config/mise/lib/scm.sh 2>&1 | sed \"s#$HOME#~#\")\"\necho \"drift of the four tasks and the lib: $($C status ~/.config/mise/tasks/scm/worktree ~/.config/mise/lib/scm.sh 2>&1 | tr '\\n' ' ')\"\necho '--- specs and changes that name these tasks'\n$G grep -l -E 'scm:worktree|worktree:new|worktree:done|scm\\.sh' -- openspec ':!openspec/changes/archive' | head\necho '--- in archived changes (names only)'; $G grep -l -E 'scm:worktree|worktree:new' -- openspec/changes/archive | cut -d/ -f4 | sort -u | head\necho '--- tests that exercise them'; $G grep -l -E 'scm:worktree|worktree/new|scm\\.sh' -- tests 2>/dev/null | head; echo '(end)'\necho '--- requirement titles of global-mise-tasks mentioning worktree or herdr'\n/usr/bin/grep -a -n -E '^### Requirement' openspec/specs/global-mise-tasks/spec.md | cut -c1-120 | /usr/bin/grep -a -i -E 'worktree|herdr|tab|agent' | head",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+new   source: ~/.local/share/chezmoi~/mise/tasks/scm/worktree/executable_new
+done  source: ~/.local/share/chezmoi~/mise/tasks/scm/worktree/executable_done
+rm    source: ~/.local/share/chezmoi~/mise/tasks/scm/worktree/executable_rm
+ls    source: ~/.local/share/chezmoi~/mise/tasks/scm/worktree/executable_ls
+lib: ~/.local/share/chezmoi~/mise/lib/scm.sh
+drift of the four tasks and the lib:  M .config/mise/lib/scm.sh  M .config/mise/tasks/scm/worktree  M .config/mise/tasks/scm/worktree/done  M .config/mise/tasks/scm/worktree/ls  M .config/mise/tasks/scm/worktree/new  M .config/mise/tasks/scm/worktree/rm 
+--- specs and changes that name these tasks
+openspec/changes/add-agent-launch-tasks/observations.md
+openspec/changes/add-agent-launch-tasks/proposal.md
+openspec/changes/add-agent-launch-tasks/specs/agent-launch/spec.md
+openspec/changes/add-incus-host-setup/design.md
+openspec/changes/add-repo-roadmap/brief.md
+openspec/changes/add-repo-roadmap/specs/global-mise-tasks/spec.md
+openspec/changes/port-[redacted:private]-shell-aliases/proposal.md
+openspec/specs/global-mise-tasks/spec.md
+--- in archived changes (names only)
+2026-11-02-adopt-global-mise-tasks
+--- tests that exercise them
+(end)
+--- requirement titles of global-mise-tasks mentioning worktree or herdr
+44:### Requirement: Creating a worktree
+95:### Requirement: Removing a worktree
+109:### Requirement: Cleaning merged worktrees
+130:### Requirement: Listing worktrees
+139:### Requirement: Dispatching an agent
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 25.7s)
+
+_Thinking:_
+The SCM task scripts live under the mise tasks directory for worktrees, and the global-mise-tasks spec covers creating, removing, cleaning, listing, and dispatching worktrees. The " M" drift looks like it might just be file mode differences from umask, but I need to check whether the content actually differs too, since that would be a different problem.
+
+I'm weighing whether the content actually differs or the " M" is only mode drift. If live content differs, editing the source would overwrite live edits, so I want to compare them read-only first. I'm also looking at whether the add-agent-launch-tasks change, which already mentions scm:worktree, should carry the linked-workspace topology, or whether a separate small change is cleaner.
+
+
+_Thinking:_
+The four scm:worktree tasks and lib/scm.sh are covered by the global-mise-tasks spec and the planned add-agent-launch-tasks change. I'm now checking whether that change already covers the topology and whether the drift is mode-only.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; C=/home/linuxbrew/.linuxbrew/bin/chezmoi\necho '--- content drift of the scm files (0 = only modes differ)'\nn=0; for t in ~/.config/mise/lib/scm.sh ~/.config/mise/tasks/scm/worktree/{new,done,rm,ls}; do $C cat $t 2>/dev/null | cmp -s - $t || { n=$((n+1)); echo \"content differs: ${t#$HOME/}\"; }; done; echo \"files with content drift: $n\"\necho '--- add-agent-launch-tasks: files, proposal headings and requirement titles'\nls openspec/changes/add-agent-launch-tasks/; /usr/bin/grep -a -n -E '^## |^### ' openspec/changes/add-agent-launch-tasks/proposal.md | cut -c1-120\n/usr/bin/grep -a -n -E '^### Requirement' openspec/changes/add-agent-launch-tasks/specs/agent-launch/spec.md | cut -c1-130\necho '--- its lines on tabs, workspaces, worktrees and topology'\n/usr/bin/grep -a -n -i -E 'workspace|worktree open|linked|tab create|--tab|group' openspec/changes/add-agent-launch-tasks/proposal.md openspec/changes/add-agent-launch-tasks/specs/agent-launch/spec.md | sed -E 's#^openspec/changes/add-agent-launch-tasks/##' | cut -c1-200 | head -16",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+--- content drift of the scm files (0 = only modes differ)
+files with content drift: 0
+--- add-agent-launch-tasks: files, proposal headings and requirement titles
+observations.md
+proposal.md
+specs
+1:## Why
+22:## What Changes
+61:## Capabilities
+64:### New Capabilities
+69:### Modified Capabilities
+74:## Impact
+9:### Requirement: First prompt is delivered once
+105:### Requirement: herdr calls are bounded
+117:### Requirement: A workspace is built out of a worktree
+148:### Requirement: An agent is launched into a workspace
+173:### Requirement: Callers report the delivery outcome
+192:### Requirement: Unknown workspace is refused before anything is created
+203:### Requirement: Prompt help warns about file references
+214:### Requirement: Launch tasks are deployed and tested
+--- its lines on tabs, workspaces, worktrees and topology
+proposal.md:6:- a herdr workspace,
+proposal.md:10:Nothing creates a herdr workspace: the global tasks only start an agent in a tab of a workspace that already exists.
+proposal.md:15:`scm:worktree:new --json` prints its JSON over several lines and says nothing about the prompt, and with an unknown `--workspace` it dies after creating the worktree.
+proposal.md:16:The Neovim configuration repository solved delivery in Python with a tested module (merged on its main branch, with a real-TUI check), runs its sessions with its own task, and keeps the
+proposal.md:17:herdr 0.9.5 now has worktree-backed workspaces (`herdr worktree list|create|open|remove`): its list gives, for each worktree, the branch, the path and the workspace open on it.
+proposal.md:18:This change replaces `fix-prompt-delivery`, which only existed as planning (shell port of the delivery, same requirements), and goes further: workspace creation and a launch flow, gener
+proposal.md:19:Source: request of the Neovim configuration repository (session S19, 2026-11-03) for the delivery fixes; request of the user on 2026-11-04 for generic tasks that create workspaces and d
+proposal.md:26:  A herdr workspace is built out of a worktree and is the home of the agents and sessions that work in it.
+proposal.md:27:  Coordination across the project (orchestration, synchronization, messages between workspaces) stays one level up, in the workspace of the main checkout.
+proposal.md:28:  Whether a workspace should also carry its own orchestration is not decided here.
+proposal.md:32:  - lookups of the state of a branch, a worktree, a workspace and an agent name.
+proposal.md:34:  - `workspace:open <branch|path>` creates, or reuses, the herdr workspace of a worktree, and prints one JSON line.
+proposal.md:35:  - `agent:launch <branch>` does the whole flow: creates the worktree when the branch is new (through `scm:worktree:new`), opens its workspace, starts the agent (default kind OpenCode, 
+proposal.md:40:  - a workspace is already open on that path (reuse);
+proposal.md:41:  - a workspace has the requested label but another path, or several share the label (refuse);
+proposal.md:44:  `scm:worktree:new --tab` resolves `--workspace` before it creates anything and names the value it was given.
+
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 1559.9s)
+
+_Thinking:_
+The add-agent-launch-tasks item already covers this: a workspace built from a worktree, `workspace:open` with herdr worktree-backed workspaces, the full `agent:launch` flow, and coordination staying in the main checkout's workspace. It sits in the "rest" list as the task for the language rule of the global tasks, scoped to a proposal and spec only.
+
+I'm weighing whether the worktree-tab change belongs in the add-agent-launch-tasks change rather than a quick patch to scm:worktree:new. That change already covers the workspace and launch flow, but its requirements don't mention cleanup, so I'm checking whether removal needs to be added there, possibly via a hook since the session-export check is repo-specific.
+
+I'm weighing whether cleanup belongs in add-agent-launch-tasks too, since its spec covers the launch flow but has no requirement for closing the linked workspace when work is done. The export precondition is repo-specific, so it might need to live as a repository hook rather than in the generic change. I also need to log the sixth launch's observations in that change's observations file, since they were skipped.
+
+I'm now laying out the build-mode plan: rename the pane, record the reboot check in the TODO, update the resume and journal notes with a linked-workspace launch and cleanup recipe, adjust the builder-brief fallback and the AGENTS.md workflow paragraph, and log the sixth launch's observations in that change's file, which I'd skipped. The worktree-tab update itself should go through add-agent-launch-tasks, so the open question is whether to promote that change now and bring cleanup into its scope.
+
+I'm drafting a recipe that runs the worktree, opens it as a herdr workspace, and gets its pane and workspace IDs from the JSON output, so the builder can be launched without the tab-based flow.
+
+I'm setting up the worktree launch by hand: creating the worktree with the scm command, opening it as a herdr workspace, and then starting the builder agent in that workspace's root pane.
+
+I'm settling on the cleanup steps for the worktree: the builder's last report gets checked, the branch is fast-forwarded into main and pushed, its session is exported and pushed, then the linked workspace is closed before running the done task. I still need to work out how to ask about promoting add-agent-launch-tasks and when to do it.
+
+I'm settling on the order: the builder goes first, one agent at a time to keep memory in check, so I'll leave add-agent-launch-tasks until after that. Logging the sixth launch's observations is a doc-only change inside that change, so I'd do it without asking, with its own commit message.
+
+
+Your request to update `scm:worktree:new` is already planned. The change `add-agent-launch-tasks` (a proposal and an `agent-launch` spec, no design or tasks yet) intends to:
+
+- build each workspace from a worktree using herdr's worktree workspaces;
+- add a `workspace:open <branch|path>` task that reuses or opens the worktree's workspace;
+- add an `agent:launch <branch>` task that runs the whole flow;
+- keep coordination in the main checkout's workspace.
+
+It doesn't cover the cleanup yet: there's no requirement on closing the workspace or on exporting first. The other facts I checked:
+
+- The `scm` tasks have no content drift, only modes.
+- The `global-mise-tasks` spec governs them.
+- No test in `tests/` covers them.
+- The observations of the sixth launch (the `correct-shell-environment` lead) were never added to that change's `observations.md`.
+
+## Plan (build mode)
+1. **Rename the pane:** `herdr agent rename wN:p1 chezmoi-orch`, then check it.
+2. **Commit A:** record the reboot check as done in `TODO.md`. Message: `docs(chezmoi:docs): record the passed reboot check` (50 characters).
+3. **Resume note and journal:**
+   - correct the facts: same session, keys gone from this process, everything pushed, memory state;
+   - replace the launch recipe with the grouped one, cleanup included;
+   - update the reporting fallback in `builder-brief.md` to find the primary workspace of the group, then its `orch` tab.
+4. **Commit B (proposed):**
+   - the `AGENTS.md` Workflow paragraph, saying the worker's linked workspace is closed by id, never with `--group`, then `scm:worktree:done`;
+   - the sixth launch's observations in `add-agent-launch-tasks/observations.md`;
+   - a "cleanup" entry in that change's proposal: close the linked workspace in `rm` and `done`, and require the export first through a repository hook.
+
+   Message: `docs(chezmoi:docs): record grouped worker workspaces and the sixth launch`. I'll count its length when I write it.
+5. **The builder,** once you've closed some Firefox tabs. I'll launch it by hand with the new recipe:
+   1. `scm:worktree:new feat/correct-shell-environment --base main --json`, without `--tab`.
+   2. `herdr worktree open --workspace wN --path <worktree> --label env-build --no-focus`. If herdr refuses on trust, I'll add `--trust-repository`, which you've allowed.
+   3. Read the workspace id and root pane from the JSON, copy the brief and the scripts.
+   4. `herdr agent start chezmoi-env-builder --kind opencode --pane <pane> -- --agent build --model anthropic/claude-sonnet-5-5`, check the status line, send the prompt.
+
+   If `worktree open` or the closing of a linked workspace fails, I'll fall back to a tab in `wN`.
+6. **Cleanup at the end of the builder:**
+   1. Re-measure its report, fast-forward `main` and push on your word.
+   2. Export its session, commit and push on your word.
+   3. `herdr workspace close <id>`, never with `--group`.
+   4. `mise run scm:worktree:done feat/correct-shell-environment`.
+   5. Check that `herdr worktree list --workspace wN` and `git worktree list` show only `main`.
+
+The permanent fix to `scm:worktree:new`, `rm` and `done` goes through `add-agent-launch-tasks`, with tests, because these tasks also serve the other repositories.
+**Tool: question**
+
+**Input:**
+```json
+{
+  "questions": [
+    {
+      "header": "Launch tasks",
+      "question": "When should add-agent-launch-tasks get the update of scm:worktree:new and friends (grouping, plus cleanup after the export)? Today it sits in the rest list, after add-repo-roadmap (item 10).",
+      "options": [
+        {
+          "label": "Right after the builder (Recommended)",
+          "description": "A plan lead once part 1 is done: one agent at a time, given the memory. Until then I group workers by hand with the recipe above."
+        },
+        {
+          "label": "Now, beside the builder",
+          "description": "Two agents at once. With 3 GB available, close more Firefox tabs first."
+        },
+        {
+          "label": "Keep its place",
+          "description": "After add-repo-roadmap, as planned. Only the cleanup entry gets added to its proposal."
+        }
+      ]
+    }
+  ]
+}
+```
+
+**Output:**
+```
+User has answered your questions: "When should add-agent-launch-tasks get the update of scm:worktree:new and friends (grouping, plus cleanup after the export)? Today it sits in the rest list, after add-repo-roadmap (item 10)."="Right after the builder (Recommended)". You can now continue with the user's answers in mind.
+```
+
+
+---
+
+## Assistant (Plan · Claude Opus 5.5 · 25.9s)
+
+_Thinking:_
+I'm wrapping up the plan: plan mode is still on and nothing has been run. I'll present the consolidated plan briefly, including the order. I'm also weighing where the TODO.md reorder belongs, moving add-agent-launch-tasks right after the correct-shell-environment builder. Since commit A is the reboot check, I'm leaning toward putting the reorder there.
+
+I'm settling on a final answer: a concise plan, ready to execute once build mode is on. The open question is whether the TODO.md reorder belongs in commit B, alongside the workflow docs and observations, rather than in commit A, which is just the reboot check.
+
+
+The plan is settled; I've done nothing yet, since plan mode is still on. When you switch me to build mode, I'll do this, in order:
+
+1. **Rename the pane:** `herdr agent rename wN:p1 chezmoi-orch`, then check it with `herdr agent get chezmoi-orch`.
+2. **Commit A:** record the reboot check as done in `TODO.md`, with A3 0, A16 0 of 113 processes, A1 10 and A2 10. Message: `docs(chezmoi:docs): record the passed reboot check` (50 characters).
+3. **Resume note and journal (not committed):**
+   - correct `.state/resume.md`: same session id, this process holds no keys, everything pushed, memory after the reboot;
+   - write the new launch recipe, grouped through `herdr worktree open --workspace wN` with `--trust-repository` if refused, and its cleanup: export, commit and push, `herdr workspace close <id>` never with `--group`, `scm:worktree:done`, check;
+   - correct the reporting fallback in `builder-brief.md`.
+4. **Commit B (proposed, with the diff shown first):**
+   - the `AGENTS.md` Workflow paragraph, describing the linked workspace closed by id;
+   - the sixth launch's observations in `add-agent-launch-tasks/observations.md`;
+   - the cleanup added to that change's proposal: `rm` and `done` close the linked workspace, and a repository hook requires the export first;
+   - in `TODO.md`, `add-agent-launch-tasks` moved right after `correct-shell-environment`.
+5. **The builder,** when you tell me you've freed memory by closing Firefox tabs. I'll launch it by hand with the grouped recipe, falling back to a tab in `wN` if `worktree open` fails.
+6. **After builder part 1:** a plan lead for `add-agent-launch-tasks`, which will update `scm:worktree:new`, `rm` and `done`, with tests, for every repository.
+
+Switch me to build mode and I'll start with steps 1 to 4.
+
+---
+
+## User
+
+go
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 10.9s)
+
+**Tool: todowrite**
+
+**Input:**
+```json
+{
+  "todos": [
+    {
+      "content": "Rename pane wN:p1 to chezmoi-orch and verify",
+      "status": "in_progress",
+      "priority": "high"
+    },
+    {
+      "content": "TODO.md: record the passed reboot check (commit A, message validated first)",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "content": "Resume note, journal, builder brief fallback: corrected facts, grouped launch and cleanup recipe",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "content": "Commit B draft: AGENTS.md workflow, observations of the sixth launch, cleanup in add-agent-launch-tasks proposal, TODO order",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "content": "Builder launch (grouped linked workspace) once the user says memory is freed",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "content": "After builder part 1: plan lead for add-agent-launch-tasks (scm:worktree:new/rm/done)",
+      "status": "pending",
+      "priority": "medium"
+    }
+  ]
+}
+```
+
+**Output:**
+```
+[
+  {
+    "content": "Rename pane wN:p1 to chezmoi-orch and verify",
+    "status": "in_progress",
+    "priority": "high"
+  },
+  {
+    "content": "TODO.md: record the passed reboot check (commit A, message validated first)",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "content": "Resume note, journal, builder brief fallback: corrected facts, grouped launch and cleanup recipe",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "content": "Commit B draft: AGENTS.md workflow, observations of the sixth launch, cleanup in add-agent-launch-tasks proposal, TODO order",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "content": "Builder launch (grouped linked workspace) once the user says memory is freed",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "content": "After builder part 1: plan lead for add-agent-launch-tasks (scm:worktree:new/rm/done)",
+    "status": "pending",
+    "priority": "medium"
+  }
+]
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "herdr agent rename wN:p1 chezmoi-orch 2>&1 | jq -c '{ok: (.error == null), error: (.error // null)}' 2>/dev/null\necho \"get: $(herdr agent get chezmoi-orch 2>/dev/null | jq -c '.result.agent | {name, pane: .pane_id, session: .agent_session.value}' 2>/dev/null)\"",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+{"ok":true,"error":null}
+get: {"name":"chezmoi-orch","pane":"wN:p1","session":"ses_e720ce42affen6d11Mjrfbnxpi"}
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 2.5s)
+
+The pane is named `chezmoi-orch` again. Next is the `TODO.md` edit for the reboot check. I'm reading the current text.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; /usr/bin/grep -a -n -A3 'Check after the next reboot' TODO.md | cut -c1-330",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+56:* Check after the next reboot (from the credential exposure of 2026-11): a count, never a value, that the terminal, the multiplexer and the systemd user manager hold no GitHub token variable (`systemctl --user show-environment | cut -d= -f1 | grep -c`, and `grep -c` on `/proc/<pid>/environ`).
+57-  The revoked variable stays in the user manager until then; the profile no longer sets it and new shells unset it.
+58-  The exact probe, with its expected counts before and after the deployment of `correct-shell-environment`, is `openspec/changes/correct-shell-environment/manual-steps.md` (section "Reboot check before the change is deployed"); it also counts every process, so the terminal and the multiplexer are covered.
+59-* Commit identity and the history of this repository (from a fleet signal of 2026-11-16, decided by the user the same day).
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 7.7s)
+
+**Tool: edit**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/TODO.md",
+  "oldString": "it also counts every process, so the terminal and the multiplexer are covered.\n* Commit identity",
+  "newString": "it also counts every process, so the terminal and the multiplexer are covered.\n  Done on 2026-11-23, after the reboot of 2026-11-22: the user manager holds 0 GitHub token variables and 0 of 113 readable processes hold one (the terminal and the multiplexer included); it still holds the 10 names of the private file, as expected until `correct-shell-environment` is deployed, and the opencode process of the orchestrator, started through the wrapper, holds none.\n  The after-deployment values of the same probe stay to be checked, with the other live steps of that change.\n* Commit identity"
+}
+```
+
+**Output:**
+```
+Edit applied successfully.
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; G=/home/linuxbrew/.linuxbrew/bin/git\n$G diff --stat | tail -2\n$G diff -U0 | /usr/bin/grep -a '^+' | /usr/bin/grep -a -v '^+++' > /tmp/opencode/added.txt\nprintf 'added %s | dashes %s | banned %s | e-mail %s | tokens %s | modeline last %s\\n' \"$(wc -l < /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -E '[–—]' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -i -w -E '[redacted:private]|[redacted:private]|[redacted:private]|[redacted:repo]|[redacted:private]' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -E '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[a-z]{2,}' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -E 'gh[pousr]_[A-Za-z0-9]{20,}' /tmp/opencode/added.txt)\" \"$(tail -1 TODO.md | /usr/bin/grep -a -c 'vim: set ts=2')\"\npython3 ~/.config/nvim/scripts/session_redact.py --check /tmp/opencode/added.txt 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | /usr/bin/grep -a -E ': [1-9][0-9]*$'; echo '(redaction non-zero list ends)'\nrm -f /tmp/opencode/added.txt\nm='docs(chezmoi:docs): record the passed reboot check'; echo \"subject ${#m} chars\"",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+ TODO.md | 2 ++
+ 1 file changed, 2 insertions(+)
+added 2 | dashes 0 | banned 0 | e-mail 0 | tokens 0 | modeline last 1
+(redaction non-zero list ends)
+subject 50 chars
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 26.3s)
+
+The `TODO.md` edit is ready, so I'm moving on to the resume note. I'm rewriting the stale facts and the recipe now. The commit waits for your word.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; python3 - <<'EOF'\nfrom pathlib import Path\np = Path(\".state/resume.md\"); s = p.read_text(encoding=\"utf-8\")\ndef rep(a, b):\n    global s\n    assert s.count(a) == 1, (s.count(a), a[:70]); s = s.replace(a, b)\n\nrep(\"# Resume note of chezmoi-orch, written 2026-11-21 before a compaction\", \"# Resume note of chezmoi-orch, updated 2026-11-23 after a resume (written 2026-11-21 before a compaction)\")\n\n# who and where\na0 = s.index(\"- Workspace `wN`:\"); a1 = s.index(\"## State at the end of this session\")\ns = s[:a0] + (\n\"- Workspace `wN` (label `chezmoi`, herdr's primary workspace of this repository): tab `wN:t1` orch, and a `firefox` tab `wN:tY` that is the user's (not touched).\\n\"\n\"- `/compact` and restarting a pane are user actions; never send keys to my own pane.\\n\"\n\"- Private store: `[redacted:private_store]` (never print terms; no hooks there).\\n\"\n\"- The machine rebooted on 2026-11-22 at 10:53 and the user resumed THIS SAME session (session id unchanged) through the `opencode` function: the opencode process of this pane holds none of the ten keys and no GitHub variable (counts), while the pane's shell and herdr itself still hold the ten until `correct-shell-environment` is deployed.\\n\"\n\"  The next export of this session overwrites the same file `memory/sessions/202610301854-harden_sensitive_targets.md` (`--full`, same slug); only a NEW session id gets a new file and a README row.\\n\"\n\"- herdr forgot the agent name after the reboot: `herdr agent rename wN:p1 chezmoi-orch` (done 2026-11-23); check `herdr agent get chezmoi-orch` after any herdr or machine restart, because an agent that reports to a name that does not resolve is lost.\\n\\n\") + s[a1:]\n\n# state\na0 = s.index(\"- Repository: `main` = `origin/main` = `325f914`\"); a1 = s.index(\"- Store: `71292df` pushed\")\ns = s[:a0] + (\n\"- Repository on 2026-11-23: `main` = `origin/main` = `325f914`, nothing unpushed, `openspec validate --all --strict` 38/38, no worktree except the main checkout, no builder or lead running; the only local change is the `TODO.md` note of the passed reboot check, waiting for the user's commit word (message `docs(chezmoi:docs): record the passed reboot check`, 50 characters).\\n\"\n\"  Pushed on 2026-11-21: `7ebe727` (follow-ups in `TODO.md`), `11082bc` (manual steps and reboot checks of `correct-shell-environment`), `325f914` (re-export of this orchestrator session through about 15:40, 86,132 lines, README row 21 and a Redaction paragraph on the folder scan); the turns after that export are in no export.\\n\"\n\"- The reboot check of `TODO.md` PASSED on 2026-11-23 (probe of `manual-steps.md`): user manager holds 0 GitHub token variables, 0 of 113 readable processes hold one, 10 names of the private file still exported by the profile (expected until the deployment), umask 0002, no `en_US.UTF-8`, home 0755.\\n\"\n\"- Machine on 2026-11-23: 3.0 GB of memory available, 7.8 of 15.8 GB of swap used, no pressure stalls, 0 kernel kills since the reboot, no old `nvim`; the largest users are Firefox (about 9 GB with swap) and 11 `opencode` processes (about 6.5 GB).\\n\") + s[a1:]\nrep(\"- Delivered since the previous resume (all pushed unless noted): the redaction work (`1649908`, `13c7e1e`, `711b14d`), `3a39713` (places `correct-shell-environment` in `TODO.md`, backlogs the hk bump), `890872e` and `4aa8cad` (brief, study, design, five specs, tasks of `correct-shell-environment`), `57bd76b` (export of its planning lead), `7ebe727` (follow-ups in `TODO.md` and a clause in `reconcile-drift` task 2.3, LOCAL).\",\n    \"- Delivered since the previous resume (all pushed): the redaction work (`1649908`, `13c7e1e`, `711b14d`), `3a39713` (places `correct-shell-environment` in `TODO.md`, backlogs the hk bump), `890872e` and `4aa8cad` (brief, study, design, five specs, tasks of `correct-shell-environment`), `57bd76b` (export of its planning lead), `7ebe727`, `11082bc`, `325f914`.\")\nrep(\"`manual-steps.md` UNCOMMITTED, five specs\", \"`manual-steps.md`, five specs\")\nrep(\"Follow-ups recorded in `TODO.md` (uncommitted for the last ones):\", \"Follow-ups recorded in `TODO.md`:\")\n\n# launch recipe: replace the whole recipe block with the grouped one\na0 = s.index(\"### Launch recipe for the builder\"); a1 = s.index(\"## What is waiting for the user\")\nrecipe = '''### Topology rule (decided with the user on 2026-11-23): a worker lives in a LINKED WORKTREE WORKSPACE grouped under `wN`\n\nherdr groups a primary workspace with its linked worktree workspaces (`herdr workspace close <id> --group` closes the primary and all of them: NEVER use `--group`, it would close `wN` and this pane).\nThe recipes of `scm:worktree:new --tab` open a plain tab inside `wN`, which does not group; until the permanent fix (the change `add-agent-launch-tasks`, planned right after the builder, with its cleanup) the worker is grouped by hand:\n\n```sh\ncd ~/.local/share/chezmoi\n# 1. the git worktree, the mise trust, the hooks and the start-commit file that scm:worktree:done needs; no tab\nmise run scm:worktree:new feat/correct-shell-environment --base main --json > .state/tmp/launch.json 2> .state/tmp/launch.err\nW=$(jq -r .path .state/tmp/launch.json)\n# 2. its workspace, linked under wN (add --trust-repository only if herdr refuses on trust: the user allowed it for this repository)\nherdr worktree open --workspace wN --path \"$W\" --label env-build --no-focus > .state/tmp/open.json 2> .state/tmp/open.err\njq -c '.result | keys' .state/tmp/open.json         # read the workspace id and the root pane from this JSON, do not guess them\n# 3. material for the worker, in its own .state (git-ignored, deleted with the worktree)\nmkdir -p $W/.state/briefs/correct-shell-environment $W/.state/tmp/study && chmod 700 $W/.state/tmp\ncp .state/briefs/correct-shell-environment/{builder-brief,decisions,handoff,brief}.md $W/.state/briefs/correct-shell-environment/\ncp -rp .state/tmp/study-env/. $W/.state/tmp/study/\n# 4. the agent, in the root pane of the new workspace\nherdr agent start chezmoi-env-builder --kind opencode --pane <root pane id> -- --agent build --model anthropic/claude-sonnet-5-5\nherdr pane read <root pane id> --lines 30 | /usr/bin/grep -a -E 'Build|Sonnet|xhigh'     # footer: Build, Claude Sonnet 5.5\nherdr agent prompt chezmoi-env-builder \"$(sed \"s#__WORKTREE__#$W#g\" .state/briefs/correct-shell-environment/builder-prompt.txt)\" --wait --until working --timeout 20000\n```\n\nJournal the events (brief copied, worktree and workspace created with their ids, prompt sent).\nIf `worktree open` refuses a worktree that git created, or the workspace cannot be closed without `--group`, fall back to the tab recipe (`scm:worktree:new --tab --workspace wN ...`), which worked six times, and report the failure for the change `add-agent-launch-tasks`.\nOne agent of this repository at a time while memory is tight (see the machine line above).\n\n### Cleanup rule when a worker is finished (the export comes BEFORE any closing)\n\n1. Re-measure its report from my pane, fast-forward `main` locally, push on the user's word.\n2. Export its session (procedure below), commit and push on the user's word.\n3. Close its linked workspace by id: `herdr workspace close <linked workspace id>`, never `--group`; check that `wN` and this pane are still there.\n4. `mise run scm:worktree:done feat/correct-shell-environment` (checks the branch is in `origin/main`, runs the post-remove hook, removes the worktree and the local branch; an untracked file it refuses on is deleted by hand when no process uses it, never `--force`).\n5. Check: `herdr worktree list --workspace wN` and `git worktree list` show only `main`; journal it.\n\n### After the builder, the plan of the next steps\n\nThe builder cuts itself at about 70% with a hand-off note; a second build session takes groups 8 to 10 (the session-defaults script, documents, checks before deployment); groups 11 and 12 are done with the user present (`manual-steps.md` is the checklist); `/opsx-verify`, archive on the user's go, then the closer export and the cleanup rule above.\nRight after part 1 of the builder: a plan lead for `add-agent-launch-tasks` (moved right after `correct-shell-environment` in the planned order), which updates `scm:worktree:new`, `rm` and `done` for every repository: grouping into linked workspaces, closing the linked workspace at the end, and a repository hook that refuses the closing before the export is committed.\n\n'''\ns = s[:a0] + recipe + s[a1:]\n\n# waiting for the user\nrep(\"1. (Done 2026-11-21: committed and pushed, nothing left to commit or push.)\\n2. The go to launch the builder (recipe above).\\n3. Whether to restart this pane through the `opencode` function (the export is committed and pushed: ends the key exposure of this process), or only compact.\",\n    \"1. The commit word for the `TODO.md` note of the passed reboot check, and for the second commit proposed in the journal (AGENTS.md workflow, observations of the sixth launch, the cleanup entry in the `add-agent-launch-tasks` proposal, the planned order).\\n2. The go to launch the builder: the user wants memory freed first (Firefox tabs closed), then says so; the recipe above is the grouped one.\\n3. (Done: this pane was restarted through the `opencode` function and holds no key.)\")\nrep(\"Consequence for me: keep at most two agents of this repository alive at once, and ask the user to close stale editors before starting another.\",\n    \"Consequence for me: keep at most two agents of this repository alive at once (one while memory is tight), and ask the user to close stale editors and Firefox tabs before starting another.\")\np.write_text(s, encoding=\"utf-8\")\nEOF\nchmod 600 .state/resume.md\nprintf 'resume: lines %s | dashes %s | modeline last %s\\n' \"$(wc -l < .state/resume.md)\" \"$(/usr/bin/grep -a -c -E '[–—]' .state/resume.md)\" \"$(tail -1 .state/resume.md | /usr/bin/grep -a -c 'vim: set ts=2')\"\n/usr/bin/grep -a -c 'tab create\\|--tab' .state/resume.md",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+resume: lines 154 | dashes 0 | modeline last 1
+4
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 2.9s)
+
+The resume note is rewritten. Next the reporting fallback in the builder brief. The builder's tab will no longer be in `wN`, so the fallback wording has to change. I'll find the exact line.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; B=.state/briefs/correct-shell-environment/builder-brief.md\n/usr/bin/grep -a -n -E 'workspace of this repository|herdr tab|Your tab|tab you did not open|labelled' $B | cut -c1-260",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+11:  The orchestrator creates the worktree and your herdr tab and gives you the exact path in the first message; if you find yourself in the main checkout, stop and say so.
+12:- Your tab sits in the herdr workspace of this repository: do not close, rename or type into a tab you did not open.
+92:  Agent names can be lost when herdr restarts or when the orchestrator's pane is restarted: when that fails, find the pane of the tab labelled `orch` in the workspace of this repository (`herdr tab list --workspace <id>`, then `herdr agent list` with `jq`) 
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 8.6s)
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; python3 - <<'EOF'\nfrom pathlib import Path\np = Path(\".state/briefs/correct-shell-environment/builder-brief.md\"); s = p.read_text(encoding=\"utf-8\")\ndef rep(a, b):\n    global s\n    assert s.count(a) == 1, (s.count(a), a[:70]); s = s.replace(a, b)\nrep(\"The orchestrator creates the worktree and your herdr tab and gives you the exact path in the first message;\",\n    \"The orchestrator creates the worktree and its herdr workspace (a linked worktree workspace, grouped under the primary workspace of this repository) and gives you the exact path in the first message;\")\nrep(\"- Your tab sits in the herdr workspace of this repository: do not close, rename or type into a tab you did not open.\",\n    \"- Your workspace is linked to the primary workspace of this repository, which holds the orchestrator and the user's tabs: do not close, rename or type into a workspace, tab or pane you did not open, and never run `herdr workspace close` (the orchestrator closes your workspace when you are finished and exported).\")\nrep(\"find the pane of the tab labelled `orch` in the workspace of this repository (`herdr tab list --workspace <id>`, then `herdr agent list` with `jq`)\",\n    \"find the primary workspace of this repository (`herdr worktree list --cwd <your worktree>` names the workspace open on the main checkout), then the pane of its tab labelled `orch` (`herdr tab list --workspace <id>`, then `herdr agent list` with `jq`)\")\np.write_text(s, encoding=\"utf-8\")\nEOF\nW=.state/briefs/correct-shell-environment\nprintf 'builder brief: dashes %s | modeline last %s\\n' \"$(/usr/bin/grep -a -c -E '[–—]' $W/builder-brief.md)\" \"$(tail -1 $W/builder-brief.md | /usr/bin/grep -a -c 'vim: set ts=2')\"\n/usr/bin/grep -a -c 'herdr workspace close' $W/builder-brief.md\nprintf -- '- %s chezmoi-orch (wN:p1) resumed after the reboot of 2026-11-22 10:53 (same session id, this process holds no key); pane renamed back to chezmoi-orch; reboot check of TODO.md passed (user manager 0 GitHub variables, 0 of 113 processes), noted in TODO.md (uncommitted, awaiting the commit word); resume note updated (same session, memory, grouped launch and cleanup recipe: linked workspace under wN, close by id never --group, then scm:worktree:done); builder brief reporting fallback and workspace wording updated; builder launch waits for the user to free memory\\n' \"$(date '+%Y-%m-%d %H:%M:%S')\" >> .state/journal.md",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+builder brief: dashes 0 | modeline last 1
+1
+
+```
+
+**Tool: todowrite**
+
+**Input:**
+```json
+{
+  "todos": [
+    {
+      "content": "Rename pane wN:p1 to chezmoi-orch and verify",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "content": "TODO.md: record the passed reboot check (edit done, commit A waits for the user's word)",
+      "status": "in_progress",
+      "priority": "high"
+    },
+    {
+      "content": "Resume note, journal, builder brief fallback: corrected facts, grouped launch and cleanup recipe",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "content": "Commit B draft: AGENTS.md workflow, observations of the sixth launch, cleanup entry in add-agent-launch-tasks proposal, TODO planned order",
+      "status": "in_progress",
+      "priority": "high"
+    },
+    {
+      "content": "Builder launch (grouped linked workspace) once the user says memory is freed",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "content": "After builder part 1: plan lead for add-agent-launch-tasks (scm:worktree:new/rm/done)",
+      "status": "pending",
+      "priority": "medium"
+    }
+  ]
+}
+```
+
+**Output:**
+```
+[
+  {
+    "content": "Rename pane wN:p1 to chezmoi-orch and verify",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "content": "TODO.md: record the passed reboot check (edit done, commit A waits for the user's word)",
+    "status": "in_progress",
+    "priority": "high"
+  },
+  {
+    "content": "Resume note, journal, builder brief fallback: corrected facts, grouped launch and cleanup recipe",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "content": "Commit B draft: AGENTS.md workflow, observations of the sixth launch, cleanup entry in add-agent-launch-tasks proposal, TODO planned order",
+    "status": "in_progress",
+    "priority": "high"
+  },
+  {
+    "content": "Builder launch (grouped linked workspace) once the user says memory is freed",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "content": "After builder part 1: plan lead for add-agent-launch-tasks (scm:worktree:new/rm/done)",
+    "status": "pending",
+    "priority": "medium"
+  }
+]
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 3.4s)
+
+Now the second commit's content. First the Workflow paragraph of `AGENTS.md`, then the observations file and the proposal's end.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\n/usr/bin/grep -a -n -E 'A finished agent|herdr tab close|worktree:done|stale pane|Then its tab' AGENTS.md | cut -c1-260\necho '--- observations.md structure (headings)'; /usr/bin/grep -a -n -E '^#+ ' openspec/changes/add-agent-launch-tasks/observations.md | cut -c1-120\necho \"lines $(wc -l < openspec/changes/add-agent-launch-tasks/observations.md)\"; tail -14 openspec/changes/add-agent-launch-tasks/observations.md | cut -c1-230",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+125:Then its tab is closed by id (`herdr tab close <id>`) and, when it had a worktree, the worktree goes with `scm:worktree:done <branch> --keep-tab`; the orchestrator does both, after the export is committed.
+126:A finished agent is not left open in a tab: it holds a context nobody uses, and a stale pane has been mistaken for a live one.
+--- observations.md structure (headings)
+1:# Observations: launching an agent by hand into its own worktree and workspace
+9:## Known before the launch
+19:## Questions this launch answers
+28:## Log
+lines 182
+  - Frictions of the three sessions:
+    - `mise install` with the short name of a tool creates a second install next to the one the pin names, and `mise uninstall` leaves symlinks behind.
+    - A shim of a tool that is not active in a worktree fails, so tests resolve tools once before the scratch home is set.
+    - The test runner's parallel helper prints a citation notice and writes a state directory unless told otherwise (set per run, never exported from a startup file).
+    - `git commit | head` kills git on a broken pipe in the middle of the hook, and the commit is not made.
+    - `openspec archive` of a change with a new capability again left a placeholder Purpose and dropped the preamble, moved a modeline into the middle of a requirement, and left stray blank lines: the third time, fixed by hand eac
+    - The commit subject limit is checked by no hook: one subject of 85 characters passed and was reworded at the final rebase.
+    - The Grep tool given one file path returned matches from the whole tree including the session exports.
+    - `herdr agent prompt` answers with no `ok` key, and `herdr tab create` fields sit under `.result.tab` and `.result.root_pane`.
+  - Private content in the three transcripts, masked in their exports: the login name through paths and listings, the full name and handle of the commit author from one command, the Homebrew prefix, the names of tools installed th
+  - Cleanup: the closer's tab was closed by id after its export was committed; the worktree removal refused while the branch was not yet in `origin/main`, which is the intended check, and ran after the push.
+    The rule "a finished agent is closed once its session is exported" was written into `AGENTS.md` during this launch at the user's request.
+
+<!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 3.2s)
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; sed -n '118,128p' AGENTS.md | cut -c1-330\necho '--- last log entries of the observations (headings of the launches)'\n/usr/bin/grep -a -n -E '^- \\*\\*|^- Fifth|^- Sixth|^- (First|Second|Third|Fourth) ' openspec/changes/add-agent-launch-tasks/observations.md | cut -c1-140 | tail -8\necho '--- proposal: What Changes section end and Impact'\nsed -n '22,60p' openspec/changes/add-agent-launch-tasks/proposal.md | cut -c1-210",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+- `tmp/`: scratch of the checkout, mode 0700, for what a session needs and does not keep.
+  Raw session exports are the exception: they stay in a scratch directory outside the repository until they are redacted and deleted.
+- `journal.md`: append-only log, one line per event (briefs written, prompts sent, worktrees created and removed, merges, pushes): `- YYYY-MM-DD HH:MM:SS <actor> <event>`.
+- `git worktree remove` deletes the ignored files of a worktree with it: a brief that must last is copied into its change folder, and nothing else lives only in a worktree's `.state/`.
+- Ignored files are not scanned by the commit hook, so a brief or a journal never holds a secret value.
+
+An agent that works a change (a lead, a builder, a closer) is finished when its work is merged or handed over and its session is exported.
+Then its tab is closed by id (`herdr tab close <id>`) and, when it had a worktree, the worktree goes with `scm:worktree:done <branch> --keep-tab`; the orchestrator does both, after the export is committed.
+A finished agent is not left open in a tab: it holds a context nobody uses, and a stale pane has been mistaken for a live one.
+
+<!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->
+--- last log entries of the observations (headings of the launches)
+--- proposal: What Changes section end and Impact
+## What Changes
+
+- **Model.**
+  A branch has one read-write checkout at a time (git enforces it), so a branch implies a path.
+  A herdr workspace is built out of a worktree and is the home of the agents and sessions that work in it.
+  Coordination across the project (orchestration, synchronization, messages between workspaces) stays one level up, in the workspace of the main checkout.
+  Whether a workspace should also carry its own orchestration is not decided here.
+- **Shared Python library** in the global mise lib directory, standard library only, ported from the Neovim repository's delivery module and its herdr wrapper, replacing `scm_prompt_agent`:
+  - bounded herdr calls (a timeout on each, `timeout` as an error code);
+  - the first prompt is delivered once: wait for idle, wait for the TUI to draw, submit with `--wait --until working`, inspect before any retry (`working` or `done` means delivered, `blocked` stops, the prompt 
+  - lookups of the state of a branch, a worktree, a workspace and an agent name.
+- **Two new global tasks** (names to confirm in the design):
+  - `workspace:open <branch|path>` creates, or reuses, the herdr workspace of a worktree, and prints one JSON line.
+  - `agent:launch <branch>` does the whole flow: creates the worktree when the branch is new (through `scm:worktree:new`), opens its workspace, starts the agent (default kind OpenCode, plan mode by default, opt
+- **Checks before anything is created.**
+  Each case ends in reuse, create or refuse, and a refusal names what it found:
+
+  - the branch exists, is checked out, and where;
+  - a workspace is already open on that path (reuse);
+  - a workspace has the requested label but another path, or several share the label (refuse);
+  - the agent name is taken (refuse).
+- **`agent:dispatch` and `scm:worktree:new --prompt`** keep their interfaces and use the library; both print one JSON line with the delivery outcome.
+  `scm:worktree:new --tab` resolves `--workspace` before it creates anything and names the value it was given.
+  The help of `--prompt` warns that a text ending in `@file` may swallow the Enter.
+- **Tests.**
+  Python unit tests with a fake `herdr` that counts how many times the text reached the input box (`tests/global-mise-tasks/`, at the repository root and so outside the source state: no ignore entry), plus a li
+- **Replaces `fix-prompt-delivery`.**
+  Every requirement of that change moves into the `agent-launch` capability, its directory is deleted (it holds planning only; git keeps the history), and its audit row is marked as superseded.
+  Its closing duty moves here: when this change is applied, the Neovim repository is told, so that `session:start` can use the global tasks.
+- **Depends on `add-repo-roadmap`** for the amended rule on Python in the global tasks directory (shell files pass `shellcheck -x`, Python files compile and have unit tests).
+- **Observations.**
+  The launch of the roadmap agent, done by hand with the model above, is logged in `observations.md` in this folder: it is the input for the design and for a signal to the fleet's study of multi-agent orchestra
+- **Non-goals.**
+  - The architecture of multi-agent orchestration, and where a launcher belongs in the fleet's tooling (this repository or the fleet's tools).
+    The tasks stay small so that they can move.
+  - Any edit to the Neovim repository: it gets a signal to adopt the tasks, after this change is applied.
+  - Choosing the agent's model: only passing settings through.
+
+
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 4.1s)
+
+_Thinking:_
+The observations file ends after the fifth launch with no heading I can match, so I'm checking how the earlier launches are laid out before adding the sixth.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; O=openspec/changes/add-agent-launch-tasks/observations.md\n/usr/bin/grep -a -n -E '^- [A-Z][a-z]+ (launch|change)|^- [0-9]{4}-[0-9]{2}-[0-9]{2}|^- Launch|^- \\*\\*|^## |^### ' $O | cut -c1-150 | head -30\necho '--- the lines opening each launch entry'; /usr/bin/grep -a -n -i -E 'launch (of|for)|fifth|fourth|third|second launch' $O | cut -c1-170 | head -12\nsed -n '28,40p' $O | cut -c1-200",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+9:## Known before the launch
+19:## Questions this launch answers
+28:## Log
+32:- 2026-11-08, before the launch: agent names are not durable.
+38:- 2026-11-08: `herdr agent prompt <pane-id>` works on an unnamed pane (used to send a request to another agent); a name is not required.
+39:- 2026-11-08, first launch actually done: the lead of `fix-chezmoi-config-template`, not the roadmap agent (still to launch).
+67:- 2026-11-09, cleanup of that launch, and what it shows for `agent:launch`:
+75:- 2026-11-09, second launch, with the existing global task instead of herdr's worktree commands: the lead of `make-install-scripts-idempotent`.
+87:- 2026-11-12, first report of the second lead, and the cause of the lost agent names:
+97:- 2026-11-12, outcome of the second launch, from the launch (2026-11-09 18:05) to the merge:
+114:- 2026-11-16, third launch, with the global task and `--tab` in the source workspace: the lead of `add-agent-env-wrapper`.
+136:- 2026-11-17, fourth launch, same command as the third: the lead of `fast-correct-shell-startup`, a change that deploys files read by every new sh
+158:- 2026-11-18, fifth launch, the first change run by three agents in a row: `add-shell-test-harness`, a plan lead, a builder and a closer, in three
+--- the lines opening each launch entry
+71:    For the design: `workspace:open` resolves the source workspace from `herdr worktree list --cwd <repository>` and reuses it, so a second launch does not create anot
+75:- 2026-11-09, second launch, with the existing global task instead of herdr's worktree commands: the lead of `make-install-scripts-idempotent`.
+97:- 2026-11-12, outcome of the second launch, from the launch (2026-11-09 18:05) to the merge:
+114:- 2026-11-16, third launch, with the global task and `--tab` in the source workspace: the lead of `add-agent-env-wrapper`.
+134:  - Cleanup as in the second launch: `scm:worktree:done <branch> --keep-tab`, then `herdr tab close <id>`; the lead had pushed nothing, so no remote branch was left.
+136:- 2026-11-17, fourth launch, same command as the third: the lead of `fast-correct-shell-startup`, a change that deploys files read by every new shell.
+158:- 2026-11-18, fifth launch, the first change run by three agents in a row: `add-shell-test-harness`, a plan lead, a builder and a closer, in three tabs of the source 
+174:    - `openspec archive` of a change with a new capability again left a placeholder Purpose and dropped the preamble, moved a modeline into the middle of a requiremen
+178:  - Private content in the three transcripts, masked in their exports: the login name through paths and listings, the full name and handle of the commit author from o
+## Log
+
+<!-- Entries: time, step, command, result, friction. -->
+
+- 2026-11-08, before the launch: agent names are not durable.
+  The orchestrator pane was renamed on 2026-11-03 so that briefs could name it as the reporting target.
+  By 2026-11-06 herdr listed no agent name at all, and on 2026-11-08 most panes of other workspaces had a name again while the orchestrator pane and the pane of the agent that did the work in between 
+  The cause is unknown (a restart of the pane, of herdr, or of the agent session are all candidates).
+  Consequence: a brief that names a reporting target must say what to do when `herdr agent get <name>` fails; the roadmap brief now does.
+  For the design: `agent:launch` should check the name at the end of the launch and report the pane id next to it, so that a caller can message by pane when the name is gone.
+- 2026-11-08: `herdr agent prompt <pane-id>` works on an unnamed pane (used to send a request to another agent); a name is not required.
+- 2026-11-08, first launch actually done: the lead of `fix-chezmoi-config-template`, not the roadmap agent (still to launch).
+  It exercises the same steps, with `herdr worktree create` in place of `scm:worktree:new` plus `herdr worktree open`.
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 3.4s)
+
+_Thinking:_
+I'm adding a sixth-launch entry to the log and a reboot observation block, and I'm pulling the sixth launch's facts from `.state/journal.md` first.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\n/usr/bin/grep -a -n -E 'correct-shell-environment|chezmoi-env-lead|nvim-s26|wN:tV|study-env|TokenScope|worktree:done' .state/journal.md | sed -E 's/^([0-9]+):- /\\1 /' | cut -c1-250 | tail -24",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+12 2026-11-17 10:26:21 chezmoi-orch (wN:p1) pushed main to ffc21c2; user order: correct-shell-environment after add-shell-test-harness unless something more urgent or logical comes first
+35 2026-11-20 17:06:26 chezmoi-orch (wN:p1) consent sent to nvim-s26 for the store move: 34 of 35 dotfiles-only entries, line 52 (store-directory word) kept in the dotfiles layer; asked for folder-scan counts on our exports; store at 61b37f9
+36 2026-11-20 17:16:59 chezmoi-orch (wN:p1) brief for correct-shell-environment written to .state/briefs/correct-shell-environment/brief.md
+37 2026-11-20 17:16:59 chezmoi-orch (wN:p1) worktree dotfiles-correct-shell-environment created (feat/correct-shell-environment from 711b14d), tab wN:tV, pane wN:pV, agent chezmoi-env-lead (plan, Opus 5.5); brief copied into its .state
+38 2026-11-20 17:16:59 chezmoi-orch (wN:p1) prompt sent to chezmoi-env-lead (plan mode, step 1 of the brief: reading, then the study)
+39 2026-11-20 17:44:52 chezmoi-orch (wN:p1) store dc3b4aa 797ffa9 1c6e23f (nvim S26, local, unpushed) checked: --check exit 0 and second pass 14/14 identical with the nvim tool; S26 tool folder scan 488 over 15 segments, exit 1; reply sent to nvim-s2
+40 2026-11-20 18:00:32 chezmoi-orch (wN:p1) store 2b2db3a (nvim S26, local, unpushed) checked: --check exit 0, second pass 14/14 identical, folder scan of the worktree tool still 488 over 15 segments; ok sent to nvim-s26
+41 2026-11-20 18:03:49 chezmoi-orch (wN:p1) chezmoi-env-lead reading done; its 4 corrections re-measured and accepted; brief corrected in both copies (draft spec exists, unmanaged rc.d files owned by reconcile-drift 2.3 and 2.4, 190 identical to 050)
+42 2026-11-20 18:13:18 chezmoi-orch (wN:p1) TODO.md committed (3a39713: places correct-shell-environment, backlogs the hk bump) and pushed; user classified all 15 open folder segments as public, told nvim-s26 to add them; store push waits for its 5th
+43 2026-11-20 18:28:41 chezmoi-orch (wN:p1) store 769901a (nvim S26, 5th commit, unpushed) checked: nvim tool --check 0 and second pass 14/14 identical; worktree tool folder names 0 (was 488), exit 0; store push held at nvim-s26 request until its 6th
+45 2026-11-21 02:27:42 chezmoi-orch (wN:p1) chezmoi-env-lead study done (counts only); re-measured from my pane: 10 names, 10 of 10 in the user manager with equal values, 51 process kinds hold all 10, V3 and V8 have no reader; extension and plugin co
+46 2026-11-21 03:27:58 chezmoi-orch (wN:p1) findings.md of correct-shell-environment re-measured (names 0, values 0, check 0, gitleaks clean, Obsidian and suite counts equal, 6 not 7 agent processes without the keys); acknowledged to chezmoi-env-lead
+48 2026-11-21 13:48:40 chezmoi-orch (wN:p1) chezmoi-env-lead decisions re-read (decisions.md, handoff.md: no names, no values); worktree rebased on 3a39713, 0 commits yet; lead asks in its pane whether to write the artifacts there (recommended) or in
+49 2026-11-21 14:08:24 chezmoi-orch (wN:p1) chezmoi-env-lead artifacts for correct-shell-environment re-measured (validate 38/38, added lines 834 clean, no names or values, gitleaks clean, PAM and sudoers claims checked on the machine, script number 
+50 2026-11-21 14:11:42 chezmoi-orch (wN:p1) pushed main to 4aa8cad (correct-shell-environment: design, specs, tasks, brief, findings)
+53 2026-11-21 14:35:47 chezmoi-orch (wN:p1) lead tab wN:tV closed, worktree dotfiles-correct-shell-environment and branch removed (merged, in origin/main); worktree-only material saved to .state/tmp/study-env and .state/briefs/correct-shell-environme
+55 2026-11-21 14:45:06 chezmoi-orch (wN:p1) TokenScope fixed: /tmp/opencode mode 775 -> 750 (the plugin refuses a group-write bit: mode & 0o022); it ran after the change; active context about 279K tokens, no cut needed
+57 2026-11-21 14:51:48 chezmoi-orch (wN:p1) nvim-orch reply read (information): per-provider key commands recorded in its roadmap, unscheduled, route is the user decision; its facts on the cmd: form (synchronous, no timeout, no environment fallback) 
+58 2026-11-21 15:40:16 chezmoi-orch (wN:p1) context persisted before a compaction: .state/resume.md rewritten (state, correct-shell-environment in flight, launch recipe for the builder, what waits for the user, overlaps checked with the planned chang
+61 2026-11-23 12:49:27 chezmoi-orch (wN:p1) resumed after the reboot of 2026-11-22 10:53 (same session id, this process holds no key); pane renamed back to chezmoi-orch; reboot check of TODO.md passed (user manager 0 GitHub variables, 0 of 113 proces
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 16.5s)
+
+I have what I need. The sixth launch entry goes in the observations log, and the grouping and cleanup rule goes into the proposal. I'm writing both.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; python3 - <<'EOF'\nfrom pathlib import Path\n# 1. observations: the sixth launch, and the topology decision of 2026-11-23, appended to the log\np = Path(\"openspec/changes/add-agent-launch-tasks/observations.md\"); s = p.read_text(encoding=\"utf-8\")\nentry = '''- 2026-11-20, sixth launch, same command as the third: the plan lead of `correct-shell-environment` (Opus, plan mode, one tab of the source workspace), then the same session in build mode for the artifacts.\n  - The brief had four statements that did not hold against the tree (a draft spec read as absent, two live files assigned to the wrong change, a file described as older than its copy, a variable said unset that the session sets): the lead re-measured each, the orchestrator re-measured the lead, and the brief was corrected in both copies before the lead's first commit copied it into the public change folder.\n  - Permission prompts in the lead's pane (a read of a private file's names through a shell string) stopped it until the user answered: the orchestrator reads the prompt with `herdr pane read`, reports it and leaves the answer to the user.\n  - The lead was cut at no point: it asked in its pane whether to write the artifacts there or in a fresh session, and the answer (there) was right at 36% of its context.\n  - One untracked file written by an editor's grammar server (`.spell/`) appeared in the worktree and made `scm:worktree:done` refuse; it was deleted by hand after checking that no process used it, never with `--force`.\n  - Material kept alive across the removal of the worktree: the lead's scratch scripts and notes were copied out of its `.state/` before `done`, because that folder is deleted with the worktree.\n  - The agent name resolved to nothing after the lead's session ended, and a fleet agent that had finished disappeared from the listing too: a caller checks `herdr agent list` before relying on a name.\n- 2026-11-23, after a machine reboot and the resume of the orchestrator session: herdr listed the orchestrator pane without a name again (second time after the one of 2026-11-08), so the name was set again with `herdr agent rename`.\n  For the design: `agent:launch` reports the pane id next to the name, and a brief says what to do when the name does not resolve (as the roadmap brief already did).\n- 2026-11-23, topology decision with the user: workers are grouped under the primary workspace of the main checkout, as herdr does for worktree workspaces.\n  - What the tasks do today: `scm:worktree:new --tab --workspace <id>` creates the git worktree and then a plain tab inside the primary workspace. herdr lists that worktree with no workspace of its own, so nothing is grouped; the cleanup closes the tab.\n  - What herdr does: a primary workspace and its linked worktree workspaces form a group (`worktree` field of `herdr workspace list`); `herdr workspace close <id> --group` closes the primary workspace and every linked one, so a cleanup must close the linked workspace by id and never with `--group`.\n  - By hand until this change is applied: `scm:worktree:new` without `--tab`, then `herdr worktree open --workspace <primary> --path <worktree> --label <label> --no-focus`, the agent started in the root pane of the new workspace; at the end, export first, then close the linked workspace by id, then `scm:worktree:done`.\n  - Questions for the design: does `worktree open` accept a worktree that git created (it does for the tasks' own start-commit file?), does it ask for repository trust (`--trust-repository` is per request and needs the user's word once per repository), and what does it print.\n'''\nassert p.read_text(encoding=\"utf-8\").rstrip().endswith(\"<!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->\")\nml = \"<!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->\"\nbody = s.rstrip()[: -len(ml)].rstrip(\"\\n\") + \"\\n\" + entry + \"\\n\" + ml + \"\\n\"\np.write_text(body, encoding=\"utf-8\")\n# 2. proposal: grouping and cleanup, inside What Changes before Non-goals\nq = Path(\"openspec/changes/add-agent-launch-tasks/proposal.md\"); t = q.read_text(encoding=\"utf-8\")\nanchor = \"- **Replaces `fix-prompt-delivery`.**\"\nassert t.count(anchor) == 1\nadd = '''- **Grouping and cleanup (added 2026-11-23).**\n  A launch opens the worker's workspace as a linked worktree workspace of the primary workspace of the repository (`herdr worktree open --workspace <primary>`), not as a tab inside it, so that herdr groups them; `scm:worktree:new --tab` keeps working for callers that want a tab.\n  The cleanup closes the linked workspace by id and never with `--group`, which would close the primary workspace and every other worker; `scm:worktree:rm` and `scm:worktree:done` do it before removing the worktree, and still refuse a dirty or unmerged one.\n  A project may add a hook that refuses the closing until its session export is committed (the dotfiles repository does: a finished agent is exported before it is closed); the generic tasks only call the hook and stay free of project rules.\n  The closing of a workspace that did not come from the tasks, or of the primary one, is refused.\n'''\nt = t.replace(anchor, add + anchor)\nq.write_text(t, encoding=\"utf-8\")\nEOF\nfor f in openspec/changes/add-agent-launch-tasks/observations.md openspec/changes/add-agent-launch-tasks/proposal.md; do printf '%-62s dashes %s | banned %s | modeline last %s | blank-line pairs %s\\n' \"$f\" \"$(/usr/bin/grep -a -c -E '[–—]' $f)\" \"$(/usr/bin/grep -a -c -i -w -E '[redacted:private]|[redacted:private]|[redacted:private]|[redacted:repo]|[redacted:private]' $f)\" \"$(tail -1 $f | /usr/bin/grep -a -c 'vim: set ts=2')\" \"$(awk 'prev==\"\" && $0==\"\" {n++} {prev=$0} END{print n+0}' $f)\"; done",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+openspec/changes/add-agent-launch-tasks/observations.md        dashes 0 | banned 0 | modeline last 1 | blank-line pairs 5
+openspec/changes/add-agent-launch-tasks/proposal.md            dashes 0 | banned 0 | modeline last 1 | blank-line pairs 6
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 5.4s)
+
+_Thinking:_
+I'm checking whether my new entry left a double blank line at the end of the observations file, and whether the existing blank-line pairs were already there.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; G=/home/linuxbrew/.linuxbrew/bin/git\nfor f in openspec/changes/add-agent-launch-tasks/observations.md openspec/changes/add-agent-launch-tasks/proposal.md; do\n  now=$(awk 'prev==\"\" && $0==\"\" {n++} {prev=$0} END{print n+0}' $f); before=$($G show HEAD:$f | awk 'prev==\"\" && $0==\"\" {n++} {prev=$0} END{print n+0}')\n  echo \"$f: double blank lines before $before, now $now\"; done\necho '--- diff stat'; $G diff --stat | tail -4\necho '--- tail of the observations file'; tail -4 openspec/changes/add-agent-launch-tasks/observations.md | cut -c1-120\necho \"validate: $(openspec validate --all --strict 2>&1 | tail -1)\"",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+openspec/changes/add-agent-launch-tasks/observations.md: double blank lines before 5, now 5
+openspec/changes/add-agent-launch-tasks/proposal.md: double blank lines before 6, now 6
+--- diff stat
+ TODO.md                                                 |  2 ++
+ openspec/changes/add-agent-launch-tasks/observations.md | 14 ++++++++++++++
+ openspec/changes/add-agent-launch-tasks/proposal.md     |  5 +++++
+ 3 files changed, 21 insertions(+)
+--- tail of the observations file
+  - By hand until this change is applied: `scm:worktree:new` without `--tab`, then `herdr worktree open --workspace <pri
+  - Questions for the design: does `worktree open` accept a worktree that git created (it does for the tasks' own start-
+
+<!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->
+validate: Totals: 38 passed, 0 failed (38 items)
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 7.0s)
+
+_Thinking:_
+The narration you've given me is the already-rewritten text of an earlier step, not Claude's original narration, so I can't rewrite it again without losing what it was supposed to convey. The one clear point is that the pairs were already present, so nothing was added; the next steps are cleaning up a clumsy question in the observations entry, then the `AGENTS.md` paragraph and the planned order in `TODO.md`.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; python3 - <<'EOF'\nfrom pathlib import Path\ndef edit(path, a, b):\n    p = Path(path); s = p.read_text(encoding=\"utf-8\"); assert s.count(a) == 1, (path, s.count(a), a[:60]); p.write_text(s.replace(a, b), encoding=\"utf-8\")\nedit(\"openspec/changes/add-agent-launch-tasks/observations.md\",\n     \"does `worktree open` accept a worktree that git created (it does for the tasks' own start-commit file?), does it ask for repository trust\",\n     \"does `worktree open` accept a worktree that git created (the tasks' own start-commit file and mise trust stay as they are), does it ask for repository trust\")\n# AGENTS.md: the cleanup rule\nedit(\"AGENTS.md\",\n\"Then its tab is closed by id (`herdr tab close <id>`) and, when it had a worktree, the worktree goes with `scm:worktree:done <branch> --keep-tab`; the orchestrator does both, after the export is committed.\\nA finished agent is not left open in a tab: it holds a context nobody uses, and a stale pane has been mistaken for a live one.\\n\",\n\"Then its tab or workspace is closed by id and, when it had a worktree, the worktree goes with `scm:worktree:done <branch>`; the orchestrator does both, after the export is committed and pushed (`done` refuses while the branch is not in `origin/main` or an untracked file is left).\\n\"\n\"A worker is opened as a linked worktree workspace of the primary workspace of the repository (`herdr worktree open --workspace <primary>`), so that herdr groups it; it is closed with `herdr workspace close <id>`, never with `--group`, which also closes the primary workspace and every other worker.\\n\"\n\"A tab opened with `scm:worktree:new --tab` is closed with `herdr tab close <id>` and `done --keep-tab`.\\n\"\n\"A finished agent is not left open: it holds a context nobody uses, and a stale pane has been mistaken for a live one.\\n\")\nEOF\necho '--- TODO planned order: where add-agent-launch-tasks and correct-shell-environment sit now'\n/usr/bin/grep -a -n -E 'add-agent-launch-tasks|`correct-shell-environment` \\(audit 28\\)|port-[redacted:private]-shell-aliases` \\(audit 8\\)|add-shell-test-harness` \\(audit 29\\)' TODO.md | cut -c1-200",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+--- TODO planned order: where add-agent-launch-tasks and correct-shell-environment sit now
+87:4. [x] `fast-correct-shell-startup` (audit 7): silent and fast startup, archived 2026-11-16; its environment half is the change `correct-shell-environment` (audit 28), second in the rest list of it
+109:    * [x] `add-shell-test-harness` (audit 29): the bats suite that replaces the three scratch harnesses of the install scripts, the wrapper and the shell startup, archived 2026-11-18; first of thi
+110:    * [ ] `correct-shell-environment` (audit 28): `PATH`, locale, umask, the load order of highlighting, the guard of `shellrc` and what the desktop login shell loads, with the study of secrets he
+111:    * [ ] `port-[redacted:private]-shell-aliases` (audit 8)
+120:    * [ ] `add-agent-launch-tasks` (audit 25): after item 10, for the language rule of the global tasks.
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 12.0s)
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; python3 - <<'EOF'\nfrom pathlib import Path\np = Path(\"TODO.md\"); s = p.read_text(encoding=\"utf-8\").split(\"\\n\")\ni = next(k for k, l in enumerate(s) if l.startswith(\"    * [ ] `add-agent-launch-tasks` (audit 25)\"))\nold = s.pop(i)\nj = next(k for k, l in enumerate(s) if l.startswith(\"    * [ ] `correct-shell-environment` (audit 28)\"))\nnew = (\"    * [ ] `add-agent-launch-tasks` (audit 25): moved on 2026-11-23 to follow `correct-shell-environment` part 1 (it was after item 10), so that workers are grouped as linked workspaces and cleaned after their export; \"\n       \"its dependency on `add-repo-roadmap` for the language rule of the global tasks stays and must be settled in its plan lead's review: either that rule lands first, or this change carries it.\")\ns.insert(j + 1, new)\np.write_text(\"\\n\".join(s), encoding=\"utf-8\")\nEOF\nG=/home/linuxbrew/.linuxbrew/bin/git\n/usr/bin/grep -a -n -E 'add-agent-launch-tasks|`correct-shell-environment` \\(audit 28\\)|port-[redacted:private]' TODO.md | cut -c1-120\necho \"TODO diff: $($G diff --stat -- TODO.md | tail -1)\"\necho \"--- what the audit's change map says about row 25 (so TODO and audit do not contradict)\"\n/usr/bin/grep -a -n -E '^\\| 25 ' docs/audits/2026-10-30-environment.md | cut -c1-330",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+87:4. [x] `fast-correct-shell-startup` (audit 7): silent and fast startup, archived 2026-11-16; its environment half is 
+109:    * [x] `add-shell-test-harness` (audit 29): the bats suite that replaces the three scratch harnesses of the insta
+110:    * [ ] `correct-shell-environment` (audit 28): `PATH`, locale, umask, the load order of highlighting, the guard o
+111:    * [ ] `add-agent-launch-tasks` (audit 25): moved on 2026-11-23 to follow `correct-shell-environment` part 1 (it 
+112:    * [ ] `port-[redacted:private]-shell-aliases` (audit 8)
+TODO diff:  1 file changed, 3 insertions(+), 1 deletion(-)
+--- what the audit's change map says about row 25 (so TODO and audit do not contradict)
+237:| 25 | `add-agent-launch-tasks` | 2.7 (mise), process | | proposal, specs; added 2026-11-04 on request; replaces `fix-prompt-delivery`; after 24 (the language rule for the global tasks) |
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 9.0s)
+
+_Thinking:_
+The TODO order is updated, and I'm leaving the audit row's "after 24" as is since it's a dated baseline. Next I'll run the final scans on the changed files and then you can check the two commit messages.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; G=/home/linuxbrew/.linuxbrew/bin/git\n$G status --short\necho '--- commit A scope: TODO.md reboot lines only; commit B: AGENTS.md, observations, proposal, TODO planned order'\n$G diff -U0 | /usr/bin/grep -a '^+' | /usr/bin/grep -a -v '^+++' > /tmp/opencode/added.txt\nprintf 'added %s | dashes %s | banned %s | emoji %s | e-mail %s | tokens %s | home paths %s\\n' \"$(wc -l < /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -E '[–—]' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -i -w -E '[redacted:private]|[redacted:private]|[redacted:private]|[redacted:repo]|[redacted:private]' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -P '[\\x{1F300}-\\x{1FAFF}\\x{2600}-\\x{27BF}]' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -E '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[a-z]{2,}' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -E 'gh[pousr]_[A-Za-z0-9]{20,}|sk-[A-Za-z0-9_-]{20,}' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -E '/home/[a-z]+' /tmp/opencode/added.txt)\"\npython3 ~/.config/nvim/scripts/session_redact.py --check /tmp/opencode/added.txt 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | /usr/bin/grep -a -E ': [1-9][0-9]*$'; echo '(redaction non-zero list ends)'\nrm -f /tmp/opencode/added.txt\nfor f in TODO.md AGENTS.md openspec/changes/add-agent-launch-tasks/observations.md openspec/changes/add-agent-launch-tasks/proposal.md; do printf '%-62s modeline last %s\\n' \"$f\" \"$(tail -1 $f | /usr/bin/grep -a -c 'vim: set ts=2')\"; done\necho \"validate: $(openspec validate --all --strict 2>&1 | tail -1)\"\nfor m in 'docs(chezmoi:docs): record the passed reboot check' 'docs(chezmoi:docs): group worker workspaces and log the sixth launch'; do printf '%s chars: %s\\n' \"${#m}\" \"$m\"; done",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+ M AGENTS.md
+ M TODO.md
+ M openspec/changes/add-agent-launch-tasks/observations.md
+ M openspec/changes/add-agent-launch-tasks/proposal.md
+--- commit A scope: TODO.md reboot lines only; commit B: AGENTS.md, observations, proposal, TODO planned order
+added 26 | dashes 0 | banned 0 | emoji 0 | e-mail 0 | tokens 0 | home paths 0
+(redaction non-zero list ends)
+TODO.md                                                        modeline last 1
+AGENTS.md                                                      modeline last 1
+openspec/changes/add-agent-launch-tasks/observations.md        modeline last 1
+openspec/changes/add-agent-launch-tasks/proposal.md            modeline last 1
+validate: Totals: 38 passed, 0 failed (38 items)
+50 chars: docs(chezmoi:docs): record the passed reboot check
+68 chars: docs(chezmoi:docs): group worker workspaces and log the sixth launch
+
+```
+
+**Tool: todowrite**
+
+**Input:**
+```json
+{
+  "todos": [
+    {
+      "content": "Rename pane wN:p1 to chezmoi-orch and verify",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "content": "Resume note, journal, builder brief: corrected facts, grouped launch and cleanup recipe",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "content": "User: validate and say 'commit' for two commits (A: reboot check in TODO.md; B: AGENTS.md workflow, observations, proposal, planned order), then 'push'",
+      "status": "in_progress",
+      "priority": "high"
+    },
+    {
+      "content": "Builder launch (grouped linked workspace) once the user says memory is freed",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "content": "After builder part 1: plan lead for add-agent-launch-tasks (scm:worktree:new/rm/done, tests, project hook for the export-first rule)",
+      "status": "pending",
+      "priority": "medium"
+    }
+  ]
+}
+```
+
+**Output:**
+```
+[
+  {
+    "content": "Rename pane wN:p1 to chezmoi-orch and verify",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "content": "Resume note, journal, builder brief: corrected facts, grouped launch and cleanup recipe",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "content": "User: validate and say 'commit' for two commits (A: reboot check in TODO.md; B: AGENTS.md workflow, observations, proposal, planned order), then 'push'",
+    "status": "in_progress",
+    "priority": "high"
+  },
+  {
+    "content": "Builder launch (grouped linked workspace) once the user says memory is freed",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "content": "After builder part 1: plan lead for add-agent-launch-tasks (scm:worktree:new/rm/done, tests, project hook for the export-first rule)",
+    "status": "pending",
+    "priority": "medium"
+  }
+]
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 6.8s)
+
+The housekeeping is done, and the edits are made but not committed. Two commit messages need your validation.
+
+## Done
+- **Pane:** `herdr agent rename wN:p1 chezmoi-orch` worked, and `herdr agent get chezmoi-orch` resolves to the same session.
+- **Reboot check:** recorded in `TODO.md`. After the reboot of 2026-11-22 the user manager holds 0 GitHub variables, and 0 of 113 readable processes hold one. It also holds the 10 private-file names, as expected until the deployment.
+- **Resume note and builder brief:**
+  - The resume note has the corrected facts: same session, this process holds no key, everything pushed, memory state.
+  - It also has the grouped launch recipe and the cleanup rule, with the export first.
+  - The brief's reporting fallback now looks for the primary workspace first, then its `orch` tab. It also tells the builder never to run `herdr workspace close`.
+- **`AGENTS.md`:** the Workflow paragraph now describes a worker as a linked worktree workspace, closed with `herdr workspace close <id>` and never `--group`, then `scm:worktree:done`. The tab variant keeps its old wording.
+- **`add-agent-launch-tasks`:**
+  - `observations.md` gets the sixth launch, the name lost after the reboot, and the grouping decision with its open questions.
+  - `proposal.md` gets a "Grouping and cleanup" entry: a launch opens a linked workspace, the cleanup closes it by id before removing the worktree, and a project hook can refuse the closing until the export is committed.
+- **Planned order:** `add-agent-launch-tasks` now sits right after `correct-shell-environment` in the rest list, with a note that its dependency on `add-repo-roadmap` for the language rule has to be settled in its review.
+- **Checks:** the 26 added lines have no dashes, sibling names, e-mails or token shapes, the redaction check is clean, and `openspec validate --all --strict` passes 38/38.
+
+## Proposed commits
+1. `docs(chezmoi:docs): record the passed reboot check` (50 characters): only the two reboot lines of `TODO.md`.
+2. `docs(chezmoi:docs): group worker workspaces and log the sixth launch` (68 characters): `AGENTS.md`, the two `add-agent-launch-tasks` files and the planned-order change in `TODO.md`.
+
+I'd stage the first with `git add -p` limited to the reboot hunk, then the rest.
+
+## What's next
+- **Commit:** say "commit" to commit both as proposed, and "push" for them.
+- **Builder:** I'll launch it with the grouped recipe once you tell me you've freed memory. About 3 GB is available now. If `herdr worktree open` refuses the worktree, I fall back to the tab recipe and report it.
+
+---
+
+## User
+
+commit
+push
+launch
+Persist useful context
+Prepare continuing orchestration after compaction
+Export session
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 17.8s)
+
+_Thinking:_
+I'm laying out the order: commit the reboot-check hunk first, then the second commit, then push. After that comes launching the builder, persisting context, and exporting the session. I'm still unsure whether the export commit needs the user's approval of its message first, since they asked for commits only on the two proposed ones.
+
+Next I'm going to stage only the reboot-check hunk of TODO.md, since the diff has two separate hunks and the planned-order change belongs in the second commit. I'll pull out that single hunk with a zero-context diff and apply it to the index, then commit it.
+
+
+I'm doing the two commits first. The reboot-check lines of `TODO.md` go in the first, so I'm staging only that hunk.
+**Tool: todowrite**
+
+**Input:**
+```json
+{
+  "todos": [
+    {
+      "content": "Commit A (reboot check hunk of TODO.md) and commit B, then push",
+      "status": "in_progress",
+      "priority": "high"
+    },
+    {
+      "content": "Launch the builder: grouped linked workspace under wN, brief and study scripts copied, prompt sent, footer checked",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "content": "Persist context: resume note, journal, brief state after the launch",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "content": "Prepare orchestration after compaction: what to check on the builder, cleanup, next steps",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "content": "Export this orchestrator session (same file), checks, propose the commit message",
+      "status": "pending",
+      "priority": "high"
+    }
+  ]
+}
+```
+
+**Output:**
+```
+[
+  {
+    "content": "Commit A (reboot check hunk of TODO.md) and commit B, then push",
+    "status": "in_progress",
+    "priority": "high"
+  },
+  {
+    "content": "Launch the builder: grouped linked workspace under wN, brief and study scripts copied, prompt sent, footer checked",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "content": "Persist context: resume note, journal, brief state after the launch",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "content": "Prepare orchestration after compaction: what to check on the builder, cleanup, next steps",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "content": "Export this orchestrator session (same file), checks, propose the commit message",
+    "status": "pending",
+    "priority": "high"
+  }
+]
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; G=/home/linuxbrew/.linuxbrew/bin/git\n$G diff -U0 -- TODO.md > /tmp/opencode/todo.diff\npython3 - <<'EOF'\nimport re\nt = open(\"/tmp/opencode/todo.diff\", encoding=\"utf-8\").read()\nhead, *hunks = re.split(r'(?m)^(?=@@ )', t)\nprint(\"hunks:\", len(hunks))\nkeep = [h for h in hunks if \"reboot of 2026-11-22\" in h or \"after-deployment values\" in h]\nprint(\"reboot hunk(s):\", len(keep), \"| lines:\", sum(1 for l in keep[0].splitlines() if l.startswith('+')) if keep else 0)\nopen(\"/tmp/opencode/todo-reboot.patch\", \"w\", encoding=\"utf-8\").write(head + \"\".join(keep))\nEOF\n$G apply --cached --unidiff-zero /tmp/opencode/todo-reboot.patch && echo \"staged the reboot hunk\"\necho \"staged: $($G diff --cached --stat | tail -1)\"; $G diff --cached -U0 | /usr/bin/grep -a '^[-+]' | /usr/bin/grep -a -v '^+++\\|^---' | cut -c1-110\nrm -f /tmp/opencode/todo.diff /tmp/opencode/todo-reboot.patch",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+hunks: 3
+reboot hunk(s): 1 | lines: 2
+staged the reboot hunk
+staged:  1 file changed, 2 insertions(+)
++  Done on 2026-11-23, after the reboot of 2026-11-22: the user manager holds 0 GitHub token variables and 0 o
++  The after-deployment values of the same probe stay to be checked, with the other live steps of that change.
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 6.7s)
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; G=/home/linuxbrew/.linuxbrew/bin/git\nenv -u GITHUB_TOKEN HK_STASH=none $G commit -q -m \"docs(chezmoi:docs): record the passed reboot check\" -m \"After the reboot of 2026-11-22 the user manager holds no GitHub token variable and no readable process holds one; the ten names of the private file are still exported by the profile, as expected until correct-shell-environment is deployed.\" 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | tail -2; echo \"A exit=${pipestatus[1]}\"\n$G add TODO.md AGENTS.md openspec/changes/add-agent-launch-tasks/observations.md openspec/changes/add-agent-launch-tasks/proposal.md\n$G diff --cached --stat | tail -5 | cut -c1-110\nenv -u GITHUB_TOKEN HK_STASH=none $G commit -q -m \"docs(chezmoi:docs): group worker workspaces and log the sixth launch\" -m \"A worker is a linked worktree workspace grouped under the primary workspace, closed by id and never with the group flag, after its export is committed. The launch-tasks change records the grouping and cleanup it must implement, the observations log the sixth launch and the lost agent name, and the change moves right after correct-shell-environment in the planned order.\" 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | tail -2; echo \"B exit=${pipestatus[1]}\"\n$G log --oneline -3 | cut -c1-100; echo \"dirty: $($G status --short | wc -l)\"",
+  "timeout": 120000
+}
+```
+
+**Output:**
+```
+  gitleaks – 12:55PM INF no leaks found
+✔ gitleaks
+A exit=0
+ AGENTS.md                                               |  6 ++++--
+ TODO.md                                                 |  2 +-
+ openspec/changes/add-agent-launch-tasks/observations.md | 14 ++++++++++++++
+ openspec/changes/add-agent-launch-tasks/proposal.md     |  5 +++++
+ 4 files changed, 24 insertions(+), 3 deletions(-)
+  gitleaks – 12:55PM INF no leaks found
+✔ gitleaks
+B exit=0
+d9f437d docs(chezmoi:docs): group worker workspaces and log the sixth launch
+5ac1d81 docs(chezmoi:docs): record the passed reboot check
+325f914 docs(chezmoi:memory): re-export the orchestrator session of 2026-11-21
+dirty: 0
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 10.8s)
+
+_Thinking:_
+I'm checking the TODO.md change in commit B: the stat shows 2 lines changed, one insertion and one deletion. That fits, since moving the line was really just replacing the old line with the new one. Next I'll push.
+
+
+Both are committed. I'm scanning the outgoing commits, then pushing.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; G=/home/linuxbrew/.linuxbrew/bin/git\nmise x -- gitleaks git --redact --no-banner --log-opts='origin/main..HEAD' . 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | tail -1\nenv -u GITHUB_TOKEN $G push origin main 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | tail -2; echo \"push exit=${pipestatus[1]}\"\nenv -u GITHUB_TOKEN $G fetch -q origin 2>&1 | tail -1\necho \"repo ahead/behind: $($G rev-list --count origin/main..HEAD)/$($G rev-list --count HEAD..origin/main), head $($G rev-parse --short HEAD)\"\nprintf -- '- %s chezmoi-orch (wN:p1) committed and pushed on the user word: 5ac1d81 (reboot check recorded) and d9f437d (worker workspaces grouped, sixth launch logged, add-agent-launch-tasks moved after correct-shell-environment in the planned order); main = origin/main = d9f437d\\n' \"$(date '+%Y-%m-%d %H:%M:%S')\" >> .state/journal.md\necho '--- memory before the launch'\necho \"available $(awk '/MemAvailable/{printf \"%.1f GB\", $2/1048576}' /proc/meminfo), swap used $(awk '/SwapTotal/{t=$2}/SwapFree/{f=$2}END{printf \"%.1f GB\", (t-f)/1048576}' /proc/meminfo), pressure avg60 $(awk '/some/{print $3}' /proc/pressure/memory)\"\necho \"firefox content processes: $(ps -eo comm --no-headers | /usr/bin/grep -a -c -E 'Isolated Web|Web Content')\"\necho \"agents of this workspace: $(herdr agent list 2>/dev/null | jq -r '.result.agents[]? | select((.pane_id // \"\") | startswith(\"wN\")) | .name // \"(no name)\"' 2>/dev/null | tr '\\n' ' ')\"\necho \"branch free locally: $($G branch --list feat/correct-shell-environment | wc -l) (0 expected), on origin: $(env -u GITHUB_TOKEN $G ls-remote --heads origin feat/correct-shell-environment 2>/dev/null | wc -l) (0 expected)\"",
+  "timeout": 120000
+}
+```
+
+**Output:**
+```
+12:55PM INF no leaks found
+To https://github.com/silopolis/dotfiles.git
+   325f914..d9f437d  main -> main
+push exit=0
+repo ahead/behind: 0/0, head d9f437d
+--- memory before the launch
+available 3.5 GB, swap used 6.0 GB, pressure avg60 avg60=0.00
+firefox content processes: 13
+agents of this workspace: chezmoi-orch 
+branch free locally: 0 (0 expected), on origin: 0 (0 expected)
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 5.7s)
+
+_Thinking:_
+The push went through and memory looks fine at 3.5 GB free. Since the user said "launch," I'll go ahead: first create the worktree with scm:worktree:new, leaving out --tab, and then open it with herdr worktree open.
+
+
+Pushed: `main` and `origin/main` are at `d9f437d`. Memory is 3.5 GB available with no pressure, and you said launch. I'm creating the git worktree now, without a tab.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; mkdir -p .state/tmp\nmise run scm:worktree:new feat/correct-shell-environment --base main --json > .state/tmp/launch.json 2> .state/tmp/launch.err; echo \"new exit=$?\"\njq -c '.' .state/tmp/launch.json 2>&1 | sed \"s#$HOME#~#g\" | cut -c1-300\ntail -4 .state/tmp/launch.err | cut -c1-170 | sed \"s#$HOME#~#g\"\nW=$(jq -r .path .state/tmp/launch.json); echo \"worktree HEAD: $(/home/linuxbrew/.linuxbrew/bin/git -C $W rev-parse --short HEAD) branch $(/home/linuxbrew/.linuxbrew/bin/git -C $W branch --show-current) dirty $(/home/linuxbrew/.linuxbrew/bin/git -C $W status --short | wc -l)\"",
+  "timeout": 120000
+}
+```
+
+**Output:**
+```
+new exit=0
+{"path":"[redacted:worktrees_root]/dotfiles-correct-shell-environment","branch":"feat/correct-shell-environment","name":"dotfiles-correct-shell-environment","tab":"","pane":"","agent":""}
+Preparing worktree (new branch 'feat/correct-shell-environment')
+HEAD is now at d9f437d docs(chezmoi:docs): group worker workspaces and log the sixth launch
+worktree: [redacted:worktrees_root]/dotfiles-correct-shell-environment (feat/correct-shell-environment from main)
+mise trusted [redacted:worktrees_root]/dotfiles-correct-shell-environment
+worktree HEAD: d9f437d branch feat/correct-shell-environment dirty 0
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 3.4s)
+
+Now the linked workspace under `wN`.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; W=$(jq -r .path .state/tmp/launch.json)\nherdr worktree open --workspace wN --path \"$W\" --label env-build --no-focus > .state/tmp/open.json 2> .state/tmp/open.err; echo \"open exit=$?\"\necho \"stdout bytes: $(wc -c < .state/tmp/open.json), stderr: $(head -c 400 .state/tmp/open.err | sed \"s#$HOME#~#g\")\"\njq -c '.result | keys' .state/tmp/open.json 2>&1 | head -2",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+open exit=0
+stdout bytes: 1233, stderr: 
+["already_open","root_pane","tab","type","workspace","worktree"]
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 4.4s)
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\njq -c '.result | {already_open, type, workspace: (.workspace | {workspace_id, label, tab_count, pane_count}), tab: (.tab | {tab_id, label}), root_pane: (.root_pane | {pane_id, cwd: (.cwd // .foreground_cwd // null)}), worktree: (.worktree | {branch, is_linked_worktree, open_workspace_id, label})}' .state/tmp/open.json | sed \"s#$HOME#~#g\"\necho '--- group as herdr sees it'\nherdr worktree list --workspace wN 2>/dev/null | jq -c '.result.worktrees[] | {branch, is_linked_worktree, open_workspace_id, label}' 2>/dev/null\necho \"workspaces: $(herdr workspace list 2>/dev/null | jq -r '.result.workspaces[]? | select((.workspace_id|tostring|test(\"^wN|^w[A-Za-z0-9]+$\"))) | select(.label==\"chezmoi\" or .label==\"env-build\") | \"\\(.workspace_id)=\\(.label)\"' 2>/dev/null | tr '\\n' ' ')\"",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+{"already_open":false,"type":"worktree_opened","workspace":{"workspace_id":"w0","label":"env-build","tab_count":1,"pane_count":1},"tab":{"tab_id":"w0:t1","label":"1"},"root_pane":{"pane_id":"w0:p1","cwd":"[redacted:worktrees_root]/dotfiles-correct-shell-environment"},"worktree":{"branch":"feat/correct-shell-environment","is_linked_worktree":true,"open_workspace_id":"w0","label":"chezmoi"}}
+--- group as herdr sees it
+{"branch":"main","is_linked_worktree":false,"open_workspace_id":"wN","label":"chezmoi"}
+{"branch":"feat/correct-shell-environment","is_linked_worktree":true,"open_workspace_id":"w0","label":"chezmoi"}
+workspaces: wN=chezmoi w0=env-build 
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 17.6s)
+
+_Thinking:_
+The worktree opened cleanly with no trust prompt, giving me workspace w0 on the env-build branch with its root pane at w0:p1. Next I'm copying the brief files and study scripts over and starting the agent, after checking the footer and launching another opencode instance. I also need to make sure the `.state` directory exists, since the worktree setup may not have created it, so I'll run mkdir -p on it.
+
+
+`worktree open` accepted the git-created worktree with no trust prompt. It's workspace `w0` (`env-build`), root pane `w0:p1`, linked under `wN`. I'm copying the material and starting the agent.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; W=$(jq -r .path .state/tmp/launch.json); B=.state/briefs/correct-shell-environment\nmkdir -p $W/.state/briefs/correct-shell-environment $W/.state/tmp/study && chmod 700 $W/.state/tmp\ncp -p $B/builder-brief.md $B/decisions.md $B/handoff.md $B/brief.md $W/.state/briefs/correct-shell-environment/\ncp -rp .state/tmp/study-env/. $W/.state/tmp/study/\necho \"briefs in worktree: $(ls $W/.state/briefs/correct-shell-environment | tr '\\n' ' ')\"\necho \"study files: $(/usr/bin/find $W/.state/tmp/study -type f | wc -l); scripts $(ls $W/.state/tmp/study/*.sh | wc -l)\"\necho \"ignored by git in the worktree: $(/home/linuxbrew/.linuxbrew/bin/git -C $W check-ignore -q .state/briefs && echo yes || echo NO), dirty: $(/home/linuxbrew/.linuxbrew/bin/git -C $W status --short | wc -l)\"\nprintf -- '- %s chezmoi-orch (wN:p1) builder worktree dotfiles-correct-shell-environment created (feat/correct-shell-environment from d9f437d) without a tab, then opened as a LINKED workspace w0 (label env-build, root pane w0:p1) under wN with herdr worktree open (accepted, no trust prompt); brief, decisions, handoff, brief.md and the study scripts copied into its .state\\n' \"$(date '+%Y-%m-%d %H:%M:%S')\" >> .state/journal.md\nherdr agent start chezmoi-env-builder --kind opencode --pane w0:p1 -- --agent build --model anthropic/claude-sonnet-5-5 2>&1 | jq -c '{ok: (.error == null), error: (.error // null)}' 2>/dev/null\nsleep 6; herdr pane read w0:p1 --lines 30 2>/dev/null | /usr/bin/grep -a -E 'Build|Plan|Sonnet|Opus|xhigh' | tail -2 | cut -c1-120",
+  "timeout": 90000
+}
+```
+
+**Output:**
+```
+briefs in worktree: brief.md builder-brief.md decisions.md handoff.md 
+study files: 519; scripts 11
+ignored by git in the worktree: yes, dirty: 0
+{"ok":true,"error":null}
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 8.1s)
+
+The agent started, but the footer hasn't drawn yet. I'm reading the pane again.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "sleep 5; herdr pane read w0:p1 --lines 40 2>/dev/null | /usr/bin/grep -a -v '^\\s*$' | tail -7 | cut -c1-150\necho \"agent: $(herdr agent get chezmoi-env-builder 2>/dev/null | jq -c '.result.agent | {name, pane: .pane_id, status: .agent_status}' 2>/dev/null)\"",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+agent: {"name":"chezmoi-env-builder","pane":"w0:p1","status":"idle"}
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 6.8s)
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "sleep 4; herdr pane read w0:p1 --lines 60 2>/dev/null | /usr/bin/grep -a -v '^\\s*$' | tail -8 | cut -c1-150; echo \"---rc ${pipestatus[1]}\"",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+                                            ┃
+                                            ┃  Ask anything… "Fix a TODO in the codebase"
+                                            ┃
+                                            ┃  Build · Claude Sonnet 5.5 Anthropic · xhigh
+                                            ╹▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀�
+                                                                                            tab agents  ctrl+p commands
+                                               ● Tip Press ctrl+x y to copy the assistant's last message to clipboard
+  [redacted:worktrees_root]/dotfiles-correct-shell-environment:feat/correct-shell-environment                                                                      
+---rc 0
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 14.0s)
+
+The footer reads `Build · Claude Sonnet 5.5 · xhigh`, as it should, and the directory is the worktree. I'm sending the first prompt.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; W=$(jq -r .path .state/tmp/launch.json)\nP=$(sed \"s#__WORKTREE__#$W#g\" .state/briefs/correct-shell-environment/builder-prompt.txt)\necho \"prompt: $(printf '%s' \"$P\" | wc -c) bytes; placeholders left: $(printf '%s' \"$P\" | /usr/bin/grep -a -c '__WORKTREE__')\"\nherdr agent prompt chezmoi-env-builder \"$P\" --wait --until working --timeout 20000 2>&1 | jq -c '{ok: (.error == null), error: (.error // null)}' 2>/dev/null\nprintf -- '- %s chezmoi-orch (wN:p1) builder agent chezmoi-env-builder started in the root pane w0:p1 of the linked workspace w0 (footer: Build, Claude Sonnet 5.5, xhigh); first prompt sent (reading list, then wait for the user go before mise run test:deps)\\n' \"$(date '+%Y-%m-%d %H:%M:%S')\" >> .state/journal.md\nsleep 8; echo \"status: $(herdr agent get chezmoi-env-builder 2>/dev/null | jq -r '.result.agent.agent_status' 2>/dev/null)\"\nherdr pane read w0:p1 --lines 20 2>/dev/null | /usr/bin/grep -a -E 'esc interrupt|[0-9.]+K \\(' | tail -1 | cut -c1-130",
+  "timeout": 90000
+}
+```
+
+**Output:**
+```
+prompt: 949 bytes; placeholders left: 0
+{"ok":true,"error":null}
+status: working
+   ⬝⬝⬝⬝⬝⬝⬝⬝  esc interrupt                                                          28.6K (3%) · $0.08  ctrl+p co
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 12.2s)
+
+_Thinking:_
+I'm updating the resume note with the launch state: builder running in w0, the tab IDs, the agent name, and the pending go-ahead for `mise run test:deps`. I'm also writing down what to check when the builder reports and which of the user's decisions still stand.
+
+I'm going to record the launch as done in the resume note, with the facts that held up: the worktree open accepted the git-created worktree, no trust prompt appeared, and the JSON fields matched. I'll also note the herdr state, workspace w0 under wN, and how to close w0 by id when cleaning up. Then I'll fold the answers to the open design questions into the observations doc, as an uncommitted edit for the next commit.
+
+
+_Thinking:_
+The builder is still running, at about 29K tokens. I'm saving the context now, starting with the design-question answers from this launch for the add-agent-launch-tasks observations.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; python3 - <<'EOF'\nfrom pathlib import Path\np = Path(\"openspec/changes/add-agent-launch-tasks/observations.md\"); s = p.read_text(encoding=\"utf-8\")\nml = \"<!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->\"\nentry = '''- 2026-11-23, seventh launch, the first grouped one: the build session of `correct-shell-environment` (Sonnet, build mode), opened as a linked worktree workspace.\n  Answers to the questions above:\n  - `scm:worktree:new` without `--tab` created the worktree, the mise trust and the start-commit file, and printed its JSON with empty `tab`, `pane` and `agent` fields.\n  - `herdr worktree open --workspace <primary> --path <worktree> --label <label> --no-focus` accepted that worktree (`already_open` false), asked for no repository trust and returned `workspace`, `tab`, `root_pane` and `worktree` under `.result`; the new workspace had one tab and one pane, and `herdr worktree list --workspace <primary>` then listed the main checkout and the linked worktree with their workspace ids.\n  - The tab of the new workspace is labelled `1`, not with the label given: the label names the workspace.\n  - `herdr agent start <name> --kind opencode --pane <root pane> -- --agent build --model <model>` worked in that root pane; the footer took about ten seconds to draw, so a check of the model reads the pane again before it concludes.\n  - Still to observe at the cleanup: closing that workspace by id without `--group` (the primary workspace and the orchestrator pane must stay), and `scm:worktree:done` after it.\n'''\nassert s.rstrip().endswith(ml)\ns = s.rstrip()[: -len(ml)].rstrip(\"\\n\") + \"\\n\" + entry + \"\\n\" + ml + \"\\n\"\np.write_text(s, encoding=\"utf-8\")\nEOF\nf=openspec/changes/add-agent-launch-tasks/observations.md\nprintf 'dashes %s | banned %s | modeline last %s\\n' \"$(/usr/bin/grep -a -c -E '[–—]' $f)\" \"$(/usr/bin/grep -a -c -i -w -E '[redacted:private]|[redacted:private]|[redacted:private]|[redacted:repo]|[redacted:private]' $f)\" \"$(tail -1 $f | /usr/bin/grep -a -c 'vim: set ts=2')\"\npython3 ~/.config/nvim/scripts/session_redact.py --check $f 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | /usr/bin/grep -a -E ': [1-9][0-9]*$'; echo '(redaction non-zero list ends)'",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+dashes 0 | banned 0 | modeline last 1
+path aliases: 1
+  global: 1
+(redaction non-zero list ends)
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 8.5s)
+
+_Thinking:_
+I'm checking where that "path aliases: 1" hit came from, since I didn't write any paths myself. It shows up in the global count too, so I'm wondering whether an observations file from earlier is the source, perhaps the same one the builder brief picked up.
+
+I'm checking whether the "path aliases: 1" entry is already in the observations file at the previous commit, using git show to compare against HEAD.
+
+
+The check reports one path-alias hit. I'm checking whether it was already there before my edit.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; f=openspec/changes/add-agent-launch-tasks/observations.md\n/home/linuxbrew/.linuxbrew/bin/git show HEAD:$f > /tmp/opencode/obs-head.md\necho \"at HEAD: $(python3 ~/.config/nvim/scripts/session_redact.py --check /tmp/opencode/obs-head.md 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | /usr/bin/grep -a -E ': [1-9][0-9]*$' | tr '\\n' ' ')\"\necho \"now: $(python3 ~/.config/nvim/scripts/session_redact.py --check $f 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | /usr/bin/grep -a -E ': [1-9][0-9]*$' | tr '\\n' ' ')\"\npython3 - $f <<'EOF'\nimport subprocess, sys\nsrc = open(sys.argv[1], encoding=\"utf-8\").read()\nout = subprocess.run([\"python3\", \"~/.config/nvim/scripts/session_redact.py\"], input=src, capture_output=True, text=True).stdout\na, b = src.splitlines(), out.splitlines()\nprint(\"lines changed by redaction:\", [i+1 for i, (x, y) in enumerate(zip(a, b)) if x != y], \"of\", len(a))\nEOF\nrm -f /tmp/opencode/obs-head.md",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+at HEAD: path aliases: 1   global: 1 
+now: path aliases: 1   global: 1 
+lines changed by redaction: [43] of 203
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 21.3s)
+
+_Thinking:_
+The line at 43 was already there before my edit, so it doesn't change anything I did. Next I'll update resume.md.
+
+
+That hit is already in the committed file (line 43), so my entry adds nothing. Now the resume note: state, the running builder, and what to do after a compaction.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; python3 - <<'EOF'\nfrom pathlib import Path\np = Path(\".state/resume.md\"); s = p.read_text(encoding=\"utf-8\")\ndef rep(a, b):\n    global s\n    assert s.count(a) == 1, (s.count(a), a[:70]); s = s.replace(a, b)\n\nrep(\"# Resume note of chezmoi-orch, updated 2026-11-23 after a resume (written 2026-11-21 before a compaction)\",\n    \"# Resume note of chezmoi-orch, updated 2026-11-23 13:05 before a compaction, with the builder RUNNING\")\n\n# who and where: workspaces\na0 = s.index(\"- Workspace `wN` (label\"); a1 = s.index(\"- `/compact` and restarting\")\ns = s[:a0] + (\"- Workspace `wN` (label `chezmoi`, herdr's primary workspace of this repository): tab `wN:t1` orch (me, pane `wN:p1`), and a `firefox` tab `wN:tY` that is the user's (not touched).\\n\"\n \"- Linked workspace `w0` (label `env-build`, grouped under `wN`): the builder, agent `chezmoi-env-builder`, root pane `w0:p1`, tab `w0:t1`, worktree `[redacted:worktrees_root]/dotfiles-correct-shell-environment`, branch `feat/correct-shell-environment`.\\n\") + s[a1:]\n\n# state: repository\na0 = s.index(\"- Repository on 2026-11-23:\"); a1 = s.index(\"- The reboot check of `TODO.md` PASSED\")\ns = s[:a0] + (\"- Repository on 2026-11-23: `main` = `origin/main` = `d9f437d`, 0 ahead and 0 behind, openspec validate 38/38; local change: only `openspec/changes/add-agent-launch-tasks/observations.md` (the seventh launch entry, answers to the topology questions), uncommitted, to fold into the next docs commit.\\n\"\n \"  Pushed on 2026-11-23: `5ac1d81` (reboot check recorded in `TODO.md`), `d9f437d` (worker workspaces grouped, sixth launch logged, `add-agent-launch-tasks` moved right after `correct-shell-environment` in the planned order, `AGENTS.md` Workflow paragraph).\\n\"\n \"  Earlier, pushed on 2026-11-21: `7ebe727`, `11082bc` (manual steps), `325f914` (re-export of this session through about 15:40, 86,132 lines; the turns after are in no export until the next export, same file with `--full`).\\n\") + s[a1:]\n\n# change in flight: replace launch recipe heading block start (keep topology and cleanup rules) with the status\nrep(\"Builder material, ready and git-ignored in `.state/briefs/correct-shell-environment/`:\", \"THE BUILDER IS RUNNING since 2026-11-23 13:00 (part 1, groups 1 to 7); see \\\"Orchestrating the builder\\\" below.\\nBuilder material, git-ignored in `.state/briefs/correct-shell-environment/` (and copied into the worktree's own `.state/`):\")\nrep(\"The user said \\\"hold on\\\" to launching the builder: ask again.\\n\", \"The launch used the grouped recipe below and it worked at the first attempt (observations in `add-agent-launch-tasks/observations.md`, seventh launch).\\n\")\n\n# waiting for the user\na0 = s.index(\"## What is waiting for the user\"); a1 = s.index(\"## Planning for what comes after\")\nwaiting = '''## Orchestrating the builder (what to do after the compaction)\n\nState at 13:05 on 2026-11-23: agent `chezmoi-env-builder` (Build, Claude Sonnet 5.5, xhigh) was `working` on its first prompt (the reading list of `builder-brief.md`, then it says what does not hold against the tree and waits for the user's go before `mise run test:deps`, which downloads helper libraries into `tests/.lib`).\nFirst actions after a compaction, in this order, all read-only:\n1. `herdr agent get chezmoi-orch` (rename the pane if it fails), `herdr agent get chezmoi-env-builder`, `herdr agent list` with `jq` for names and panes only.\n2. `herdr pane read w0:p1 --lines 60 | /usr/bin/grep -a -v '^\\\\s*$' | tail -25`: is it blocked on a permission prompt (read it, report it to the user, never answer it), asking a question, or working?\n3. `git -C [redacted:worktrees_root]/dotfiles-correct-shell-environment log --oneline main..HEAD` and `status --short`: commits are proposed to the user by the builder in its own pane, so a commit appearing without a report is worth a look.\n4. `tail -20 .state/journal.md`, then the builder's reports in my pane (it sends one line with `herdr agent prompt chezmoi-orch`; if it cannot resolve the name it finds my pane by the `orch` tab of the primary workspace).\nWhen it reports \"group N done\", re-measure from my pane before trusting: `bats` counts from its last run (`tests/.reports/`), the mutant result (`mise run test:mutants` in its worktree only if the user agrees, it is heavy), scans over the added lines (`git diff main..HEAD`), `gitleaks git --log-opts='main..HEAD'`, `openspec validate --all --strict`, and the redaction `--check` file by file on new tests and fixtures.\nThe builder cuts itself at about 70% context with a hand-off note in `.state/briefs/correct-shell-environment/`; a fresh build session continues from it in the SAME worktree and workspace (`herdr tab create --workspace w0 ...` is not needed: start the agent in a new pane or tab of `w0`, as for the closer of the harness change).\nMemory: one agent at a time; the machine had 3.5 GB available at the launch. `tokenscope` works for the context size of an agent (`sessionID` argument).\n\n## What is waiting for the user\n\n1. The builder will ask in its pane for the go to run `mise run test:deps` (downloads the bats helper libraries from GitHub into `tests/.lib`): the user answers there.\n2. The commit word for the `add-agent-launch-tasks` observations edit (uncommitted) and for the export of this session (proposed below, in the journal).\n3. At the start of group 11 (deployment), one decision: the live libvirt snippet `060-libvirt.sh` is not an `env_` file, so once `profile` is environment-only the user manager loses the variable it sets until `reconcile-drift-and-supervised-apply` task 2.3 adopts it as `060-env_libvirt.sh`; either do tasks 2.3 and 2.4 of that change by hand, with the user's go, before deploying `profile` (task 11.6), or accept the interim.\n4. The machine is under memory pressure on and off (swap 6 to 8 GB used after the reboot, Firefox about 9 GB with swap, no kernel kills since the reboot, no out-of-memory daemon); another fleet repository owns that policy.\n   Keep one agent at a time of this repository while memory is tight, and ask the user to close Firefox tabs or stale editors before starting another.\n5. After the builder (part 1), a plan lead for `add-agent-launch-tasks` (updates `scm:worktree:new`, `rm`, `done` for every repository; the dependency on `add-repo-roadmap` for the language rule of the global tasks must be settled in its review), then the second build session for groups 8 to 10 of `correct-shell-environment`.\n\n'''\ns = s[:a0] + waiting + s[a1:]\np.write_text(s, encoding=\"utf-8\")\nEOF\nchmod 600 .state/resume.md\nprintf 'resume: lines %s | dashes %s | modeline last %s | stale \"hold on\" mentions %s | \"UNCOMMITTED\" mentions %s\\n' \"$(wc -l < .state/resume.md)\" \"$(/usr/bin/grep -a -c -E '[–—]' .state/resume.md)\" \"$(tail -1 .state/resume.md | /usr/bin/grep -a -c 'vim: set ts=2')\" \"$(/usr/bin/grep -a -c -i 'hold on' .state/resume.md)\" \"$(/usr/bin/grep -a -c 'UNCOMMITTED' .state/resume.md)\"\n/usr/bin/grep -a -n -E 'Launch recipe for the builder|Topology rule|Cleanup rule' .state/resume.md | cut -c1-110",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+resume: lines 168 | dashes 0 | modeline last 1 | stale "hold on" mentions 1 | "UNCOMMITTED" mentions 0
+46:### Topology rule (decided with the user on 2026-11-23): a worker lives in a LINKED WORKTREE WORKSPACE grou
+73:### Cleanup rule when a worker is finished (the export comes BEFORE any closing)
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 2.4s)
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; /usr/bin/grep -a -n -i 'hold on' .state/resume.md | cut -c1-200\nsed -n '46,52p' .state/resume.md | cut -c1-220",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+23:- The reboot check of `TODO.md` PASSED on 2026-11-23 (probe of `manual-steps.md`): user manager holds 0 GitHub token variables, 0 of 113 readable processes hold one, 10 names of the private file st
+### Topology rule (decided with the user on 2026-11-23): a worker lives in a LINKED WORKTREE WORKSPACE grouped under `wN`
+
+herdr groups a primary workspace with its linked worktree workspaces (`herdr workspace close <id> --group` closes the primary and all of them: NEVER use `--group`, it would close `wN` and this pane).
+The recipes of `scm:worktree:new --tab` open a plain tab inside `wN`, which does not group; until the permanent fix (the change `add-agent-launch-tasks`, planned right after the builder, with its cleanup) the worker is g
+
+```sh
+cd ~/.local/share/chezmoi
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 11.5s)
+
+_Thinking:_
+I'm checking that the "hold on" match is real: it's the substring in "0 of 113 readable processes hold one," so it isn't stale. Next I need to update the recipe's step 2 so it reflects the verified launch, including the JSON read of the workspace ID.
+
+I'm working out which fields the recipe needs to read from the JSON output: the workspace ID and the root pane ID. Then I'll edit the recipe lines so they can be run as written.
+
+
+That match is only "hold one" in a sentence, not a stale note. The recipe in the note should now carry the commands that actually worked, with the JSON paths, so a fresh session can copy it.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; python3 - <<'EOF'\nfrom pathlib import Path\np = Path(\".state/resume.md\"); s = p.read_text(encoding=\"utf-8\")\na0 = s.index(\"```sh\\ncd ~/.local/share/chezmoi\\n# 1. the git worktree\"); a1 = s.index(\"```\\n\", a0 + 10) + 4\nnew = '''```sh\ncd ~/.local/share/chezmoi\n# 1. the git worktree, the mise trust, the hooks and the start-commit file that scm:worktree:done needs; no tab\nmise run scm:worktree:new <type>/<name> --base main --json > .state/tmp/launch.json 2> .state/tmp/launch.err\nW=$(jq -r .path .state/tmp/launch.json)\n# 2. its workspace, linked under wN (verified 2026-11-23: accepted, no trust prompt; add --trust-repository only if herdr ever refuses on trust, the user allowed it for this repository)\nherdr worktree open --workspace wN --path \"$W\" --label <label> --no-focus > .state/tmp/open.json 2> .state/tmp/open.err\nWS=$(jq -r .result.workspace.workspace_id .state/tmp/open.json); PANE=$(jq -r .result.root_pane.pane_id .state/tmp/open.json)\n# 3. material for the worker, in its own .state (git-ignored, deleted with the worktree)\nmkdir -p $W/.state/briefs/<change> $W/.state/tmp && chmod 700 $W/.state/tmp\ncp .state/briefs/<change>/<files> $W/.state/briefs/<change>/\n# 4. the agent, in the root pane of the new workspace (model flags as for the role; the footer takes about ten seconds to draw: read the pane again)\nherdr agent start <name> --kind opencode --pane \"$PANE\" -- --agent build --model anthropic/claude-sonnet-5-5\nherdr pane read \"$PANE\" --lines 40 | /usr/bin/grep -a -E 'Build|Plan|Sonnet|Opus|xhigh'\nherdr agent prompt <name> \"<prompt with the absolute worktree path>\" --wait --until working --timeout 20000\n```\n\nVerified values of the builder launch: workspace `w0`, root pane `w0:p1`, tab `w0:t1` (labelled `1`, the label names the workspace).\n'''\ns = s[:a0] + new + s[a1:]\np.write_text(s, encoding=\"utf-8\")\nEOF\nsed -n '52,72p' .state/resume.md | cut -c1-170\nprintf 'dashes %s\\n' \"$(/usr/bin/grep -a -c -E '[–—]' .state/resume.md)\"\nprintf -- '- %s chezmoi-orch (wN:p1) context persisted with the builder running: resume note updated (linked workspace w0, orchestrating-the-builder checklist for after the compaction, grouped launch recipe verified with its JSON paths, waiting list); observations of the seventh launch added to add-agent-launch-tasks (uncommitted)\\n' \"$(date '+%Y-%m-%d %H:%M:%S')\" >> .state/journal.md",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+cd ~/.local/share/chezmoi
+# 1. the git worktree, the mise trust, the hooks and the start-commit file that scm:worktree:done needs; no tab
+mise run scm:worktree:new <type>/<name> --base main --json > .state/tmp/launch.json 2> .state/tmp/launch.err
+W=$(jq -r .path .state/tmp/launch.json)
+# 2. its workspace, linked under wN (verified 2026-11-23: accepted, no trust prompt; add --trust-repository only if herdr ever refuses on trust, the user allowed it for t
+herdr worktree open --workspace wN --path "$W" --label <label> --no-focus > .state/tmp/open.json 2> .state/tmp/open.err
+WS=$(jq -r .result.workspace.workspace_id .state/tmp/open.json); PANE=$(jq -r .result.root_pane.pane_id .state/tmp/open.json)
+# 3. material for the worker, in its own .state (git-ignored, deleted with the worktree)
+mkdir -p $W/.state/briefs/<change> $W/.state/tmp && chmod 700 $W/.state/tmp
+cp .state/briefs/<change>/<files> $W/.state/briefs/<change>/
+# 4. the agent, in the root pane of the new workspace (model flags as for the role; the footer takes about ten seconds to draw: read the pane again)
+herdr agent start <name> --kind opencode --pane "$PANE" -- --agent build --model anthropic/claude-sonnet-5-5
+herdr pane read "$PANE" --lines 40 | /usr/bin/grep -a -E 'Build|Plan|Sonnet|Opus|xhigh'
+herdr agent prompt <name> "<prompt with the absolute worktree path>" --wait --until working --timeout 20000
+```
+
+Verified values of the builder launch: workspace `w0`, root pane `w0:p1`, tab `w0:t1` (labelled `1`, the label names the workspace).
+
+Journal the events (brief copied, worktree and workspace created with their ids, prompt sent).
+If `worktree open` refuses a worktree that git created, or the workspace cannot be closed without `--group`, fall back to the tab recipe (`scm:worktree:new --tab --worksp
+One agent of this repository at a time while memory is tight (see the machine line above).
+dashes 0
+
+```
+
+**Tool: todowrite**
+
+**Input:**
+```json
+{
+  "todos": [
+    {
+      "content": "Commit A and B, push (5ac1d81, d9f437d)",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "content": "Launch the builder: linked workspace w0 under wN, brief and study copied, prompt sent, footer checked",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "content": "Persist context: resume note (orchestrating checklist, recipe verified), journal, observations",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "content": "Prepare orchestration after compaction (checklist in the resume note)",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "content": "Export this orchestrator session (same file), checks, folder scan, README, propose the commit message",
+      "status": "in_progress",
+      "priority": "high"
+    },
+    {
+      "content": "Watch the builder: permission prompts and its first report while exporting",
+      "status": "pending",
+      "priority": "medium"
+    }
+  ]
+}
+```
+
+**Output:**
+```
+[
+  {
+    "content": "Commit A and B, push (5ac1d81, d9f437d)",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "content": "Launch the builder: linked workspace w0 under wN, brief and study copied, prompt sent, footer checked",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "content": "Persist context: resume note (orchestrating checklist, recipe verified), journal, observations",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "content": "Prepare orchestration after compaction (checklist in the resume note)",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "content": "Export this orchestrator session (same file), checks, folder scan, README, propose the commit message",
+    "status": "in_progress",
+    "priority": "high"
+  },
+  {
+    "content": "Watch the builder: permission prompts and its first report while exporting",
+    "status": "pending",
+    "priority": "medium"
+  }
+]
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 3.1s)
+
+Before I export, I'm checking on the builder, since a permission prompt would block it.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "echo \"status: $(herdr agent get chezmoi-env-builder 2>/dev/null | jq -r '.result.agent.agent_status' 2>/dev/null)\"\nherdr pane read w0:p1 --lines 50 2>/dev/null | /usr/bin/grep -a -v '^\\s*$' | /usr/bin/grep -a -E 'Permission required|Allow once|\\$ |Thought|esc interrupt|[0-9.]+K \\(|Question' | tail -5 | cut -c1-170",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+status: blocked
+     Thought: 3.0s
+     Thought: 1.7s
+     $ cd tests && for f in helpers/compare.sh helpers/bats/load.bash helpers/bats/setup_suite.bash mutants/run.sh    █
+  ┃  △ Permission required
+  ┃   Allow once   Allow always   Reject                                  ctrl+f fullscreen  ⇆ select  enter confirm
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 3.1s)
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "herdr pane read w0:p1 --lines 70 2>/dev/null | /usr/bin/grep -a -v '^\\s*$' | sed -n '/Permission required/,$p' | sed 's/[[:space:]]*$//' | cut -c1-170 | head -16\necho '--- the command line before the prompt'\nherdr pane read w0:p1 --lines 70 2>/dev/null | /usr/bin/grep -a -B1 -A3 '\\$ cd tests' | sed 's/[[:space:]]*$//' | cut -c1-170 | head -8",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+  ┃  △ Permission required
+  ┃    ← Access external directory [redacted:worktrees_root]
+  ┃
+  ┃  Patterns
+  ┃
+  ┃  - [redacted:worktrees_root]/*                                                                                            [redacted:worktrees_root]/dotfiles-correct-shell-
+  ┃                                                                                                                        environment:feat/correct-shell-
+  ┃                                                                                                                        environment
+  ┃   Allow once   Allow always   Reject                                  ctrl+f fullscreen  ⇆ select  enter confirm
+  ┃                                                                                                                        • OpenCode 1.19.6
+--- the command line before the prompt
+     → Read tests/smoke/startup-compare.bats                                                                          █
+     $ cd tests && for f in helpers/compare.sh helpers/bats/load.bash helpers/bats/setup_suite.bash mutants/run.sh    █
+       run.sh; do echo "=== $f"; cat $f; done; /usr/bin/ls -R mutants | head -40; cat mutants/startup/unset-removed.  █
+       sed mutants/startup/rc-twice.sed; cat ../mise.toml | head -80                                                  █
+                                                                                                                      █
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5)
+
+_Thinking:_
+I'm looking at a permission prompt that blocked the builder from accessing [redacted:worktrees_root], which is its own worktree. My guess is that opencode treats the project directory as the main checkout, so the worktree counts as an external directory.
+
+The builder is stuck on a permission prompt for [redacted:worktrees_root]/*, which is its own worktree. That's a read of the repo, so the choice between allowing once or always is the user's to make in the pane, not mine. Meanwhile, the export is a few minutes of work, so I'll keep going and fold the blocked builder into my report at the end.
+
+
+_Thinking:_
+The builder is stuck on an opencode permission prompt for reading files in its own worktree, so I'm leaving that answer to you in its pane. I'm exporting the session now to report it.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; S=/tmp/opencode/export-scratch; R=~/.config/nvim/scripts/session_redact.py\nmkdir -p $S/raw $S/out && chmod 700 $S\npython3 ~/Work/[redacted:private]/scripts/session/export.py --full --no-children --force --out-dir $S/raw --slug orchestration_wrapper_startup_harness ses_e720ce42affen6d11Mjrfbnxpi > $S/export.log 2>&1; echo \"export exit=$?\"\nRAW=$(ls $S/raw/*.md | head -1); echo \"raw: $(basename $RAW), $(stat -c %s $RAW) bytes, $(wc -l < $RAW) lines, files in raw: $(ls $S/raw | wc -l)\"\n/usr/bin/grep -a -m1 -o 'through msg_[A-Za-z0-9]*' $RAW\npython3 $R < $RAW > $S/out/pass1.md 2>$S/out/pass1.err; echo \"pass1 exit=$? lines $(wc -l < $S/out/pass1.md), stderr lines $(wc -l < $S/out/pass1.err)\"\npython3 $R < $S/out/pass1.md > $S/out/pass2.md 2>/dev/null; cmp -s $S/out/pass1.md $S/out/pass2.md && echo \"idempotent: yes\" || echo \"idempotent: NO\"\numask 077; python3 $R --check --folder-report $S/folders.txt $S/out/pass1.md > $S/chk.out 2>&1; echo \"check on the new export: exit=$?\"\nsed 's/\\x1b\\[[0-9;]*m//g' $S/chk.out | /usr/bin/grep -a -E ': [1-9][0-9]*$'; echo '(non-zero categories end)'\necho \"folder report: $(stat -c '%a' $S/folders.txt), $(wc -l < $S/folders.txt) lines\"; umask 002",
+  "timeout": 600000
 }
 ```
 
