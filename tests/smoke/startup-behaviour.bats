@@ -99,9 +99,11 @@ desktop_env() {
   assert_equal "$(printf '%s\n' "$output" | cut -d= -f1 | grep -cx -e "$(dt_unset_name)" || true)" 0
 }
 
-# the PATH of a login shell is the PATH of the same shell started without -l (audit F18 was a second pass that changed it)
+# the PATH of a login shell is the PATH of the same shell started without -l (audit F18 was a second pass that changed it).
+# /etc/profile gives a login shell its own PATH, so both start from that one, read at run time: the startup files keep
+# the PATH they inherit, and a second pass that added or nested an entry would make the two differ.
 path_of() {
-  dt_start_pty -- "$@" | tr -d '\r' | grep '^PATH=' | head -n 1
+  DT_START_PATH=$(dt_login_path) dt_start_pty -- "$@" | tr -d '\r' | grep '^PATH=' | head -n 1
 }
 
 @test "zsh -l -i has the PATH of zsh -i" {

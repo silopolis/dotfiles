@@ -11,13 +11,13 @@
 
 ## 3. PATH and the env_ files
 
-- [ ] 3.1 `tests/unit/path-helper.bats`: `_path_prepend` and `_path_clean` in zsh and bash (scenario "The helper")
-- [ ] 3.2 `rc.d/035-env_path_helper.sh`: `_path_prepend` (move to the front, skip a missing directory) and `_path_clean` (drop duplicates and missing directories), POSIX for both shells
-- [ ] 3.3 `rc.d/040-env_path_base.sh`: keep the inherited `PATH`, append the missing system directories, clean
-- [ ] 3.4 `110-pkg_brew.sh` split: `rc.d/041-env_pkg_brew.sh` holds `brew shellenv` and every `HOMEBREW_*` export, `110` keeps completions, `fpath` and the brew-file wrapper (`zsh -n`, `bash -n`; the brew hook still defined in `zsh -i`)
-- [ ] 3.5 Renames with `git mv`: `120-pkg-aqua.sh` to `042-env_pkg_aqua.sh` (an inherited `AQUA_BIN_DIR` kept as it is), `140-pkg_snap.sh` to `043-env_pkg_snap.sh`, `150-pkg_krew.sh` to `044-env_pkg_krew.sh`, `200-lang_go.sh` to `045-env_lang_go.sh`, `220-lang_rust.sh` to `046-env_lang_rust.sh`; new `047-env_tools_mise.sh` (mise's shims directory, `${MISE_DATA_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/mise}/shims`, which does not need `MISE_DATA_DIR` to be set); `050-env_path_user.sh` through `_path_prepend`; each old target in `home/.chezmoiremove`
-- [ ] 3.6 `tests/smoke/environment-path.bats`: scenarios "No duplicates and no missing directory", "Inherited entries are kept", "User bin directories first", "Nested shells do not grow PATH" (zsh, bash and from the desktop replay)
-- [ ] 3.7 Mutant `env-path-no-clean` (`_path_clean` returns at once): at least the duplicate and nested tests fail
+- [x] 3.1 `tests/unit/path-helper.bats`: `_path_prepend` and `_path_clean` in zsh and bash (scenario "The helper")
+- [x] 3.2 `rc.d/035-env_path_helper.sh`: `_path_prepend` (move to the front, skip a missing directory) and `_path_clean` (drop duplicates and missing directories), POSIX for both shells
+- [x] 3.3 `rc.d/040-env_path_base.sh`: keep the inherited `PATH`, append the missing system directories, clean
+- [x] 3.4 `110-pkg_brew.sh` split: `rc.d/041-env_pkg_brew.sh` holds `brew shellenv` and every `HOMEBREW_*` export, `110` keeps completions, `fpath` and the brew-file wrapper (`zsh -n`, `bash -n`; the brew hook still defined in `zsh -i`)
+- [x] 3.5 Renames with `git mv`: `120-pkg-aqua.sh` to `042-env_pkg_aqua.sh` (an inherited `AQUA_BIN_DIR` kept as it is), `140-pkg_snap.sh` to `043-env_pkg_snap.sh`, `150-pkg_krew.sh` to `044-env_pkg_krew.sh`, `200-lang_go.sh` to `045-env_lang_go.sh`, `220-lang_rust.sh` to `046-env_lang_rust.sh`; new `047-env_tools_mise.sh` (mise's shims directory, `${MISE_DATA_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/mise}/shims`, which does not need `MISE_DATA_DIR` to be set); `050-env_path_user.sh` through `_path_prepend`; each old target in `home/.chezmoiremove`
+- [x] 3.6 `tests/smoke/environment-path.bats`: scenarios "No duplicates and no missing directory", "Inherited entries are kept", "User bin directories first", "Nested shells do not grow PATH" (zsh, bash and from the desktop replay)
+- [x] 3.7 Mutant `env-path-no-clean` (`_path_clean` returns at once): at least the duplicate and nested tests fail
 
 ## 4. Locale
 

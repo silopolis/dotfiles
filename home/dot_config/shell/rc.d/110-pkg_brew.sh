@@ -1,22 +1,8 @@
-### Homebrew
-if [ -x "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
-  #export NONINTERACTIVE=1
-  export HOMEBREW_AUTO_UPDATE_SECS=3600
-  # 1 to enable, empty to disable
-  export HOMEBREW_NO_AUTO_UPDATE=
-  # 1 to enable, empty to disable
-  export HOMEBREW_NO_ENV_HINTS=
-  # 1 to enable, empty to disable
-  export HOMEBREW_NO_INSTALL_CLEANUP=
+## Homebrew: completions and the brew-file wrapper
 
-  # Load brew shell env
-  # Sets HOMEBREW_PREFIX, HOMEBREW_CELLAR, and HOMEBREW_REPOSITORY
-  # Loads auto-completions
-  # Adds brew bin and sbin dirs to PATH
-  # Updates MANPATH and INFOPATH
-  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv $CURRENT_SHELL)"
-  #export HOMEBREW_PREFIX="${HOMEBREW_PREFIX:-$(brew --prefix)}"
+# The environment (PATH, HOMEBREW_* variables) is 041-env_pkg_brew.sh, which every shell and the desktop session load.
 
+if [ -n "${HOMEBREW_PREFIX:-}" ] && [ -x "${HOMEBREW_PREFIX}/bin/brew" ]; then
   # Add brew completions
   case $CURRENT_SHELL in
     "bash")
@@ -45,18 +31,6 @@ if [ -x "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
   esac
 
   if command -v brew-file &> /dev/null; then
-    #export HOMEBREW_BREWFILE="$HOME/.config/brewfile/Brewfile"
-    # brew-file backup file name
-    export HOMEBREW_BREWFILE_BACKUP="$HOME/.config/brewfile/Brewfile.backup"
-    # Toggle use of full names (tap/name)
-    export HOMEBREW_BREWFILE_FULL_NAME=1
-    # Only list leaves
-    export HOMEBREW_BREWFILE_LEAVES=0
-    # Only list packages installed on request. Has priority over leaves
-    export HOMEBREW_BREWFILE_ON_REQUEST=1
-    # "go,coreutils" # Packages always to be listed
-    export HOMEBREW_BREWFILE_TOP_PACKAGES="gcc,g++"
-
     # brew command wrapper for brew-file
     if [ -f "${HOMEBREW_PREFIX}/etc/brew-wrap" ];then
       source "${HOMEBREW_PREFIX}/etc/brew-wrap"

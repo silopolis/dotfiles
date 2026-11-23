@@ -1,33 +1,7 @@
-# Include user's private "bin" directories if they exist
-#if [ "$(id -u)" -eq 0 ]; then
-  # Include user's private ~/bin if it exists
-  if [ -d "$HOME/bin" ] ; then
-    PATH="$HOME/bin:$PATH"
-  fi
-  # Include user's private ~/sbin if it exists
-  if [ -d "$HOME/sbin" ] ; then
-    PATH="$HOME/sbin:$PATH"
-  fi
-  # Include user's private ~/.local/bin if it exists
-  if [ -d "$HOME/.local/bin" ] ; then
-    PATH="$HOME/.local/bin:$PATH"
-  fi
-  # Include user's private ~/.local/sbin if it exists
-  if [ -d "$HOME/.local/sbin" ] ; then
-    PATH="$HOME/.local/sbin:$PATH"
-  fi
-#else
-#  # Include user's private ~/bin if it exists
-#  if [ -d "$HOME/bin" ] ; then
-#    echo "bin"
-#    PATH="$HOME/bin:$PATH"
-#  fi
-#  # Include user's private ~/.local/bin if it exists
-#  if [ -d "$HOME/.local/bin" ] ; then
-#    PATH="$HOME/.local/bin:$PATH"
-#  fi
-#fi
+## User's private bin directories, first on PATH
 
-export PATH
+# bin, sbin, .local/bin and .local/sbin of the home, those that exist, in this order of preference:
+# each call puts its directory in front, so the last one named ends up first.
+_path_prepend "$HOME/bin" "$HOME/sbin" "$HOME/.local/bin" "$HOME/.local/sbin"
 
 # vim: set syntax=sh :

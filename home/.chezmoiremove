@@ -1,1 +1,8 @@
 .bashrc.original
+
+# correct-shell-environment: the rc.d files renamed to env_ files (group 3)
+.config/shell/rc.d/120-pkg-aqua.sh
+.config/shell/rc.d/140-pkg_snap.sh
+.config/shell/rc.d/150-pkg_krew.sh
+.config/shell/rc.d/200-lang_go.sh
+.config/shell/rc.d/220-lang_rust.sh

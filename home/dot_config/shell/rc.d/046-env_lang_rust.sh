@@ -2,10 +2,8 @@
 
 # The rustup that brew installs keeps its proxies in its own opt directory: the path `brew --prefix rustup` prints,
 # without starting brew (and the brew-file wrapper), which costs about half a second.
-if [ -d "${HOMEBREW_PREFIX:-}/opt/rustup/bin" ]; then
-  PATH="${HOMEBREW_PREFIX}/opt/rustup/bin:$PATH"
+if [ -n "${HOMEBREW_PREFIX:-}" ]; then
+  _path_prepend "${HOMEBREW_PREFIX}/opt/rustup/bin"
 fi
-
-export PATH
 
 # vim: set syntax=sh :
