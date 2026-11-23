@@ -26,33 +26,34 @@ last_line() {
   printf '%s\n' "$1" | tr -d '\r' | tail -n 1
 }
 
-# counts that a shell prints for the private environment: how many of the two synthetic names are exported,
-# and how many times the name that rc.d/010-env_user.sh unsets is exported
+# counts that a shell prints for the private environment: how many of the two synthetic names are exported (none: the
+# private file is loaded on demand by `secrets load`, not by the startup files), and how many times the name that
+# rc.d/010-env_user.sh unsets is exported
 private_snippet() {
   printf 'printf "%%s %%s\\n" "$(env | cut -d= -f1 | grep -cx -e %s -e %s)" "$(env | cut -d= -f1 | grep -cx -e %s)"' \
     "$(dt_alpha_name)" "$(dt_beta_name)" "$(dt_unset_name)"
 }
 
-@test "private environment: zsh -i exports the synthetic names and not the unset one" {
+@test "private environment: zsh -i exports none of the synthetic names and not the unset one" {
   require_shell zsh
   run dt_start_pty "$(dt_unset_name)=$(dt_canary 4)" -- zsh -i -c "$(private_snippet)"
-  assert_equal "$(last_line "$output")" "2 0"
+  assert_equal "$(last_line "$output")" "0 0"
 }
 
-@test "private environment: bash -i exports the synthetic names and not the unset one" {
+@test "private environment: bash -i exports none of the synthetic names and not the unset one" {
   require_shell bash
   run dt_start_pty "$(dt_unset_name)=$(dt_canary 4)" -- bash -i -c "$(private_snippet)"
-  assert_equal "$(last_line "$output")" "2 0"
+  assert_equal "$(last_line "$output")" "0 0"
 }
 
-@test "private environment: zsh -l -i exports the synthetic names and not the unset one" {
+@test "private environment: zsh -l -i exports none of the synthetic names and not the unset one" {
   require_shell zsh
   run dt_start_pty "$(dt_unset_name)=$(dt_canary 4)" -- zsh -l -i -c "$(private_snippet)"
-  assert_equal "$(last_line "$output")" "2 0"
+  assert_equal "$(last_line "$output")" "0 0"
 }
 
 # the stub counts the secret-named names it receives; three synthetic ones are exported, and a plain one;
-# the bypass sees four of them: the private environment file of the scratch home exports a fourth
+# the bypass sees the three: startup exports nothing from the private environment file of the scratch home
 opencode_check() {
   local names n exports=() script
   mapfile -t names < <(dt_syn_names)
@@ -66,7 +67,7 @@ opencode_check() {
   assert_equal "$(printf '%s\n' "$output" | tr -d '\r')" "$(
     printf '%s\n' 0 --args-- 'two words' x --present-- DEMO_PLAIN=present status=0
     printf '%s\n' 0 --args-- fail --present-- DEMO_PLAIN=present status=7
-    printf '%s\n' 4 --args-- x --present-- DEMO_PLAIN=present
+    printf '%s\n' 3 --args-- x --present-- DEMO_PLAIN=present
   )"
 }
 
@@ -85,11 +86,11 @@ desktop_env() {
   dt_start "$(dt_unset_name)=$(dt_canary 4)" -- zsh -c 'emulate -R zsh; [ -f /etc/zsh/zprofile ] && . /etc/zsh/zprofile; [ -f $HOME/.zprofile ] && . $HOME/.zprofile; env' 2> /dev/null
 }
 
-@test "the desktop session replay exports every synthetic name" {
+@test "the desktop session replay exports none of the synthetic names" {
   require_shell zsh
   run desktop_env
   assert_success
-  assert_equal "$(printf '%s\n' "$output" | cut -d= -f1 | grep -cx -e "$(dt_alpha_name)" -e "$(dt_beta_name)")" 2
+  assert_equal "$(printf '%s\n' "$output" | cut -d= -f1 | grep -cx -e "$(dt_alpha_name)" -e "$(dt_beta_name)" || true)" 0
 }
 
 @test "the desktop session replay does not export the name that 010-env_user.sh unsets" {

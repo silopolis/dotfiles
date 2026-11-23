@@ -5,12 +5,13 @@ if [ -f "${XDG_CONFIG_HOME}/envrc" ]; then
   source "${XDG_CONFIG_HOME}/envrc"
 fi
 
-### User private environment configuration
-# A parent process (terminal, multiplexer) started before the token was removed from the file still holds it:
-# drop that inherited copy first, then let the file set it again if it ever does
+### Revoked variable
+# A parent process (terminal, multiplexer) started before the token was revoked still holds it: drop that inherited copy.
 unset GITHUB_TOKEN
-if [ -f "${XDG_CONFIG_HOME}/env" ]; then
-  source "${XDG_CONFIG_HOME}/env"
-fi
+
+### User private environment: not loaded here
+# The private file holds the keys, and no process gets them unless the user asks: `secrets load` in an interactive
+# shell (446-tools_secrets.sh), which hands them to that shell and its children only. Neither a new shell nor the
+# desktop session starts with them.
 
 # vim: set syntax=sh :

@@ -27,12 +27,12 @@
 
 ## 5. Keys on demand
 
-- [ ] 5.1 `tests/unit/secrets.bats`, zsh and bash: scenarios "Load in the calling shell and its children", "A child shell keeps what its parent loaded", "Unload and status", "No private file", and the `rg` half of "No name in the repository"
-- [ ] 5.2 `rc.d/446-tools_secrets.sh`: `secrets load|unload` and the count; at sourcing, without `DOTFILES_SECRETS`, unset the inherited names of the private file (names read from the file at each call, never written in the file); does nothing in a non-interactive shell
-- [ ] 5.3 `rc.d/010-env_user.sh`: keep `envrc` and the `unset` line that `dt_unset_name` parses, stop sourcing the private file
-- [ ] 5.4 `tests/smoke/environment-keys.bats`: scenarios "Every shell kind", "Inherited copies are dropped", "The revoked variable stays unset"; update `tests/smoke/startup-behaviour.bats` (private environment and desktop replay now count 0 synthetic names, and the bypass check of the `opencode` function counts 3 secret-named names instead of 4, since startup no longer exports the private file's name) and keep the mutant `startup-unset-removed` failing as before
-- [ ] 5.5 Mutant `env-keys-at-startup` (`010` sources the private file again): at least the "Every shell kind" tests fail
-- [ ] 5.6 Live test in `tests/smoke/environment-live.bats`: no name of the user's private file in the shell source (names in memory, a count printed)
+- [x] 5.1 `tests/unit/secrets.bats`, zsh and bash: scenarios "Load in the calling shell and its children", "A child shell keeps what its parent loaded", "Unload and status", "No private file", and the `rg` half of "No name in the repository"
+- [x] 5.2 `rc.d/446-tools_secrets.sh`: `secrets load|unload` and the count; at sourcing, without `DOTFILES_SECRETS`, unset the inherited names of the private file (names read from the file at each call, never written in the file); does nothing in a non-interactive shell
+- [x] 5.3 `rc.d/010-env_user.sh`: keep `envrc` and the `unset` line that `dt_unset_name` parses, stop sourcing the private file
+- [x] 5.4 `tests/smoke/environment-keys.bats`: scenarios "Every shell kind", "Inherited copies are dropped", "The revoked variable stays unset"; update `tests/smoke/startup-behaviour.bats` (private environment and desktop replay now count 0 synthetic names, and the bypass check of the `opencode` function counts 3 secret-named names instead of 4, since startup no longer exports the private file's name) and keep the mutant `startup-unset-removed` failing as before
+- [x] 5.5 Mutant `env-keys-at-startup` (`010` sources the private file again): at least the "Every shell kind" tests fail
+- [x] 5.6 Live test in `tests/smoke/environment-live.bats`: no name of the user's private file in the shell source (names in memory, a count printed)
 
 ## 6. Desktop login and shellrc
 
