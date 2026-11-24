@@ -8,6 +8,8 @@
 #   require_tool NAME...       skip, naming the tool, when it is absent; sets DT_TOOL_<NAME>
 #   require_shell SHELL        skip, naming the build, when zsh, bash or brewbash is absent; sets DT_SHELL
 #   require_live               skip unless DOTFILES_TEST_LIVE=1
+#   require_after_login        skip unless DOTFILES_TEST_LIVE=1 and DOTFILES_TEST_AFTER_LOGIN=1 (the deployment is
+#                              done and the machine was rebooted: the checks that only a new login can satisfy)
 #   require_base_ref           skip unless DOTFILES_TEST_BASE_REF is set
 #   setup_scratch              a scratch home below BATS_TEST_TMPDIR (DT_HOME) and a default DT_PATH
 #
@@ -34,6 +36,8 @@ DT_BATS_GLUE_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)
 . "$DT_BATS_GLUE_DIR/../timing.sh"
 # shellcheck source=/dev/null
 . "$DT_BATS_GLUE_DIR/../script-fixtures.sh"
+# shellcheck source=/dev/null
+. "$DT_BATS_GLUE_DIR/../live.sh"
 
 BATS_LIB_PATH="$DT_TESTS_DIR/.lib${BATS_LIB_PATH:+:$BATS_LIB_PATH}"
 export BATS_LIB_PATH
@@ -72,6 +76,13 @@ require_shell() {
 require_live() {
   if [ "${DOTFILES_TEST_LIVE:-}" != 1 ]; then
     skip "reads this machine: set DOTFILES_TEST_LIVE=1 to run it"
+  fi
+}
+
+require_after_login() {
+  require_live
+  if [ "${DOTFILES_TEST_AFTER_LOGIN:-}" != 1 ]; then
+    skip "needs the deployment and a new login: set DOTFILES_TEST_AFTER_LOGIN=1 to run it"
   fi
 }
 

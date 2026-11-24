@@ -46,6 +46,9 @@ The environment mutants and what they break:
   A mutant that sources `shellrc` there would be no mutant: once `shellrc` has its guard it returns at once in that branch.
 - `env-shellrc-no-guard` removes the interactive guard of `shellrc`, so a non-interactive shell that sources it, or the bash that sshd starts for a command and that reads `~/.bashrc`, runs the whole `rc.d`: the four checks of `environment-shellrc.bats` fail (4).
 
+The live tests have no mutant: `smoke/*-live.bats` read this machine, and a change of the code under test cannot make them fail on a copy of the source.
+The two checks of `environment-live.bats` that wait for a new login (`DOTFILES_TEST_AFTER_LOGIN=1`) are the same: what they prove is the state of the session, not a file of the source; the function that counts the names has its own unit test, on a synthetic file and a synthetic process.
+
 The install-script mutants and what they break:
 - `install-run-ignores-dry-run` makes `run()` of the shared helper execute whatever the dry-run switch says, so every dry-run check that goes through `run` fails: the apt update, the limits install, the brew file install, the mise reshim, the bat cache, the VSCodium install and the brew completions link (10).
 - `install-need-always-ok` makes `need()` succeed for a missing tool, so the checks of a script that must skip when a tool is absent fail: mise, pipx, jq, kubectl, kubectl-krew, vim, bat and codium (9).
