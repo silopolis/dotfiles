@@ -2,6 +2,7 @@
 # Opt-in comparison of the startup with another ref (the old before-and-after of the startup changes):
 #   DOTFILES_TEST_BASE_REF=<ref> mise run test       render that ref and compare
 #   DOTFILES_TEST_BASE_ALLOW=<file>                  one name per line: the differences that the change claims
+#                                                    (the two names of the synthetic private file are always added, at run time)
 # Both trees are rendered the same way (scratch destination, synthetic configuration); the working tree is the one
 # that DOTFILES_TEST_SOURCE names. The comparison covers the alias and function names of interactive zsh and bash, the
 # exported names and values of the desktop session replay (values of secret-pattern names left out) and the exported
@@ -28,13 +29,27 @@ setup() {
   BASE_HOME=$DT_HOME
 }
 
+# allow_file: the allow file of the run, a temporary copy of DOTFILES_TEST_BASE_ALLOW plus the two names of the synthetic
+# private file of the scratch homes, which a startup stopped exporting (they are built at run time, so that no
+# key-shaped name is written in a file of the repository)
+allow_file() {
+  local f=$BATS_TEST_TMPDIR/allow.txt
+  if [ -n "${DOTFILES_TEST_BASE_ALLOW:-}" ] && [ -f "$DOTFILES_TEST_BASE_ALLOW" ]; then
+    cat -- "$DOTFILES_TEST_BASE_ALLOW" > "$f"
+  else
+    : > "$f"
+  fi
+  printf '%s\n' "$(dt_alpha_name)" "$(dt_beta_name)" >> "$f"
+  printf '%s\n' "$f"
+}
+
 # against_base FUNCTION [ARGS...]: the same listing in both homes, and the differences that are not allowed
 against_base() {
   local a=$BATS_TEST_TMPDIR/cur.txt b=$BATS_TEST_TMPDIR/base.txt
   DT_HOME=$CUR_HOME "$@" > "$a"
   DT_HOME=$BASE_HOME "$@" > "$b"
   [ -s "$a" ] || fail "the listing of the working tree is empty"
-  run dt_diff_lists "$a" "$b" "${DOTFILES_TEST_BASE_ALLOW:-}"
+  run dt_diff_lists "$a" "$b" "$(allow_file)"
   assert_success
 }
 

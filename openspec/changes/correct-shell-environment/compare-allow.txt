@@ -13,13 +13,12 @@ FPATH
 LC_ALL
 LANGUAGE
 
-# Group 5, keys on demand: the secrets function and its two helpers are new; the two synthetic names of the private
-# file of the scratch home (the stand-ins of the user's private file) are no longer exported by any startup.
+# Group 5, keys on demand: the secrets function and its two helpers are new.
+# The two synthetic names of the private file of the scratch home, which no startup exports any more, are added to this
+# list by tests/smoke/startup-compare.bats at run time (a temporary file): no key-shaped name is written here.
 function secrets
 function _secrets_file
 function _secrets_names
-DEMO_ALPHA_TOKEN
-DEMO_BETA_SETTING
 
 # Group 6, the desktop login loads the environment only: what only an interactive shell uses is gone from the desktop.
 # The variables of the aliases file (forgit, kubecolor, less termcap) and the settings of ls, less and hstr:

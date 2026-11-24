@@ -51,7 +51,8 @@ load ../helpers/bats/load
   a1=$(sed -n 's/^A1 private-file names in the user manager: //p' "$BATS_TEST_TMPDIR/a1")
   manager=$(dt_user_manager_pid)
   # the terminal and the multiplexer are ancestors of the test: the chain up to the user manager, not every process
-  # (a pane where the user typed `secrets load` holds the keys on purpose, and is not an ancestor of this run)
+  # (run it from a terminal where `secrets load` was not typed, as tests/README.md says: that terminal holds the keys on
+  # purpose, and it is an ancestor of the run)
   while read -r pid; do
     n=$(dt_environ_name_count "$pid" <(names)) || continue
     checked=$((checked + 1))

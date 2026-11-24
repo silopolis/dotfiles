@@ -74,7 +74,7 @@ Live mode is used only by the live tests.
 | `DOTFILES_TEST_LIVE` | `1` runs the tests that read this machine, serially; they skip without it |
 | `DOTFILES_TEST_AFTER_LOGIN` | `1`, together with `DOTFILES_TEST_LIVE=1`, runs the two live checks that only a new login can satisfy (`smoke/environment-live.bats`: umask `0027` in the user manager, `plasmashell` and a new shell, and no name of the private file in the user manager and in the ancestors of the test); it means that the deployment of the change `correct-shell-environment` is done and the machine was rebooted, and without it they skip, naming it, so that `mise run test:live` stays green before the deployment; run it in a terminal where `secrets load` was not typed |
 | `DOTFILES_TEST_BASE_REF` | a git ref to render and compare with (`startup-compare.bats`); the tests skip without it |
-| `DOTFILES_TEST_BASE_ALLOW` | a file, one name per line (an alias, a function or a variable name, or a whole listing line): the differences with the base ref that the change claims |
+| `DOTFILES_TEST_BASE_ALLOW` | a file, one name per line (an alias, a function or a variable name, or a whole listing line): the differences with the base ref that the change claims; the two names of the synthetic private file are always added to it, at run time |
 | `DOTFILES_TEST_SOURCE` | the tree under test, a directory that holds `.chezmoiroot` and `home/`; the repository by default, a scratch copy for a mutant |
 | `DOTFILES_TEST_TMPDIR` | where `run.sh` makes its scratch directory (default `TMPDIR`, then `/tmp`) |
 | `DOTFILES_TEST_REPORTS` | where the report and the output are written (default `tests/.reports`) |

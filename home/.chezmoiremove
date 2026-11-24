@@ -10,3 +10,10 @@
 # correct-shell-environment: the files that only the old non-interactive branch of profile called (group 6)
 .config/zsh/zshrc
 .config/bash/bashrc
+
+# correct-shell-environment: highlighting renamed to load last, and the profiling stubs and empty files removed (group 7)
+.config/shell/rc.d/930-highlighting.sh
+.config/shell/rc.d/005-dbg_prof_enable.sh
+.config/shell/rc.d/995-dbg_prof_results.sh
+.config/shell/rc.d/130-pkg-flatpack.sh
+.config/shell/rc.d/200-lang_python.sh

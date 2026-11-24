@@ -27,6 +27,7 @@ Expected failures: `exactly N` for a mutant whose failures are counted one by on
 | env-keys-at-startup | tests/smoke/environment-keys.bats tests/smoke/startup-behaviour.bats | home/dot_config/shell/rc.d/010-env_user.sh | sed env/keys-at-startup.sed | at least 3 |
 | env-desktop-full-pass | tests/smoke/environment-desktop.bats tests/smoke/startup-single.bats | home/dot_config/shell/profile | sed env/desktop-full-pass.sed | at least 4 |
 | env-shellrc-no-guard | tests/smoke/environment-shellrc.bats | home/dot_config/shell/shellrc | sed env/shellrc-no-guard.sed | at least 4 |
+| env-highlighting-not-last | tests/unit/rc-d-files.bats | home/dot_config/shell/rc.d/999-highlighting.sh | sed env/highlighting-not-last.sed | at least 1 |
 
 The wrapper mutant replaces the `opencode` function with `opencode() { command env opencode "$@"; }`, which hands the whole environment to the binary.
 Three checks fail in each of the three shells: the synthetic set is not removed, a variable added later is not removed, and the secret-named names do not disappear from the list of what the stub sees.
@@ -45,6 +46,7 @@ The environment mutants and what they break:
 - `env-desktop-full-pass` makes the non-interactive branch of `profile` run a whole `rc.d` pass (the debug line of `shellrc`, then every file) instead of sourcing `shell/environment`: the desktop replay, `zsh -l -c` and `bash -l -c` print an `rc.d` line and no `environment` line and export the names of the aliases file and of the interactive files again, so the "No rc.d pass" check, the "no longer gets" check, the first-entry check and the "only env_ files" check of `environment-desktop.bats`, and the two non-interactive login checks of `startup-single.bats`, fail (6).
   A mutant that sources `shellrc` there would be no mutant: once `shellrc` has its guard it returns at once in that branch.
 - `env-shellrc-no-guard` removes the interactive guard of `shellrc`, so a non-interactive shell that sources it, or the bash that sshd starts for a command and that reads `~/.bashrc`, runs the whole `rc.d`: the four checks of `environment-shellrc.bats` fail (4).
+- `env-highlighting-not-last` turns the `source` line of `999-highlighting.sh` into a no-op, so the last `rc.d` file in name order no longer sources zsh-syntax-highlighting: the "last file" check of `rc-d-files.bats` fails (1).
 
 The live tests have no mutant: `smoke/*-live.bats` read this machine, and a change of the code under test cannot make them fail on a copy of the source.
 The two checks of `environment-live.bats` that wait for a new login (`DOTFILES_TEST_AFTER_LOGIN=1`) are the same: what they prove is the state of the session, not a file of the source; the function that counts the names has its own unit test, on a synthetic file and a synthetic process.
