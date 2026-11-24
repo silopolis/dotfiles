@@ -48,9 +48,9 @@
 
 - [x] 7.1 `git mv` `930-highlighting.sh` to `999-highlighting.sh`, old target in `home/.chezmoiremove`; test of scenario "Last file"; mutant `env-highlighting-not-last`
 - [x] 7.2 Remove `005-dbg_prof_enable.sh`, `995-dbg_prof_results.sh`, `130-pkg-flatpack.sh`, `200-lang_python.sh`, each in `home/.chezmoiremove`; test of scenario "Source and removal list" over every removed or renamed target of this change
-- [ ] 7.3 `tests/unit/history.bats`: scenarios "Paths", "First start moves the legacy file", "Two shells at once", "Merge after a trim" on synthetic zsh and bash history files in a scratch home
-- [ ] 7.4 `rc.d/320-shell_history.sh`: `HISTFILE` under `$XDG_STATE_HOME` for zsh and bash, directories 0700, the move and link of `~/.zsh_history` and `~/.bash_history`, the merge at start when the old path is a regular file (temporary file and move, silent on every failure)
-- [ ] 7.5 Mutant `env-history-no-merge`: at least the merge test fails
+- [x] 7.3 `tests/unit/history.bats`: scenarios "Paths", "First start moves the legacy file", "Two shells at once", "Merge after a trim" on synthetic zsh and bash history files in a scratch home
+- [x] 7.4 `rc.d/320-shell_history.sh`: `HISTFILE` under `$XDG_STATE_HOME` for zsh and bash, directories 0700, the move and link of `~/.zsh_history` and `~/.bash_history`, the merge at start when the old path is a regular file (temporary file and move, silent on every failure)
+- [x] 7.5 Mutant `env-history-no-merge`: at least the merge test fails
 
 ## 8. Session defaults script
 
