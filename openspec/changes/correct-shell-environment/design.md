@@ -86,7 +86,7 @@ The five decisions were taken with the user on 2026-11-21, one at a time, with t
 
 ### 4. The desktop login loads the environment only; `shellrc` is interactive-only again
 
-- The non-interactive branch of `profile` (the desktop session, `zsh -l -c`, `bash -l -c`) sources `shell/environment` instead of `zsh/zshrc` or `bash/bashrc`.
+- The non-interactive branch of `profile` (the desktop session, `zsh -l -c`, `bash -l -c`) sources `shell/environment` instead of `zsh/zshrc` or `bash/bashrc`, when `CURRENT_SHELL` is `bash` or `zsh`: the `env_` files are written for those two and use `source`, and any other login shell (`sh` is dash here, and a bash started as `sh` reports `sh`) loads nothing and prints nothing, as today.
 - `shell/environment` sources `rc.d/*-env_*.sh`, so the environment is exactly the `env_` files:
 
   | File | Content |
@@ -142,6 +142,7 @@ The five decisions were taken with the user on 2026-11-21, one at a time, with t
 | Interactive login zsh | `zsh -l -i`, console, ssh login | `profile` (nothing for zsh), then as above | same |
 | Interactive bash, login or not | `bash -i`, `bash -l -i` | `profile` for a login, `shellrc`, all of `rc.d` | same as zsh |
 | Non-interactive login | `zsh -l -c`, `bash -l -c` | zsh: all of `rc.d`; bash: nothing (`bash/bashrc` returns) | both: `shell/environment` |
+| Non-interactive login, other shell | `sh -l -c` (dash) | nothing | nothing |
 | Non-interactive zsh | `zsh -c`, ssh command | `/etc/zsh/zshenv` only | same |
 | Non-interactive bash | `bash -c` | nothing | same |
 | bash run by sshd | ssh command, login shell bash | `~/.bashrc` = `shellrc`, all of `rc.d` | `shellrc` returns at once |

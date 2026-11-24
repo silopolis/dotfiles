@@ -36,12 +36,13 @@
 
 ## 6. Desktop login and shellrc
 
-- [ ] 6.1 `tests/smoke/environment-desktop.bats`: scenarios "No rc.d pass in the desktop replay", "What the session keeps", "What the session no longer gets", "Only env_ files hold the environment"; `tests/smoke/environment-shellrc.bats`: "Non-interactive source", "bash started for an ssh command"
-- [ ] 6.2 `profile`: the non-interactive branch sources `shell/environment`; `shell/environment` keeps its debug line; comments say who reads each branch
+- [ ] 6.1 `tests/smoke/environment-desktop.bats`: scenarios "No rc.d pass in the desktop replay", "What the session keeps", "What the session no longer gets", "Only env_ files hold the environment", "A login sh loads nothing" (skipped with a message where `sh` is bash); `tests/smoke/environment-shellrc.bats`: "Non-interactive source", "bash started for an ssh command"
+- [ ] 6.2 `profile`: the non-interactive branch sources `shell/environment` for bash and zsh only (`CURRENT_SHELL`; the `env_` files use `source`, so any other login shell, `sh` among them, loads nothing and prints nothing, as today; `shell/environment` itself is not rewritten with the dot command); `shell/environment` keeps its debug line; comments say who reads each branch; the guard is shown once to matter, by a manual change that is not committed (the "A login sh loads nothing" test fails without it)
 - [ ] 6.3 `shellrc`: the interactive guard back, before anything else
 - [ ] 6.4 Remove `home/dot_config/zsh/zshrc` and `home/dot_config/bash/bashrc`, both in `home/.chezmoiremove`; `tests/smoke/startup-single.bats`: the non-interactive login tests count 0 `rc.d` passes and 1 environment line, for zsh and bash
-- [ ] 6.5 Mutants `env-desktop-full-pass` (`profile` sources `shellrc` in the non-interactive branch) and `env-shellrc-no-guard`: at least their scenarios fail
+- [ ] 6.5 Mutants `env-desktop-full-pass` (a sed on `profile` that replaces the sourcing of `shell/environment` in the non-interactive branch by a loop over `rc.d/*.sh`, a real `rc.d` pass: sourcing `shellrc` there would change nothing once `shellrc` has its guard) and `env-shellrc-no-guard` (a sed that removes the guard of `shellrc`): the first fails at least "No rc.d pass in the desktop replay" and "What the session no longer gets", the second the scenarios of `environment-shellrc.bats`
 - [ ] 6.6 Comparison with `main`: `DOTFILES_TEST_BASE_REF=main DOTFILES_TEST_BASE_ALLOW=<file> mise run test`, the allow file listing the names this change removes or adds, with a comment per group; the file is kept in the change folder as `compare-allow.txt`
+- [ ] 6.7 Live tests for the scenarios "After the next login" and "The live session holds no key" in `tests/smoke/environment-live.bats`, read-only, counts only, names kept in memory; they run only with `DOTFILES_TEST_LIVE=1` and a second opt-in variable, `DOTFILES_TEST_AFTER_LOGIN=1` (the deployment is done and the machine was rebooted; its meaning is written in `tests/README.md`), and skip with a message that names it, so that `mise run test:live` stays green before the deployment; the umask of the user manager, of `plasmashell` and of a new interactive shell is `0027`, read through lines A7, A8 and A9 of `tests/helpers/session-probe.sh` and not through a second implementation; the user manager (line A1) and the ancestors of the test process (the parent chain walked through `/proc/<pid>/stat` up to the user manager) hold 0 names of the private file, with a count printed (not line A6: a pane where `secrets load` was typed holds the keys on purpose); a unit test of the counting function on a synthetic file of `DEMO_` names and a synthetic process (a child started with one of them counts 1, a clean one 0, no name printed); no mutant for these two, said in `tests/mutants/README.md`
 
 ## 7. Loose ends of F33
 
@@ -61,7 +62,7 @@
 
 ## 9. Documents
 
-- [ ] 9.1 `tests/README.md`: the scenario table maps every scenario of `shell-environment` and the changed scenarios of `shell-startup`, `agent-environment` and `install-scripts` (rows equal the sum of the four `rg -c '^#### Scenario'` counts after the archive)
+- [ ] 9.1 `tests/README.md`: the scenario table maps every scenario of `shell-environment` and the changed scenarios of `shell-startup`, `agent-environment` and `install-scripts` (rows equal the sum of the four `rg -c '^#### Scenario'` counts after the archive: 34 scenarios for `shell-environment`, 57 for the five delta specs together); "After the next login" and "The live session holds no key" map to `smoke/environment-live.bats`, opt-in with `DOTFILES_TEST_AFTER_LOGIN=1`
 - [ ] 9.2 `AGENTS.md`, wording shown to the user first: `secrets load` (the user types it; an agent never does), the session umask from the login, and the line about non-interactive shells and brew (a non-interactive login shell now loads the environment)
 - [ ] 9.3 `proposal.md`: open questions answered, capabilities modified (`shell-startup`, `agent-environment`, `install-scripts`, `shell-test-harness`), impact (the system script, `.chezmoiremove`, the deleted targets)
 - [ ] 9.4 Ask the orchestrator to forward the note for the Neovim repository (avante `cmd:` key names) and to add the `~/.zshenv` review to the backlog of `TODO.md`
@@ -93,7 +94,7 @@ The probe prints counts only: run it in a terminal that did not run `secrets loa
 - [ ] 12.1 Render the script, run it with `CHEZMOI_SCRIPTS_DRY_RUN=1` and review its lines with the user; then the user runs it in a terminal where sudo asks for the password
 - [ ] 12.2 At once: `getent passwd <user>` shows `umask=027` in the GECOS field (checked by a count), `sudo -l` works, `sudo touch /tmp/umask-check && stat -c %a /tmp/umask-check` prints `644` (then the file is removed with the user's go), `stat -c %a ~` prints `700`, `locale -a` lists `en_US.utf8`
 - [ ] 12.3 Reboot
-- [ ] 12.4 `mise run test:live`; the counts of the user manager's and the terminal's variables against the names of the private file and the secret pattern print 0 (as in `TODO.md`'s reboot check, which is then ticked); the umask of the user manager, `plasmashell` and a new shell is `0027`; `LC_ALL` is not in the user manager
+- [ ] 12.4 `DOTFILES_TEST_AFTER_LOGIN=1 mise run test:live` (task 6.7: the two live scenarios of the new login pass); the counts of the user manager's and the terminal's variables against the names of the private file and the secret pattern print 0 (as in `TODO.md`'s reboot check, which is then ticked); the umask of the user manager, `plasmashell` and a new shell is `0027`; `LC_ALL` is not in the user manager
 - [ ] 12.5 The old history path is a link with no regular file left; the user removes it, or keeps it
 - [ ] 12.6 The live probe of `agent-environment` ("A herdr-started agent holds none of them", modified): a probe tab, `secrets load`, a probe agent, the counts, the tab closed
 

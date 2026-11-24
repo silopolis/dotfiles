@@ -10,7 +10,8 @@ In the scenarios below:
 
 ### Requirement: The desktop login loads the environment only
 
-A non-interactive login shell SHALL source `shell/environment`, which sources the `rc.d/*-env_*.sh` files in name order, and SHALL source no other `rc.d` file, no private file and no interactive configuration.
+A non-interactive login shell of bash or zsh SHALL source `shell/environment`, which sources the `rc.d/*-env_*.sh` files in name order, and SHALL source no other `rc.d` file, no private file and no interactive configuration.
+Any other login shell, `sh` among them, SHALL load nothing, as before: the `env_` files are written for bash and zsh and use `source`.
 
 #### Scenario: No rc.d pass in the desktop replay
 
@@ -31,6 +32,11 @@ A non-interactive login shell SHALL source `shell/environment`, which sources th
 
 - **WHEN** the `rc.d` files whose names do not contain `-env_` are searched for `export` and for assignments to `PATH`
 - **THEN** none exports a variable that the desktop replay sets, and none changes `PATH` except mise's activation in `415-tools_mise.sh`
+
+#### Scenario: A login sh loads nothing
+
+- **WHEN** `sh -l -c true` runs on the render, once without and once with `SHELL_RC_DEBUG=1`, on a machine where `sh` is not bash (the test skips, naming it, where it is)
+- **THEN** the first run prints nothing, the second prints only the debug line of `profile` (0 lines that contain `rc.d`, 0 lines of `shell/environment`), and neither exports a name that an `env_` file sets
 
 ### Requirement: No key in a new shell
 

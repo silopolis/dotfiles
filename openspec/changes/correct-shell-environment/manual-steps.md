@@ -125,7 +125,9 @@ Everything in the terminals and the agents ends with the reboot, so do the check
 In the first terminal after the login, without `secrets load`:
 
 1. Run the probe: every line of the table "Values before and after" must match its expected value.
-2. `mise run test:live` passes.
+2. `DOTFILES_TEST_AFTER_LOGIN=1 mise run test:live` passes.
+   The variable turns on the two live tests that only a new login can satisfy: umask `0027` in the user manager, `plasmashell` and a new shell, and 0 names of the private file in the user manager and in the ancestors of the test.
+   Run it in the same terminal as the probe: a terminal where `secrets load` was typed holds the keys on purpose and fails the second test.
 3. Tick the reboot check in `TODO.md`.
 
 If A1 or A6 is not 0, something still exports the private file: run `chezmoi status ~/.config/shell`, which prints paths only; a line there is a target that was not deployed.

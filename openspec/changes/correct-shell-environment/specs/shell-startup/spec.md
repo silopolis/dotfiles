@@ -3,7 +3,7 @@
 ### Requirement: Single load of the interactive configuration
 
 Each interactive shell SHALL source `rc.d` exactly once, whether it is a login shell or not, in zsh and in bash.
-A non-interactive login shell SHALL source no `rc.d` pass and SHALL load the environment part once, as the `shell-environment` capability describes.
+A non-interactive login shell SHALL source no `rc.d` pass, and one of bash or zsh SHALL load the environment part once, as the `shell-environment` capability describes.
 
 #### Scenario: Login zsh
 
