@@ -134,3 +134,69 @@ two_at_once() { # KIND WRITER
   assert_equal "$(stat -c %a "$STATE/zsh")" 700
   assert_equal "$(stat -c %a "$STATE/bash")" 700
 }
+
+# failing_awk_path STATUS [partial]: the PATH of a start whose first directory holds an awk that fails with STATUS (127
+# is what a missing tool gives) when it is called for the merge, after it printed part of a merged history when "partial"
+# is named; any other call of awk, by another startup file, goes to the real one
+failing_awk_path() {
+  local bin=$BATS_TEST_TMPDIR/failbin real
+  real=$(type -P awk)
+  mkdir -p "$bin"
+  {
+    printf '#!/bin/sh\ncase "$*" in\n  *FNR*)\n'
+    [ "${2:-}" = partial ] && printf '    printf "1\\t: 1:0;partial\\n"\n'
+    printf '    exit %s\n    ;;\nesac\nexec %s "$@"\n' "$1" "$real"
+  } > "$bin/awk"
+  chmod +x "$bin/awk"
+  printf '%s\n' "$bin:$(dt_login_path)"
+}
+
+# failed_merge KIND FIRST-WRITER SECOND-WRITER STATUS [partial]: a start whose merge tool fails loses nothing, and the
+# next start, with the real tool, merges the file
+failed_merge() {
+  local kind=$1 legacy new before=$BATS_TEST_TMPDIR/before
+  legacy=$(legacy "$kind")
+  new=$(new_file "$kind")
+  "$2" "$legacy"
+  start "$kind" > /dev/null
+  # a running shell trimmed its history: the old path is a regular file again, with entries the new file lacks
+  rm -f -- "$legacy"
+  "$3" "$legacy"
+  mkdir -p "$before"
+  cp -p "$new" "$before/new"
+  cp -p "$legacy" "$before/legacy"
+  assert_equal "$(dt_kind_run "$kind" true PATH="$(failing_awk_path "$4" "${5:-}")")" ''
+  cmp "$new" "$before/new" || fail "the new file changed"
+  [ -f "$legacy" ] && [ ! -L "$legacy" ] || fail "the old path is not a regular file any more"
+  cmp "$legacy" "$before/legacy" || fail "the old file changed"
+  assert_equal "$(ls -A "$(dirname "$new")" | grep -c '^\.merge\.' || true)" 0
+  assert_equal "$(start "$kind")" ''
+  is_link_to "$legacy" "$new" || fail "the next start did not merge the file"
+}
+
+@test "a failed merge loses nothing: zsh, the merge tool exits with status 2" {
+  failed_merge zsh-i dt_write_zsh_history dt_write_zsh_history_extra 2
+  assert_equal "$(zsh_entries "$(new_file zsh-i)")" 9
+}
+
+@test "a failed merge loses nothing: zsh, the merge tool is missing (status 127)" {
+  failed_merge zsh-i dt_write_zsh_history dt_write_zsh_history_extra 127
+  assert_equal "$(zsh_entries "$(new_file zsh-i)")" 9
+}
+
+@test "a failed merge loses nothing: zsh, the merge tool prints part of its output and then fails" {
+  failed_merge zsh-i dt_write_zsh_history dt_write_zsh_history_extra 2 partial
+  assert_equal "$(zsh_entries "$(new_file zsh-i)")" 9
+}
+
+@test "a failed merge loses nothing: bash, the merge tool exits with status 2" {
+  failed_merge bash-i dt_write_bash_history dt_write_bash_history_extra 2
+  assert_equal "$(wc -l < "$(new_file bash-i)")" 7
+}
+
+@test "a failed merge loses nothing: bash, the merge tool is missing (status 127) or prints part of its output and fails" {
+  failed_merge bash-i dt_write_bash_history dt_write_bash_history_extra 127
+  rm -rf -- "$STATE/bash" "$(legacy bash-i)"
+  failed_merge bash-i dt_write_bash_history dt_write_bash_history_extra 2 partial
+  assert_equal "$(wc -l < "$(new_file bash-i)")" 7
+}

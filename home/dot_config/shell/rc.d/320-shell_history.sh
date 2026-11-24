@@ -42,7 +42,17 @@ _history_migrate() {
       }
     else
       tmp=$(mktemp "${3%/*}/.merge.XXXXXX") || exit 0
-      if _history_merge "$1" "$3" "$2" > "$tmp" && mv -f "$tmp" "$3"; then :; else rm -f "$tmp"; exit 0; fi
+      # The zsh merge is a pipeline: without pipefail a failed awk would leave an empty or partial output with a status of 0,
+      # and the move would replace the new history by it. A merge that fails, or that gives nothing from inputs that are not
+      # empty, replaces nothing and leaves the old file a regular file, so that the next start tries again.
+      # shellcheck disable=SC3040  # this file is sourced by bash and zsh only, which both know pipefail
+      set -o pipefail
+      if _history_merge "$1" "$3" "$2" > "$tmp" && { [ -s "$tmp" ] || { [ ! -s "$3" ] && [ ! -s "$2" ]; }; } && mv -f "$tmp" "$3"; then
+        :
+      else
+        rm -f "$tmp"
+        exit 0
+      fi
     fi
     [ -f "$3" ] || exit 0
     chmod 0600 "$3"

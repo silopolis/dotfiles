@@ -51,7 +51,7 @@
 - [x] 7.3 `tests/unit/history.bats`: scenarios "Paths", "First start moves the legacy file", "Two shells at once", "Merge after a trim" on synthetic zsh and bash history files in a scratch home
 - [x] 7.4 `rc.d/320-shell_history.sh`: `HISTFILE` under `$XDG_STATE_HOME` for zsh and bash, directories 0700, the move and link of `~/.zsh_history` and `~/.bash_history`, the merge at start when the old path is a regular file (temporary file and move, silent on every failure)
 - [x] 7.5 Mutant `env-history-no-merge`: at least the merge test fails
-- [ ] 7.6 A failed merge loses nothing: `tests/unit/history.bats` with a failing `awk` first on `PATH` (exit status 2, exit status 127 as a missing tool gives, part of the output and then a failure) for zsh and bash, which fails on the code of 7.4 (the zsh merge is a pipeline and `sh` has no `pipefail`); `_history_migrate` runs the merge with `pipefail` on and refuses to replace the new file when the merged output is empty while an input is not; mutant `env-history-merge-unchecked` (the `pipefail` line removed): at least the new test fails
+- [x] 7.6 A failed merge loses nothing: `tests/unit/history.bats` with a failing `awk` first on `PATH` (exit status 2, exit status 127 as a missing tool gives, part of the output and then a failure) for zsh and bash, which fails on the code of 7.4 (the zsh merge is a pipeline and `sh` has no `pipefail`); `_history_migrate` runs the merge with `pipefail` on and refuses to replace the new file when the merged output is empty while an input is not; mutant `env-history-merge-unchecked` (the `pipefail` line removed): at least the new test fails
 
 ## 8. Session defaults script
 
