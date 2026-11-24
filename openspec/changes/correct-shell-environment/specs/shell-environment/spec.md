@@ -193,6 +193,11 @@ zsh and bash SHALL keep their history in `$XDG_STATE_HOME/zsh/history` and `$XDG
 - **WHEN** the legacy path is a regular file again, holding entries the new file lacks, and an interactive zsh starts, and the same is done for bash
 - **THEN** the new file's mode is 0600 and the legacy path is a symbolic link to it again; the zsh file holds every entry of both files once, in timestamp order; the bash file, whose entries carry no timestamp, holds the lines of the new file followed by the lines of the legacy file that it lacks, a repeated command kept as many times as it was typed
 
+#### Scenario: A failed merge loses nothing
+
+- **WHEN** the legacy path is a regular file again, holding entries the new file lacks, and the merge tool fails during the start of an interactive zsh (it exits with an error, it is missing, or it prints part of its output and then fails), and the same is done for bash
+- **THEN** the shell prints nothing, the new file keeps all its lines, and the legacy path stays a regular file with all its lines, so that the next start merges it; no temporary file is left in the directory of the new file
+
 ### Requirement: Dead startup files are removed
 
 The profiling stubs `005-dbg_prof_enable.sh` and `995-dbg_prof_results.sh`, the empty `130-pkg-flatpack.sh` and `200-lang_python.sh`, `930-highlighting.sh` under its old name, the old names of the files that became `env_` files, `~/.config/zsh/zshrc` and `~/.config/bash/bashrc` SHALL be absent from the source state and listed in `home/.chezmoiremove`.

@@ -51,6 +51,7 @@
 - [x] 7.3 `tests/unit/history.bats`: scenarios "Paths", "First start moves the legacy file", "Two shells at once", "Merge after a trim" on synthetic zsh and bash history files in a scratch home
 - [x] 7.4 `rc.d/320-shell_history.sh`: `HISTFILE` under `$XDG_STATE_HOME` for zsh and bash, directories 0700, the move and link of `~/.zsh_history` and `~/.bash_history`, the merge at start when the old path is a regular file (temporary file and move, silent on every failure)
 - [x] 7.5 Mutant `env-history-no-merge`: at least the merge test fails
+- [ ] 7.6 A failed merge loses nothing: `tests/unit/history.bats` with a failing `awk` first on `PATH` (exit status 2, exit status 127 as a missing tool gives, part of the output and then a failure) for zsh and bash, which fails on the code of 7.4 (the zsh merge is a pipeline and `sh` has no `pipefail`); `_history_migrate` runs the merge with `pipefail` on and refuses to replace the new file when the merged output is empty while an input is not; mutant `env-history-merge-unchecked` (the `pipefail` line removed): at least the new test fails
 
 ## 8. Session defaults script
 
@@ -62,7 +63,7 @@
 
 ## 9. Documents
 
-- [ ] 9.1 `tests/README.md`: the scenario table maps every scenario of `shell-environment` and the changed scenarios of `shell-startup`, `agent-environment` and `install-scripts` (rows equal the sum of the four `rg -c '^#### Scenario'` counts after the archive: 34 scenarios for `shell-environment`, 57 for the five delta specs together); "After the next login" and "The live session holds no key" map to `smoke/environment-live.bats`, opt-in with `DOTFILES_TEST_AFTER_LOGIN=1`
+- [ ] 9.1 `tests/README.md`: the scenario table maps every scenario of `shell-environment` and the changed scenarios of `shell-startup`, `agent-environment` and `install-scripts` (rows equal the sum of the four `rg -c '^#### Scenario'` counts after the archive: 35 scenarios for `shell-environment`, 58 for the five delta specs together); "After the next login" and "The live session holds no key" map to `smoke/environment-live.bats`, opt-in with `DOTFILES_TEST_AFTER_LOGIN=1`
 - [ ] 9.2 `AGENTS.md`, wording shown to the user first: `secrets load` (the user types it; an agent never does), the session umask from the login, and the line about non-interactive shells and brew (a non-interactive login shell now loads the environment)
 - [ ] 9.3 `proposal.md`: open questions answered, capabilities modified (`shell-startup`, `agent-environment`, `install-scripts`, `shell-test-harness`), impact (the system script, `.chezmoiremove`, the deleted targets)
 - [ ] 9.4 Ask the orchestrator to forward the note for the Neovim repository (avante `cmd:` key names) and to add the `~/.zshenv` review to the backlog of `TODO.md`
