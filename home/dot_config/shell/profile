@@ -35,11 +35,13 @@ if [ -n "${SHELL_RC_DEBUG:-}" ]; then
   echo "profile: ${CURRENT_SHELL} login shell" >&2
 fi
 
-# Who reads this file: interactive login shells (tmux panes, console logins), and the desktop session,
-# which the display manager's Xsession starts through ~/.zprofile without being interactive.
+# Who reads this file (~/.profile for bash and sh, ~/.zprofile for zsh):
+# - interactive login shells (tmux panes, console logins), first branch below;
+# - non-interactive login shells, second branch: `zsh -l -c`, `bash -l -c`, and the desktop session, which the
+#   display manager's Xsession starts as a non-interactive zsh that reads ~/.zprofile.
 case $- in
   *i*)
-    # Interactive login shell: the shell's own rc file loads rc.d, once.
+    # Interactive login shell: the shell's own rc file loads rc.d, once, with its env_ files.
     # zsh reads ~/.zshrc right after this file; bash reads only this file, so ask it for ~/.bashrc
     # (Debian's convention; ~/.bashrc is the shared shellrc).
     if [ "${CURRENT_SHELL}" = "bash" ] && [ -f "$HOME/.bashrc" ]; then
@@ -48,12 +50,18 @@ case $- in
     fi
     ;;
   *)
-    # Non-interactive login shell, the desktop session among them: loads what it always loaded,
-    # so that the environment of the graphical session does not change.
-    if [ -f "$HOME/.config/${CURRENT_SHELL}/${CURRENT_SHELL}rc" ]; then
-      # shellcheck disable=SC1090
-      . "$HOME/.config/${CURRENT_SHELL}/${CURRENT_SHELL}rc"
-    fi
+    # Non-interactive login shell, the desktop session among them: the environment only (the env_ files of rc.d,
+    # through shell/environment), nothing interactive, no private file.
+    # The env_ files are written for bash and zsh and use `source`: another login shell (sh is dash here, and a bash
+    # started as sh reports sh) loads nothing and prints nothing, as it always did.
+    case "${CURRENT_SHELL}" in
+      bash | zsh)
+        if [ -f "${XDG_CONFIG_HOME:-$HOME/.config}/shell/environment" ]; then
+          # shellcheck disable=SC1091
+          . "${XDG_CONFIG_HOME:-$HOME/.config}/shell/environment"
+        fi
+        ;;
+    esac
     ;;
 esac
 

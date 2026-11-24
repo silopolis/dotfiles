@@ -1,7 +1,9 @@
 #!/usr/bin/env bats
-# Proves the spec shell-startup, requirement "Single load of the interactive configuration": each shell sources rc.d
-# once, and the completion dump header is stable over alternating starts of a login zsh and a normal zsh.
-# The debug line "shellrc: sourcing rc.d" is printed once per pass of rc.d, so its count is the number of passes.
+# Proves the spec shell-startup, requirement "Single load of the interactive configuration": each interactive shell
+# sources rc.d once, a non-interactive login shell of zsh or bash sources no pass and loads the environment part once,
+# and the completion dump header is stable over alternating starts of a login zsh and a normal zsh.
+# The debug line "shellrc: sourcing rc.d" is printed once per pass of rc.d, so its count is the number of passes; the
+# debug line "environment: sourcing the env_ files" is printed once per load of the environment part.
 
 load ../helpers/bats/load
 
@@ -20,6 +22,11 @@ passes() {
   dt_start_pty SHELL_RC_DEBUG=1 -- "$@" 2> /dev/null | grep -c 'rc\.d' || true
 }
 
+# env_loads COMMAND...: how many times a start loads the environment part, under a pseudo-terminal
+env_loads() {
+  dt_start_pty SHELL_RC_DEBUG=1 -- "$@" 2> /dev/null | grep -c '^environment:' || true
+}
+
 @test "zsh -i -c exit sources rc.d once" {
   require_shell zsh
   assert_equal "$(passes zsh -i -c exit)" 1
@@ -30,9 +37,10 @@ passes() {
   assert_equal "$(passes zsh -l -i -c exit)" 1
 }
 
-@test "zsh -l -c true (non-interactive login) sources rc.d once" {
+@test "zsh -l -c true (non-interactive login) sources no rc.d pass and loads the environment once" {
   require_shell zsh
-  assert_equal "$(passes zsh -l -c true)" 1
+  assert_equal "$(passes zsh -l -c true)" 0
+  assert_equal "$(env_loads zsh -l -c true)" 1
 }
 
 @test "bash -i -c true sources rc.d once" {
@@ -45,10 +53,19 @@ passes() {
   assert_equal "$(passes bash -l -i -c true)" 1
 }
 
-# ~/.bashrc returns at once in a shell that is not interactive: profile runs, rc.d does not
-@test "bash -l -c true (non-interactive login) loads profile and no rc.d" {
+# profile loads the environment part for a non-interactive login shell, and nothing of rc.d
+@test "bash -l -c true (non-interactive login) sources no rc.d pass and loads the environment once" {
   require_shell bash
   assert_equal "$(passes bash -l -c true)" 0
+  assert_equal "$(env_loads bash -l -c true)" 1
+}
+
+# the env_ files of an interactive login shell come with its one rc.d pass: no second pass through shell/environment
+@test "the interactive login shells make no separate pass of the environment part" {
+  require_shell zsh
+  require_shell bash
+  assert_equal "$(env_loads zsh -l -i -c exit)" 0
+  assert_equal "$(env_loads bash -l -i -c true)" 0
 }
 
 @test "the completion dump header is the same after five alternating starts" {

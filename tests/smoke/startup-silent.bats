@@ -66,9 +66,15 @@ pty_bytes() {
   assert_equal "$(dt_start -- zsh -l -i -c exit 2>&1 | wc -c)" 0
 }
 
+# a non-interactive login shell loads the environment part only (no completions): what it must keep silent is that part
 @test "zsh -l -c true prints nothing without a terminal" {
   require_shell zsh
   assert_equal "$(dt_start -- zsh -l -c true 2>&1 | wc -c)" 0
+}
+
+@test "bash -l -c true prints nothing without a terminal" {
+  require_shell bash
+  assert_equal "$(dt_start -- bash -l -c true 2>&1 | wc -c)" 0
 }
 
 # sh -c keeps zsh's own redirection rules (MULTIOS) out of the redirections

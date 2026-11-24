@@ -89,11 +89,9 @@ perl_warnings() { # KIND VAR=value...
   done
 }
 
-# bash -l -c loads the environment from the login rework of group 6 on; until then it loads nothing, and the strict
-# version of this check, over every kind, is in environment-desktop.bats
 @test "LANGUAGE defaults to en_US:en in every kind that loads the environment" {
   local kind
-  for kind in $(dt_kinds_env | grep -v -x bash-lc); do
+  for kind in $(dt_kinds_env); do
     assert_equal "$(dt_kind_value "$kind" LANGUAGE)" 'en_US:en'
   done
 }

@@ -1,10 +1,12 @@
 ## Common ${XDG_CONFIG_HOME}/shell/shellrc file for interactive shells.
 
-# If not running interactively, don't do anything
-#case $- in
-#    *i*) ;;
-#      *) return;;
-#esac
+# Interactive shells only. ~/.zshrc and ~/.bashrc are links to this file, and bash reads ~/.bashrc for an ssh command
+# too (a non-interactive shell); no startup file sources it from a non-interactive shell: the desktop login and
+# `-l -c` shells load shell/environment instead, which holds the env_ files only.
+case $- in
+  *i*) ;;
+  *) return ;;
+esac
 
 export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 

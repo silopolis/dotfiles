@@ -6,3 +6,7 @@
 .config/shell/rc.d/150-pkg_krew.sh
 .config/shell/rc.d/200-lang_go.sh
 .config/shell/rc.d/220-lang_rust.sh
+
+# correct-shell-environment: the files that only the old non-interactive branch of profile called (group 6)
+.config/zsh/zshrc
+.config/bash/bashrc

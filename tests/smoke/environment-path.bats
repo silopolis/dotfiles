@@ -24,12 +24,6 @@ entries() { # PATH: one entry per line
   printf '%s\n' "$1" | tr ':' '\n'
 }
 
-# entries_without_mise PATH: the entries that are not in mise's data directory. The desktop replay loads no mise
-# activation once the login loads the env_ files only (group 6); until then the full pass puts the shims first.
-entries_without_mise() {
-  entries "$1" | grep -v -F "$DT_HOME/.local/share/mise/" || true
-}
-
 # a PATH that is not clean: the login PATH, then a duplicate of a system directory and a directory that does not exist
 dirty_path() {
   printf '%s:/usr/bin:%s\n' "$(dt_login_path)" "$DT_HOME/missing-dir"
@@ -73,12 +67,12 @@ dirty_path() {
   assert_equal "$(entries "$p" | grep -c -x -F "$inherited")" 1
 }
 
-@test "user bin directories come first in the desktop replay, before every brew and system directory" {
+@test "user bin directories come first in the desktop replay, before mise's shims and every brew and system directory" {
   local p d i first_user=-1 last_user=-1 first_other=-1 prefix idx=0 others
   mkdir -p "$DT_HOME/.local/bin" "$DT_HOME/.local/sbin"
   p=$(dt_kind_path desktop)
   prefix=$(dt_kind_value desktop HOMEBREW_PREFIX)
-  others=(/usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /sbin /bin /usr/local/games /usr/games)
+  others=("$DT_HOME/.local/share/mise/shims" /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /sbin /bin /usr/local/games /usr/games)
   if [ "$prefix" != '<unset>' ]; then
     others+=("$prefix/bin" "$prefix/sbin")
   fi
@@ -95,10 +89,11 @@ dirty_path() {
       fi
     done
     idx=$((idx + 1))
-  done < <(entries_without_mise "$p")
+  done < <(entries "$p")
   assert_equal "$first_user" 0
   [ "$last_user" -ge 1 ] || fail "only one of the two user directories is on PATH"
-  [ "$last_user" -lt "$first_other" ] || fail "a user bin directory comes after a brew or system directory"
+  [ "$first_other" -ge 0 ] || fail "mise's shims and the system directories are not on PATH: the test cannot compare"
+  [ "$last_user" -lt "$first_other" ] || fail "a user bin directory comes after mise's shims or a brew or system directory"
 }
 
 @test "user bin directories come before the system directories in an interactive zsh too, mise's directories aside" {
@@ -118,21 +113,30 @@ chain() { # FIRST-KIND NEXT-SHELL-PATH
   dt_kind_run "$1" "$snip" DT_SNIP="$snip"
 }
 
-check_chain() { # OUTPUT: the three PATH values and the three AQUA_BIN_DIR values are the same
+# check_chain OUTPUT [ordered]: the three PATH values hold the same entries (sorted lists compared, so a duplicate or a
+# growth shows), the two interactive levels hold the same value, and AQUA_BIN_DIR is the same at each level.
+# A chain that starts in the desktop replay has a first level that is not interactive and has no mise activation, which
+# may put its directories in front of the user's bin directories at the next two: the order is compared only when the
+# chain says "ordered", that is when it starts in an interactive shell.
+check_chain() {
   local out=$1 i
   for i in 1 2 3; do
     [ "$(printf '%s\n' "$out" | grep -c "^@@P$i=")" -eq 1 ] || fail "level $i printed no PATH"
   done
-  assert_equal "$(printf '%s\n' "$out" | sed -n 's/^@@P[123]=//p' | sort -u | wc -l)" 1
+  assert_equal "$(for i in 1 2 3; do printf '%s\n' "$out" | sed -n "s/^@@P$i=//p" | tr ':' '\n' | sort | tr '\n' ' '; echo; done | sort -u | wc -l)" 1
+  assert_equal "$(printf '%s\n' "$out" | sed -n 's/^@@P[23]=//p' | sort -u | wc -l)" 1
+  if [ "${2:-}" = ordered ]; then
+    assert_equal "$(printf '%s\n' "$out" | sed -n 's/^@@P[123]=//p' | sort -u | wc -l)" 1
+  fi
   assert_equal "$(printf '%s\n' "$out" | sed -n 's/^@@Q[123]=//p' | sort -u | wc -l)" 1
 }
 
 @test "nested shells do not grow PATH or AQUA_BIN_DIR: zsh in zsh in zsh" {
-  check_chain "$(chain zsh-i "$(dt_shell_path zsh)")"
+  check_chain "$(chain zsh-i "$(dt_shell_path zsh)")" ordered
 }
 
 @test "nested shells do not grow PATH or AQUA_BIN_DIR: bash in bash in bash" {
-  check_chain "$(chain bash-i "$(dt_shell_path bash)")"
+  check_chain "$(chain bash-i "$(dt_shell_path bash)")" ordered
 }
 
 @test "nested shells do not grow PATH or AQUA_BIN_DIR: interactive zsh in interactive zsh, started from the desktop replay" {
