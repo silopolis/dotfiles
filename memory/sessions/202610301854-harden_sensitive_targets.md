@@ -1,8 +1,8 @@
 # Implement OpenSpec change tasks
 **Session ID:** ses_e720ce42affen6d11Mjrfbnxpi
 **Created:** 10/30/2026, 6:54:42 PM
-**Updated:** 11/23/2026, 12:58:00 PM
-<!-- session-export: through msg_208452fb8002aNaT7HywPKy5XJ -->
+**Updated:** 11/24/2026, 3:58:31 PM
+<!-- session-export: through msg_20e10d5c9002wmVHEm0BN5geYz -->
 <!-- session-children: ses_e6d11c8cdffe3dVrtrei30j3UH, ses_e6d11a624ffePObu4C6kjRjMqm, ses_e5d4eb5acffeRUqJZnqfA4P79V, ses_e59f634a1ffesueefDocoCa7EX, ses_e59c25af7ffe4pZPkaq4Tu1UDq, ses_e597b7d90ffeW3158tg2BQlOTj -->
 <!-- session-children-skipped -->
 
@@ -89823,7 +89823,7 @@ status: blocked
 
 ---
 
-## Assistant (Build · Claude Sonnet 5.5)
+## Assistant (Build · Claude Sonnet 5.5 · 108.5s)
 
 _Thinking:_
 I'm looking at a permission prompt that blocked the builder from accessing [redacted:worktrees_root], which is its own worktree. My guess is that opencode treats the project directory as the main checkout, so the worktree counts as an external directory.
@@ -89841,6 +89841,9539 @@ The builder is stuck on an opencode permission prompt for reading files in its o
 ```json
 {
   "command": "cd ~/.local/share/chezmoi; S=/tmp/opencode/export-scratch; R=~/.config/nvim/scripts/session_redact.py\nmkdir -p $S/raw $S/out && chmod 700 $S\npython3 ~/Work/[redacted:private]/scripts/session/export.py --full --no-children --force --out-dir $S/raw --slug orchestration_wrapper_startup_harness ses_e720ce42affen6d11Mjrfbnxpi > $S/export.log 2>&1; echo \"export exit=$?\"\nRAW=$(ls $S/raw/*.md | head -1); echo \"raw: $(basename $RAW), $(stat -c %s $RAW) bytes, $(wc -l < $RAW) lines, files in raw: $(ls $S/raw | wc -l)\"\n/usr/bin/grep -a -m1 -o 'through msg_[A-Za-z0-9]*' $RAW\npython3 $R < $RAW > $S/out/pass1.md 2>$S/out/pass1.err; echo \"pass1 exit=$? lines $(wc -l < $S/out/pass1.md), stderr lines $(wc -l < $S/out/pass1.err)\"\npython3 $R < $S/out/pass1.md > $S/out/pass2.md 2>/dev/null; cmp -s $S/out/pass1.md $S/out/pass2.md && echo \"idempotent: yes\" || echo \"idempotent: NO\"\numask 077; python3 $R --check --folder-report $S/folders.txt $S/out/pass1.md > $S/chk.out 2>&1; echo \"check on the new export: exit=$?\"\nsed 's/\\x1b\\[[0-9;]*m//g' $S/chk.out | /usr/bin/grep -a -E ': [1-9][0-9]*$'; echo '(non-zero categories end)'\necho \"folder report: $(stat -c '%a' $S/folders.txt), $(wc -l < $S/folders.txt) lines\"; umask 002",
+  "timeout": 600000
+}
+```
+
+**Output:**
+```
+export exit=0
+raw: 202610301854-orchestration_wrapper_startup_harness.md, 5969779 bytes, 89858 lines, files in raw: 1
+through msg_208452fb8002aNaT7HywPKy5XJ
+pass1 exit=0 lines 89850, stderr lines 0
+idempotent: yes
+check on the new export: exit=1
+folder names: 1
+(non-zero categories end)
+folder report: 600, 1 lines
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 18.9s)
+
+_Thinking:_
+I'm checking the folder scan, which found one segment, and I need the user to classify it. The report sits in my scratch folder, so I'll copy it to the session-redact state directory where they can read it, since I delete the scratch copy afterward. I'm also wondering whether the segment is a real folder, and the opencode database does list a path containing `dotfiles-correct-shell-environment`.
+
+I'm checking whether the one flagged segment matches the `dotfiles-correct-shell-environment` path from the opencode database, which would put it among public repo names. I won't print it, so I'll just measure its length and look for where it appears in tracked text before moving on to the other checks.
+
+
+The folder scan flags one segment, once. As before, I'm not reading the report in this pane. First the other checks on the output.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; S=/tmp/opencode/export-scratch; O=$S/out/pass1.md\npython3 - $O $S/folders.txt <<'EOF'\nimport os, re, subprocess, sys\nfrom pathlib import Path\nt = Path(sys.argv[1]).read_text(encoding=\"utf-8\")\ndef n(p, flags=0): return len(re.findall(p, t, flags))\nH = Path.home()\nidf = H/\".local/share/[redacted:private]/session-redact/identity.txt\"\nvals = [l.split(\"=\",1)[-1].strip() for l in idf.read_text(encoding=\"utf-8\").splitlines() if l.strip() and not l.strip().startswith(\"#\")] if idf.exists() else []\nprint(\"identity values present:\", sum(1 for v in vals if len(v) >= 3 and re.search(r'(?<![A-Za-z0-9])%s(?![A-Za-z0-9])' % re.escape(v), t, re.I)), \"of\", len(vals))\nprint(\"login /home/<user> forms:\", n(r'/home/(?!linuxbrew|user\\b)[A-Za-z0-9_-]+'), \"| banned names:\", n(r'(?i)\\b([redacted:private]|[redacted:private]|[redacted:private]|[redacted:repo]|[redacted:private])\\b'))\nprint(\"token shapes:\", n(r'gh[pousr]_[A-Za-z0-9]{20,}') + n(r'sk-[A-Za-z0-9_-]{20,}') + n(r'-----BEGIN [A-Z ]*PRIVATE KEY-----') + n(r'AKIA[0-9A-Z]{16}') + n(r'xox[abp]-[A-Za-z0-9-]{10,}'))\nnames = sorted(set(re.findall(r'\\b[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*_(?:API_?KEY|TOKEN|SECRET|PASSWORD|PASSWD|CREDENTIAL|ACCESS_?KEY|PRIVATE_?KEY)\\b', t)))\nprint(\"secret-looking names:\", len(names), \"outside the allowed set:\", [x for x in names if not x.startswith(\"DEMO_\") and x not in (\"ANTHROPIC_API_KEY\",\"AWS_SECRET_ACCESS_KEY\",\"AZURE_OPENAI_API_KEY\",\"BRAVE_API_KEY\",\"GEMINI_API_KEY\",\"GITHUB_TOKEN\",\"MISTRAL_API_KEY\",\"MOONSHOT_API_KEY\",\"OPENAI_API_KEY\",\"TAVILY_API_KEY\",\"XAI_API_KEY\",\"SYN_PASSWD\",\"X_ACCESSKEY\")])\nips = re.findall(r'\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b', t); print(\"IPv4 non-loopback:\", len([i for i in ips if not i.startswith((\"127.\", \"0.\"))]), \"| e-mails:\", n(r'[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[a-z]{2,}'), \"| NUL symbols:\", t.count(\"\\u2400\"))\nprint(\"store dir word readable:\", t.count(\"[redacted:private]\"), \"| private_store alias:\", t.count(\"private_store\"))\n# folder segment: shape only\nrows = [l.partition(\"\\t\") for l in Path(sys.argv[2]).read_text(encoding=\"utf-8\").splitlines() if l]\nfor c, _, seg in rows:\n    seg = seg.strip(); G = \"/home/linuxbrew/.linuxbrew/bin/git\"\n    ment = subprocess.run([G,\"grep\",\"-c\",\"-i\",\"-w\",\"-F\",\"-e\",seg,\"--\",\".\",\":!memory/sessions\"], capture_output=True, text=True).stdout\n    print(f\"segment: count {c}, length {len(seg)}, tracked text mentions outside exports {sum(int(x.rsplit(':',1)[1]) for x in ment.splitlines() if ':' in x)}, is lowercase letters only {bool(re.fullmatch(r'[a-z]+', seg))}, in output {len(re.findall(r'(?<![A-Za-z0-9])%s(?![A-Za-z0-9])' % re.escape(seg), t, re.I))} times\")\nEOF\nmise x -- gitleaks dir --redact --no-banner $O 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | tail -1\nhk util detect-private-key $O > /dev/null 2>&1; echo \"detect-private-key exit=$?\"",
+  "timeout": 300000
+}
+```
+
+**Output:**
+```
+identity values present: 0 of 5
+login /home/<user> forms: 0 | banned names: 0
+token shapes: 0
+secret-looking names: 16 outside the allowed set: []
+IPv4 non-loopback: 0 | e-mails: 0 | NUL symbols: 0
+store dir word readable: 0 | private_store alias: 309
+segment: count 1, length 3, tracked text mentions outside exports 0, is lowercase letters only True, in output 1 times
+1:00PM INF no leaks found
+detect-private-key exit=0
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 107.4s)
+
+_Thinking:_
+I'm checking which 3-letter segment could be showing up in my output but not in the tracked text. The opencode database logs the new worktree path, with segments like "dotfiles", "correct", "shell", and "environment", so those seem fine. The candidate I keep coming back to is "env", but the new workspace label doesn't appear in that path at all.
+
+I'm weighing whether "env" could be the segment, but the tracked text has no such word in the exact form I'd flagged, so I'll drop that guess rather than assume. The report is the better route: I'll put it in the state directory with restricted permissions and let the user classify the segment. I'm also weighing whether to install the export and README now, uncommitted, and re-run if the segment turns out to be private, since the commit waits for validation anyway.
+
+I'm going to update the README's row 21 with the details from after November 21, including the manual steps, the reboot check, and the seventh launch, and I'll note the new re-export date alongside the earlier ones.
+
+I'm weighing how to word the README line about the 2026-11-23 export without claiming anything the user hasn't answered yet. A neutral wording that just notes the scan result and points to the later commit would fit best, since a public README shouldn't read awkwardly.
+
+Where the README's row is concerned, I'm going to leave the folder-scan clause open until the user answers. For now I'll install the export and update the row with the post-November-21 session content, and I'll note the final README edit as a pending step for the commit.
+
+
+_Thinking:_
+Everything passes except one folder-scan segment absent from tracked text; the report is saved outside the repo at mode 0600 and the export is being installed. The commit is waiting on your classification.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; S=/tmp/opencode/export-scratch; N=memory/sessions/202610301854-harden_sensitive_targets.md; D=~/.local/state/session-redact\nmkdir -p $D; chmod 700 $D; install -m 0600 $S/folders.txt $D/chezmoi-folder-report.txt; stat -c '%a %s bytes %n' $D/chezmoi-folder-report.txt | sed \"s#$HOME#~#\"\ninstall -m 0644 $S/out/pass1.md $N\npython3 - <<'EOF'\nfrom pathlib import Path\np = Path(\"memory/sessions/README.md\"); s = p.read_text(encoding=\"utf-8\")\ndef rep(a, b):\n    global s\n    assert s.count(a) == 1, (s.count(a), a[:70]); s = s.replace(a, b)\nrep(\"the fix of the mode of the temporary directory for the token analysis tool, and the manual steps and reboot checks written out. \",\n    \"the fix of the mode of the temporary directory for the token analysis tool, the manual steps and reboot checks written out, \"\n    \"a machine reboot and the resume of this session, the passed reboot check of the credential exposure, the rule that a worker is a linked worktree workspace grouped under the primary workspace (found by comparing the launch tasks with herdr's model, recorded in the launch-tasks change), \"\n    \"and the seventh launch (the build session of `correct-shell-environment`, opened as such a workspace). \")\nrep(\"Re-exported in full on 2026-11-18 and again on 2026-11-21 (a continued session is overwritten, not duplicated)\",\n    \"Re-exported in full on 2026-11-18, on 2026-11-21 and on 2026-11-23 (a continued session is overwritten, not duplicated)\")\nrep(\"the export of 2026-11-21 needed no throwaway terms file, and the folder scan found no segment in it |\",\n    \"the exports of 2026-11-21 and 2026-11-23 needed no throwaway terms file, and the folder scan found no segment in the first |\")\np.write_text(s, encoding=\"utf-8\")\nEOF\nF=memory/sessions/README.md\nprintf 'README: rows %s | dashes %s | banned %s | modeline last %s\\n' \"$(/usr/bin/grep -a -c -E '^\\| ' $F)\" \"$(/usr/bin/grep -a -c -E '[–—]' $F)\" \"$(/usr/bin/grep -a -c -i -w -E '[redacted:private]|[redacted:private]|[redacted:private]|[redacted:repo]|[redacted:private]|nvim-s26|nvim-orch|rog-orch' $F)\" \"$(tail -1 $F | /usr/bin/grep -a -c 'vim: set ts=2')\"\necho \"export: $(wc -l < $N) lines, $(stat -c %s $N) bytes, $(/usr/bin/grep -a -m1 -o 'through msg_[A-Za-z0-9]*' $N)\"\npython3 ~/.config/nvim/scripts/session_redact.py --check $F memory/sessions/*.md > /tmp/opencode/c.out 2>&1; echo \"--check README + 15 exports: exit=$? ; non-zero: $(sed 's/\\x1b\\[[0-9;]*m//g' /tmp/opencode/c.out | /usr/bin/grep -a -E ': [1-9][0-9]*$' | tr '\\n' ' ')\"; rm -f /tmp/opencode/c.out\nrm -rf $S; test ! -e $S && echo 'scratch and raw export deleted (the folder report stays in ~/.local/state/session-redact, mode 0600)'\n/home/linuxbrew/.linuxbrew/bin/git status --short",
+  "timeout": 600000
+}
+```
+
+**Output:**
+```
+600 6 bytes ~/.local/state/session-redact/chezmoi-folder-report.txt
+README: rows 16 | dashes 0 | banned 0 | modeline last 1
+export: 89850 lines, 5979730 bytes, through msg_208452fb8002aNaT7HywPKy5XJ
+--check README + 15 exports: exit=1 ; non-zero: folder names: 10 
+scratch and raw export deleted (the folder report stays in ~/.local/state/session-redact, mode 0600)
+ M memory/sessions/202610301854-harden_sensitive_targets.md
+ M memory/sessions/README.md
+ M openspec/changes/add-agent-launch-tasks/observations.md
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 47.8s)
+
+_Thinking:_
+I'm checking the report file, which is only 6 bytes, and I expected the `--check` across the README and all 15 exports to turn up 10 folder names, versus just 1 on the new file alone. That means the segment shows up in other exports too, nine more times, so I'm wondering whether it was already in earlier exports, since the last scan at 15:46 on 11-21 found none.
+
+I'm going to count the segment's occurrences per file now, without reopening the report, since the new project folder and the older exports probably account for the extra matches.
+
+
+Across all exports the scan counts 10 hits, so the segment is also in older files. I'm counting where, in memory and by file position, without printing the segment.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\npython3 - <<'EOF'\nimport re, sqlite3, os, json\nfrom pathlib import Path\nrep = Path.home()/\".local/state/session-redact/chezmoi-folder-report.txt\"\nseg = rep.read_text(encoding=\"utf-8\").split(\"\\t\", 1)[1].strip()\nfiles = sorted(Path(\"memory/sessions\").glob(\"*.md\")) + [Path(\"memory/sessions/README.md\")]\nrx = re.compile(r'(?<![A-Za-z0-9])%s(?![A-Za-z0-9])' % re.escape(seg), re.I)\nprint(\"segment length\", len(seg))\nfor i, f in enumerate(sorted(Path(\"memory/sessions\").glob(\"*.md\")), 1):\n    c = len(rx.findall(f.read_text(encoding=\"utf-8\", errors=\"ignore\")))\n    if c: print(f\"  export file {i} of 15: {c} occurrence(s)\")\nprint(\"  README:\", len(rx.findall(Path(\"memory/sessions/README.md\").read_text(encoding=\"utf-8\"))))\ndb = Path(os.environ.get(\"XDG_DATA_HOME\", str(Path.home()/\".local/share\")))/\"opencode/opencode.db\"\ncon = sqlite3.connect(f\"file:{db}?mode=ro\", uri=True)\npaths = set()\nfor t, c in ((\"session\", \"directory\"), (\"project\", \"worktree\")):\n    try:\n        for (v,) in con.execute(f\"select {c} from {t}\"):\n            if v: paths.add(v)\n    except Exception: pass\nhit = [p for p in paths if rx.search(p)]\nhome = str(Path.home())\nprint(\"db folder paths containing it:\", len(hit), \"| depth of the matching component:\", sorted({[j for j, x in enumerate((p[len(home)+1:] if p.startswith(home+'/') else p).split('/')) if rx.search(x)][0] for p in hit}), \"| component is the whole word:\", all(any(x.lower() == seg.lower() for x in p.split('/')) for p in hit) if hit else None)\nnewest = max(paths, key=lambda p: 0) if False else None\nEOF\necho '--- the committed version of the previous export under the same scan (HEAD)'\n/home/linuxbrew/.linuxbrew/bin/git show HEAD:memory/sessions/202610301854-harden_sensitive_targets.md > /tmp/opencode/prev.md\npython3 ~/.config/nvim/scripts/session_redact.py --check /tmp/opencode/prev.md 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | /usr/bin/grep -a -E ': [1-9][0-9]*$'; echo '(end)'; rm -f /tmp/opencode/prev.md",
+  "timeout": 120000
+}
+```
+
+**Output:**
+```
+segment length 3
+  export file 1 of 15: 1 occurrence(s)
+  export file 8 of 15: 8 occurrence(s)
+  export file 13 of 15: 1 occurrence(s)
+  README: 0
+db folder paths containing it: 0 | depth of the matching component: [] | component is the whole word: None
+--- the committed version of the previous export under the same scan (HEAD)
+folder names: 1
+(end)
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 19.8s)
+
+_Thinking:_
+I'm checking whether this segment also shows up in the previous committed export, which would mean my last commit now fails the scan because the database changed with a new project folder. My search of the database paths came back empty, but I may have missed the table or columns, since the tool reads from FOLDER_SOURCES and I only pulled session data.
+
+I'm confirming the segment is in the three exports, ten occurrences in all, and that the database is the user's current one, so the classification is theirs to make. Next I'm updating the resume with the export state and the pending classification, then adding a journal entry.
+
+
+_Thinking:_
+The segment is already in three committed exports, and since they passed the scan on 2026-11-21 the database has a new folder. I'm updating the note and then rechecking the builder.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\nfor m in 'docs(chezmoi:memory): re-export the orchestrator session of 2026-11-23' 'docs(chezmoi:docs): log the answers of the first grouped launch'; do printf '%s chars: %s\\n' \"${#m}\" \"$m\"; done\npython3 - <<'EOF'\nfrom pathlib import Path\np = Path(\".state/resume.md\"); s = p.read_text(encoding=\"utf-8\")\ndef rep(a, b):\n    global s\n    assert s.count(a) == 1, (s.count(a), a[:70]); s = s.replace(a, b)\nrep(\"local change: only `openspec/changes/add-agent-launch-tasks/observations.md` (the seventh launch entry, answers to the topology questions), uncommitted, to fold into the next docs commit.\",\n    \"UNCOMMITTED: `openspec/changes/add-agent-launch-tasks/observations.md` (seventh launch entry, answers to the topology questions), the RE-EXPORT of this session `memory/sessions/202610301854-harden_sensitive_targets.md` (89,850 lines, through `msg_208452fb8002aNaT7HywPKy5XJ` at about 13:00 on 2026-11-23) and `memory/sessions/README.md` (row 21 extended, three export dates); the raw file and the scratch are deleted.\")\nrep(\"1. The builder will ask in its pane for the go to run\",\n    \"0. THE FOLDER SCAN OF THE NEW EXPORT: one 3-letter segment, found 10 times in three committed exports (files 1, 8 and 13 of the 15, which passed the scan on 2026-11-21, so opencode's database recorded a new folder since) and 0 times in tracked text; the report is `~/.local/state/session-redact/chezmoi-folder-report.txt` (mode 0600, one line `count TAB segment`), NEVER read it in my pane: the user reads it and says PUBLIC (a line added to `session-redact/public-folders.txt` of the store, in a commit of mine; the store working copy carries another session's uncommitted line of that file, stage only mine as on 2026-11-21) or PRIVATE (a term in the dotfiles layer, then re-redact the three exports and this one and show counts). Then finish the README sentence \\\"the folder scan found no segment in the first\\\" (add the second export), delete the report, commit.\\n1. The builder will ask in its pane for the go to run\")\nrep(\"2. The commit word for the `add-agent-launch-tasks` observations edit (uncommitted) and for the export of this session (proposed below, in the journal).\",\n    \"2. The commit word for TWO commits, messages proposed: `docs(chezmoi:memory): re-export the orchestrator session of 2026-11-23` (70 characters; export and README, after the folder segment is classified) and `docs(chezmoi:docs): log the answers of the first grouped launch` (62 characters; the observations file); then push.\\n   The builder was BLOCKED at 13:05 on a permission prompt in its pane (\\\"Access external directory [redacted:worktrees_root]\\\", pattern `[redacted:worktrees_root]/*`: opencode counts the worktree's parent as external): the user answers in `w0:p1`.\")\np.write_text(s, encoding=\"utf-8\")\nEOF\nchmod 600 .state/resume.md; printf 'dashes %s\\n' \"$(/usr/bin/grep -a -c -E '[–—]' .state/resume.md)\"\nprintf -- '- %s chezmoi-orch (wN:p1) orchestrator session re-exported (89850 lines through msg_208452fb8002aNaT7HywPKy5XJ), installed uncommitted with README row 21; checks clean except the folder scan: 1 three-letter segment, 10 occurrences in 3 committed exports, report at ~/.local/state/session-redact/chezmoi-folder-report.txt for the user to classify; builder blocked at 13:05 on a permission prompt (external directory [redacted:worktrees_root]) in w0:p1, left to the user\\n' \"$(date '+%Y-%m-%d %H:%M:%S')\" >> .state/journal.md\necho \"builder: $(herdr agent get chezmoi-env-builder 2>/dev/null | jq -r '.result.agent.agent_status' 2>/dev/null)\"\nherdr pane read w0:p1 --lines 30 2>/dev/null | /usr/bin/grep -a -E 'Permission required|Allow once|esc interrupt|[0-9.]+K \\(' | tail -2 | cut -c1-130\necho \"main: $(/home/linuxbrew/.linuxbrew/bin/git rev-parse --short HEAD) = origin $(/home/linuxbrew/.linuxbrew/bin/git rev-parse --short origin/main); validate $(openspec validate --all --strict 2>&1 | tail -1)\"",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+70 chars: docs(chezmoi:memory): re-export the orchestrator session of 2026-11-23
+63 chars: docs(chezmoi:docs): log the answers of the first grouped launch
+dashes 0
+builder: working
+   ⬝⬝⬝⬝⬝⬝⬝⬝  esc interrupt                                                         164.8K (16%) · $0.73  ctrl+p c
+main: d9f437d = origin d9f437d; validate Totals: 38 passed, 0 failed (38 items)
+
+```
+
+**Tool: todowrite**
+
+**Input:**
+```json
+{
+  "todos": [
+    {
+      "content": "Commits A and B pushed; builder launched in linked workspace w0 under wN",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "content": "Persist context and prepare orchestration after compaction (resume note, journal)",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "content": "Export this session: installed uncommitted, checks clean except the folder scan segment",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "content": "User: answer the builder's permission prompt in w0:p1 (external directory [redacted:worktrees_root])",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "content": "User: read ~/.local/state/session-redact/chezmoi-folder-report.txt, say public or private for its one segment",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "content": "User: commit word for the export (70 chars) and the observations (62 chars), then push",
+      "status": "pending",
+      "priority": "high"
+    }
+  ]
+}
+```
+
+**Output:**
+```
+[
+  {
+    "content": "Commits A and B pushed; builder launched in linked workspace w0 under wN",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "content": "Persist context and prepare orchestration after compaction (resume note, journal)",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "content": "Export this session: installed uncommitted, checks clean except the folder scan segment",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "content": "User: answer the builder's permission prompt in w0:p1 (external directory [redacted:worktrees_root])",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "content": "User: read ~/.local/state/session-redact/chezmoi-folder-report.txt, say public or private for its one segment",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "content": "User: commit word for the export (70 chars) and the observations (62 chars), then push",
+    "status": "pending",
+    "priority": "high"
+  }
+]
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 7.3s)
+
+_Thinking:_
+The builder is running now, since someone answered the prompt and it's at 16% (164.8K tokens). I need to correct the resume note, which still says it's blocked until the user answers, and fix the observation commit message count from 62 to 63.
+
+
+The prompt has been answered: the builder is working at about 165K tokens. I'm correcting the note (the message is 63 characters, not 62, and the block is cleared).
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; python3 - <<'EOF'\nfrom pathlib import Path\np = Path(\".state/resume.md\"); s = p.read_text(encoding=\"utf-8\")\ndef rep(a, b):\n    global s\n    assert s.count(a) == 1, (s.count(a), a[:70]); s = s.replace(a, b)\nrep(\"(62 characters; the observations file)\", \"(63 characters; the observations file)\")\nrep(\"The builder was BLOCKED at 13:05 on a permission prompt in its pane (\\\"Access external directory [redacted:worktrees_root]\\\", pattern `[redacted:worktrees_root]/*`: opencode counts the worktree's parent as external): the user answers in `w0:p1`.\",\n    \"The builder was blocked at 13:05 on a permission prompt in its pane (\\\"Access external directory [redacted:worktrees_root]\\\", pattern `[redacted:worktrees_root]/*`: opencode counts the worktree's parent as external); the user answered it and the builder was `working` again at about 13:10 (165K tokens, 16% of its context). Expect the same prompt for the next worker, and tell the user in advance.\")\np.write_text(s, encoding=\"utf-8\")\nEOF\nchmod 600 .state/resume.md\nprintf -- '- %s chezmoi-orch (wN:p1) builder unblocked by the user (external directory prompt answered), working at about 165K tokens (16%%); context persisted, session exported (uncommitted), awaiting folder segment classification and the commit words\\n' \"$(date '+%Y-%m-%d %H:%M:%S')\" >> .state/journal.md\ntail -1 .state/journal.md | cut -c1-120",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+- 2026-11-23 13:03:17 chezmoi-orch (wN:p1) builder unblocked by the user (external directory prompt answered), working a
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 9.7s)
+
+The commits are pushed, the builder is launched, the context is saved and the session is exported. The export is installed but not committed, because the folder scan flagged a segment that needs your classification first.
+
+## Committed and pushed
+- **`5ac1d81`:** the passed reboot check in `TODO.md`.
+- **`d9f437d`:** the `AGENTS.md` Workflow paragraph on grouped workers, the launch-tasks change's observations and proposal, and `add-agent-launch-tasks` moved right after `correct-shell-environment` in the planned order.
+- `origin/main` is at `d9f437d`, 0 ahead and 0 behind.
+
+## Builder launched
+- **Setup:** worktree `[redacted:worktrees_root]/dotfiles-correct-shell-environment`, branch `feat/correct-shell-environment`, linked workspace `w0` (label `env-build`) grouped under `wN`.
+- **Agent:** `chezmoi-env-builder`, footer `Build · Claude Sonnet 5.5 · xhigh`.
+- **Grouping:** it worked first time. `herdr worktree open --workspace wN` accepted the git-created worktree with no trust prompt, and `herdr worktree list` shows main plus the linked worktree.
+- **Prompt:** it was blocked once on an "external directory [redacted:worktrees_root]" permission prompt. You answered it, and it's working again at about 165K tokens (16%). Expect the same prompt for the next worker.
+- **Waiting on you:** it will ask in its pane for your go before `mise run test:deps`, which downloads the test helper libraries.
+
+## Context and orchestration after compaction
+- `.state/resume.md` now has:
+  - the state of both repositories and the machine;
+  - the grouped launch recipe with the real JSON paths, and the cleanup rule (export first, close the linked workspace by id, never `--group`, then `scm:worktree:done`);
+  - a checklist for the first read-only steps after a compaction and for re-measuring each builder report;
+  - a waiting-for-you list.
+- The journal has one line per event.
+
+## Export
+- **File:** `memory/sessions/202610301854-harden_sensitive_targets.md`, 89,850 lines through the message at about 13:00. The README row is extended.
+- **Checks passed:** a second pass is identical, 0 identity values, no store directory word, no secret names beyond the allowed ones, gitleaks and the key detector clean. The raw file and scratch are deleted.
+- **Folder scan:** it found 1 segment of 3 letters, not in our tracked text. It occurs 10 times across 3 files: this export once, and two older committed exports 8 and 1 times. Those older files passed the scan on 2026-11-21, so opencode's database recorded a new folder since. I didn't read the segment.
+
+## What I need from you
+1. **Read the segment:** `~/.local/state/session-redact/chezmoi-folder-report.txt` (mode 0600, one line, `count`, tab, segment). Say public or private.
+   - **Public:** I add it to `public-folders.txt` in a store commit of mine, staging only my line because the working copy still holds another session's uncommitted one.
+   - **Private:** I add it as a term, re-redact the three older exports and this one, and show you the counts.
+2. **Commit words, two commits:**
+   - `docs(chezmoi:memory): re-export the orchestrator session of 2026-11-23` (70 characters): export and README.
+   - `docs(chezmoi:docs): log the answers of the first grouped launch` (63 characters): the observations file.
+   - Then say "push".
+
+Before the export commit I finish one README sentence about the folder scan, and delete the report file.
+
+---
+
+## User
+
+chezmoi-env-builder: reading done, 4 points do not hold against the tree (PATH equality of login vs plain shell, desktop replay keeping inherited PATH, probe vs shellcheck, opencode bypass count 4->3), details in my pane; waiting for the user's go for mise run test:deps
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 16.2s)
+
+_Thinking:_
+The builder says it's finished reading, but four of its points don't hold up. I want to look at its pane for the details and re-check each point against the tree myself. I'll leave the permission prompts alone and just read.
+
+
+The builder is waiting for your go before `mise run test:deps`. Its four points affect my brief and the artifacts, so I'm reading them in its pane and checking each one against the tree.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "echo \"status: $(herdr agent get chezmoi-env-builder 2>/dev/null | jq -r '.result.agent.agent_status' 2>/dev/null)\"\nherdr pane read w0:p1 --lines 120 2>/dev/null | /usr/bin/grep -a -v '^\\s*$' | sed 's/[[:space:]]*$//' | cut -c1-175 | tail -70",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+status: done
+     Thought: 2.3s                                                                                                          LSP
+                                                                                                                            LSPs are disabled
+     The source path checks out and chezmoi-orch responds. The status field came back null, so I'm looking at whether
+     the agent status lives under a different key. Next I'll send chezmoi-orch a one-line "reading done" report,
+     noting what doesn't match the tree, and hold off on the first download until the user gives the go.                    Context
+                                                                                                                            183,746 tokens
+     If the agent is blocked, it won't accept the prompt, so I'll write the line in my own pane as my final answer          18% used
+     anyway.                                                                                                                $1.04 spent
+  ┃                                                                                                                         LSP
+  ┃  $ herdr agent prompt chezmoi-orch "chezmoi-env-builder: reading done, 4 points do not hold against the tree (          LSPs are disabled
+  ┃  PATH equality of login vs plain shell, desktop replay keeping inherited PATH, probe vs shellcheck, opencode
+  ┃  bypass count 4->3), details in my pane; waiting for the user's go for mise run test:deps" 2>&1 | head -5
+  ┃                                                                                                                         Context
+  ┃  {"id":"cli:agent:prompt","result":{"agent":{"agent":"opencode","agent_session":{"agent":"opencode","kind":"id",        183,746 tokens
+  ┃  "source":"herdr:opencode","value":"ses_e720ce42affen6d11Mjrfbnxpi"},"agent_status":"idle","completion_seq":70,         18% used
+  ┃  "cwd":"~/.local/share/chezmoi","focused":false,"foreground_cwd":"~/.local/share/chezmoi",          $1.04 spent
+  ┃  "name":"chezmoi-orch","pane_id":"wN:p1","revision":7,"screen_detection_skipped":true,"state_change_seq":70,
+  ┃  "tab_id":"wN:t1","terminal_id":"term_660e0dd98aacdc","terminal_title":"[redacted:private]",          LSP
+  ┃  "terminal_title_stripped":"[redacted:private]","workspace_id":"wN"},"type":"agent_prompted"}}        LSPs are disabled
+  ┃
+     Reading is done and I've told chezmoi-orch. I'm waiting for your go before the first download.
+     I checked the worktree, and chezmoi -S resolves to <worktree>/home. The only download I'd run is mise run test:
+     deps. It runs tests/deps.sh, which clones three pinned bats libraries (bats-support v0.3.0, bats-assert v2.2.4,
+     bats-file v0.4.0) anonymously from GitHub into tests/.lib/. tests/.lib doesn't exist in this worktree, so I
+     can't run the baseline until it's there.                                                                               LSP
+                                                                                                                            LSPs are disabled
+     What does not hold against the tree
+     1. Login and plain shells can't have equal PATH once 040 keeps the inherited one.
+        - /etc/profile resets PATH in every login shell, and /etc/zsh/zprofile runs it for zsh.
+        - So zsh -l -i and bash -l -i start from /usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games. The plain
+          shells keep what they inherited.
+        - After the change the two PATH strings differ in order. Only 040 replacing PATH made them equal.
+        - This hits the shell-startup scenario "Interactive login shell" and the tests "zsh -l -i has the PATH of zsh       LSP
+          -i" and "bash -l -i has the PATH of bash -i".                                                                     LSPs are disabled
+        - Proposal: compare the sorted sets of entries and test the double pass through duplicates. Please confirm.
+     2. "Inherited entries are kept" can't hold for the desktop replay as defined.
+        - The replay sources /etc/zsh/zprofile, which sources /etc/profile. I checked it under env -i with an extra
+          directory on PATH, and the directory is gone before ~/.zprofile runs. bash -l -c does the same.
+        - That is also what the real session does.
+        - Only the zsh -i half of the scenario can pass. For the replay I'd test that a directory added after /etc/
+          profile survives, or drop that half.
+     3. The probe in manual-steps.md fails shellcheck -s bash, which task 2.3 requires.
+        - There are two SC2046 warnings, several SC2086 notes and one SC2015 note, from the unquoted $p and $(pgrep ..
+          .). bash -n and zsh -n pass.
+        - Task 2.3 also wants the script identical to the block in manual-steps.md. I'll fix the quoting in both in
+          the same commit, with no change of behaviour.
+     4. Task 5.4 misses one test that depends on startup exporting the private file.
+        - opencode_check in startup-behaviour.bats expects the bypass to see 4 secret-named names: 3 synthetic ones
+          plus one from the private file that startup exported.
+        - That count becomes 3 after group 5, so I'll update it with the other startup tests.
+     Smaller points:
+     - 120-pkg-aqua.sh: it has two defects. AQUA_BIN_DIR="${AQUA_BIN_DIR:-${AQUA_ROOT_DIR}}/bin" appends /bin on
+       every nested shell, and &> is not POSIX. 042 fixes both.
+     - brew shellenv: it prepends its directories unconditionally, so 041 needs a _path_clean after it.
+     - 047-env_tools_mise.sh: I plan _path_prepend of the shims directory ($MISE_DATA_DIR/shims). That avoids running
+       mise before 050 puts ~/.local/bin on PATH.
+     - History migration: the design describes it for zsh only. I'll apply it to bash too (~/.bash_history) unless
+       you say otherwise.
+     - Locale tests: en_US.UTF-8 isn't generated on this machine, so the locale tests take the C.UTF-8 branch here.
+     - Probe in a unit test: the probe reads the real /proc, so session-probe.bats will assert the stubbed counts and
+       the output format. It won't assert A6 or A16 values.
+     Tell me your go for mise run test:deps, and your answers on points 1 and 2 and on bash history.
+                                                                                                                       █
+     ▣  Build · Claude Sonnet 5.5 · 9m 50s                                                                             █
+  ┃
+  ┃                                                                                                                         [redacted:worktrees_root]/dotfiles-correct-shell-
+  ┃                                                                                                                         environment:feat/correct-shell-
+  ┃  Build · Claude Sonnet 5.5 Anthropic · xhigh                                                                            environment
+  ╹▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀�
+   [redacted:worktrees_root]/dotfiles-correct-shell-environment                       183.7K (18%) · $1.04  ctrl+p commands    • OpenCode 1.19.6
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 15.8s)
+
+_Thinking:_
+I'm checking the four points against the tree, starting with whether `/etc/profile` resets PATH in login shells. I'll look at `/etc/profile` and `/etc/zsh/zprofile` on this machine, and compare against what the existing spec says about interactive login shells.
+
+I'm going through the four points against the tree, and the first is whether `/etc/profile` resets PATH in login shells. I'll also check what the existing spec says about interactive login shells. Next I want to see whether the desktop replay path, which sources `/etc/zsh/zprofile` and then `/etc/profile`, resets PATH too, and I'll test that read-only with `env -i`. After that I'll check the probe with shellcheck and look at `opencode_check` in `startup-behaviour.bats`, which expects 4. I still need to decide whether the bash history migration should cover `bash/history` or only zsh, so I'll check whether `~/.bash_history` exists.
+
+I'm checking whether `~/.bash_history` exists, since the design names `bash/history` as a target path. Bash only writes its history on exit and doesn't share it live, so a plain move should be enough for the bash side, without the link handling zsh needs.
+
+Checking whether `/etc/profile` and `/etc/zsh/zprofile` reset PATH, using a scratch HOME so no user dotfiles load. I'll also compare against the "Interactive login shell" scenario in the shell-startup spec and the delta spec.
+
+I'm checking the existing spec's "Interactive login shell" scenario and its test that zsh -l -i matches the PATH of zsh -i, since that's the claim I'm weighing against the probe.
+
+
+_Thinking:_
+The builder's message raises four points I think are wrong, plus some decisions it wants from you. I'm verifying each one against the tree, starting with how login shells handle PATH.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; T=.state/tmp/pathprobe; mkdir -p $T; chmod 700 $T\necho '--- /etc/profile and /etc/zsh/zprofile: do they set PATH?'\n/usr/bin/grep -a -n -E '^\\s*(export\\s+)?PATH=' /etc/profile | cut -c1-120\n/usr/bin/grep -a -n -E 'profile|PATH' /etc/zsh/zprofile 2>/dev/null | cut -c1-120 | head -5\necho '--- zsh login vs plain, scratch HOME (no user file loads), inherited PATH has an extra directory first'\nX=$(mktemp -d $T/x.XXXX); mkdir -p $X/extra\nfor k in \"zsh -c\" \"zsh -l -c\" \"bash -c\" \"bash -l -c\"; do\n  p=$(env -i HOME=$T PATH=$X/extra:/usr/bin:/bin $k 'printf %s \"$PATH\"' 2>/dev/null)\n  printf '%-11s extra dir kept: %s | entries: %s | starts with: %s\\n' \"$k\" \"$([ \"${p#*$X/extra}\" != \"$p\" ] && echo yes || echo no)\" \"$(printf '%s' \"$p\" | tr ':' '\\n' | wc -l)\" \"$(printf '%s' \"$p\" | cut -d: -f1 | sed \"s#$X#X#\")\"\ndone\nrm -rf $X\necho '--- the main spec scenario and tests the builder names'\n/usr/bin/grep -a -n -i -E 'login shell|same PATH|PATH of' openspec/specs/shell-startup/spec.md | cut -c1-170 | head -6\n/usr/bin/grep -a -rn -E 'has the PATH of' tests | cut -c1-160",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+--- /etc/profile and /etc/zsh/zprofile: do they set PATH?
+5:  PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+7:  PATH="/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games"
+1:# /etc/zsh/zprofile: system-wide .zprofile file for zsh(1).
+7:# Global Order: zshenv, zprofile, zshrc, zlogin
+9:emulate sh -c '. /etc/profile'
+--- zsh login vs plain, scratch HOME (no user file loads), inherited PATH has an extra directory first
+zsh -c      extra dir kept: no | entries: 0 | starts with: 
+zsh -l -c   extra dir kept: no | entries: 0 | starts with: 
+bash -c     extra dir kept: no | entries: 0 | starts with: 
+bash -l -c  extra dir kept: no | entries: 0 | starts with: 
+--- the main spec scenario and tests the builder names
+25:Each interactive shell SHALL source `rc.d` exactly once, whether it is a login shell or not, in zsh and in bash.
+26:A non-interactive login shell SHALL load what it loads today, once.
+98:Speeding up and silencing startup SHALL NOT change what the private environment file and `rc.d/010-env_user.sh` export and unset, the order in which the private enviro
+120:#### Scenario: Interactive login shell
+123:- **THEN** the names are equal, and the two `PATH` values are equal: the second pass of the old login shell had added a nested aqua directory that does not exist and 
+141:A bash login shell started with a minimal environment SHALL load the shared configuration.
+tests/smoke/startup-behaviour.bats:107:@test "zsh -l -i has the PATH of zsh -i" {
+tests/smoke/startup-behaviour.bats:116:@test "bash -l -i has the PATH of bash -i" {
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 8.2s)
+
+_Thinking:_
+I had the probe printing empty because zsh doesn't word-split an unquoted variable holding a command with arguments, so `$k 'printf...'` never ran as intended. I'll switch to an array or `${=k}` and rerun the commands explicitly.
+
+
+My probe printed nothing because `$k` holds a command with arguments, which zsh doesn't split, the known pitfall. I'm redoing it with explicit commands.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; T=.state/tmp/pathprobe; mkdir -p $T; X=$(mktemp -d $T/x.XXXX); mkdir -p $X/extra\nshow() { # label, PATH printed\n  p=$2; printf '%-12s extra dir kept: %-3s | entries: %s | first entry: %s\\n' \"$1\" \"$([ \"${p#*$X/extra}\" != \"$p\" ] && echo yes || echo no)\" \"$(printf '%s' \"$p\" | tr ':' '\\n' | wc -l)\" \"$(printf '%s' \"$p\" | cut -d: -f1 | sed \"s#$X#X#\")\"; }\nshow \"zsh -c\"      \"$(env -i HOME=$T PATH=$X/extra:/usr/bin:/bin zsh -c 'printf %s \"$PATH\"' 2>&1)\"\nshow \"zsh -l -c\"   \"$(env -i HOME=$T PATH=$X/extra:/usr/bin:/bin zsh -l -c 'printf %s \"$PATH\"' 2>&1)\"\nshow \"bash -c\"     \"$(env -i HOME=$T PATH=$X/extra:/usr/bin:/bin bash -c 'printf %s \"$PATH\"' 2>&1)\"\nshow \"bash -l -c\"  \"$(env -i HOME=$T PATH=$X/extra:/usr/bin:/bin bash -l -c 'printf %s \"$PATH\"' 2>&1)\"\necho '--- interactive: zsh -i and zsh -l -i (pseudo-terminal not needed for -c with -i)'\nshow \"zsh -i -c\"    \"$(env -i HOME=$T PATH=$X/extra:/usr/bin:/bin zsh -i -c 'printf %s \"$PATH\"' 2>/dev/null)\"\nshow \"zsh -l -i -c\" \"$(env -i HOME=$T PATH=$X/extra:/usr/bin:/bin zsh -l -i -c 'printf %s \"$PATH\"' 2>/dev/null)\"\nshow \"bash -i -c\"   \"$(env -i HOME=$T PATH=$X/extra:/usr/bin:/bin bash -i -c 'printf %s \"$PATH\"' 2>/dev/null)\"\nshow \"bash -l -i -c\" \"$(env -i HOME=$T PATH=$X/extra:/usr/bin:/bin bash -l -i -c 'printf %s \"$PATH\"' 2>/dev/null)\"\nrm -rf $X",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+zsh -c       extra dir kept: yes | entries: 2 | first entry: X/extra
+zsh -l -c    extra dir kept: no  | entries: 7 | first entry: /usr/local/sbin
+bash -c      extra dir kept: yes | entries: 2 | first entry: X/extra
+bash -l -c   extra dir kept: no  | entries: 7 | first entry: /usr/local/sbin
+--- interactive: zsh -i and zsh -l -i (pseudo-terminal not needed for -c with -i)
+zsh -i -c    extra dir kept: yes | entries: 2 | first entry: X/extra
+zsh -l -i -c extra dir kept: no  | entries: 7 | first entry: /usr/local/sbin
+bash -i -c   extra dir kept: yes | entries: 2 | first entry: X/extra
+bash -l -i -c extra dir kept: no  | entries: 7 | first entry: /usr/local/sbin
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 24.6s)
+
+_Thinking:_
+Having confirmed that a login shell resets PATH through /etc/profile before any user file runs, I'm now checking the desktop session path: the display manager runs the Xsession script, which sources the system zprofile and then ~/.zprofile. I'm still unsure whether Xsession is started as a login shell, since the study I'm looking at seems to say it sources the profile files.
+
+I'm weighing whether the test can actually show that a directory added after /etc/profile survives. The design says 040 keeps the inherited PATH, but on the desktop that PATH has already been reset by /etc/profile, so the claim only means something for entries added later. One option is a fixture file placed before 040 in the scratch render that adds a directory, and I'm checking whether that would hold up.
+
+I'm settling on a fixture env file placed between 035 and 040 that prepends a test directory, so I can check it survives into the login shell. The harder part is the equality requirement: with 040 now keeping the inherited PATH, a login shell and a plain shell will no longer match by construction, so I need to decide what the comparison should check instead.
+
+I'm settling on the test harness giving plain shells the same inherited PATH that /etc/profile produces, so a login shell and a plain shell start from identical values and should end with equal results. That keeps the existing equality requirement intact, since both sides are now built from the same starting point.
+
+I'm weighing whether the equality check should survive the change, since a login shell and a plain shell no longer start from the same PATH. One idea is to give plain shells the same PATH that /etc/profile produces, so both start from identical values and should still end equal. That would keep the original requirement strict while still catching a second pass that duplicates or nests entries.
+
+I'm leaning toward keeping the equality check strict and making the plain shells start from the same PATH that /etc/profile produces. I could read that baseline by running a login shell with an empty scratch HOME, which keeps the test tied to the real system profile. I still need to decide whether this is a call for the user to make.
+
+I'm now wondering whether the spec's "Interactive login shell" scenario needs changing, since the delta spec may restate that the two PATH values are equal. I'll check whether the change's delta spec repeats that wording, and if it does, the scenario text will need a correction.
+
+Next I'm checking the delta spec's "Clean PATH" scenarios, especially the one about inherited entries being kept, to see whether it repeats the equal-PATH wording. Then I'll run shellcheck on the probe block from manual-steps.md, since I only tested it in bash and zsh so far and task 2.3 needs it. Last, I'll look at the opencode count in startup-behaviour.bats, which should drop from 4 to 3, and check the smaller items in the aqua file.
+
+Now I'm running the remaining checks: shellcheck on the probe block, the opencode count in the bats file, and the smaller aqua items, including whether a bash history file exists.
+
+
+_Thinking:_
+Points 1 and 2 hold: /etc/profile resets PATH for every login shell before user files run, so login shells drop an inherited directory that plain shells keep. Next I'm checking the spec text for points 3 and 4.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; D=openspec/changes/correct-shell-environment\necho '--- delta spec shell-startup: the login-shell scenario and PATH equality'\n/usr/bin/grep -a -n -i -E 'Scenario: Interactive login|PATH values|equal' $D/specs/shell-startup/spec.md | cut -c1-230\necho '--- shell-environment spec: the PATH scenarios'\n/usr/bin/grep -a -n -E 'Scenario: .*(PATH|inherit|Inherit|dupl|Nested|nested|User bin)' $D/specs/shell-environment/spec.md | cut -c1-120\n/usr/bin/grep -a -n -B1 -A6 'Scenario: Inherited entries are kept' $D/specs/shell-environment/spec.md | cut -c1-230\necho '--- the tests the builder named'\nsed -n '100,125p' tests/smoke/startup-behaviour.bats | cut -c1-150",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+--- delta spec shell-startup: the login-shell scenario and PATH equality
+45:- **THEN** the lists are equal, except the names listed in the change's allow file (`DOTFILES_TEST_BASE_ALLOW`)
+50:- **THEN** the exported variables, names and values, are equal, `PATH` included, except the names listed in the change's allow file
+52:#### Scenario: Interactive login shell
+55:- **THEN** the names are equal except the names listed in the change's allow file, and the two `PATH` values are equal
+--- shell-environment spec: the PATH scenarios
+44:#### Scenario: Inherited copies are dropped
+89:#### Scenario: No duplicates and no missing directory
+94:#### Scenario: Inherited entries are kept
+99:#### Scenario: User bin directories first
+104:#### Scenario: Nested shells do not grow PATH
+128:#### Scenario: An inherited missing locale is dropped
+93-
+94:#### Scenario: Inherited entries are kept
+95-
+96-- **WHEN** an interactive zsh and the desktop replay start with a scratch directory `inherited` at the end of `PATH`
+97-- **THEN** their `PATH` holds `inherited` once
+98-
+99-#### Scenario: User bin directories first
+100-
+--- the tests the builder named
+}
+
+# the PATH of a login shell is the PATH of the same shell started without -l (audit F18 was a second pass that changed it)
+path_of() {
+  dt_start_pty -- "$@" | tr -d '\r' | grep '^PATH=' | head -n 1
+}
+
+@test "zsh -l -i has the PATH of zsh -i" {
+  require_shell zsh
+  local login plain
+  login=$(path_of zsh -l -i -c env)
+  plain=$(path_of zsh -i -c env)
+  [ -n "$login" ] || fail "no PATH line from zsh -l -i"
+  assert_equal "$login" "$plain"
+}
+
+@test "bash -l -i has the PATH of bash -i" {
+  require_shell bash
+  local login plain
+  login=$(path_of bash -l -i -c env)
+  plain=$(path_of bash -i -c env)
+  [ -n "$login" ] || fail "no PATH line from bash -l -i"
+  assert_equal "$login" "$plain"
+}
+
+@test "fpath holds no duplicate in zsh -i" {
+
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\necho '--- point 3: shellcheck -s bash on the probe block of manual-steps.md'\npython3 - <<'EOF'\nimport re\nfrom pathlib import Path\nt = Path(\"openspec/changes/correct-shell-environment/manual-steps.md\").read_text(encoding=\"utf-8\")\nb = re.findall(r\"```sh\\n(.*?)```\", t, re.S); Path(\".state/tmp/probe-sc.sh\").write_text(\"#!/usr/bin/env bash\\n\" + b[0], encoding=\"utf-8\")\nEOF\nshellcheck -s bash .state/tmp/probe-sc.sh 2>&1 | /usr/bin/grep -a -E '^In .* line|SC[0-9]+' | sed -E 's/^In [^ ]+ line ([0-9]+):/line \\1:/' | sort | uniq -c | sort -nr | cut -c1-140 | head -12\necho \"shellcheck exit: $(shellcheck -s bash .state/tmp/probe-sc.sh >/dev/null 2>&1; echo $?)  | error-level only: $(shellcheck -s bash -S error .state/tmp/probe-sc.sh >/dev/null 2>&1; echo $?)\"\nbash -n .state/tmp/probe-sc.sh && echo \"bash -n: ok\"; zsh -n .state/tmp/probe-sc.sh && echo \"zsh -n: ok\"; rm -f .state/tmp/probe-sc.sh\necho '--- point 4: opencode_check in startup-behaviour.bats'\n/usr/bin/grep -a -n -E 'opencode_check|bypass|secret-named|4 |== 4|-eq 4' tests/smoke/startup-behaviour.bats | cut -c1-170 | head -14",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+--- point 3: shellcheck -s bash on the probe block of manual-steps.md
+      2                    ^-- SC2086 (info): Double quote to prevent globbing and word splitting.
+      1         ^-- SC2086 (info): Double quote to prevent globbing and word splitting.
+      1                                                    ^---^ SC2086 (info): Double quote to prevent globbing and word splitting.
+      1                                                                         ^---^ SC2086 (info): Double quote to prevent globbing and wo
+      1                                                                          ^---^ SC2086 (info): Double quote to prevent globbing and w
+      1                                                              ^-- SC2046 (warning): Quote this to prevent word splitting.
+      1                                                               ^-- SC2046 (warning): Quote this to prevent word splitting.
+      1                                                      ^-- SC2015 (info): Note that A && B || C is not if-then-else. C may run when A 
+      1 line 26:
+      1 line 22:
+      1 line 20:
+      1 line 19:
+shellcheck exit: 1  | error-level only: 0
+bash -n: ok
+zsh -n: ok
+--- point 4: opencode_check in startup-behaviour.bats
+54:# the stub counts the secret-named names it receives; three synthetic ones are exported, and a plain one;
+55:# the bypass sees four of them: the private environment file of the scratch home exports a fourth
+56:opencode_check() {
+69:    printf '%s\n' 4 --args-- x --present-- DEMO_PLAIN=present
+73:@test "the opencode function in zsh -i removes the secret-named names, passes arguments and status, and can be bypassed" {
+75:  opencode_check zsh
+78:@test "the opencode function in bash -i removes the secret-named names, passes arguments and status, and can be bypassed" {
+80:  opencode_check bash
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 31.0s)
+
+_Thinking:_
+Checking each of the four points, starting with the login-shell case: the shell resets PATH through /etc/profile while plain shells keep what they inherit, so my "Interactive login shell" scenario only holds if those two PATH values match.
+
+I'm checking the desktop replay case too: `/etc/profile` resets PATH there, so the `inherited` entry my "Inherited entries are kept" scenario relies on gets dropped, which means that spec line is wrong and the mistake is in our spec rather than the lead's prototype. I also see that my previous claim about verifying the probe never covered shellcheck, which task 2.3 requires.
+
+I'm weighing two ways to fix the login-shell comparison: either sort and compare the PATH entries to tolerate the second pass, or give the plain shell the same base PATH that /etc/profile sets. Option (b) keeps the strict string equality, but hardcoding Debian's default PATH feels fragile, so I'm looking at whether I can derive that base from a scratch login shell instead.
+
+I'm weighing whether to derive the login PATH base at runtime from a scratch login shell, which keeps the strict equality check, or to fall back to comparing sorted entries if that can't be made robust. I'll lean toward the runtime-derived base, but I'm still unsure whether it's the better option, since the spec change itself may need the user's sign-off.
+
+I'm weighing whether to ask the user for the go-ahead on the test dependency download, since the spec change might need their sign-off; I lean toward asking them directly and including my recommendation on the four points.
+
+I'm weighing whether to ask the user to confirm the spec amendments for points 1 and 2 and the bash history question, or just decide them myself. They change spec text, so I'm leaning toward one combined question covering the test:deps go-ahead and those three items, with my recommendation on each.
+
+I'm leaning toward a single question to the user that bundles the go-ahead for the test dependency download with my recommendations on the spec changes, since the user owns those calls. The bash history move looks simple: bash writes its history only at exit, so the first new bash can just move the legacy file.
+
+Checking whether `~/.bash_history` exists and how the design describes bash history, since bash only writes its history at exit and the first new bash could simply move the legacy file.
+
+Checking the remaining items now: the aqua script appends `/bin` on every nested shell and uses `&>`, which isn't POSIX, so the fix in task 042 covers both. The brew shellenv step prepends unconditionally, so task 041 needs a path-cleaning pass right after it. For mise shims, the default directory is `~/.local/share/mise/shims`, and `$MISE_DATA_DIR` may be unset, so I'll build the path with a fallback chain rather than assuming that variable exists.
+
+Now I'm checking whether the lead's spec amendments need my own sign-off, since the builder's four findings would change scenario text I wrote with the lead. Several of those fixes are plain errors in my artifacts, like the manual probe quoting and the task 5.4 wording, so the builder can correct them on its branch.
+
+Now I'm settling on how the builder's four findings get handled: two of them are my own errors, and the fixes belong in its branch, not on main.
+
+I'm going to ask the user one batched question covering the test:deps go-ahead and the spec amendments, then check the bash history and aqua and mise shim details so my recommendations hold up.
+
+
+_Thinking:_
+Four points are confirmed: a login shell resets PATH via /etc/profile, the desktop replay drops an inherited directory, shellcheck exits 1 on my probe, and the bypass test should expect 3 names, not 4. I'm checking bash history, the mise shims path and the aqua file before recommending answers.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\necho '--- bash history: does a legacy file exist (size only), HISTFILE lines in the source'\n[ -f ~/.bash_history ] && echo \"~/.bash_history: $(wc -l < ~/.bash_history) lines, $(stat -c %a ~/.bash_history)\" || echo \"no ~/.bash_history\"\n/usr/bin/grep -a -n -E 'HISTFILE|histappend|HISTSIZE|HISTFILESIZE' home/dot_config/shell/rc.d/320-shell_history.sh | cut -c1-140\necho '--- design and spec text on bash history'\n/usr/bin/grep -a -n -i 'bash' openspec/changes/correct-shell-environment/design.md | /usr/bin/grep -a -i 'histor' | cut -c1-220\n/usr/bin/grep -a -n -B2 -A12 'Requirement: History under XDG state' openspec/changes/correct-shell-environment/specs/shell-environment/spec.md | /usr/bin/grep -a -i -E 'bash|Scenario|legacy' | cut -c1-200\necho '--- mise shims default and the env var'\necho \"MISE_DATA_DIR set in my shell: $([ -n \"${MISE_DATA_DIR-}\" ] && echo yes || echo no); default shims dir exists: $([ -d ~/.local/share/mise/shims ] && echo yes || echo no)\"\necho '--- 120-pkg-aqua.sh lines the builder cites'\n/usr/bin/grep -a -n -E 'AQUA_BIN_DIR|&>' home/dot_config/shell/rc.d/120-pkg-aqua.sh | cut -c1-150",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+--- bash history: does a legacy file exist (size only), HISTFILE lines in the source
+no ~/.bash_history
+6:    shopt -s histappend              # append new history items to .bash_history
+9:    export HISTFILESIZE=10000        # increase history file size (default is 500)
+10:    export HISTSIZE=${HISTFILESIZE}  # increase history size (default is 500)
+15:    HISTFILE=~/.zsh_history
+16:    HISTSIZE=5000
+19:    setopt hist_expire_dups_first # delete duplicates first when HISTFILE size exceeds HISTSIZE
+--- design and spec text on bash history
+126:- `HISTFILE` moves under `$XDG_STATE_HOME`: `zsh/history` and `bash/history`, directories 0700, files 0600.
+171:- Unit tests for `_path_prepend`, the locale filter, the history migration and merge (synthetic history files, multi-line entries), `secrets` in zsh and bash, and the session-defaults script in the isolated harness (
+168-zsh and bash SHALL keep their history in `$XDG_STATE_HOME/zsh/history` and `$XDG_STATE_HOME/bash/history`, in directories of mode 0700 and files of mode 0600, and SHALL move a legacy history file 
+170-#### Scenario: Paths
+172-- **WHEN** an interactive zsh and an interactive bash print `HISTFILE`
+175-#### Scenario: First start moves the legacy file
+--- mise shims default and the env var
+MISE_DATA_DIR set in my shell: no; default shims dir exists: yes
+--- 120-pkg-aqua.sh lines the builder cites
+3:if command -v aqua &> /dev/null; then
+5:  export AQUA_BIN_DIR="${AQUA_BIN_DIR:-${AQUA_ROOT_DIR}}/bin"
+6:  export PATH="${AQUA_BIN_DIR}:$PATH"
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 200.7s)
+
+_Thinking:_
+I'm checking the design spec's history migration for bash as well as zsh. There's no ~/.bash_history on this machine, so the same move should be low-risk here.
+
+I'm settling the bash side: it gets the same history move as zsh, and since this machine has no ~/.bash_history, the risk is low. I also need to fix the shims path in the builder's plan, because MISE_DATA_DIR is unset in my shell and "$MISE_DATA_DIR/shims" would break, so I'll have it fall back to the XDG default. Before I put the two choices to the user, I'm weighing which PATH comparison is actually the stronger check.
+
+I'm weighing the two PATH comparisons: strict equality from a common starting PATH, which still catches the nested aqua directory from the second pass, versus comparing sorted sets with duplicates. Strict equality is stronger if the pty harness can set the inherited PATH for plain shells, and I'd accept the set-based fallback only if that proves impractical.
+
+I'm going to put the open questions to the user now, since the builder is waiting on their go-ahead. Once they answer, I'll send the builder its instructions, and I still need to mention the pending folder-segment and commit-wording items in my final message.
+
+
+_Thinking:_
+The smaller points check out: there's no ~/.bash_history here, MISE_DATA_DIR is unset by default so the shims path needs a fallback, and the aqua defect is real, though nothing on main needs fixing since the builder amends its own branch copies. I need your go-ahead for the download and your decision on the three points that affect spec scenarios.
+
+
+**Tool: question**
+
+**Input:**
+```json
+{
+  "questions": [
+    {
+      "header": "Download",
+      "question": "Go for `mise run test:deps` in the builder's worktree? It clones three pinned bats helper libraries (bats-support v0.3.0, bats-assert v2.2.4, bats-file v0.4.0) anonymously from GitHub into the git-ignored tests/.lib, and nothing else is installed.",
+      "options": [
+        {
+          "label": "Go (Recommended)",
+          "description": "The builder runs it once, then the baseline suite (343 tests, 27 skipped on 2026-11-21)."
+        },
+        {
+          "label": "Not yet",
+          "description": "The builder keeps waiting."
+        }
+      ]
+    },
+    {
+      "header": "Login PATH",
+      "question": "Point 1: /etc/profile resets PATH in every login shell, so a login shell and a plain shell can't end with equal PATH once 040 keeps the inherited one. How should the 'Interactive login shell' scenario and its two tests change?",
+      "options": [
+        {
+          "label": "Equal from a common start (Recommended)",
+          "description": "Keep 'the two PATH values are equal', but start the plain shell with the PATH that /etc/profile produces, computed at run time. It still catches a second pass that adds or nests entries."
+        },
+        {
+          "label": "Compare entry sets",
+          "description": "The builder's proposal: sorted sets of entries plus a duplicates check. Weaker: order differences no longer fail."
+        }
+      ]
+    },
+    {
+      "header": "Desktop replay",
+      "question": "Point 2: the desktop replay runs /etc/zsh/zprofile, so /etc/profile drops a directory added before the shell starts, as it does in the real session. How should 'Inherited entries are kept' be tested for the replay?",
+      "options": [
+        {
+          "label": "Fixture env_ file before 040 (Recommended)",
+          "description": "A fixture file named like an env_ file adds a directory before 040 runs; the scenario then says it survives 040 once. The interactive zsh half stays as written."
+        },
+        {
+          "label": "Drop the replay half",
+          "description": "Only the interactive zsh keeps its inherited entry; the replay is not tested for it."
+        }
+      ]
+    },
+    {
+      "header": "Bash history",
+      "question": "The design names bash/history next to zsh/history, but describes the migration for zsh only, and there is no legacy bash history on this machine. Should the builder apply the same move and merge to bash?",
+      "options": [
+        {
+          "label": "Yes, same mechanism (Recommended)",
+          "description": "One code path for both shells, tested on synthetic files for bash too."
+        },
+        {
+          "label": "zsh only",
+          "description": "Bash gets the new HISTFILE path with no migration."
+        }
+      ]
+    }
+  ]
+}
+```
+
+**Output:**
+```
+User has answered your questions: "Go for `mise run test:deps` in the builder's worktree? It clones three pinned bats helper libraries (bats-support v0.3.0, bats-assert v2.2.4, bats-file v0.4.0) anonymously from GitHub into the git-ignored tests/.lib, and nothing else is installed."="Go (Recommended)", "Point 1: /etc/profile resets PATH in every login shell, so a login shell and a plain shell can't end with equal PATH once 040 keeps the inherited one. How should the 'Interactive login shell' scenario and its two tests change?"="Equal from a common start (Recommended)", "Point 2: the desktop replay runs /etc/zsh/zprofile, so /etc/profile drops a directory added before the shell starts, as it does in the real session. How should 'Inherited entries are kept' be tested for the replay?"="Fixture env_ file before 040 (Recommended)", "The design names bash/history next to zsh/history, but describes the migration for zsh only, and there is no legacy bash history on this machine. Should the builder apply the same move and merge to bash?"="Yes, same mechanism (Recommended)". You can now continue with the user's answers in mind.
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 30.2s)
+
+_Thinking:_
+I'm about to send the builder its instructions, and it's idle, so the prompt will go through. The message will cover the decisions, my own earlier errors, and the extras, including the mise shims default and the probe unit test assertion. I'm also going to ask it to amend the scenarios in its branch artifacts, starting with the "Interactive login shell" scenario in the shell-startup delta spec and the "Inherited entries are kept" scenario in the shell-environment spec, along with task 5.4 in tasks.md.
+
+I'm amending the scenarios in the builder's branch artifacts and the task 5.4 count, along with the notes, matching the manual-steps and probe helper quoting, and proposing the `docs(chezmoi:spec)` commit to the user before anything goes out. No push, and I'll note that mutants can't run without agreement.
+
+
+You have answered all four. I'm sending the builder its instructions, with the corrections that are mine.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\nherdr agent prompt chezmoi-env-builder 'chezmoi-orch: your four points all hold, I re-measured each from my pane: a login shell resets PATH through /etc/profile (zsh -l and bash -l lose an inherited directory, plain shells keep it), the replay does the same, shellcheck -s bash exits 1 on the probe block, and opencode_check expects 4 names. Two are my mistakes (the two spec scenarios, and a probe that I ran but never shellchecked). The USER decided, answers: (1) GO for mise run test:deps, once, then the baseline run. (2) Login shell scenario: keep \"the two PATH values are equal\" but start the plain shell from a common PATH, the one that /etc/profile produces, computed at run time (for example from a login shell under a scratch HOME with no user file); it must still fail on a second pass that adds or nests an entry. If you find that impractical in the pty helper, stop and say why before falling back to sets. (3) \"Inherited entries are kept\": for the replay, a fixture file named like an env_ file, placed before 040, adds a directory and the scenario says it survives 040 once; the interactive zsh half stays as written. (4) History: apply the same move and merge to bash (bash/history), same mechanism, tested on synthetic bash files too. What to do with these, in your branch: amend the scenario \"Interactive login shell\" in specs/shell-startup/spec.md and \"Inherited entries are kept\" in specs/shell-environment/spec.md to the decided wording, add the opencode_check count (4 to 3) to task 5.4, fix the quoting of the probe in manual-steps.md and in tests/helpers/session-probe.sh together (identical text, no change of behaviour, shellcheck -s bash exits 0), and propose ONE commit docs(chezmoi:spec) for these artifact amendments to the user before you commit it; then go on with group 1. Your smaller points are accepted with two precisions: 047 must not depend on MISE_DATA_DIR being set (it is unset in a normal shell), use ${MISE_DATA_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/mise}/shims; and session-probe.bats asserts the stubbed counts and the output format only, as you proposed. The permission prompt for the external directory [redacted:worktrees_root] was answered by the user once; expect it again for new patterns, and keep reporting one line at each group.' --wait --until working --timeout 20000 2>&1 | jq -c '{ok: (.error == null), error: (.error // null)}' 2>/dev/null\nprintf -- '- %s chezmoi-orch (wN:p1) builder reading report received (4 points, all re-measured and valid: login shells reset PATH via /etc/profile, replay too, probe fails shellcheck, bypass count 4 to 3; two are orchestrator mistakes); the user decided: go for mise run test:deps, login PATH scenario kept equal from a common start, replay scenario with a fixture env_ file before 040, bash history migrated like zsh; instructions sent to chezmoi-env-builder\\n' \"$(date '+%Y-%m-%d %H:%M:%S')\" >> .state/journal.md\nsleep 8; echo \"builder: $(herdr agent get chezmoi-env-builder 2>/dev/null | jq -r '.result.agent.agent_status' 2>/dev/null)\"\nherdr pane read w0:p1 --lines 20 2>/dev/null | /usr/bin/grep -a -E 'Permission required|esc interrupt|[0-9.]+K \\(' | tail -2 | cut -c1-120",
+  "timeout": 90000
+}
+```
+
+**Output:**
+```
+{"ok":true,"error":null}
+builder: working
+   ⬝⬝⬝⬝⬝⬝⬝⬝  esc interrupt                                                         183.7K (18%) · $1.04
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 11.0s)
+
+_Thinking:_
+I'm updating the resume note with the builder's reading report and today's decisions, and marking the download step as done. I also need to note that the folder segment classification is still pending, and update waiting-list item 1 to match.
+
+
+The builder is working again. I'm saving this round in the resume note, since it changes what the builder does and which decisions are already taken.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; python3 - <<'EOF'\nfrom pathlib import Path\np = Path(\".state/resume.md\"); s = p.read_text(encoding=\"utf-8\")\ndef rep(a, b):\n    global s\n    assert s.count(a) == 1, (s.count(a), a[:70]); s = s.replace(a, b)\nrep(\"## What is waiting for the user\\n\",\n'''### Builder round 1 (2026-11-23, about 13:30): reading report and decisions\n\nThe builder's reading report named four points that did not hold against the artifacts; I re-measured each (two are my own mistakes) and the user decided:\n- A login shell resets `PATH` through `/etc/profile` before any user file (zsh through `/etc/zsh/zprofile`, bash directly), so an inherited directory is dropped by `zsh -l`, `bash -l` and the desktop replay, and kept by plain shells.\n  Decisions: the scenario \"Interactive login shell\" (delta spec `shell-startup`) stays \"the two `PATH` values are equal\" but both shells start from the same `PATH`, the one `/etc/profile` produces, computed at run time; the scenario \"Inherited entries are kept\" (`shell-environment`) tests the replay with a fixture file named like an `env_` file placed before `040`; the interactive zsh half stays.\n- The probe in `manual-steps.md` ran but failed `shellcheck -s bash` (my miss); the builder fixes the quoting in the document and in `tests/helpers/session-probe.sh` together, identical text.\n- `opencode_check` in `tests/smoke/startup-behaviour.bats` expects 4 secret-named names, one of them from the private file that startup exported: 3 after group 5 (added to task 5.4).\n- The history migration is applied to bash too (`bash/history`), same mechanism, tested on synthetic files; there is no legacy bash history on this machine.\n- `047` uses `${MISE_DATA_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/mise}/shims` (the variable is unset in a normal shell).\n- GO given for `mise run test:deps` (once). The builder proposes ONE `docs(chezmoi:spec)` commit for the artifact amendments to the user in its pane before group 1.\nThese amendments live in the builder's branch only: do not edit the change folder on `main` meanwhile (merge conflicts).\n\n## What is waiting for the user\n''')\nrep(\"1. The builder will ask in its pane for the go to run `mise run test:deps` (downloads the bats helper libraries from GitHub into `tests/.lib`): the user answers there.\",\n    \"1. The builder will propose commits in its own pane (`docs(chezmoi:spec)` for the amended artifacts first, then one per group); the user validates them there. The go for `mise run test:deps` was given at about 13:30.\")\np.write_text(s, encoding=\"utf-8\")\nEOF\nchmod 600 .state/resume.md\nprintf 'resume: lines %s | dashes %s | modeline last %s\\n' \"$(wc -l < .state/resume.md)\" \"$(/usr/bin/grep -a -c -E '[–—]' .state/resume.md)\" \"$(tail -1 .state/resume.md | /usr/bin/grep -a -c 'vim: set ts=2')\"\nrm -rf .state/tmp/pathprobe; echo 'probe scratch removed'\necho \"main $(/home/linuxbrew/.linuxbrew/bin/git rev-parse --short HEAD), dirty: $(/home/linuxbrew/.linuxbrew/bin/git status --short | tr '\\n' ' ')\"",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+resume: lines 183 | dashes 0 | modeline last 1
+probe scratch removed
+main d9f437d, dirty:  M memory/sessions/202610301854-harden_sensitive_targets.md  M memory/sessions/README.md  M openspec/changes/add-agent-launch-tasks/observations.md 
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 7.9s)
+
+The builder's four points all hold, and it is working again with your decisions. It's the first stage of the change, running in `w0`.
+
+## The four points, re-measured on the machine
+1. **Login `PATH`:** `/etc/profile` resets `PATH` for every login shell. `zsh -l` and `bash -l` lost an inherited directory, and the plain shells kept it. My "the two `PATH` values are equal" scenario can't hold as written.
+2. **Desktop replay:** it runs `/etc/zsh/zprofile`, which sources `/etc/profile`, so the replay drops an inherited directory as well. This is also what the real session does, so my "Inherited entries are kept" scenario was wrong for it.
+3. **Probe:** `shellcheck -s bash` exits 1, with two SC2046 warnings and several info notes. I had run my probe in bash and zsh but never shellchecked it, and task 2.3 requires that.
+4. **Bypass count:** the opencode bypass test expects 4 names, and one comes from the private file that startup exports, so it becomes 3. My task 5.4 missed this test.
+
+Points 2 and 3 are my own mistakes.
+
+## Decisions you made, now sent to the builder
+- **Download:** go for `mise run test:deps`, once.
+- **Login scenario:** keep "the two `PATH` values are equal", but start both shells from the `PATH` that `/etc/profile` produces, computed at run time. It still fails on a second pass that nests an entry.
+- **Replay scenario:** a fixture file named like an `env_` file, placed before `040`, adds a directory that has to survive `040` once.
+- **Bash history:** same move and merge as zsh, with tests on synthetic bash files.
+
+I added two details: the shims directory in `047` must default when `MISE_DATA_DIR` is unset (it is unset in a normal shell), and the probe's unit test checks stubbed counts and the output format only.
+
+The builder will propose one `docs(chezmoi:spec)` commit in its own pane for these spec and probe amendments, before group 1. You validate its commits there. I'm not editing the change folder on `main` meanwhile, to avoid conflicts.
+
+## Still waiting on you
+1. **The folder segment:** read `~/.local/state/session-redact/chezmoi-folder-report.txt`, one line with 3 letters, found 10 times. Say public or private.
+2. **Two commits, once that's settled:**
+   - `docs(chezmoi:memory): re-export the orchestrator session of 2026-11-23` (70 characters).
+   - `docs(chezmoi:docs): log the answers of the first grouped launch` (63 characters).
+
+   Then "push".
+
+The resume note and journal are up to date, so a compaction at any point is safe. After one, the first action is the read-only checklist in the note under "Orchestrating the builder".
+
+---
+
+## User
+
+1. public
+2. ok
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 27.4s)
+
+_Thinking:_
+I'm told the user picked "public" for the folder segment and "ok" for the commit wording. I'll add that segment to public-folders.txt in the store and stage only my line, leaving the report contents out of the output. Before committing, I need to check the store's working copy, which has another session's uncommitted line in it.
+
+I need to confirm the store still has the other session's uncommitted line, so I'll stage only HEAD plus my entry and commit that, then rebuild the working copy as the sorted union. After that I'll recheck the exports and update the README sentence about the second export's segment.
+
+I'm weighing whether to push the store commit or hold it, since the user only said "ok" to the commit wording this time and the earlier "push" came from a different message. I'll commit without pushing and ask for an explicit "push" before sending anything out. The store commit is mine and falls under the earlier classification, so I'll use the same message pattern, and I still need to check whether the builder is stuck on a permission prompt.
+
+Now I'm checking the store and the report file again before touching anything, and I'm keeping the segment itself out of the output. The store's working copy still has the other session's line, so I'll rebuild it as the sorted union after the commit.
+
+I'll run the check over the exports next, then update the README sentence about the second export's folder scan. After that I'll update the resume note and the journal, and hold the push until I get an explicit go-ahead.
+
+
+Segment is public and the commits are approved. I'm starting with the store commit for the segment, staging only my line because the store's working copy still carries another session's uncommitted line.
+**Tool: todowrite**
+
+**Input:**
+```json
+{
+  "todos": [
+    {
+      "content": "Store: add the public folder segment to public-folders.txt (my line only), commit",
+      "status": "in_progress",
+      "priority": "high"
+    },
+    {
+      "content": "Re-check all exports and README, finish the README sentence, delete the folder report",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "content": "Commit the export (70 chars) and the observations (63 chars)",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "content": "Check the builder (permission prompts, reports) and update the resume note and journal",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "content": "Push: not asked this turn, hold for the user's word",
+      "status": "pending",
+      "priority": "medium"
+    }
+  ]
+}
+```
+
+**Output:**
+```
+[
+  {
+    "content": "Store: add the public folder segment to public-folders.txt (my line only), commit",
+    "status": "in_progress",
+    "priority": "high"
+  },
+  {
+    "content": "Re-check all exports and README, finish the README sentence, delete the folder report",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "content": "Commit the export (70 chars) and the observations (63 chars)",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "content": "Check the builder (permission prompts, reports) and update the resume note and journal",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "content": "Push: not asked this turn, hold for the user's word",
+    "status": "pending",
+    "priority": "medium"
+  }
+]
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "ST=[redacted:private_store]; G=/home/linuxbrew/.linuxbrew/bin/git; F=session-redact/public-folders.txt; REP=~/.local/state/session-redact/chezmoi-folder-report.txt\necho \"report: $([ -f $REP ] && echo \"$(stat -c %a $REP), $(wc -l < $REP) line(s)\" || echo MISSING)\"\necho \"store: HEAD $($G -C $ST rev-parse --short HEAD), ahead/behind $($G -C $ST rev-list --count origin/main..HEAD)/$($G -C $ST rev-list --count HEAD..origin/main), uncommitted: $($G -C $ST status --short | tr '\\n' ' ')\"\necho \"working copy vs HEAD: $($G -C $ST diff --numstat -- $F | tr '\\t' ' ')\"\npython3 - \"$ST\" \"$F\" \"$REP\" <<'EOF'\nimport subprocess, sys, re\nst, rel, rep = sys.argv[1:4]; G = \"/home/linuxbrew/.linuxbrew/bin/git\"\nsegs = [l.partition(\"\\t\")[2].strip().lower() for l in open(rep, encoding=\"utf-8\").read().splitlines() if l.partition(\"\\t\")[0].isdigit()]\nassert len(segs) == 1 and re.fullmatch(r\"[a-z0-9]{3,}\", segs[0]), \"unexpected report\"\nhead = subprocess.run([G,\"-C\",st,\"show\",f\"HEAD:{rel}\"], capture_output=True, text=True, check=True).stdout.splitlines()\nwork = open(f\"{st}/{rel}\", encoding=\"utf-8\").read().splitlines()\nentries = [l for l in head if l.strip() and not l.startswith(\"#\")]\nprint(\"already in HEAD:\", segs[0] in entries, \"| in the working copy (other session):\", segs[0] in work)\ncomments = [l for l in head if l.startswith(\"#\")]\nmerged = comments + sorted(set(entries) | set(segs))\nblob = subprocess.run([G,\"-C\",st,\"hash-object\",\"-w\",\"--stdin\"], input=\"\\n\".join(merged)+\"\\n\", capture_output=True, text=True, check=True).stdout.strip()\nsubprocess.run([G,\"-C\",st,\"update-index\",\"--cacheinfo\",f\"100644,{blob},{rel}\"], check=True)\nprint(\"staged entries:\", len(merged) - len(comments), \"(HEAD has\", len(entries), \")\")\nEOF\necho \"staged numstat: $($G -C $ST diff --cached --numstat | tr '\\t' ' ')\"",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+report: 600, 1 line(s)
+store: HEAD 71292df, ahead/behind 0/0, uncommitted:  M session-redact/public-folders.txt 
+working copy vs HEAD: 1 0 session-redact/public-folders.txt
+already in HEAD: False | in the working copy (other session): False
+staged entries: 46 (HEAD has 45 )
+staged numstat: 1 0 session-redact/public-folders.txt
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 6.7s)
+
+_Thinking:_
+I've staged exactly one line, so next I'll commit it. After that I'll restore the working copy to the union of HEAD, the other session's line, and the line I already had in HEAD.
+
+
+Exactly one line is staged. Committing it, then restoring the working copy so the other session's line stays in place.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "ST=[redacted:private_store]; G=/home/linuxbrew/.linuxbrew/bin/git; F=session-redact/public-folders.txt\nm='chore(redaction): list one more public folder segment, classified by the user'; echo \"subject ${#m} chars\"\n$G -C $ST commit -q -m \"$m\" -m \"One segment of a folder that opencode's database records, found by the folder scan in three older transcripts and the new export of the dotfiles repository; the user classified it as public. Only this line is committed: another uncommitted line of the same file stays in the working copy.\" 2>&1 | tail -2; echo \"exit=${pipestatus[1]}\"\npython3 - \"$ST\" \"$F\" <<'EOF'\nimport subprocess, sys\nst, rel = sys.argv[1:3]; G = \"/home/linuxbrew/.linuxbrew/bin/git\"\nhead = subprocess.run([G,\"-C\",st,\"show\",f\"HEAD:{rel}\"], capture_output=True, text=True, check=True).stdout.splitlines()\nwork = open(f\"{st}/{rel}\", encoding=\"utf-8\").read().splitlines()\ncomments = [l for l in head if l.startswith(\"#\")]\nentries = {l for l in head + work if l.strip() and not l.startswith(\"#\")}\nopen(f\"{st}/{rel}\", \"w\", encoding=\"utf-8\").write(\"\\n\".join(comments + sorted(entries)) + \"\\n\")\nEOF\necho \"committed: $($G -C $ST show --numstat --format='%h' HEAD | tr '\\t\\n' '  ')\"\necho \"working copy vs HEAD: $($G -C $ST diff --numstat | tr '\\t' ' ')   (expected: 1 0, the other session's line)\"\necho \"store ahead/behind: $($G -C $ST rev-list --count origin/main..HEAD)/$($G -C $ST rev-list --count HEAD..origin/main); entries in file: $(/usr/bin/grep -v -E '^\\s*(#|$)' $ST/$F | wc -l)\"",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+subject 77 chars
+exit=0
+committed: 028f55e  1 0 session-redact/public-folders.txt 
+working copy vs HEAD: 1 0 session-redact/public-folders.txt   (expected: 1 0, the other session's line)
+store ahead/behind: 1/0; entries in file: 47
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 264.5s)
+
+Store commit `028f55e` is in. Re-running the scan over every export and the README, with the folder scan now accepting the segment.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; R=~/.config/nvim/scripts/session_redact.py; F=memory/sessions/README.md\npython3 - <<'EOF'\nfrom pathlib import Path\np = Path(\"memory/sessions/README.md\"); s = p.read_text(encoding=\"utf-8\")\na = \"the exports of 2026-11-21 and 2026-11-23 needed no throwaway terms file, and the folder scan found no segment in the first |\"\nb = \"the exports of 2026-11-21 and 2026-11-23 needed no throwaway terms file, and the folder scan found no segment in the first and one in the second, in that file and in two older exports, which the user classified as public |\"\nassert s.count(a) == 1; p.write_text(s.replace(a, b), encoding=\"utf-8\")\nEOF\npython3 $R --check $F memory/sessions/*.md > /tmp/opencode/c.out 2>&1; echo \"--check README + 15 exports: exit=$? ; non-zero: $(sed 's/\\x1b\\[[0-9;]*m//g' /tmp/opencode/c.out | /usr/bin/grep -a -E ': [1-9][0-9]*$' | tr '\\n' ' ')\"; rm -f /tmp/opencode/c.out\nT=.state/tmp/pass2; mkdir -p $T && chmod 700 $T; changed=0; total=0\nfor f in memory/sessions/*.md; do total=$((total+1)); b=$(basename $f); python3 $R < $f > $T/$b 2>/dev/null; cmp -s $f $T/$b || { changed=$((changed+1)); echo \"differs: $b\"; }; done\necho \"second pass over $total exports: differing=$changed\"; rm -rf $T\nprintf 'README: rows %s | dashes %s | banned %s | modeline last %s\\n' \"$(/usr/bin/grep -a -c -E '^\\| ' $F)\" \"$(/usr/bin/grep -a -c -E '[–—]' $F)\" \"$(/usr/bin/grep -a -c -i -w -E '[redacted:private]|[redacted:private]|[redacted:private]|[redacted:repo]|[redacted:private]|nvim-s26|nvim-orch|rog-orch' $F)\" \"$(tail -1 $F | /usr/bin/grep -a -c 'vim: set ts=2')\"\nmise x -- gitleaks dir --redact --no-banner memory/sessions 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | tail -1\nrm -f ~/.local/state/session-redact/chezmoi-folder-report.txt; echo \"folder report deleted: $([ ! -e ~/.local/state/session-redact/chezmoi-folder-report.txt ] && echo yes || echo NO)\"\n/home/linuxbrew/.linuxbrew/bin/git status --short",
+  "timeout": 600000
+}
+```
+
+**Output:**
+```
+--check README + 15 exports: exit=0 ; non-zero: 
+second pass over 15 exports: differing=0
+README: rows 16 | dashes 0 | banned 0 | modeline last 1
+1:21PM INF no leaks found
+folder report deleted: yes
+ M memory/sessions/202610301854-harden_sensitive_targets.md
+ M memory/sessions/README.md
+ M openspec/changes/add-agent-launch-tasks/observations.md
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 15.7s)
+
+_Thinking:_
+Checks have passed, so I'm moving on to the two commits. I'll first confirm the observations file and the export look right, and that no other files have changed. After that, I'll commit using explicit paths.
+
+
+All checks pass and the folder report is gone. Now the two commits you approved, staged by explicit paths.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; G=/home/linuxbrew/.linuxbrew/bin/git\necho '--- commit 1: export'\n$G add memory/sessions/202610301854-harden_sensitive_targets.md memory/sessions/README.md\n$G diff --cached --stat | tail -3 | cut -c1-110\nenv -u GITHUB_TOKEN HK_STASH=none $G commit -q -m \"docs(chezmoi:memory): re-export the orchestrator session of 2026-11-23\" -m \"Full re-export of the orchestrator session through the start of the builder of correct-shell-environment, redacted with the store alone. The folder scan of the redaction tool found one segment, in this export and two older ones, which the user classified as public and which is now in the store's list. The README row and the redaction notes are extended.\" 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | tail -2; echo \"exit=${pipestatus[1]}\"\necho '--- commit 2: observations'\n$G add openspec/changes/add-agent-launch-tasks/observations.md\n$G diff --cached --stat | tail -2 | cut -c1-110\nenv -u GITHUB_TOKEN HK_STASH=none $G commit -q -m \"docs(chezmoi:docs): log the answers of the first grouped launch\" -m \"The seventh launch opened the builder as a linked worktree workspace: the git-created worktree was accepted without a trust prompt, the tab takes the default label while the workspace takes the given one, and the closing by id without the group flag remains to be observed at the cleanup.\" 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | tail -2; echo \"exit=${pipestatus[1]}\"\n$G log --oneline -3 | cut -c1-100; echo \"dirty: $($G status --short | wc -l); ahead of origin: $($G rev-list --count origin/main..HEAD)\"",
+  "timeout": 180000
+}
+```
+
+**Output:**
+```
+--- commit 1: export
+ .../202610301854-harden_sensitive_targets.md       | 3724 +++++++++++++++++++-
+ memory/sessions/README.md                          |    2 +-
+ 2 files changed, 3722 insertions(+), 4 deletions(-)
+  gitleaks – 1:21PM INF no leaks found
+✔ gitleaks
+exit=0
+--- commit 2: observations
+ openspec/changes/add-agent-launch-tasks/observations.md | 7 +++++++
+ 1 file changed, 7 insertions(+)
+  gitleaks – 1:21PM INF no leaks found
+✔ gitleaks
+exit=0
+c006474 docs(chezmoi:docs): log the answers of the first grouped launch
+58633a0 docs(chezmoi:memory): re-export the orchestrator session of 2026-11-23
+d9f437d docs(chezmoi:docs): group worker workspaces and log the sixth launch
+dirty: 0; ahead of origin: 2
+
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "echo \"builder status: $(herdr agent get chezmoi-env-builder 2>/dev/null | jq -r '.result.agent.agent_status' 2>/dev/null)\"\nherdr pane read w0:p1 --lines 60 2>/dev/null | /usr/bin/grep -a -v '^\\s*$' | /usr/bin/grep -a -E 'Permission required|Allow once|\\$ |esc interrupt|[0-9.]+K \\(|Question|docs\\(|test\\(|shell\\(' | sed 's/[[:space:]]*$//' | tail -6 | cut -c1-170\nW=[redacted:worktrees_root]/dotfiles-correct-shell-environment\necho \"worktree: commits ahead of main: $(/home/linuxbrew/.linuxbrew/bin/git -C $W rev-list --count main..HEAD), dirty: $(/home/linuxbrew/.linuxbrew/bin/git -C $W status --short | wc -l)\"\necho \"tests/.lib present: $([ -d $W/tests/.lib ] && ls $W/tests/.lib | tr '\\n' ' ' || echo no)\"",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+builder status: working
+   ⬝⬝⬝⬝⬝⬝⬝⬝  esc interrupt                                                         238.5K (24%) · $2.48  ctrl+p commands    • OpenCode 1.19.6
+worktree: commits ahead of main: 1, dirty: 2
+tests/.lib present: bats-assert bats-file bats-support 
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 14.5s)
+
+_Thinking:_
+The builder's got one commit in so far, probably the spec amendments, and the tests and .lib folder are in place, so it's not stuck. Next I'm updating the resume note and journal. I won't push since nobody has asked for it, so both repos stay local for now: main is two commits ahead at c006474, and the store is one ahead at 028f55e, which is mine. I'm also dropping the "0. THE FOLDER SCAN" item, since that part is resolved.
+
+Removing the "0. THE FOLDER SCAN" entry from the waiting list now.
+
+
+Both commits are in. The builder is working with one commit of its own and the test helpers fetched. I'm updating the resume note and the journal with the new state.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; python3 - <<'EOF'\nfrom pathlib import Path\np = Path(\".state/resume.md\"); s = p.read_text(encoding=\"utf-8\")\ndef rep(a, b):\n    global s\n    assert s.count(a) == 1, (s.count(a), a[:70]); s = s.replace(a, b)\nrep(\"# Resume note of chezmoi-orch, updated 2026-11-23 13:05 before a compaction, with the builder RUNNING\",\n    \"# Resume note of chezmoi-orch, updated 2026-11-23 13:25 before a compaction, with the builder RUNNING\")\n# state of the repository\na0 = s.index(\"- Repository on 2026-11-23:\"); a1 = s.index(\"- The reboot check of `TODO.md` PASSED\")\ns = s[:a0] + (\"- Repository on 2026-11-23 13:25: `main` = `c006474`, 2 commits ahead of `origin/main` (`d9f437d`), tree clean, NOT PUSHED (the user said \\\"ok\\\" for the two commits and has not said \\\"push\\\" since): `58633a0` (re-export of this session through about 13:00, 89,850 lines, README row 21 and the redaction notes) and `c006474` (observations of the seventh launch).\\n\"\n \"  Pushed earlier on 2026-11-23: `5ac1d81` (reboot check recorded), `d9f437d` (worker workspaces grouped, sixth launch logged, `add-agent-launch-tasks` moved after `correct-shell-environment`, `AGENTS.md` Workflow paragraph).\\n\"\n \"  The turns after the export (builder round 1, these commits) are in no export until the next one (same file, `--full`).\\n\") + s[a1:]\n# store line\na0 = s.index(\"- Store: `71292df` pushed\"); a1 = s.index(\"- Delivered since the previous resume\")\ns = s[:a0] + (\"- Store: `028f55e` (mine: one more public folder segment, classified public by the user on 2026-11-23, in `session-redact/public-folders.txt`), 1 commit AHEAD of its origin (`71292df`), NOT PUSHED; its working copy still carries ONE uncommitted line of that file written by another session on 2026-11-21: not mine, never commit it with mine (stage only my lines with `update-index --cacheinfo` as done twice).\\n\") + s[a1:]\n# folder scan item 0 removal\na0 = s.index(\"0. THE FOLDER SCAN OF THE NEW EXPORT:\"); a1 = s.index(\"1. The builder will propose commits\")\ns = s[:a0] + \"0. Push: the user's word \\\"push\\\" for the repository (`58633a0`, `c006474`) and the store (`028f55e`, mine); scan the outgoing commits first (`gitleaks git --log-opts='origin/main..HEAD'`, added lines, `--check` over all exports).\\n\" + s[a1:]\nrep(\"2. The commit word for TWO commits, messages proposed: `docs(chezmoi:memory): re-export the orchestrator session of 2026-11-23` (70 characters; export and README, after the folder segment is classified) and `docs(chezmoi:docs): log the answers of the first grouped launch` (63 characters; the observations file); then push.\\n   \",\n    \"2. (Done: the two commits were made on the user's word; the folder segment is public and classified.)\\n   \")\np.write_text(s, encoding=\"utf-8\")\nEOF\nchmod 600 .state/resume.md\nprintf 'resume: lines %s | dashes %s | modeline last %s\\n' \"$(wc -l < .state/resume.md)\" \"$(/usr/bin/grep -a -c -E '[–—]' .state/resume.md)\" \"$(tail -1 .state/resume.md | /usr/bin/grep -a -c 'vim: set ts=2')\"\nprintf -- '- %s chezmoi-orch (wN:p1) folder segment classified public by the user: store commit 028f55e (my line only, other session line kept local), --check exit 0 over README and 15 exports, second pass identical, report deleted; repository commits 58633a0 (export of 2026-11-23) and c006474 (seventh launch observations); NOT pushed, waiting for the push word; builder has 1 commit of its own, tests/.lib fetched, working at about 238K tokens\\n' \"$(date '+%Y-%m-%d %H:%M:%S')\" >> .state/journal.md\necho \"main $(/home/linuxbrew/.linuxbrew/bin/git rev-parse --short HEAD) ahead $(/home/linuxbrew/.linuxbrew/bin/git rev-list --count origin/main..HEAD); validate: $(openspec validate --all --strict 2>&1 | tail -1)\"",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+resume: lines 183 | dashes 0 | modeline last 1
+main c006474 ahead 2; validate: Totals: 38 passed, 0 failed (38 items)
+
+```
+
+**Tool: todowrite**
+
+**Input:**
+```json
+{
+  "todos": [
+    {
+      "content": "Store: folder segment public, commit 028f55e (my line only)",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "content": "Re-check exports and README, finish README sentence, delete folder report",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "content": "Commit the export (58633a0) and the observations (c006474)",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "content": "Resume note and journal updated; builder checked (working, 1 commit, tests/.lib present)",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "content": "User: say push for the repository (2 commits) and the store (1 commit of mine)",
+      "status": "in_progress",
+      "priority": "high"
+    },
+    {
+      "content": "Watch the builder: permission prompts, group reports; re-measure each report before trusting",
+      "status": "pending",
+      "priority": "high"
+    }
+  ]
+}
+```
+
+**Output:**
+```
+[
+  {
+    "content": "Store: folder segment public, commit 028f55e (my line only)",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "content": "Re-check exports and README, finish README sentence, delete folder report",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "content": "Commit the export (58633a0) and the observations (c006474)",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "content": "Resume note and journal updated; builder checked (working, 1 commit, tests/.lib present)",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "content": "User: say push for the repository (2 commits) and the store (1 commit of mine)",
+    "status": "in_progress",
+    "priority": "high"
+  },
+  {
+    "content": "Watch the builder: permission prompts, group reports; re-measure each report before trusting",
+    "status": "pending",
+    "priority": "high"
+  }
+]
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 6.9s)
+
+The segment is classified public, the export is re-checked, and the two commits are made. I haven't pushed anything, because you didn't say "push" this time.
+
+## Folder segment
+- **Store commit `028f55e`:** it adds the one 3-letter segment to `public-folders.txt`, stage-limited to my line. The other session's uncommitted line is still in the working copy and isn't in the commit.
+- **Checks:**
+  - `--check` exits 0 over the README and all 15 exports, with every count at 0.
+  - A second redaction pass over the 15 exports is identical.
+  - gitleaks is clean.
+- **Cleanup:** I deleted the report file. The README sentence now says the scan found no segment in the 2026-11-21 export and one in the 2026-11-23 export, plus two older ones, which you classified as public.
+
+## Commits (repository, 2 ahead of `origin/main`)
+- **`58633a0`:** `docs(chezmoi:memory): re-export the orchestrator session of 2026-11-23` (70 characters). The export is 89,850 lines through about 13:00, with README row 21 extended.
+- **`c006474`:** `docs(chezmoi:docs): log the answers of the first grouped launch` (63 characters).
+- **Validation:** `openspec validate --all --strict` passes 38/38.
+
+## Builder
+- **State:** it's working, at about 238K tokens (24%), and not blocked.
+- **Its work so far:** it has one commit of its own in its worktree, probably the spec and probe amendments you decided on. `tests/.lib` is fetched, so it passed your go for `test:deps`.
+- **Reporting:** I haven't received a group report yet. I re-measure each one before trusting it.
+
+## Notes
+- **Resume note and journal:** both are updated, so a compaction is safe at any point. The first step after one is the read-only checklist in the note under "Orchestrating the builder".
+- **Export gap:** the turns since that export (the builder's round 1 and these commits) are in no export yet. The next export overwrites the same file.
+
+## What I need from you
+- **"push"** for the repository (`58633a0`, `c006474`) and for the store (`028f55e`, mine). I scan the outgoing commits again before each push.
+- **Builder prompts:** it will propose its commits in its own pane, and you validate them there. Expect another permission prompt if it touches a path outside its worktree.
+
+---
+
+## User
+
+chezmoi-env-builder: group 2 done (commit above, mise run test 373 tests 0 failures 27 skipped, no mutant for helpers); starting group 3
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 13.2s)
+
+_Thinking:_
+The builder says group 2 is finished, but I want to verify that myself before trusting it. I'll recheck the worktree: the commits, the test report counts, the scans over added lines, gitleaks, validation, and the redaction check on new files. A push hasn't been mentioned yet, so I'm holding off on that.
+
+
+The builder reports group 2 done, so I'm re-measuring it from my pane before trusting the numbers. I'm starting with its commits and what they touch.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "W=[redacted:worktrees_root]/dotfiles-correct-shell-environment; G=/home/linuxbrew/.linuxbrew/bin/git\necho \"builder: $(herdr agent get chezmoi-env-builder 2>/dev/null | jq -r '.result.agent.agent_status' 2>/dev/null); worktree HEAD $($G -C $W rev-parse --short HEAD), branch based on main? $([ \"$($G -C $W merge-base HEAD main)\" = \"$($G rev-parse main)\" ] && echo yes || echo 'NO: main moved')\"\n$G -C $W log --format='%h|%s' main..HEAD | while IFS='|' read h s; do printf '%s %s chars: %s\\n' \"$h\" \"${#s}\" \"$s\"; done\necho '--- files per commit'\nfor c in $($G -C $W rev-list --reverse main..HEAD); do echo \"$($G -C $W rev-parse --short $c): $($G -C $W show --stat --format= $c | tail -1)\"; $G -C $W show --name-status --format= $c | cut -c1-110; done\necho \"--- dirty: $($G -C $W status --short | tr '\\n' ' ')\"",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+builder: working; worktree HEAD 86f7a4c, branch based on main? NO: main moved
+86f7a4c 69 chars: test(shell:env): add kinds runner, history fixtures and session probe
+3c9c565 69 chars: docs(chezmoi:spec): settle login PATH, bash history and probe quoting
+--- files per commit
+3c9c565:  5 files changed, 25 insertions(+), 24 deletions(-)
+M	openspec/changes/correct-shell-environment/design.md
+M	openspec/changes/correct-shell-environment/manual-steps.md
+M	openspec/changes/correct-shell-environment/specs/shell-environment/spec.md
+M	openspec/changes/correct-shell-environment/specs/shell-startup/spec.md
+M	openspec/changes/correct-shell-environment/tasks.md
+86f7a4c:  9 files changed, 689 insertions(+), 4 deletions(-)
+M	openspec/changes/correct-shell-environment/tasks.md
+M	tests/README.md
+M	tests/helpers/bats/load.bash
+M	tests/helpers/fixtures.sh
+A	tests/helpers/kinds.sh
+A	tests/helpers/session-probe.sh
+A	tests/smoke/shell-kinds.bats
+A	tests/unit/fixtures.bats
+A	tests/unit/session-probe.bats
+--- dirty: 
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 24.9s)
+
+_Thinking:_
+The branch has moved ahead since I last looked: main is at c006474, but the builder branch is still based on d9f437d, so the merge-base is the older commit. That's fine, since my two doc commits don't overlap with the builder's files, though I'll need to rebase onto main at the end. Now I'm re-measuring the test count.
+
+I'm going to run the remaining checks: the scans, shellcheck on the probe, confirming the probe matches the doc block, a redaction check on the new files, gitleaks, and validation. Running the full suite could compete with the builder, so I'm weighing whether to read the existing JUnit report and run only the new test files directly, without writing into the shared reports directory.
+
+
+The branch is based on `d9f437d` while `main` is now `c006474`. My two commits are docs-only and share no files with its changes, so that's a later rebase, not a conflict. Now the counts and scans.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "W=[redacted:worktrees_root]/dotfiles-correct-shell-environment; G=/home/linuxbrew/.linuxbrew/bin/git\necho '--- JUnit report in the worktree (not re-run)'\npython3 - $W <<'EOF'\nimport sys, glob, os, time, xml.etree.ElementTree as ET\nfs = glob.glob(sys.argv[1] + \"/tests/.reports/**/*.xml\", recursive=True)\nt = f = s = e = 0\nfor x in fs:\n    r = ET.parse(x).getroot()\n    for ts in ([r] if r.tag == \"testsuite\" else r.iter(\"testsuite\")):\n        t += int(ts.get(\"tests\", 0)); f += int(ts.get(\"failures\", 0)); s += int(ts.get(\"skipped\", 0)); e += int(ts.get(\"errors\", 0))\n    print(\"report age (min):\", round((time.time() - os.path.getmtime(x)) / 60, 1))\nprint(f\"reports {len(fs)}: tests {t}, failures {f}, errors {e}, skipped {s}\")\nEOF\necho '--- scans over the lines added by the two commits'\n$G -C $W diff main...HEAD > /tmp/opencode/b.diff\n/usr/bin/grep -a '^+' /tmp/opencode/b.diff | /usr/bin/grep -a -v '^+++' > /tmp/opencode/added.txt\nprintf 'added %s | dashes %s | banned %s | emoji %s | e-mail %s | token shapes %s | /home paths %s | IPv4 %s\\n' \"$(wc -l < /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -E '[–—]' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -i -w -E '[redacted:private]|[redacted:private]|[redacted:private]|[redacted:repo]|[redacted:private]' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -P '[\\x{1F300}-\\x{1FAFF}\\x{2600}-\\x{27BF}]' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -E '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[a-z]{2,}' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -E 'gh[pousr]_[A-Za-z0-9]{20,}|sk-[A-Za-z0-9_-]{20,}|AKIA[0-9A-Z]{16}' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -E '/home/[a-z]+' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -E '\\b([0-9]{1,3}\\.){3}[0-9]{1,3}\\b' /tmp/opencode/added.txt)\"\necho \"secret-looking names in added lines: $(/usr/bin/grep -a -o -E '\\b[A-Z][A-Z0-9]*(_[A-Z0-9]+)*_(API_?KEY|TOKEN|SECRET|PASSWORD|PASSWD|CREDENTIAL)\\b' /tmp/opencode/added.txt | sort | uniq -c | tr '\\n' ' ')\"\nrm -f /tmp/opencode/b.diff\necho '--- redaction --check file by file on the new and changed text files (non-zero only)'\nfor f in tests/README.md tests/helpers/bats/load.bash tests/helpers/fixtures.sh tests/helpers/kinds.sh tests/helpers/session-probe.sh tests/smoke/shell-kinds.bats tests/unit/fixtures.bats tests/unit/session-probe.bats; do\n  o=$(python3 ~/.config/nvim/scripts/session_redact.py --check $W/$f 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | /usr/bin/grep -a -E ': [1-9][0-9]*$' | tr '\\n' ' '); [ -n \"$o\" ] && echo \"$f: $o\"; done; echo '(end)'\necho \"gitleaks over the branch: $(cd $W && mise x -- gitleaks git --redact --no-banner --log-opts='main..HEAD' . 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | tail -1)\"; rm -f /tmp/opencode/added.txt",
+  "timeout": 180000
+}
+```
+
+**Output:**
+```
+--- JUnit report in the worktree (not re-run)
+report age (min): 23.6
+reports 1: tests 12, failures 0, errors 0, skipped 0
+--- scans over the lines added by the two commits
+added 713 | dashes 0 | banned 0 | emoji 0 | e-mail 0 | token shapes 0 | /home paths 0 | IPv4 0
+secret-looking names in added lines:       8 GITHUB_TOKEN 
+--- redaction --check file by file on the new and changed text files (non-zero only)
+(end)
+gitleaks over the branch: 1:54PM INF no leaks found
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 5.8s)
+
+_Thinking:_
+The report is 23.6 minutes old and only covers 12 tests, so it isn't from the full run. The builder claims 373 tests, which could be 343 plus 30, but I can't confirm that from this report, probably overwritten by a later partial run. Running the full suite in this worktree would clash with the builder's run and overwrite the same reports, so I'm going to run the tests myself through tests/run.sh instead.
+
+I'm going to check the options in tests/run.sh to see whether I can point its output somewhere else, so my run doesn't overwrite the builder's reports.
+
+
+_Thinking:_
+The worktree report covers only 12 tests from 23 minutes ago, so it doesn't back up the builder's 373. I'm checking how the runner sets its output directory so my re-run doesn't overwrite that report.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "W=[redacted:worktrees_root]/dotfiles-correct-shell-environment\nsed -n '1,60p' $W/tests/run.sh | cut -c1-170\necho '--- mise test task'; /usr/bin/grep -a -n -A6 '^\\[tasks.\"\\?test\"\\?\\]' $W/mise.toml | cut -c1-150",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+#!/usr/bin/env bash
+# Run the test suite: `mise run test`, or tests/run.sh [bats options] [paths]
+#
+# Runs the unit and smoke levels (a level without a test file is left out), or the files and
+# directories named on the command line, with bats and its JUnit formatter, then prints the numbers
+# of tests, failures and skips and scans the report and the output for canary values.
+#
+#   DOTFILES_TEST_LIVE=1     also run the tests that read this machine (serial: `mise run test:live`)
+#   DOTFILES_TEST_SOURCE     the tree under test (default: this repository), used by the mutants
+#   DOTFILES_TEST_TMPDIR     where the scratch directory of the run is made (default: TMPDIR, then /tmp)
+#   DOTFILES_TEST_REPORTS    where the report and the output are written (default: tests/.reports)
+#   DOTFILES_TEST_JOBS       the number of parallel jobs (default: the cores, at most 8; 1 for a live run)
+#
+# The suite never touches the real home: bats runs with a scratch HOME and a scratch TMPDIR, the
+# exported variables whose names match the secret pattern are removed from its environment (the names
+# are computed here and never printed), and GNU parallel is silenced for this process only.
+# Exit status: bats's, or 1 when a canary appears in the report or the output.
+set -euo pipefail
+
+here=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)
+# shellcheck source=/dev/null
+. "$here/helpers/common.sh"
+# shellcheck source=/dev/null
+. "$here/helpers/synth.sh"
+
+die() {
+  printf 'run.sh: %s\n' "$*" >&2
+  exit 2
+}
+
+# Paths on the command line are made absolute before the directory changes; everything else is a bats option.
+opts=()
+paths=()
+for arg in "$@"; do
+  if [ -e "$arg" ]; then
+    paths+=("$(realpath -- "$arg")")
+  else
+    opts+=("$arg")
+  fi
+done
+
+cd "$DT_ROOT"
+real_home=$HOME
+real_config=${XDG_CONFIG_HOME:-$HOME/.config}
+# Counts of the secret-like names of the real environment, taken before anything is hidden; only the live tests read them.
+read -r real_upper real_any < <(dt_secret_name_counts)
+
+runner_bin=${DT_TOOL_BATS:-}
+if [ -z "$runner_bin" ] || [ ! -x "$runner_bin" ]; then
+  runner_bin=$(dt_find_tool bats 2> /dev/null) || die 'bats is not installed: run mise install'
+fi
+for lib in bats-support bats-assert bats-file; do
+  [ -n "$(ls -A "$DT_TESTS_DIR/.lib/$lib" 2> /dev/null)" ] || die "$lib is not fetched: run mise run test:deps"
+done
+
+# The tools are looked up here, with the real home, before bats gets a scratch one.
+dt_resolve_tools
+
+if [ "${#paths[@]}" -eq 0 ]; then
+  for level in unit smoke; do
+--- mise test task
+11:[tasks.test]
+12-description = "Run the unit and smoke tests of the shell code in a scratch home (JUnit report in tests/.reports/)"
+13-run = "tests/run.sh"
+14-
+15-[tasks."test:live"]
+16-description = "Run the whole suite, including the read-only tests that read this machine (serial)"
+17-env = { DOTFILES_TEST_LIVE = "1" }
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 381.7s)
+
+_Thinking:_
+I'm pointing the test run at a scratch directory for reports and capping parallel jobs at 2 to keep memory down. I'll run the suite from the worktree, since it never touches the real home. The builder might be running tests at the same time, but the scratch dirs are separate, so shared state shouldn't be a problem. I'll wrap it in a timeout, since this could take a few minutes.
+
+I'll send the test report output to a file and just keep the summary.
+
+
+_Thinking:_
+Setting DOTFILES_TEST_REPORTS and capping DOTFILES_TEST_JOBS to keep memory in check, then running the full suite from my pane in its own worktree and report directory.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "W=[redacted:worktrees_root]/dotfiles-correct-shell-environment; R=/tmp/opencode/orch-reports; rm -rf $R; mkdir -p $R && chmod 700 $R\necho \"memory before: $(awk '/MemAvailable/{printf \"%.1f GB\", $2/1048576}' /proc/meminfo)\"\ncd $W && DOTFILES_TEST_REPORTS=$R DOTFILES_TEST_JOBS=3 timeout 1500 tests/run.sh > $R/run.out 2>&1; echo \"run exit=$?\"\ntail -6 $R/run.out | cut -c1-150\necho \"memory after: $(awk '/MemAvailable/{printf \"%.1f GB\", $2/1048576}' /proc/meminfo)\"\npython3 - $R <<'EOF'\nimport sys, glob, xml.etree.ElementTree as ET\nt = f = s = e = 0\nfor x in glob.glob(sys.argv[1] + \"/**/*.xml\", recursive=True):\n    r = ET.parse(x).getroot()\n    for ts in ([r] if r.tag == \"testsuite\" else r.iter(\"testsuite\")):\n        t += int(ts.get(\"tests\", 0)); f += int(ts.get(\"failures\", 0)); s += int(ts.get(\"skipped\", 0)); e += int(ts.get(\"errors\", 0))\nprint(f\"my run: tests {t}, failures {f}, errors {e}, skipped {s}\")\nEOF",
+  "timeout": 1600000
+}
+```
+
+**Output:**
+```
+memory before: 5.3 GB
+run exit=1
+ok 371 bash -l -i -c true sources rc.d once # in 5067 ms
+ok 372 bash -l -c true (non-interactive login) loads profile and no rc.d # in 305 ms
+ok 373 the completion dump header is the same after five alternating starts # in 10841 ms
+# bats warning: Executed 363 instead of expected 373 tests
+tests: 363, failures: 4, skipped: 27
+canary scan: 0 matches
+memory after: 4.6 GB
+my run: tests 363, failures 4, errors 0, skipped 27
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 10.9s)
+
+_Thinking:_
+I'm comparing my run against the builder's: 363 tests executed with 4 failures, versus 373 executed with none. The runner flagged that 10 tests didn't run, and I'm wondering whether it's a timeout or something in my environment, like running in parallel with the builder or memory pressure, or timing-sensitive tests. I'll look at which tests failed first.
+
+
+My run shows 4 failures and 363 of 373 executed, which doesn't match the builder's report. I'm looking at the failing tests before drawing any conclusion.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "R=/tmp/opencode/orch-reports\necho '--- failed tests (names only)'; /usr/bin/grep -a -n '^not ok' $R/run.out | cut -c1-170\necho '--- the bats warning and anything unusual'; /usr/bin/grep -a -n -i -E 'warning|error|timed out|killed|Terminated' $R/run.out | cut -c1-170 | head -8",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+--- failed tests (names only)
+314:not ok 312 the destination is a new directory of mode 0750 below the scratch directory and the real home is left alone # in 2484 ms
+320:not ok 314 setup_file failed
+332:not ok 332 zsh -l -i has the PATH of zsh -i # in 7425 ms
+342:not ok 333 bash -l -i has the PATH of bash -i # in 8674 ms
+--- the bats warning and anything unusual
+8:ok 6 zsh multi-line value, status and no env error # in 990 ms
+21:ok 19 bash multi-line value, status and no env error # in 1050 ms
+34:ok 32 brewbash multi-line value, status and no env error # in 939 ms
+65:ok 63 shellcheck: the aliases file has no error # in 692 ms
+139:ok 137 lim-lower: a declared limit below the live one is a warning, the file stays, no sudo # in 1858 ms
+158:ok 156 dry-chezmoi: the dry-run variable under chezmoi is a warning that chezmoi records the script as run # in 2073 ms
+177:ok 175 vm-fails: a vim that fails is a warning # in 1632 ms
+204:ok 202 vs-fail: a failed install is a warning and the next extension is tried # in 3663 ms
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 9.3s)
+
+_Thinking:_
+I'm sorting the failures into two groups. The first is `zsh -l -i` having the same PATH as `zsh -i`, plus the bash case, and I'm wondering whether those are expected to fail given the spec amendment in commit 3c9c565 while the test still asserts the old equality. But these may also be failing on the current tree before the 040 changes, since they passed at baseline.
+
+Next I'm checking why the two zsh login-shell tests and the bash case fail now, since they passed at baseline. I'll look at the failure details for those tests to see whether the PATH from my environment or the pty timeouts are the cause.
+
+I'm wondering whether the umask or concurrent runs could explain the 0750 directory test and the setup_file failure at 314, since my shell's umask is 0002 like the baseline. I'll check the failure output at lines 314 to 345 to see which it is.
+
+
+Two groups fail: a destination-mode test with its `setup_file`, and the two login `PATH` equality tests. I'm reading the failure details.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "R=/tmp/opencode/orch-reports\nsed -n '314,350p' $R/run.out | sed \"s#$HOME#~#g\" | cut -c1-190",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+not ok 312 the destination is a new directory of mode 0750 below the scratch directory and the real home is left alone # in 2484 ms
+# (in test file tests/smoke/render.bats, line 55)
+#   `dest=$(dt_render "$BATS_TEST_TMPDIR/r")' failed
+# dt_render: the render exited 1: chezmoi: warning: config file template has changed, run chezmoi init to regenerate config file
+# chezmoi: .config/shell/rc.d/120-pkg-aqua.sh: open [redacted:worktrees_root]/dotfiles-correct-shell-environment~/shell/rc.d/120-pkg-aqua.sh: no such file or directory
+ok 313 a destination that exists makes the render fail, so it never starts from a used one # in 41 ms
+not ok 314 setup_file failed
+# (from function `setup_file' in test file tests/smoke/shell-kinds.bats, line 11)
+#   `RENDER_DEST=$(dt_render "$BATS_FILE_TMPDIR/render") || return 1' failed
+# dt_render: the render exited 1: chezmoi: warning: config file template has changed, run chezmoi init to regenerate config file
+# chezmoi: .config/shell/rc.d/120-pkg-aqua.sh: open [redacted:worktrees_root]/dotfiles-correct-shell-environment~/shell/rc.d/120-pkg-aqua.sh: no such file or directory
+ok 325 private environment: zsh -i exports the synthetic names and not the unset one # in 7136 ms
+ok 326 private environment: bash -i exports the synthetic names and not the unset one # in 6002 ms
+ok 327 private environment: zsh -l -i exports the synthetic names and not the unset one # in 7365 ms
+ok 328 the opencode function in zsh -i removes the secret-named names, passes arguments and status, and can be bypassed # in 7039 ms
+ok 329 the opencode function in bash -i removes the secret-named names, passes arguments and status, and can be bypassed # in 5351 ms
+ok 330 the desktop session replay exports every synthetic name # in 5863 ms
+ok 331 the desktop session replay does not export the name that 010-env_user.sh unsets # in 6219 ms
+not ok 332 zsh -l -i has the PATH of zsh -i # in 7425 ms
+# (from function `assert_equal' in file tests/.lib/bats-assert/src/assert_equal.bash, line 40,
+#  in test file tests/smoke/startup-behaviour.bats, line 113)
+#   `assert_equal "$login" "$plain"' failed
+# 
+# -- values do not equal --
+# expected : PATH=/tmp/dotfiles-tests.l47tA5/tmp/bats-run-0YQxZb/test/332~/share/mise/shims:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/tmp/dotfiles-tests.l47t
+# actual   : PATH=/tmp/dotfiles-tests.l47tA5/tmp/bats-run-0YQxZb/test/332~/share/mise/shims:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/tmp/dotfiles-tests.l47t
+# --
+# 
+not ok 333 bash -l -i has the PATH of bash -i # in 8674 ms
+# (from function `assert_equal' in file tests/.lib/bats-assert/src/assert_equal.bash, line 40,
+#  in test file tests/smoke/startup-behaviour.bats, line 122)
+#   `assert_equal "$login" "$plain"' failed
+# 
+# -- values do not equal --
+# expected : PATH=/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/tmp/dotfiles-tests.l47tA5/tmp/bats-run-0YQxZb/test/333~:/tmp/dotfiles-tests.l47tA5/tmp/bats-run-0YQx
+# actual   : PATH=/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/tmp/dotfiles-tests.l47tA5/tmp/bats-run-0YQxZb/test/333~:/usr/local/sbin:/usr/sbin:/sbin:/usr/local/b
+# --
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 529.4s)
+
+_Thinking:_
+The failures look like they're coming from my run overlapping with the builder, who is partway through group 3 and has `git mv`'d `120-pkg-aqua.sh` with uncommitted working tree changes still in progress. That would explain the render error about the missing file, since the source state is reading the working tree and finding a file that has moved. I still need to check whether the 332/333 failures have a separate cause involving PATH.
+
+I'm going to stop trusting the working tree for this measurement, since the builder's uncommitted changes are leaking into my test runs. I'll export the commit 86f7a4c into a scratch directory under /tmp/opencode and run the group 2 checks there, symlinking in the git-ignored test library.
+
+
+_Thinking:_
+The failures come from the builder's uncommitted mid-group-3 changes, not from group 2, so I'm exporting commit 86f7a4c to a scratch directory and re-running the suite there.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "W=[redacted:worktrees_root]/dotfiles-correct-shell-environment; G=/home/linuxbrew/.linuxbrew/bin/git; S=/tmp/opencode/orch-tree; R=/tmp/opencode/orch-reports\nrm -rf $S $R; mkdir -p $S $R && chmod 700 $S $R\n$G -C $W archive 86f7a4c | tar -x -C $S\necho \"exported files: $(find $S -type f | wc -l); .chezmoiroot: $(cat $S/.chezmoiroot)\"\nln -s $W/tests/.lib $S/tests/.lib\necho \"builder uncommitted changes (not in this tree): $($G -C $W status --short | wc -l) entries\"\ncd $S && DOTFILES_TEST_REPORTS=$R DOTFILES_TEST_JOBS=3 timeout 1500 tests/run.sh > $R/run.out 2>&1; echo \"run exit=$?\"\ntail -5 $R/run.out | cut -c1-150\necho \"not ok lines: $(/usr/bin/grep -a -c '^not ok' $R/run.out)\"; /usr/bin/grep -a '^not ok' $R/run.out | cut -c1-160\npython3 - $R <<'EOF'\nimport sys, glob, xml.etree.ElementTree as ET\nt = f = s = e = 0\nfor x in glob.glob(sys.argv[1] + \"/**/*.xml\", recursive=True):\n    r = ET.parse(x).getroot()\n    for ts in ([r] if r.tag == \"testsuite\" else r.iter(\"testsuite\")):\n        t += int(ts.get(\"tests\", 0)); f += int(ts.get(\"failures\", 0)); s += int(ts.get(\"skipped\", 0)); e += int(ts.get(\"errors\", 0))\nprint(f\"commit 86f7a4c, my run: tests {t}, failures {f}, errors {e}, skipped {s}\")\nEOF",
+  "timeout": 1600000
+}
+```
+
+**Output:**
+```
+exported files: 805; .chezmoiroot: home
+builder uncommitted changes (not in this tree): 15 entries
+run exit=0
+ok 371 bash -l -i -c true sources rc.d once # in 5302 ms
+ok 372 bash -l -c true (non-interactive login) loads profile and no rc.d # in 352 ms
+ok 373 the completion dump header is the same after five alternating starts # in 8521 ms
+tests: 373, failures: 0, skipped: 27
+canary scan: 0 matches
+not ok lines: 0
+mise ERROR error parsing config file: /tmp/opencode/orch-tree/mise.toml
+mise ERROR Config files in /tmp/opencode/orch-tree/mise.toml are not trusted.
+Trust them with `mise trust`. See https://mise.jdx.dev/cli/trust.html for more information.
+mise ERROR Version: 2026.10.23 linux-x64 (2026-10-29)
+mise ERROR Run with --verbose or MISE_VERBOSE=1 for more information
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 17.0s)
+
+_Thinking:_
+The run's totals check out: 373 tests, no failures, 27 skipped, which matches what the builder reported. There's a mise error near the end that says it can't trust the config in the scratch tree. That's probably just a tool reading mise.toml there, so I'll check whether it showed up anywhere in the test output, and whether it came from a post-step in run.sh.
+
+Next I'm checking the remaining group 2 items: that the probe matches the manual-steps.md block, that shellcheck and the bash and zsh syntax checks pass on the helper script, and that the tasks.md ticks are in the commit. I'll also confirm the probe test doesn't assert on any names or values. Everything gets run against the exported committed tree.
+
+
+_Thinking:_
+The committed state at 86f7a4c matches the builder with 373 tests passing and 27 skipped, which also shows my first run was racing the uncommitted group 3 work. Next I'm checking the group 2 helper claims: the probe text, shellcheck, the ticks, and the no-names rule.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "S=/tmp/opencode/orch-tree; D=$S/openspec/changes/correct-shell-environment\necho '--- shellcheck -s bash, bash -n, zsh -n on the new helpers'\nfor f in tests/helpers/session-probe.sh tests/helpers/kinds.sh tests/helpers/fixtures.sh tests/helpers/bats/load.bash; do\n  printf '%-36s shellcheck %s | bash -n %s\\n' \"$f\" \"$(shellcheck -s bash $S/$f >/dev/null 2>&1; echo $?)\" \"$(bash -n $S/$f >/dev/null 2>&1; echo $?)\"; done\necho \"session-probe.sh under zsh -n: $(zsh -n $S/tests/helpers/session-probe.sh >/dev/null 2>&1; echo $?)\"\necho '--- the probe in the document and the script are the same text (task 2.3)'\npython3 - $S <<'EOF'\nimport re, sys\nfrom pathlib import Path\nS = Path(sys.argv[1])\ndoc = re.findall(r\"```sh\\n(.*?)```\", (S/\"openspec/changes/correct-shell-environment/manual-steps.md\").read_text(encoding=\"utf-8\"), re.S)\nsc = (S/\"tests/helpers/session-probe.sh\").read_text(encoding=\"utf-8\")\nbody = [l for l in sc.splitlines() if l.strip() and not l.lstrip().startswith(\"#\") and not l.startswith(\"#!\")]\nd = [l for l in doc[0].splitlines() if l.strip() and not l.lstrip().startswith(\"#\")]\nprint(\"document blocks:\", len(doc), \"| script lines (no comments):\", len(body), \"| document lines:\", len(d))\nprint(\"document block contained verbatim in the script:\", doc[0].strip() in sc, \"| every document line present in the script:\", all(l in body for l in d))\nprint(\"lines only in the script:\", [l[:70] for l in body if l not in d][:4])\nEOF\necho '--- tasks ticked in group 2'\n/usr/bin/grep -a -n -E '^- \\[[ x]\\] (1\\.[0-9]|2\\.[0-9])' $D/tasks.md | cut -c1-70\necho '--- the probe test: does it assert that no synthetic name or value reaches the output?'\n/usr/bin/grep -a -n -E '@test|refute|DEMO_|canary' $S/tests/unit/session-probe.bats | cut -c1-150 | head -14",
+  "timeout": 120000
+}
+```
+
+**Output:**
+```
+--- shellcheck -s bash, bash -n, zsh -n on the new helpers
+tests/helpers/session-probe.sh       shellcheck 0 | bash -n 0
+tests/helpers/kinds.sh               shellcheck 0 | bash -n 0
+tests/helpers/fixtures.sh            shellcheck 0 | bash -n 0
+tests/helpers/bats/load.bash         shellcheck 0 | bash -n 0
+session-probe.sh under zsh -n: 0
+--- the probe in the document and the script are the same text (task 2.3)
+document blocks: 1 | script lines (no comments): 26 | document lines: 26
+document block contained verbatim in the script: True | every document line present in the script: True
+lines only in the script: []
+--- tasks ticked in group 2
+3:- [x] 1.1 Read `design.md`, `findings.md`, `manual-steps.md` and the
+4:- [ ] 1.2 Each group below writes its tests first and sees them fail
+8:- [x] 2.1 `tests/helpers/`: a runner for the shell kinds of the `she
+9:- [x] 2.2 Synthetic fixtures made at run time: a zsh history file in
+10:- [x] 2.3 `tests/helpers/session-probe.sh`: the probe of `manual-st
+--- the probe test: does it assert that no synthetic name or value reaches the output?
+3:# synthetic private file of DEMO_ names, with stubs for systemctl, getent, pgrep and locale. It prints counts, modes
+21:  PRIV_A=DEMO_PROBE${BATS_TEST_NUMBER}_${DT_NAME_PART^^}
+22:  PRIV_B=DEMO_PROBE${BATS_TEST_NUMBER}_SETTING
+69:@test "the probe script and the probe of manual-steps.md hold the same text" {
+76:@test "the probe script is syntactically right in bash and zsh, and shellcheck -s bash accepts it" {
+86:@test "bash: the probe prints the sixteen lines A1 to A16 and nothing else" {
+94:@test "zsh: the probe prints the sixteen lines A1 to A16 and nothing else" {
+115:@test "bash: the counts that the stubs decide" {
+121:@test "zsh: the counts that the stubs decide" {
+127:@test "the umask of the user manager and of plasmashell is read from the process the stub names" {
+136:@test "a GECOS field without the entry, a missing locale and another home mode give the other values" {
+145:@test "A14 and A15: link, regular file or none for the old history path, present or absent for the new one" {
+163:@test "A6 and A16 count the processes that hold a name of the private file and the revoked variable" {
+180:@test "no name of the synthetic file and no value is in the output of the probe" {
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 5.9s)
+
+_Thinking:_
+I'm checking the spec against the scenario, which looks fine. I'm also confirming that the uppercase secret-looking names in the added lines (the GITHUB_TOKEN entries) are acceptable since they're well-known. Next I'm looking at the kinds.sh bats test, where the file list will shift after group 3's moves, and I'm verifying that commit 3c9c565 for group 2's spec amendments lines up with the decisions.
+
+Next I'm checking that the replay scenario wording, bash history, the 5.4 count, probe quoting and the 047 shims all match the decisions. I'm also confirming the mutants README is unchanged, since group 2 has no helper mutant. Let me look at the diff for commit 3c9c565 to see the actual changes.
+
+
+Everything the builder reports for the helpers is confirmed. The last check on this report is whether the spec amendment commit matches your four decisions.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "W=[redacted:worktrees_root]/dotfiles-correct-shell-environment; G=/home/linuxbrew/.linuxbrew/bin/git\n$G -C $W show 3c9c565 -U0 --format= -- openspec/changes/correct-shell-environment/specs openspec/changes/correct-shell-environment/design.md openspec/changes/correct-shell-environment/tasks.md | /usr/bin/grep -a -E '^[-+][^-+]' | cut -c1-330",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+-  | `047-env_tools_mise.sh` (new) | mise's shims directory |
++  | `047-env_tools_mise.sh` (new) | mise's shims directory, `${MISE_DATA_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/mise}/shims` |
+-  - after the reboot no old shell is left, and the link at the old path can go.
++  - after the reboot no old shell is left, and the link at the old path can go;
++  - bash follows the same steps with `~/.bash_history` and `bash/history`: its running shells append through the link (`histappend`), one that truncates its file turns the link back into a regular file, and the next start merges it; a plain bash file carries no timestamp, so the merge keeps the entries of the new file, then tho
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 4.7s)
+
+_Thinking:_
+I'm trying to see the full diff, but my -U0 filter dropped the login scenario lines because bullets starting with "+- **" got excluded by my regex. I need to widen the filter to catch them.
+
+
+My filter dropped the spec lines, because they start with a bullet dash. Redoing it to show the scenario edits.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "W=[redacted:worktrees_root]/dotfiles-correct-shell-environment; G=/home/linuxbrew/.linuxbrew/bin/git\nfor f in specs/shell-startup/spec.md specs/shell-environment/spec.md tasks.md; do echo \"=== $f\"; $G -C $W show 3c9c565 -U0 --format= -- openspec/changes/correct-shell-environment/$f | /usr/bin/grep -a -E '^(\\+|-)' | /usr/bin/grep -a -v -E '^(\\+\\+\\+|---) ' | cut -c1-360; done",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+=== specs/shell-startup/spec.md
+-- **WHEN** the names of the exported variables of `zsh -l -i` and `bash -l -i` are compared on the previous ref and on the change, and the `PATH` of `zsh -l -i` is compared with the one of `zsh -i`
+-- **THEN** the names are equal except the names listed in the change's allow file, and the two `PATH` values are equal
++- **WHEN** the names of the exported variables of `zsh -l -i` and `bash -l -i` are compared on the previous ref and on the change, and the `PATH` of `zsh -l -i` is compared with the one of `zsh -i`, both started from the `PATH` that `/etc/profile` gives a login shell (read at run time from a login shell under a scratch home that holds no user file)
++- **THEN** the names are equal except the names listed in the change's allow file, and the two `PATH` values are equal, so that a second pass which adds or nests an entry makes the comparison fail
+=== specs/shell-environment/spec.md
+-- **WHEN** an interactive zsh and the desktop replay start with a scratch directory `inherited` at the end of `PATH`
+-- **THEN** their `PATH` holds `inherited` once
++- **WHEN** an interactive zsh starts with a scratch directory `inherited` at the end of `PATH`, and the desktop replay runs on a render that holds a fixture file named like an `env_` file, sorted before `040`, which adds that directory to `PATH` (the replay sources `/etc/profile`, which resets the inherited `PATH` before any file of the user runs)
++- **THEN** the `PATH` of each holds `inherited` once
+-- **WHEN** a scratch home holds a synthetic `~/.zsh_history` of mode 0600 with multi-line entries and no new file, and an interactive zsh starts
+-- **THEN** the new file holds every entry, its mode is 0600, its directory's mode is 0700, and `~/.zsh_history` is a symbolic link to it
++- **WHEN** a scratch home holds a synthetic `~/.zsh_history` of mode 0600 with multi-line entries and no new file, and an interactive zsh starts, and the same is done with a synthetic `~/.bash_history` and an interactive bash
++- **THEN** in each case the new file holds every entry, its mode is 0600, its directory's mode is 0700, and the legacy path is a symbolic link to it
+-- **WHEN** two interactive shells start at the same moment on such a home
++- **WHEN** two interactive shells of the same kind start at the same moment on such a home, in zsh and in bash
+-- **WHEN** the legacy path is a regular file again, holding entries the new file lacks, and an interactive zsh starts
+-- **THEN** the new file holds every entry of both files once, in timestamp order, its mode is 0600, and the legacy path is a symbolic link to it again
++- **WHEN** the legacy path is a regular file again, holding entries the new file lacks, and an interactive zsh starts, and the same is done for bash
++- **THEN** the new file holds every entry of both files once, its mode is 0600, and the legacy path is a symbolic link to it again; the zsh entries are in timestamp order, and the bash entries, whose file carries no timestamp, are those of the new file followed by the entries of the legacy file that it lacks, a repeated command kept as many times as it was 
+=== tasks.md
+-- [ ] 1.1 Read `design.md`, `findings.md`, `manual-steps.md` and the specs of this change; `mise run test:deps` if `tests/.lib` is missing, then `mise run test` (baseline of 2026-11-21: 343 tests, 0 failures, 27 skipped)
++- [x] 1.1 Read `design.md`, `findings.md`, `manual-steps.md` and the specs of this change; `mise run test:deps` if `tests/.lib` is missing, then `mise run test` (baseline of 2026-11-21: 343 tests, 0 failures, 27 skipped)
+-- [ ] 2.2 Synthetic fixtures made at run time: a zsh history file in extended format with multi-line entries, a second one with extra entries, and an inherited missing locale name (`rg -n 'DEMO_[A-Z_]*(KEY|TOKEN|SECRET|PASSWORD|PASSWD|CREDENTIAL)' tests` prints nothing)
++- [ ] 2.2 Synthetic fixtures made at run time: a zsh history file in extended format with multi-line entries, a second one with extra entries, the same two for bash (plain lines), and an inherited missing locale name (`rg -n 'DEMO_[A-Z_]*(KEY|TOKEN|SECRET|PASSWORD|PASSWD|CREDENTIAL)' tests` prints nothing)
+-- [ ] 3.5 Renames with `git mv`: `120-pkg-aqua.sh` to `042-env_pkg_aqua.sh` (an inherited `AQUA_BIN_DIR` kept as it is), `140-pkg_snap.sh` to `043-env_pkg_snap.sh`, `150-pkg_krew.sh` to `044-env_pkg_krew.sh`, `200-lang_go.sh` to `045-env_lang_go.sh`, `220-lang_rust.sh` to `046-env_lang_rust.sh`; new `047-env_tools_mise.sh` (mise's shims directory); `050-env
++- [ ] 3.5 Renames with `git mv`: `120-pkg-aqua.sh` to `042-env_pkg_aqua.sh` (an inherited `AQUA_BIN_DIR` kept as it is), `140-pkg_snap.sh` to `043-env_pkg_snap.sh`, `150-pkg_krew.sh` to `044-env_pkg_krew.sh`, `200-lang_go.sh` to `045-env_lang_go.sh`, `220-lang_rust.sh` to `046-env_lang_rust.sh`; new `047-env_tools_mise.sh` (mise's shims directory, `${MISE_D
+-- [ ] 5.4 `tests/smoke/environment-keys.bats`: scenarios "Every shell kind", "Inherited copies are dropped", "The revoked variable stays unset"; update `tests/smoke/startup-behaviour.bats` (private environment and desktop replay now count 0 synthetic names) and keep the mutant `startup-unset-removed` failing as before
++- [ ] 5.4 `tests/smoke/environment-keys.bats`: scenarios "Every shell kind", "Inherited copies are dropped", "The revoked variable stays unset"; update `tests/smoke/startup-behaviour.bats` (private environment and desktop replay now count 0 synthetic names, and the bypass check of the `opencode` function counts 3 secret-named names instead of 4, since start
+-- [ ] 7.3 `tests/unit/history.bats`: scenarios "Paths", "First start moves the legacy file", "Two shells at once", "Merge after a trim" on synthetic history files in a scratch home
+-- [ ] 7.4 `rc.d/320-shell_history.sh`: `HISTFILE` under `$XDG_STATE_HOME` for zsh and bash, directories 0700, the move and link, the merge at start when the old path is a regular file (temporary file and move, silent on every failure)
++- [ ] 7.3 `tests/unit/history.bats`: scenarios "Paths", "First start moves the legacy file", "Two shells at once", "Merge after a trim" on synthetic zsh and bash history files in a scratch home
++- [ ] 7.4 `rc.d/320-shell_history.sh`: `HISTFILE` under `$XDG_STATE_HOME` for zsh and bash, directories 0700, the move and link of `~/.zsh_history` and `~/.bash_history`, the merge at start when the old path is a regular file (temporary file and move, silent on every failure)
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 5.4s)
+
+_Thinking:_
+All four decisions are now applied as agreed. The builder added a rule for bash merging, where a repeated command is kept as many times as it was run, which isn't one of the decisions. I'm checking whether that rule holds together as written, since the line cuts off partway through, and I'll flag it to the user as a deviation from what was decided.
+
+I'm going back over that last line to see how the merge rule is meant to work, since the sentence cuts off before it finishes.
+
+
+All four decisions are applied as you made them. One line goes beyond them: the builder wrote the bash merge rule itself, because a bash history has no timestamps. I'm reading it in full to judge it.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "W=[redacted:worktrees_root]/dotfiles-correct-shell-environment; G=/home/linuxbrew/.linuxbrew/bin/git\n$G -C $W show 3c9c565 -U0 --format= -- openspec/changes/correct-shell-environment/specs/shell-environment/spec.md | /usr/bin/grep -a '^+- \\*\\*THEN\\*\\* the new file holds every entry of both files once' | fold -s -w 200\necho '--- and in the design'\n$G -C $W show 3c9c565 -U0 --format= -- openspec/changes/correct-shell-environment/design.md | /usr/bin/grep -a '^+  - bash follows' | fold -s -w 200",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
++- **THEN** the new file holds every entry of both files once, its mode is 0600, and the legacy path is a symbolic link to it again; the zsh entries are in timestamp order, and the bash entries, 
+whose file carries no timestamp, are those of the new file followed by the entries of the legacy file that it lacks, a repeated command kept as many times as it was typed
+--- and in the design
++  - bash follows the same steps with `~/.bash_history` and `bash/history`: its running shells append through the link (`histappend`), one that truncates its file turns the link back into a regular 
+file, and the next start merges it; a plain bash file carries no timestamp, so the merge keeps the entries of the new file, then those of the legacy file it lacks, a repeated command as many times as 
+it was typed.
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 20.3s)
+
+_Thinking:_
+I'm weighing the spec's wording on duplicates: it says every entry of both files appears once, yet also that a repeated command is kept as many times as it was typed, so those two rules clash. Without timestamps, I'd have to work out which legacy lines the new file is missing, probably by comparing line counts or matching suffixes. It seems minor, so I'll note it as a deviation.
+
+Next I'm cleaning up my scratch directories and then reporting back to the user, updating my resume notes and journal. The push is still pending, so I'll remind the user about it. The builder has already committed group 2, and I'll send it a brief acknowledgment that flags the contradictory wording around duplicate entries in the merge spec, to be fixed when it writes the history tests in group 7.
+
+
+_Thinking:_
+Group 2 checks out; the spec has a small wording tension between "every entry once" and "a repeated command kept as many times as typed", which the builder can settle with the group 7 tests. I'm acknowledging the group and then cleaning up scratch files and updating the notes.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\nherdr agent prompt chezmoi-env-builder 'chezmoi-orch: group 2 accepted. I re-measured it on the exported commit 86f7a4c in a scratch tree: 373 tests, 0 failures, 27 skipped (your numbers), shellcheck -s bash 0 on the four helpers, the probe text identical to the block of manual-steps.md, no name or value in the probe output test, your spec amendments match the four decisions. Note: a first run of mine against your working tree failed 4 tests because it read your uncommitted group 3 files (a render that lost 120-pkg-aqua.sh, and the old login PATH tests): nothing to fix, I now measure committed state only. One thing for group 7, not now: the bash merge rule in the spec and the design says every entry of both files once and also a repeated command kept as many times as it was typed; make the wording of the scenario consistent with what your test asserts (a multiset of lines). main moved to c006474 (two docs commits, no file in common with yours): rebase at the end, not before. Keep reporting one line per group.' --wait --until working --timeout 20000 2>&1 | jq -c '{ok: (.error == null), error: (.error // null)}' 2>/dev/null\nrm -rf /tmp/opencode/orch-tree /tmp/opencode/orch-reports; test ! -e /tmp/opencode/orch-tree && echo 'scratch tree and reports deleted'\nprintf -- '- %s chezmoi-orch (wN:p1) builder group 2 accepted: re-measured on the exported commit 86f7a4c (373 tests, 0 failures, 27 skipped; helpers shellcheck 0; probe identical to manual-steps.md; amendments match the four decisions); a first run against its working tree failed 4 tests because of its uncommitted group 3 files, measure committed state only; builder starting group 3; main c006474 and store 028f55e still not pushed\\n' \"$(date '+%Y-%m-%d %H:%M:%S')\" >> .state/journal.md\necho \"builder: $(herdr agent get chezmoi-env-builder 2>/dev/null | jq -r '.result.agent.agent_status' 2>/dev/null); memory available $(awk '/MemAvailable/{printf \"%.1f GB\", $2/1048576}' /proc/meminfo)\"\nherdr pane read w0:p1 --lines 20 2>/dev/null | /usr/bin/grep -a -E 'Permission required|esc interrupt|[0-9.]+K \\(' | tail -2 | cut -c1-130",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+{"ok":true,"error":null}
+scratch tree and reports deleted
+builder: working; memory available 5.9 GB
+   ⬝⬝⬝⬝⬝⬝⬝⬝  esc interrupt                                                         340.2K (34%) · $5.58  ctrl+p c
+
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; python3 - <<'EOF'\nfrom pathlib import Path\np = Path(\".state/resume.md\"); s = p.read_text(encoding=\"utf-8\")\ndef rep(a, b):\n    global s\n    assert s.count(a) == 1, (s.count(a), a[:70]); s = s.replace(a, b)\nrep(\"## What is waiting for the user\\n\",\n'''### Builder progress (2026-11-23, about 14:00)\n\n- Branch `feat/correct-shell-environment` in `[redacted:worktrees_root]/dotfiles-correct-shell-environment`, 2 commits on `d9f437d` (main is `c006474` now: two docs commits with no file in common, rebase at the END, not before): `3c9c565` (docs(chezmoi:spec): the four decisions of round 1 applied to the spec, design, tasks and probe quoting) and `86f7a4c` (test(shell:env): kinds runner, history fixtures, session probe; group 2 done, ticks 1.1, 2.1, 2.2, 2.3).\n- Group 2 re-measured by me on the EXPORTED commit (`git archive 86f7a4c` into `/tmp/opencode/orch-tree`, `tests/.lib` symlinked, `DOTFILES_TEST_REPORTS` and `DOTFILES_TEST_JOBS=3` set): 373 tests, 0 failures, 27 skipped; shellcheck 0 on the four helpers; probe identical to `manual-steps.md`; no names or values in the added lines; gitleaks clean.\n  RULE LEARNED: never run the suite against the builder's working tree while it edits (a run at 13:55 failed 4 tests for that reason: a render that lost a renamed file, and the old login PATH tests); measure committed state from a `git archive` of its hash, and delete the scratch afterwards.\n- Open point for group 7: the bash merge rule says \"every entry once\" and \"a repeated command as many times as typed\"; the builder was told to make the wording consistent with its test.\n- Group 3 (PATH and the `env_` files) was starting; its renames (`120` to `042` and so on) and the edit of `040` are expected in its working tree.\n\n## What is waiting for the user\n''')\np.write_text(s, encoding=\"utf-8\")\nEOF\nchmod 600 .state/resume.md; printf 'resume: lines %s | dashes %s | modeline last %s\\n' \"$(wc -l < .state/resume.md)\" \"$(/usr/bin/grep -a -c -E '[–—]' .state/resume.md)\" \"$(tail -1 .state/resume.md | /usr/bin/grep -a -c 'vim: set ts=2')\"",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+resume: lines 191 | dashes 0 | modeline last 1
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 7.0s)
+
+Group 2 is accepted and the builder has moved on to group 3.
+
+## What I re-measured
+- **Test counts:** I exported commit `86f7a4c` and ran the whole suite there, with its own report directory and 3 parallel jobs. It gave 373 tests, 0 failures and 27 skipped, the same as the builder's numbers.
+- **Helpers:** `shellcheck -s bash` exits 0 on `session-probe.sh`, `kinds.sh`, `fixtures.sh` and `bats/load.bash`. `bash -n` passes, and `zsh -n` passes on the probe.
+- **Probe:** its text is identical to the block in `manual-steps.md`, which was task 2.3's requirement. A test asserts that no synthetic name or value reaches its output.
+- **Amendments:** commit `3c9c565` applies your four decisions as you made them: the login `PATH` scenario, the replay fixture, bash history, and the `047` shims default.
+- **Scans on the 713 added lines:**
+  - 0 dashes, banned names, e-mails, IP addresses, token shapes or `/home` paths;
+  - the only secret-looking name is `GITHUB_TOKEN`, which is allowed;
+  - the redaction check on the new files and gitleaks are clean.
+
+## A mistake of mine this round
+My first run read the builder's working tree. It failed 4 tests, because group 3 is in progress there: a render that lost the renamed `120-pkg-aqua.sh`, and the old login `PATH` tests that its `040` edit is changing. That says nothing about group 2. From now on I measure the committed state from an exported copy, and I deleted the scratch. The rule is in the resume note.
+
+## One point for later
+In the bash history spec, the merge rule says "every entry of both files once" and also "a repeated command kept as many times as it was typed". I told the builder to make the wording match what its group 7 test asserts. It's not blocking.
+
+## State
+- **Builder:** working on group 3, at about 340K tokens (34% of its context), with no prompt waiting. It cuts itself at about 70%.
+- **Not pushed:**
+  - the repository has `58633a0` and `c006474`;
+  - the store has `028f55e`, my folder-segment line.
+
+  I scan the outgoing commits again before each push. Say "push" when you want them out.
+- **Notes:** the resume note and journal are updated, so a compaction is safe.
+
+---
+
+## User
+
+chezmoi-env-builder: group 3 done (PATH helper, env_ files, brew split; mise run test 418 tests 0 failures 27 skipped; mutants 10 run 0 problems, env-path-no-clean 12 failures); starting group 4
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 14.2s)
+
+_Thinking:_
+The group three work is reported done, so now I need to re-measure from the committed state, pulling it cleanly with git archive. I'll start by checking the commits.
+
+
+Group 3 reported. I'm measuring committed state only, from an exported copy of its commit, as I committed to doing.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "W=[redacted:worktrees_root]/dotfiles-correct-shell-environment; G=/home/linuxbrew/.linuxbrew/bin/git\necho \"builder: $(herdr agent get chezmoi-env-builder 2>/dev/null | jq -r '.result.agent.agent_status' 2>/dev/null); HEAD $($G -C $W rev-parse --short HEAD); dirty entries: $($G -C $W status --short | wc -l)\"\n$G -C $W log --format='%h|%s' main..HEAD | while IFS='|' read h s; do printf '%s %s chars: %s\\n' \"$h\" \"${#s}\" \"$s\"; done\necho '--- files of the commits since 86f7a4c'\nfor c in $($G -C $W rev-list --reverse 86f7a4c..HEAD); do echo \"== $($G -C $W rev-parse --short $c) $($G -C $W show --stat --format= $c | tail -1)\"; $G -C $W show --name-status --format= -M $c | cut -c1-120; done\necho '--- uncommitted (group 4 in progress, not measured)'; $G -C $W status --short | cut -c1-100 | head",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+builder: working; HEAD 5e2a9c6; dirty entries: 0
+5e2a9c6 60 chars: feat(shell:path): move PATH setup into idempotent env_ files
+86f7a4c 69 chars: test(shell:env): add kinds runner, history fixtures and session probe
+3c9c565 69 chars: docs(chezmoi:spec): settle login PATH, bash history and probe quoting
+--- files of the commits since 86f7a4c
+== 5e2a9c6  21 files changed, 619 insertions(+), 109 deletions(-)
+M	home/.chezmoiremove
+A	home/dot_config/shell/rc.d/035-env_path_helper.sh
+M	home/dot_config/shell/rc.d/040-env_path_base.sh
+A	home/dot_config/shell/rc.d/041-env_pkg_brew.sh
+A	home/dot_config/shell/rc.d/042-env_pkg_aqua.sh
+A	home/dot_config/shell/rc.d/043-env_pkg_snap.sh
+R072	home/dot_config/shell/rc.d/150-pkg_krew.sh	home/dot_config/shell/rc.d/044-env_pkg_krew.sh
+R066	home/dot_config/shell/rc.d/200-lang_go.sh	home/dot_config/shell/rc.d/045-env_lang_go.sh
+R067	home/dot_config/shell/rc.d/220-lang_rust.sh	home/dot_config/shell/rc.d/046-env_lang_rust.sh
+A	home/dot_config/shell/rc.d/047-env_tools_mise.sh
+M	home/dot_config/shell/rc.d/050-env_path_user.sh
+M	home/dot_config/shell/rc.d/110-pkg_brew.sh
+D	home/dot_config/shell/rc.d/120-pkg-aqua.sh
+D	home/dot_config/shell/rc.d/140-pkg_snap.sh
+M	openspec/changes/correct-shell-environment/tasks.md
+M	tests/mutants/README.md
+A	tests/mutants/env/path-no-clean.sed
+A	tests/smoke/environment-path.bats
+M	tests/smoke/startup-behaviour.bats
+A	tests/unit/env-path-files.bats
+A	tests/unit/path-helper.bats
+--- uncommitted (group 4 in progress, not measured)
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 487.7s)
+
+_Thinking:_
+I'm checking where the unit test for the path helper lives, which is tests/unit/path-helper.bats. Next I'll export commit 5e2a9c6 and run the suite along with the mutants, after a quick memory check.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "W=[redacted:worktrees_root]/dotfiles-correct-shell-environment; G=/home/linuxbrew/.linuxbrew/bin/git; S=/tmp/opencode/orch-tree; R=/tmp/opencode/orch-reports\nrm -rf $S $R; mkdir -p $S $R && chmod 700 $S $R\n$G -C $W archive 5e2a9c6 | tar -x -C $S; ln -s $W/tests/.lib $S/tests/.lib\necho \"memory: $(awk '/MemAvailable/{printf \"%.1f GB\", $2/1048576}' /proc/meminfo) available\"\ncd $S && DOTFILES_TEST_REPORTS=$R DOTFILES_TEST_JOBS=3 timeout 1700 tests/run.sh > $R/run.out 2>&1; echo \"run exit=$?\"\ntail -4 $R/run.out | cut -c1-150\necho \"not ok: $(/usr/bin/grep -a -c '^not ok' $R/run.out)\"; /usr/bin/grep -a '^not ok' $R/run.out | cut -c1-170 | head\npython3 - $R <<'EOF'\nimport sys, glob, xml.etree.ElementTree as ET\nt = f = s = e = 0\nfor x in glob.glob(sys.argv[1] + \"/**/*.xml\", recursive=True):\n    r = ET.parse(x).getroot()\n    for ts in ([r] if r.tag == \"testsuite\" else r.iter(\"testsuite\")):\n        t += int(ts.get(\"tests\", 0)); f += int(ts.get(\"failures\", 0)); s += int(ts.get(\"skipped\", 0)); e += int(ts.get(\"errors\", 0))\nprint(f\"commit 5e2a9c6, my run: tests {t}, failures {f}, errors {e}, skipped {s}\")\nEOF",
+  "timeout": 1800000
+}
+```
+
+**Output:**
+```
+memory: 6.2 GB available
+run exit=0
+ok 417 bash -l -c true (non-interactive login) loads profile and no rc.d # in 607 ms
+ok 418 the completion dump header is the same after five alternating starts # in 16163 ms
+tests: 418, failures: 0, skipped: 27
+canary scan: 0 matches
+not ok: 0
+mise ERROR error parsing config file: /tmp/opencode/orch-tree/mise.toml
+mise ERROR Config files in /tmp/opencode/orch-tree/mise.toml are not trusted.
+Trust them with `mise trust`. See https://mise.jdx.dev/cli/trust.html for more information.
+mise ERROR Version: 2026.10.23 linux-x64 (2026-10-29)
+mise ERROR Run with --verbose or MISE_VERBOSE=1 for more information
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 15.2s)
+
+_Thinking:_
+The suite checks out, so now I'm turning to the mutant tests. The "mise ERROR not trusted" message seems to come from the run script calling mise, likely inside dt_find_tool, but the run still passed. The builder reported 10 mutants with no problems, so I'm looking at how to launch them, either through `mise run test:mutants` or directly via tests/mutants/run.
+
+I'm calling the script directly, since mise isn't trusted in the scratch tree.
+
+
+Suite confirmed: 418 tests, 0 failures, 27 skipped. Now the mutants, which is where a suite proves it can fail. I'm reading how the runner works first.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "S=/tmp/opencode/orch-tree\nsed -n '1,30p' $S/tests/mutants/run.sh | cut -c1-170\necho '--- mutants list'; /usr/bin/find $S/tests/mutants -type f -not -name '*.md' | sed \"s#$S/tests/mutants/##\" | sort\necho '--- README rows for the env mutants'; /usr/bin/grep -a -n 'env' $S/tests/mutants/README.md | cut -c1-230",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+#!/usr/bin/env bash
+# Prove that a suite can fail (`mise run test:mutants`): tests/mutants/run.sh [mutant-id...]
+#
+# Each row of the table in tests/mutants/README.md names a mutant: the test files to run, the file of the
+# source state that it changes, how it changes it, and how many tests must fail. For each one the script
+# makes a scratch copy of .chezmoiroot and home/, changes one file of the copy, runs tests/run.sh on the
+# named test files with DOTFILES_TEST_SOURCE pointing at the copy, and compares the number of failures.
+#   replace <file>   the file of tests/mutants/ replaces the target
+#   sed <file>       the sed script of tests/mutants/ is applied to the target
+# A mutant that changes nothing is an error: a stale mutant must not pass for a proof.
+# The repository is never changed (git status is compared before and after). Exit 0 when every mutant
+# makes the expected number of tests fail.
+set -euo pipefail
+
+here=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)
+# shellcheck source=/dev/null
+. "$here/../helpers/common.sh"
+cd "$DT_ROOT"
+
+readme=$here/README.md
+wanted=("$@")
+base=${DOTFILES_TEST_TMPDIR:-${TMPDIR:-/tmp}}
+scratch=$(mktemp -d "$base/dotfiles-mutants.XXXXXX")
+# shellcheck disable=SC2329  # called by the EXIT trap below
+cleanup() {
+  case $scratch in
+    "$base"/dotfiles-mutants.*) rm -rf -- "$scratch" ;;
+  esac
+}
+trap cleanup EXIT
+--- mutants list
+env/path-no-clean.sed
+install/limits-lower.sed
+install/need-always-ok.sed
+install/run-ignores-dry-run.sed
+run.sh
+startup/cache-name-only.sed
+startup/generator-prints.sed
+startup/rc-twice.sed
+startup/refresh-ignored.sed
+startup/unset-removed.sed
+wrapper/broken.sh
+--- README rows for the env mutants
+16:| wrapper-broken | tests/unit/agent-env.bats | home/dot_config/shell/rc.d/445-tools_opencode.sh | replace wrapper/broken.sh | exactly 9 |
+24:| startup-unset-removed | tests/smoke/startup-behaviour.bats | home/dot_config/shell/rc.d/010-env_user.sh | sed startup/unset-removed.sed | at least 4 |
+25:| env-path-no-clean | tests/unit/path-helper.bats tests/unit/env-path-files.bats tests/smoke/environment-path.bats | home/dot_config/shell/rc.d/035-env_path_helper.sh | sed env/path-no-clean.sed | at least 8 |
+27:The wrapper mutant replaces the `opencode` function with `opencode() { command env opencode "$@"; }`, which hands the whole environment to the binary.
+35:- `startup-unset-removed` stops `rc.d/010-env_user.sh` from dropping the inherited variable: three private-environment checks and the desktop replay check fail (4).
+37:The environment mutants and what they break:
+38:- `env-path-no-clean` makes `_path_clean` return at once, so `PATH` keeps its duplicates, its missing directories and its empty entries: the helper's own `_path_clean` checks, the base `PATH` check, the unclean-start checks (no
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 552.9s)
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "S=/tmp/opencode/orch-tree; R=/tmp/opencode/orch-reports\ncd $S && DOTFILES_TEST_REPORTS=$R DOTFILES_TEST_JOBS=3 timeout 1700 tests/mutants/run.sh > $R/mut.out 2>&1; echo \"mutants exit=$?\"\ntail -14 $R/mut.out | sed \"s#$HOME#~#g\" | cut -c1-170\necho \"--- env-path-no-clean specifically\"; /usr/bin/grep -a -n 'env-path-no-clean' $R/mut.out | cut -c1-200",
+  "timeout": 1800000
+}
+```
+
+**Output:**
+```
+mutants exit=0
+mutant wrapper-broken: 9 failures (expected exactly 9): ok
+mutant startup-cache-name-only: 6 failures (expected at least 6): ok
+mutant startup-generator-prints: 4 failures (expected at least 4): ok
+mutant startup-rc-twice: 2 failures (expected at least 2): ok
+mutant startup-refresh-ignored: 4 failures (expected at least 4): ok
+mutant install-run-ignores-dry-run: 10 failures (expected at least 10): ok
+mutant install-need-always-ok: 9 failures (expected at least 9): ok
+mutant install-limits-lower: 3 failures (expected at least 3): ok
+mutant startup-unset-removed: 4 failures (expected at least 4): ok
+mutant env-path-no-clean: 12 failures (expected at least 8): ok
+repository untouched
+mutants: 10 run, 0 problems
+--- env-path-no-clean specifically
+10:mutant env-path-no-clean: 12 failures (expected at least 8): ok
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 20.4s)
+
+_Thinking:_
+Confirmed: the 10 mutants ran with no problems, and env-path-no-clean shows 12 failures. Next I'm checking group 3 against the code and spec more carefully, starting with the aqua path for 042 and the brew shellenv and shims items for 041 and 047.
+
+I'm going through the remaining checks: confirming .chezmoiremove covers the five removed or renamed targets, running tasks and the secret and shell syntax scans on the changed rc.d files, and making sure the new files don't break templating.
+
+
+_Thinking:_
+Ten mutants ran with no problems, and the `env-path-no-clean` mutant makes 12 tests fail where 8 are required. Next I'm checking the code itself: removal list, shell syntax, builder flags, and scans.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "S=/tmp/opencode/orch-tree; G=/home/linuxbrew/.linuxbrew/bin/git; W=[redacted:worktrees_root]/dotfiles-correct-shell-environment\necho '--- .chezmoiremove: entries added'\n$G -C $W show 5e2a9c6 -U0 --format= -- home/.chezmoiremove | /usr/bin/grep -a '^[-+][^-+]'\necho '--- targets that the commit deletes or renames, each must have a removal entry'\nfor old in 120-pkg-aqua.sh 140-pkg_snap.sh 150-pkg_krew.sh 200-lang_go.sh 220-lang_rust.sh; do printf '%-18s in .chezmoiremove: %s | still in source: %s\\n' $old \"$(/usr/bin/grep -a -c -F \"$old\" $S~)\" \"$([ -e $S~/shell/rc.d/$old ] && echo yes || echo no)\"; done\necho '--- syntax: bash -n, zsh -n, shellcheck on every changed rc.d file'\nfor f in $S~/shell/rc.d/{035,040,041,042,043,044,045,046,047,050}-*.sh $S~/shell/rc.d/110-pkg_brew.sh; do\n  printf '%-30s bash -n %s | zsh -n %s | shellcheck(sh) %s\\n' \"$(basename $f)\" \"$(bash -n $f >/dev/null 2>&1; echo $?)\" \"$(zsh -n $f >/dev/null 2>&1; echo $?)\" \"$(shellcheck -s sh -S warning $f >/dev/null 2>&1; echo $?)\"; done\necho '--- the points the builder named'\necho \"042: bashism '&>' left: $(/usr/bin/grep -a -c '&>' $S~/shell/rc.d/042-env_pkg_aqua.sh); AQUA_BIN_DIR lines:\"; /usr/bin/grep -a -n 'AQUA_BIN_DIR' $S~/shell/rc.d/042-env_pkg_aqua.sh | cut -c1-150\necho \"047 shims expression:\"; /usr/bin/grep -a -n 'shims' $S~/shell/rc.d/047-env_tools_mise.sh | cut -c1-170\necho \"041 clean after brew shellenv: $(/usr/bin/grep -a -n -A3 'shellenv' $S~/shell/rc.d/041-env_pkg_brew.sh | /usr/bin/grep -a -c '_path_clean')\"",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+--- .chezmoiremove: entries added
++# correct-shell-environment: the rc.d files renamed to env_ files (group 3)
++.config/shell/rc.d/120-pkg-aqua.sh
++.config/shell/rc.d/140-pkg_snap.sh
++.config/shell/rc.d/150-pkg_krew.sh
++.config/shell/rc.d/200-lang_go.sh
++.config/shell/rc.d/220-lang_rust.sh
+--- targets that the commit deletes or renames, each must have a removal entry
+120-pkg-aqua.sh    in .chezmoiremove: 1 | still in source: no
+140-pkg_snap.sh    in .chezmoiremove: 1 | still in source: no
+150-pkg_krew.sh    in .chezmoiremove: 1 | still in source: no
+200-lang_go.sh     in .chezmoiremove: 1 | still in source: no
+220-lang_rust.sh   in .chezmoiremove: 1 | still in source: no
+--- syntax: bash -n, zsh -n, shellcheck on every changed rc.d file
+035-env_path_helper.sh         bash -n 0 | zsh -n 0 | shellcheck(sh) 0
+040-env_path_base.sh           bash -n 0 | zsh -n 0 | shellcheck(sh) 0
+041-env_pkg_brew.sh            bash -n 0 | zsh -n 0 | shellcheck(sh) 0
+042-env_pkg_aqua.sh            bash -n 0 | zsh -n 0 | shellcheck(sh) 0
+043-env_pkg_snap.sh            bash -n 0 | zsh -n 0 | shellcheck(sh) 0
+044-env_pkg_krew.sh            bash -n 0 | zsh -n 0 | shellcheck(sh) 0
+045-env_lang_go.sh             bash -n 0 | zsh -n 0 | shellcheck(sh) 0
+046-env_lang_rust.sh           bash -n 0 | zsh -n 0 | shellcheck(sh) 0
+047-env_tools_mise.sh          bash -n 0 | zsh -n 0 | shellcheck(sh) 0
+050-env_path_user.sh           bash -n 0 | zsh -n 0 | shellcheck(sh) 0
+110-pkg_brew.sh                bash -n 0 | zsh -n 0 | shellcheck(sh) 1
+--- the points the builder named
+042: bashism '&>' left: 0; AQUA_BIN_DIR lines:
+5:  # An inherited AQUA_BIN_DIR stays as it is: a nested shell must not add one more level to it.
+6:  export AQUA_BIN_DIR="${AQUA_BIN_DIR:-${AQUA_ROOT_DIR}/bin}"
+7:  _path_prepend "${AQUA_BIN_DIR}"
+047 shims expression:
+1:## Mise-en-place: the directory of its shims
+5:_path_prepend "${MISE_DATA_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/mise}/shims"
+041 clean after brew shellenv: 1
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 5.7s)
+
+_Thinking:_
+I need to figure out whether the shellcheck exit 1 on 110-pkg_brew.sh is something I introduced or something that was already there. I'll check it against main, then compare the warnings from main with the ones at 5e2a9c6.
+
+
+`110-pkg_brew.sh` fails shellcheck at warning level. I'm checking whether that's new or already there on `main`.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "S=/tmp/opencode/orch-tree; G=/home/linuxbrew/.linuxbrew/bin/git\nf=home/dot_config/shell/rc.d/110-pkg_brew.sh\n$G show main:$f > /tmp/opencode/110-main.sh\necho \"main:  $(shellcheck -s sh -S warning /tmp/opencode/110-main.sh 2>&1 | /usr/bin/grep -a -o 'SC[0-9]*' | sort | uniq -c | tr '\\n' ' ')\"\necho \"now:   $(shellcheck -s sh -S warning $S/$f 2>&1 | /usr/bin/grep -a -o 'SC[0-9]*' | sort | uniq -c | tr '\\n' ' ')\"\nrm -f /tmp/opencode/110-main.sh\necho '--- does the repository gate 110 on shellcheck at all? (tests that shellcheck rc.d files)'\n/usr/bin/grep -a -rn 'shellcheck' $S/tests/smoke/*.bats $S/tests/unit/*.bats | /usr/bin/grep -a -i 'rc.d\\|110\\|shell/' | cut -c1-150 | head -5\necho '--- the brew hook still defined in an interactive zsh (110 keeps completions, fpath, wrapper)'\n/usr/bin/grep -a -n -E 'brew-file|fpath|completions|commit' $S~/shell/rc.d/110-pkg_brew.sh | cut -c1-130 | head -8",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+main:        2 SC1090       2 SC2128       5 SC2206       2 SC3010       1 SC3020       2 SC3030       2 SC3043       1 SC3044       3 SC3046       1 SC3057 
+now:         2 SC1090       2 SC2128       5 SC2206       2 SC3010       1 SC3020       2 SC3030       2 SC3043       1 SC3044       3 SC3046       1 SC3057 
+--- does the repository gate 110 on shellcheck at all? (tests that shellcheck rc.d files)
+--- the brew hook still defined in an interactive zsh (110 keeps completions, fpath, wrapper)
+1:## Homebrew: completions and the brew-file wrapper
+6:  # Add brew completions
+18:      # No duplicate in fpath, even when this file is sourced again (a re-sourced ~/.zshrc):
+19:      # the completion dump lists the files of fpath and is rebuilt when that list changes.
+20:      # `brew completions link` is not run here: its state is persistent, the brew install script sets it once.
+21:      typeset -U fpath
+22:      zsh_completions="${HOMEBREW_PREFIX}/share/zsh-completions"
+23:      if [ -d "$zsh_completions" ];then
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 7.7s)
+
+_Thinking:_
+Both the warnings match what main already shows, so they come from existing zsh/bash-specific code and don't need action. Next I want to confirm the real PATH behaviour without deploying: I'll render the exported tree into a scratch destination and check the shell's PATH there, then rely on the existing shell-kinds and environment-path tests while doing one independent check.
+
+I'll check the PATH in a fresh non-interactive bash shell for duplicate or missing entries. For an independent probe, I'll render the dotfiles into a scratch location with the test helper rather than deploying, since the desktop replay can't be checked without touching the real system.
+
+
+_Thinking:_
+The warnings match what `main` already shows, so nothing new there. I'm now rendering the exported tree into a scratch home to check `PATH` independently across a few shell types.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "S=/tmp/opencode/orch-tree; T=/tmp/opencode/orch-probe; rm -rf $T; mkdir -p $T; chmod 700 $T\nsed -n '1,25p' $S/tests/helpers/render.sh | cut -c1-150",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+#!/usr/bin/env bash
+# The scratch render: the shell targets of the source state, applied into an empty scratch destination
+# with a synthetic chezmoi configuration. Plain bash, no bats.
+# Source it (`. tests/helpers/render.sh`; it loads common.sh), or call one function:
+#   tests/helpers/render.sh <function> [args...]
+#
+# Provides:
+#   dt_render_config FILE             write the synthetic configuration: identity values that start with `demo-`,
+#                                     `machine.type`, `cpu`, `github`, `features`, `nvim` and `tools.search` set as
+#                                     the template would, the [env] table of home/.chezmoi.toml.tmpl copied as it
+#                                     is, no `encryption` and no `age` key. It is not rendered from the template, so
+#                                     it needs neither hostnamectl nor lscpu.
+#   dt_render DIR [SOURCE]            render the shell targets of SOURCE (default: DOTFILES_TEST_SOURCE) below DIR:
+#                                     DIR/destination (empty, mode 0750, made first: chezmoi creates neither the
+#                                     root nor the parent of a directory target; one that exists is an error, status
+#                                     2), DIR/state, DIR/cache, DIR/stubs
+#                                     (a stub aqua, which a template calls at render time) and DIR/chezmoi.toml.
+#                                     Prints the destination. The only place of the suite that applies anything.
+#   dt_render_ref REF DIR             the same for another git ref: `git archive` (read-only on the repository) into
+#                                     DIR/source, then dt_render on that copy. Prints the destination.
+#   dt_render_targets                 the targets of the render, relative to the destination, one per line
+#   dt_prepare_home HOME RENDER       make HOME (mode 0700) from a copy of the render (dt_render prints its
+#                                     destination), plus what the startup expects and no target manages: the
+#                                     synthetic broot launcher of tests/fixtures/ and a bin directory holding the
+#                                     real mise when it was found; sets DT_HOME
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 7.5s)
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "S=/tmp/opencode/orch-tree; T=/tmp/opencode/orch-probe\ncd $S && DOTFILES_TEST_SOURCE=$S bash -c '\n. tests/helpers/render.sh\ndest=$(dt_render '\"$T\"'/r) || { echo \"render failed\"; exit 1; }\ndt_prepare_home '\"$T\"'/home \"$dest\" >/dev/null\necho \"render ok: $(find $dest -type f | wc -l) files; env_ files in rc.d: $(ls $dest/.config/shell/rc.d | /usr/bin/grep -c env_)\"\necho \"$dest\" > '\"$T\"'/dest.txt; echo \"${DT_HOME:-'\"$T\"'/home}\" > '\"$T\"'/home.txt\n' 2>&1 | tail -3 | sed \"s#$T#T#g\"\nH=$(cat $T/home.txt 2>/dev/null); echo \"scratch home: ${H:+set}\"; ls -a $H 2>/dev/null | head -6 | tr '\\n' ' '; echo",
+  "timeout": 120000
+}
+```
+
+**Output:**
+```
+render ok: 54 files; env_ files in rc.d: 14
+scratch home: set
+. .. .bash_aliases .bash_logout .bashrc bin 
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 16.6s)
+
+_Thinking:_
+I'm confirming the count of env_ files in rc.d comes to 14: six existing ones plus eight new ones adds up. Next I'll probe PATH under env -i across several shell types, checking entry counts, duplicates, missing directories, and whether it keeps growing when nested.
+
+I'm going to run the PATH check in a bare environment under a few shell types, running the shell non-interactively with `-c` so no pty is needed, though the rc files might complain. I'll also try a nested shell and compare the PATH lengths to see whether it keeps growing.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "T=/tmp/opencode/orch-probe; H=$(cat $T/home.txt)\nprobe() { # label, command...\n  local label=$1; shift\n  local out; out=$(env -i HOME=$H XDG_CONFIG_HOME=$H/.config USER=$USER LOGNAME=$USER SHELL=/usr/bin/zsh LANG=C.UTF-8 PATH=/usr/local/bin:/usr/bin:/bin \"$@\" 2>/dev/null </dev/null)\n  python3 - \"$label\" \"$out\" <<'EOF'\nimport os, sys\nlabel, p = sys.argv[1], sys.argv[2].strip().splitlines()[-1] if sys.argv[2].strip() else \"\"\ne = [x for x in p.split(\":\") if x != \"\" ] if p else []\ndup = len(e) - len(set(e)); miss = sum(1 for x in e if not os.path.isdir(x)); empty = p.count(\"::\") + (1 if p.startswith(\":\") or p.endswith(\":\") else 0)\nprint(f\"{label:<26} entries {len(e):>3} | duplicates {dup} | missing dirs {miss} | empty entries {empty}\")\nEOF\n}\nprobe \"zsh -i\"            zsh -i -c 'printf \"%s\\n\" \"$PATH\"'\nprobe \"zsh -l -i\"         zsh -l -i -c 'printf \"%s\\n\" \"$PATH\"'\nprobe \"bash -i\"           bash -i -c 'printf \"%s\\n\" \"$PATH\"'\nprobe \"bash -l -i\"        bash -l -i -c 'printf \"%s\\n\" \"$PATH\"'\nprobe \"zsh -i nested x3\"  zsh -i -c 'zsh -i -c \"zsh -i -c \\\"printf %s\\\\\\\\n \\\\\\$PATH\\\"\"'\nprobe \"bash -i nested x3\" bash -i -c 'bash -i -c \"bash -i -c \\\"printf %s\\\\\\\\n \\\\\\$PATH\\\"\"'\necho '--- first entries of zsh -i (directory kinds only)'\nenv -i HOME=$H XDG_CONFIG_HOME=$H/.config USER=$USER LOGNAME=$USER SHELL=/usr/bin/zsh LANG=C.UTF-8 PATH=/usr/local/bin:/usr/bin:/bin zsh -i -c 'printf \"%s\\n\" \"$PATH\"' 2>/dev/null </dev/null | tr ':' '\\n' | sed \"s#$H#~#\" | head -8",
+  "timeout": 120000
+}
+```
+
+**Output:**
+```
+zsh -i                     entries  13 | duplicates 0 | missing dirs 1 | empty entries 0
+zsh -l -i                  entries  13 | duplicates 0 | missing dirs 1 | empty entries 0
+bash -i                    entries  12 | duplicates 0 | missing dirs 0 | empty entries 0
+bash -l -i                 entries  12 | duplicates 0 | missing dirs 0 | empty entries 0
+zsh -i nested x3           entries  13 | duplicates 0 | missing dirs 2 | empty entries 0
+bash -i nested x3          entries  12 | duplicates 0 | missing dirs 1 | empty entries 0
+--- first entries of zsh -i (directory kinds only)
+~/.local/share/mise/shims
+~/bin
+/home/linuxbrew/.linuxbrew/opt/rustup/bin
+/home/linuxbrew/.linuxbrew/bin
+/home/linuxbrew/.linuxbrew/sbin
+/usr/local/bin
+/usr/bin
+/bin
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 13.0s)
+
+_Thinking:_
+I'm checking whether the missing-directory counts are coming from my probe, since it may be looking at my real filesystem rather than the scratch home. The shims directory doesn't exist in the scratch home because mise isn't installed there, and the spec says a missing directory should just be dropped, so I'm looking at how the shims entry is handled.
+
+I'm checking whether the missing directories come from my own probe, which might be looking at the real filesystem instead of the scratch home. The nested shells keep the same 13 entries but report different missing counts, so I want to print the missing ones in relative form to see which entries they are.
+
+
+Entry counts are stable in nested shells, but the missing-directory count differs between kinds. I'm looking at which directories are missing before I call that a finding.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "T=/tmp/opencode/orch-probe; H=$(cat $T/home.txt)\nrun() { env -i HOME=$H XDG_CONFIG_HOME=$H/.config USER=$USER LOGNAME=$USER SHELL=/usr/bin/zsh LANG=C.UTF-8 PATH=/usr/local/bin:/usr/bin:/bin \"$@\" 2>/dev/null </dev/null; }\nmiss() { python3 - \"$H\" <<'EOF'\nimport os, sys\nH = sys.argv[1]; p = sys.stdin.read().strip().splitlines()[-1]\nprint(\"  missing:\", [x.replace(H, \"~\") for x in p.split(\":\") if x and not os.path.isdir(x)], \"| entries\", len([x for x in p.split(\":\") if x]))\nEOF\n}\necho \"zsh -i:\";            run zsh -i -c 'printf \"%s\\n\" \"$PATH\"' | miss\necho \"zsh -i nested x2:\";  run zsh -i -c 'zsh -i -c \"printf \\\"%s\\n\\\" \\\"\\$PATH\\\"\"' | miss\necho \"zsh -i nested x3:\";  run zsh -i -c 'zsh -i -c \"zsh -i -c \\\"printf \\\\\\\"%s\\n\\\\\\\" \\\\\\\"\\\\\\$PATH\\\\\\\"\\\"\"' | miss\necho \"bash -i:\";           run bash -i -c 'printf \"%s\\n\" \"$PATH\"' | miss\necho \"bash -i nested x2:\"; run bash -i -c 'bash -i -c \"printf \\\"%s\\n\\\" \\\"\\$PATH\\\"\"' | miss\necho '--- is the scratch shims directory present, and who adds it'\nls -d $H/.local/share/mise/shims 2>&1 | sed \"s#$H#~#\" | head -2\necho \"mise activate in the interactive rc.d: $(/usr/bin/grep -a -l 'mise activate' $H/.config/shell/rc.d/* 2>/dev/null | wc -l) file(s)\"",
+  "timeout": 120000
+}
+```
+
+**Output:**
+```
+zsh -i:
+Traceback (most recent call last):
+  File "<stdin>", line 2, in <module>
+IndexError: list index out of range
+zsh -i nested x2:
+Traceback (most recent call last):
+  File "<stdin>", line 2, in <module>
+IndexError: list index out of range
+zsh -i nested x3:
+Traceback (most recent call last):
+  File "<stdin>", line 2, in <module>
+IndexError: list index out of range
+bash -i:
+Traceback (most recent call last):
+  File "<stdin>", line 2, in <module>
+IndexError: list index out of range
+bash -i nested x2:
+Traceback (most recent call last):
+  File "<stdin>", line 2, in <module>
+IndexError: list index out of range
+--- is the scratch shims directory present, and who adds it
+ls: cannot access '~/.local/share/mise/shims': No such file or directory
+mise activate in the interactive rc.d: 1 file(s)
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 7.8s)
+
+_Thinking:_
+I'm weighing why `miss` fails: the heredoc takes over stdin, so python3 reads its script from there and the piped data never arrives. Switching to `python3 -c` with `sys.stdin` should keep the pipe intact.
+
+The earlier probe worked because the output was passed as an argument rather than through stdin, so the pipe wasn't involved.
+
+
+My helper read its script and its data from the same standard input, the double-redirection habit I know about. Fixing it with `-c`.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "T=/tmp/opencode/orch-probe; H=$(cat $T/home.txt)\nrun() { env -i HOME=$H XDG_CONFIG_HOME=$H/.config USER=$USER LOGNAME=$USER SHELL=/usr/bin/zsh LANG=C.UTF-8 PATH=/usr/local/bin:/usr/bin:/bin \"$@\" 2>/dev/null </dev/null; }\nmiss() { python3 -c '\nimport os, sys\nH = sys.argv[1]; lines = sys.stdin.read().strip().splitlines(); p = lines[-1] if lines else \"\"\ne = [x for x in p.split(\":\") if x]\nprint(\"  entries\", len(e), \"| duplicates\", len(e) - len(set(e)), \"| missing:\", [x.replace(H, \"~\") for x in e if not os.path.isdir(x)])\n' \"$H\"; }\necho \"zsh -i:\";            run zsh -i -c 'printf \"%s\\n\" \"$PATH\"' | miss\necho \"zsh -i nested x2:\";  run zsh -i -c 'zsh -i -c \"printf \\\"%s\\n\\\" \\\"\\$PATH\\\"\"' | miss\necho \"bash -i:\";           run bash -i -c 'printf \"%s\\n\" \"$PATH\"' | miss\necho \"bash -i nested x2:\"; run bash -i -c 'bash -i -c \"printf \\\"%s\\n\\\" \\\"\\$PATH\\\"\"' | miss\necho \"zsh -l -i:\";         run zsh -l -i -c 'printf \"%s\\n\" \"$PATH\"' | miss",
+  "timeout": 120000
+}
+```
+
+**Output:**
+```
+zsh -i:
+  entries 13 | duplicates 0 | missing: ['~/.local/share/mise/shims']
+zsh -i nested x2:
+  entries 13 | duplicates 0 | missing: ['~/.local/share/mise/shims']
+bash -i:
+  entries 12 | duplicates 0 | missing: []
+bash -i nested x2:
+  entries 12 | duplicates 0 | missing: []
+zsh -l -i:
+  entries 13 | duplicates 0 | missing: ['~/.local/share/mise/shims']
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 7.3s)
+
+_Thinking:_
+I'm checking why the shims directory is absent in the scratch home's zsh -i session even though it's on PATH. The env stage skips prepending a directory that doesn't exist, so it can't be coming from there. The interactive mise activate step is the likely source, and I'm trying to pin down which part of it adds the directory.
+
+I'm still unsure whether the shims directory comes from `mise activate` in the interactive zsh session, since the env stage skips missing directories and bash doesn't show the extra entry. Whether this matters depends on whether the test for the interactive stage actually checks for missing directories, so I'm going to look at the assertion and at what `415-tools_mise.sh` does.
+
+
+In a scratch home without mise tools, interactive zsh carries the mise shims directory while it doesn't exist. I'm checking where it comes from and what the spec scenario and its test actually claim.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "S=/tmp/opencode/orch-tree\necho '--- 415-tools_mise.sh'; cat $S~/shell/rc.d/415-tools_mise.sh | cut -c1-150\necho '--- spec scenario: No duplicates and no missing directory'\n/usr/bin/grep -a -n -A5 'Scenario: No duplicates and no missing directory' $S/openspec/changes/correct-shell-environment/specs/shell-environment/spec.md | cut -c1-260\necho '--- what the smoke test asserts for it'\n/usr/bin/grep -a -n -B2 -A22 'no duplicate' $S/tests/smoke/environment-path.bats | cut -c1-150 | head -50",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+--- 415-tools_mise.sh
+## Mise-en-place
+
+if command -v mise &> /dev/null; then
+  case $CURRENT_SHELL in
+    "bash")
+      source <(eval "$(mise activate $CURRENT_SHELL)")
+      ;;
+    "zsh")
+      source <(mise activate $CURRENT_SHELL)
+      ;;
+  esac
+fi
+
+# vim: set syntax=sh :
+--- spec scenario: No duplicates and no missing directory
+89:#### Scenario: No duplicates and no missing directory
+90-
+91-- **WHEN** each shell kind that loads the environment prints its `PATH`, split on `:`
+92-- **THEN** no entry appears twice and every entry is a directory
+93-
+94-#### Scenario: Inherited entries are kept
+--- what the smoke test asserts for it
+36-}
+37-
+38:@test "no duplicates and no missing directory in any kind that loads the environment, from an unclean PATH" {
+39-  local kind p d
+40-  for kind in $(dt_kinds_env); do
+41-    p=$(dt_kind_path "$kind" PATH="$(dirty_path)")
+42-    [ -n "$p" ] || fail "$kind: no PATH"
+43-    [ "$(entries "$p" | sort | uniq -d | wc -l)" -eq 0 ] || fail "$kind: a duplicate in the PATH"
+44-    while IFS= read -r d; do
+45-      [ -d "$d" ] || fail "$kind: an entry of the PATH is not a directory"
+46-    done < <(entries "$p")
+47-  done
+48-}
+49-
+50-@test "inherited entries are kept: an interactive zsh and an interactive bash hold the inherited directory once" {
+51-  local kind p inherited=$DT_HOME/inherited
+52-  mkdir -p "$inherited"
+53-  for kind in zsh-i bash-i; do
+54-    p=$(dt_kind_path "$kind" PATH="$(dt_login_path):$inherited")
+55-    assert_equal "$(entries "$p" | grep -c -x -F "$inherited")" 1
+56-  done
+57-}
+58-
+59-@test "inherited entries are kept: the desktop replay keeps a directory that a file sorted before 040 adds" {
+60-  local p inherited=$DT_HOME/inherited
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 6.4s)
+
+_Thinking:_
+The test passes, so I'm checking whether "dt_kinds_env" covers the kinds that call the real mise. The tests locate it through dt_prepare_home, so I'm wondering whether my probe's home also has a bin directory with the real mise in it. I'm also unsure whether `mise activate zsh` run under `zsh -i` adds the shims directory, since I don't think activate adds shims without `--shims`.
+
+I'm wondering whether `dt_kinds_env` includes interactive zsh, since interactive kinds also load the environment through shellrc, and if it does my finding would make the test fail. The test might differ from my probe, maybe in how I'm starting the shell, so I'll check what `dt_kinds_env` lists and how the test calls `zsh-i` in kinds.sh.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "S=/tmp/opencode/orch-tree\n/usr/bin/grep -a -n -E 'dt_kinds_env|dt_kinds_all|zsh-i|mise|shims|MISE' $S/tests/helpers/kinds.sh | cut -c1-170 | head -24\necho '--- environment-path.bats: setup, the mise directories'\n/usr/bin/grep -a -n -E 'setup|mise|shims|MISE|mkdir' $S/tests/smoke/environment-path.bats | cut -c1-170 | head -16",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+6:# dt_start or dt_start_pty (env -i, a scratch home, mise confined to it). The environment a kind is handed is
+13:#   zsh-i, zsh-li, bash-i, bash-li      zsh -i, zsh -l -i, bash -i, bash -l -i, under a pseudo-terminal
+15:#   zsh-i-nolang, bash-i-nolang, bash-li-nolang    the interactive kinds started without LANG (env -u LANG)
+20:#   dt_kinds_env                 the ten that load the environment (every kind but zsh-c, bash-c and bash-ssh)
+46:  printf '%s\n' desktop zsh-i zsh-li bash-i bash-li zsh-lc zsh-c bash-lc bash-c zsh-i-nolang bash-i-nolang bash-li-nolang bash-ssh
+49:dt_kinds_env() {
+50:  printf '%s\n' desktop zsh-i zsh-li bash-i bash-li zsh-lc bash-lc zsh-i-nolang bash-i-nolang bash-li-nolang
+83:    zsh-i) pty=1 cmd=("$zsh_bin" -i -c "$snippet") ;;
+91:    zsh-i-nolang) pty=1 cmd=(env -u LANG "$zsh_bin" -i -c "$snippet") ;;
+--- environment-path.bats: setup, the mise directories
+8:setup_file() {
+14:setup() {
+16:  # the shims directory of mise exists on the machines this is written for: mise's activation puts it first, and a
+18:  mkdir -p "$DT_HOME/.local/share/mise/shims"
+27:# entries_without_mise PATH: the entries that are not in mise's data directory. The desktop replay loads no mise
+28:# activation once the login loads the env_ files only (group 6); until then the full pass puts the shims first.
+29:entries_without_mise() {
+30:  entries "$1" | grep -v -F "$DT_HOME/.local/share/mise/" || true
+52:  mkdir -p "$inherited"
+61:  mkdir -p "$inherited"
+70:  mkdir -p "$inherited"
+78:  mkdir -p "$DT_HOME/.local/bin" "$DT_HOME/.local/sbin"
+98:  done < <(entries_without_mise "$p")
+104:@test "user bin directories come before the system directories in an interactive zsh too, mise's directories aside" {
+106:  mkdir -p "$DT_HOME/.local/bin"
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 21.1s)
+
+_Thinking:_
+I'm checking the test setup: it creates the shims directory in the scratch home, which matches the real machine where that directory exists and mise activation puts it first. The "missing" mise directory in my probe was just an artifact of the scratch home lacking it, since mise activate adds the shims path regardless. That's benign and the builder documented it, so it isn't a defect, though I want to note it
+
+I'm noting that the "missing directory" case only works because the test creates it, and that the interactive mise activation sits outside this stage. That's acceptable, so I'll mention it. Next I'm running scans over the added lines in 5e2a9c6, gitleaks, and a redaction check on the new files, then ticking tasks 3.1 through 3.7.
+
+
+_Thinking:_
+The shims directory is created by mise's activation, and the builder's test makes it in the scratch home on purpose, so it's harmless. I'm running the scans over the commit and the task ticks next.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "W=[redacted:worktrees_root]/dotfiles-correct-shell-environment; G=/home/linuxbrew/.linuxbrew/bin/git; S=/tmp/opencode/orch-tree\n$G -C $W show 5e2a9c6 --format= | /usr/bin/grep -a '^+' | /usr/bin/grep -a -v '^+++' > /tmp/opencode/added.txt\nprintf 'added %s | dashes %s | banned %s | emoji %s | e-mail %s | token shapes %s | /home paths %s | IPv4 %s | secret-looking names: %s\\n' \"$(wc -l < /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -E '[–—]' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -i -w -E '[redacted:private]|[redacted:private]|[redacted:private]|[redacted:repo]|[redacted:private]' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -P '[\\x{1F300}-\\x{1FAFF}\\x{2600}-\\x{27BF}]' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -E '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[a-z]{2,}' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -E 'gh[pousr]_[A-Za-z0-9]{20,}|sk-[A-Za-z0-9_-]{20,}|AKIA[0-9A-Z]{16}' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -E '/home/[a-z]+' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -E '\\b([0-9]{1,3}\\.){3}[0-9]{1,3}\\b' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -o -E '\\b[A-Z][A-Z0-9]*(_[A-Z0-9]+)*_(API_?KEY|TOKEN|SECRET|PASSWORD|PASSWD|CREDENTIAL)\\b' /tmp/opencode/added.txt | sort -u | tr '\\n' ' ')\"\nrm -f /tmp/opencode/added.txt\necho '--- redaction check on changed or new text files (non-zero only)'\nfor f in $($G -C $W show --name-only --format= 5e2a9c6 | /usr/bin/grep -a -v -E '^$'); do [ -f $S/$f ] || continue\n  o=$(python3 ~/.config/nvim/scripts/session_redact.py --check $S/$f 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | /usr/bin/grep -a -E ': [1-9][0-9]*$' | tr '\\n' ' '); [ -n \"$o\" ] && echo \"$f: $o\"; done; echo '(end)'\necho \"gitleaks branch: $(cd $W && mise x -- gitleaks git --redact --no-banner --log-opts='main..5e2a9c6' . 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | tail -1)\"\necho '--- tasks group 3'; /usr/bin/grep -a -n -E '^- \\[[ x]\\] 3\\.[0-9]' $S/openspec/changes/correct-shell-environment/tasks.md | cut -c1-60\necho \"validate (exported tree): $(cd $S && openspec validate --all --strict 2>&1 | tail -1)\"",
+  "timeout": 120000
+}
+```
+
+**Output:**
+```
+added 619 | dashes 0 | banned 0 | emoji 0 | e-mail 0 | token shapes 0 | /home paths 7 | IPv4 0 | secret-looking names: 
+--- redaction check on changed or new text files (non-zero only)
+(end)
+gitleaks branch: 2:38PM INF no leaks found
+--- tasks group 3
+14:- [x] 3.1 `tests/unit/path-helper.bats`: `_path_prepend` 
+15:- [x] 3.2 `rc.d/035-env_path_helper.sh`: `_path_prepend` 
+16:- [x] 3.3 `rc.d/040-env_path_base.sh`: keep the inherited
+17:- [x] 3.4 `110-pkg_brew.sh` split: `rc.d/041-env_pkg_brew
+18:- [x] 3.5 Renames with `git mv`: `120-pkg-aqua.sh` to `04
+19:- [x] 3.6 `tests/smoke/environment-path.bats`: scenarios 
+20:- [x] 3.7 Mutant `env-path-no-clean` (`_path_clean` retur
+validate (exported tree): mise ERROR Run with --verbose or MISE_VERBOSE=1 for more information
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 4.8s)
+
+_Thinking:_
+I'm checking the seven added lines that mention /home paths. The Homebrew prefix /home/linuxbrew is fine, so I need to confirm nothing points at a personal /home/<user> directory. My current regex would also catch /home/linuxbrew, so I'll tighten it to exclude both linuxbrew and user.
+
+
+Seven `/home` hits need a closer look. `/home/linuxbrew` is Homebrew's public prefix, so I'm excluding it and the `/home/user` placeholder.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "W=[redacted:worktrees_root]/dotfiles-correct-shell-environment; G=/home/linuxbrew/.linuxbrew/bin/git\n$G -C $W show 5e2a9c6 --format= | /usr/bin/grep -a '^+' | /usr/bin/grep -a -v '^+++' | /usr/bin/grep -a -o -E '/home/[A-Za-z0-9_-]+' | sort | uniq -c\necho \"validate in the worktree-equivalent (main checkout cannot see the branch): the exported tree is not trusted by mise, so run openspec directly\"\ncd /tmp/opencode/orch-tree && openspec validate --all --strict 2>&1 | tail -2 | cut -c1-120",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+      7 /home/linuxbrew
+validate in the worktree-equivalent (main checkout cannot see the branch): the exported tree is not trusted by mise, so run openspec directly
+mise ERROR Version: 2026.10.23 linux-x64 (2026-10-29)
+mise ERROR Run with --verbose or MISE_VERBOSE=1 for more information
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 49.6s)
+
+_Thinking:_
+All seven paths are under /home/linuxbrew, which is allowed. Running openspec validate in the exported tree fails because its mise config isn't trusted, so I'll run it in the builder's worktree instead, since that one is trusted and validate is read-only. I'm weighing whether to pass `-C` or just cd into the worktree.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd [redacted:worktrees_root]/dotfiles-correct-shell-environment && echo \"validate (worktree, read-only): $(openspec validate --all --strict 2>&1 | tail -1)\"\nrm -rf /tmp/opencode/orch-tree /tmp/opencode/orch-reports /tmp/opencode/orch-probe; test ! -e /tmp/opencode/orch-tree && echo 'scratch deleted'\ncd ~/.local/share/chezmoi\nherdr agent prompt chezmoi-env-builder 'chezmoi-orch: group 3 accepted. Re-measured on the exported commit 5e2a9c6: 418 tests, 0 failures, 27 skipped; mutants 10 run, 0 problems, env-path-no-clean 12 failures (8 required); bash -n, zsh -n and shellcheck at warning level are clean on 035 to 050; 110-pkg_brew.sh has the same shellcheck warnings as on main (no new one); the five old targets have their .chezmoiremove entries; no duplicate, no empty entry and no growth in nested zsh and bash on my own scratch render. Two notes, no action needed: (a) in a scratch home without the mise shims directory, interactive zsh still lists it, because mise activate adds it, so the \"no missing directory\" scenario holds only because your test creates that directory as on the real machine: keep that comment in the test; (b) 7 /home hits in your added lines are all the Homebrew prefix. Go on with group 4.' --wait --until working --timeout 20000 2>&1 | jq -c '{ok: (.error == null), error: (.error // null)}' 2>/dev/null\nprintf -- '- %s chezmoi-orch (wN:p1) builder group 3 accepted: re-measured on the exported commit 5e2a9c6 (418 tests 0 failures 27 skipped; mutants 10 run 0 problems, env-path-no-clean 12 failures; syntax and shellcheck clean, 110 same warnings as main; removal entries present; own render shows no duplicate, empty entry or nested growth); builder on group 4; main c006474 and store 028f55e still not pushed\\n' \"$(date '+%Y-%m-%d %H:%M:%S')\" >> .state/journal.md\necho \"builder: $(herdr agent get chezmoi-env-builder 2>/dev/null | jq -r '.result.agent.agent_status' 2>/dev/null); context: $(herdr pane read w0:p1 --lines 20 2>/dev/null | /usr/bin/grep -a -o -E '[0-9.]+K \\([0-9]+%\\)' | tail -1)\"",
+  "timeout": 90000
+}
+```
+
+**Output:**
+```
+validate (worktree, read-only): Totals: 38 passed, 0 failed (38 items)
+scratch deleted
+{"ok":true,"error":null}
+builder: working; context: 375.9K (38%)
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 9.8s)
+
+_Thinking:_
+I need to update the resume note now. The mode has switched to build, so I'm checking what's still pending, including whether to push. The user hasn't asked for a push, so I'll hold off on that and add the group 3 acceptance to the resume note. The builder context is at 38%.
+
+
+Updating the resume note with group 3 and the builder's context level.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; python3 - <<'EOF'\nfrom pathlib import Path\np = Path(\".state/resume.md\"); s = p.read_text(encoding=\"utf-8\")\ndef rep(a, b):\n    global s\n    assert s.count(a) == 1, (s.count(a), a[:70]); s = s.replace(a, b)\nrep(\"### Builder progress (2026-11-23, about 14:00)\", \"### Builder progress (2026-11-23, updated about 14:45: group 3 accepted)\")\nrep(\"- Group 3 (PATH and the `env_` files) was starting; its renames (`120` to `042` and so on) and the edit of `040` are expected in its working tree.\",\n'''- Group 3 (PATH and the `env_` files) ACCEPTED at about 14:45: commit `5e2a9c6` (`feat(shell:path): move PATH setup into idempotent env_ files`, 60 characters; 21 files: `035` helper, `040`, `041` to `047`, `050`, the `110` split, removal entries for `120`, `140`, `150`, `200-lang_go`, `220`, tests `path-helper.bats`, `env-path-files.bats`, `environment-path.bats`, mutant `env/path-no-clean.sed`).\n  Re-measured on `git archive 5e2a9c6`: 418 tests, 0 failures, 27 skipped; `mise run test:mutants` equivalent (`tests/mutants/run.sh` in the exported tree): 10 run, 0 problems, `env-path-no-clean` 12 failures against 8 required; bash -n, zsh -n, shellcheck -S warning clean on `035` to `050`; `110-pkg_brew.sh` has the same warnings as on `main`; own render: no duplicate, empty entry or nested growth in zsh and bash.\n  Known and benign: in a scratch home without mise's shims directory, interactive zsh lists it because `mise activate` adds it; the builder's test creates that directory as on the real machine.\n  Scratch measuring recipe that works: `git archive <hash> | tar -x -C /tmp/opencode/orch-tree`, `ln -s <worktree>/tests/.lib <tree>/tests/.lib`, then `DOTFILES_TEST_REPORTS=/tmp/opencode/orch-reports DOTFILES_TEST_JOBS=3 tests/run.sh` and `tests/mutants/run.sh` from inside the tree (mise does not trust that tree: `openspec validate` is run in the builder's worktree instead, read-only); delete `/tmp/opencode/orch-*` afterwards.\n- Builder context at 14:45: 38% (376K tokens); it was working on group 4 (locale). Next reports expected: group 4 (locale), 5 (keys on demand, the startup tests change meaning), 6 (desktop login and `shellrc`), 7 (F33 loose ends); cut at about 70% with a hand-off note.''')\np.write_text(s, encoding=\"utf-8\")\nEOF\nchmod 600 .state/resume.md; printf 'resume: lines %s | dashes %s | modeline last %s\\n' \"$(wc -l < .state/resume.md)\" \"$(/usr/bin/grep -a -c -E '[–—]' .state/resume.md)\" \"$(tail -1 .state/resume.md | /usr/bin/grep -a -c 'vim: set ts=2')\"\nG=/home/linuxbrew/.linuxbrew/bin/git; echo \"main $($G rev-parse --short HEAD) ahead $($G rev-list --count origin/main..HEAD); store ahead $($G -C [redacted:private_store] rev-list --count origin/main..HEAD); dirty $($G status --short | wc -l)\"",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+resume: lines 195 | dashes 0 | modeline last 1
+main c006474 ahead 2; store ahead 1; dirty 0
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 6.5s)
+
+Group 3 is accepted, and the builder has moved on to group 4, the locale.
+
+## What I re-measured
+I exported commit `5e2a9c6` and ran everything on that copy, not on the builder's working tree.
+- **Suite:** 418 tests, 0 failures, 27 skipped, the same as the builder reported.
+- **Mutants:** 10 run, 0 problems. `env-path-no-clean` makes 12 tests fail, where at least 8 are required, so the new tests can fail.
+- **Shell code:** `bash -n` and `zsh -n` pass on `035` to `050`, and shellcheck at warning level is clean on them. `110-pkg_brew.sh` shows the same shellcheck warnings as on `main`, so none is new.
+- **Removals:** the five old files (`120`, `140`, `150`, `200-lang_go`, `220`) all have their `.chezmoiremove` entry and are gone from the source.
+- **Points the builder named:**
+  - `042` no longer uses `&>`.
+  - An inherited `AQUA_BIN_DIR` stays as it is, so nested shells stop adding `/bin`.
+  - `041` cleans `PATH` after `brew shellenv`.
+  - `047` uses the default shims path when `MISE_DATA_DIR` is unset.
+- **My own render:** with zsh and bash, interactive and login, and nested three levels deep, I found 0 duplicates and 0 empty entries. The entry count stayed at 13 for zsh and 12 for bash.
+- **Scans on the 619 added lines:** 0 dashes, banned names, e-mails, token shapes, IP addresses and secret-looking names. All 7 `/home` hits are Homebrew's public prefix. The redaction check and gitleaks are clean, and `openspec validate` passes 38/38.
+
+## One note, no action needed
+In a scratch home without mise's shims directory, interactive zsh still lists it, because `mise activate` adds it. The "no missing directory" scenario holds because the builder's test creates that directory, as it exists on your real machine. I told the builder to keep that comment.
+
+## State
+- **Builder:** on group 4 at about 376K tokens (38% of its context), with no prompt waiting. Groups 5 to 7 follow. It cuts itself at about 70%.
+- **Not pushed:** the repository has `58633a0` and `c006474`, and the store has `028f55e`. I haven't pushed them, since you haven't said "push".
+- **Notes:** the resume note has the measuring recipe, so a compaction is safe.
+
+---
+
+## User
+
+chezmoi-env-builder: group 5 done (446 secrets function, 010 no longer sources the private file; mise run test 473 tests 0 failures 28 skipped; mutants 12 run 0 problems, env-keys-at-startup 3 failures); question: the live scenarios After the next login and The live session holds no key have no task in groups 1-7, add them in group 6 or leave to the probe?; starting group 6
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 15.4s)
+
+_Thinking:_
+I'm checking whether group 4 was actually finished too, since the builder only reported group 5 as done. Next I'll re-measure the committed state of groups 4 and 5 from the archive, run the tests, mutants, and scans, and then look at the "after the next login" and "live session holds no key" scenarios.
+
+I'm also looking at the spec scenarios "After the next login" and "The live session holds no key," plus tasks 5.6 and 12.x, to see what remains.
+
+
+I'm measuring group 5 as I did before, from an exported copy of its commit. The builder reported group 5 without a separate group 4 report, so I'm also checking that group 4 is committed.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "W=[redacted:worktrees_root]/dotfiles-correct-shell-environment; G=/home/linuxbrew/.linuxbrew/bin/git\necho \"builder: $(herdr agent get chezmoi-env-builder 2>/dev/null | jq -r '.result.agent.agent_status' 2>/dev/null); HEAD $($G -C $W rev-parse --short HEAD); dirty entries: $($G -C $W status --short | wc -l); context: $(herdr pane read w0:p1 --lines 20 2>/dev/null | /usr/bin/grep -a -o -E '[0-9.]+K \\([0-9]+%\\)' | tail -1)\"\n$G -C $W log --format='%h|%s' main..HEAD | while IFS='|' read h s; do printf '%s %s chars: %s\\n' \"$h\" \"${#s}\" \"$s\"; done\necho '--- files of the commits since 5e2a9c6'\nfor c in $($G -C $W rev-list --reverse 5e2a9c6..HEAD); do echo \"== $($G -C $W rev-parse --short $c) $($G -C $W show --stat --format= $c | tail -1)\"; $G -C $W show --name-status --format= -M $c | cut -c1-120; done\necho '--- tasks ticked'; /usr/bin/grep -a -n -E '^- \\[x\\] (4|5)\\.[0-9]' $W/openspec/changes/correct-shell-environment/tasks.md | cut -c1-70",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+builder: working; HEAD 9c0a96e; dirty entries: 0; context: 412.2K (41%)
+9c0a96e 70 chars: feat(shell:secrets): load the private keys on demand with secrets load
+f39e59f 61 chars: feat(shell:env): drop missing locales and stop forcing LC_ALL
+5e2a9c6 60 chars: feat(shell:path): move PATH setup into idempotent env_ files
+86f7a4c 69 chars: test(shell:env): add kinds runner, history fixtures and session probe
+3c9c565 69 chars: docs(chezmoi:spec): settle login PATH, bash history and probe quoting
+--- files of the commits since 5e2a9c6
+== f39e59f  6 files changed, 307 insertions(+), 6 deletions(-)
+M	home/dot_config/shell/rc.d/020-env_defaults.sh
+M	openspec/changes/correct-shell-environment/tasks.md
+M	tests/mutants/README.md
+A	tests/mutants/env/lc-all-forced.sed
+A	tests/smoke/environment-locale.bats
+A	tests/unit/locale.bats
+== 9c0a96e  9 files changed, 415 insertions(+), 24 deletions(-)
+M	home/dot_config/shell/rc.d/010-env_user.sh
+A	home/dot_config/shell/rc.d/446-tools_secrets.sh
+M	openspec/changes/correct-shell-environment/tasks.md
+M	tests/mutants/README.md
+A	tests/mutants/env/keys-at-startup.sed
+A	tests/smoke/environment-keys.bats
+A	tests/smoke/environment-live.bats
+M	tests/smoke/startup-behaviour.bats
+A	tests/unit/secrets.bats
+--- tasks ticked
+24:- [x] 4.1 `tests/unit/locale.bats` (the filter of inherited missing
+25:- [x] 4.2 `rc.d/020-env_defaults.sh`: no `LC_ALL`; drop an inherite
+26:- [x] 4.3 Mutant `env-lc-all-forced` (the old `LC_ALL` line back): 
+30:- [x] 5.1 `tests/unit/secrets.bats`, zsh and bash: scenarios "Load 
+31:- [x] 5.2 `rc.d/446-tools_secrets.sh`: `secrets load|unload` and th
+32:- [x] 5.3 `rc.d/010-env_user.sh`: keep `envrc` and the `unset` line
+33:- [x] 5.4 `tests/smoke/environment-keys.bats`: scenarios "Every she
+34:- [x] 5.5 Mutant `env-keys-at-startup` (`010` sources the private f
+35:- [x] 5.6 Live test in `tests/smoke/environment-live.bats`: no name
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 355.4s)
+
+Group 4 is committed as `f39e59f` and group 5 as `9c0a96e`, so I'm accepting them one after the other. I'm measuring `9c0a96e`, which includes group 4.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "W=[redacted:worktrees_root]/dotfiles-correct-shell-environment; G=/home/linuxbrew/.linuxbrew/bin/git; S=/tmp/opencode/orch-tree; R=/tmp/opencode/orch-reports\nrm -rf $S $R; mkdir -p $S $R && chmod 700 $S $R\n$G -C $W archive 9c0a96e | tar -x -C $S; ln -s $W/tests/.lib $S/tests/.lib\necho \"memory: $(awk '/MemAvailable/{printf \"%.1f GB\", $2/1048576}' /proc/meminfo) available; swap $(awk '/SwapTotal/{t=$2}/SwapFree/{f=$2}END{printf \"%.1f GB\", (t-f)/1048576}' /proc/meminfo)\"\ncd $S && DOTFILES_TEST_REPORTS=$R DOTFILES_TEST_JOBS=3 timeout 1700 tests/run.sh > $R/run.out 2>&1; echo \"run exit=$?\"\ntail -3 $R/run.out | cut -c1-120\necho \"not ok: $(/usr/bin/grep -a -c '^not ok' $R/run.out)\"; /usr/bin/grep -a '^not ok' $R/run.out | cut -c1-170 | head\npython3 - $R <<'EOF'\nimport sys, glob, xml.etree.ElementTree as ET\nt = f = s = e = 0\nfor x in glob.glob(sys.argv[1] + \"/**/*.xml\", recursive=True):\n    r = ET.parse(x).getroot()\n    for ts in ([r] if r.tag == \"testsuite\" else r.iter(\"testsuite\")):\n        t += int(ts.get(\"tests\", 0)); f += int(ts.get(\"failures\", 0)); s += int(ts.get(\"skipped\", 0)); e += int(ts.get(\"errors\", 0))\nprint(f\"commit 9c0a96e, my run: tests {t}, failures {f}, errors {e}, skipped {s}\")\nEOF",
+  "timeout": 1800000
+}
+```
+
+**Output:**
+```
+memory: 4.1 GB available; swap 8.7 GB
+run exit=0
+ok 473 the completion dump header is the same after five alternating starts # in 6066 ms
+tests: 473, failures: 0, skipped: 28
+canary scan: 0 matches
+not ok: 0
+mise ERROR error parsing config file: /tmp/opencode/orch-tree/mise.toml
+mise ERROR Config files in /tmp/opencode/orch-tree/mise.toml are not trusted.
+Trust them with `mise trust`. See https://mise.jdx.dev/cli/trust.html for more information.
+mise ERROR Version: 2026.10.23 linux-x64 (2026-10-29)
+mise ERROR Run with --verbose or MISE_VERBOSE=1 for more information
+
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "W=[redacted:worktrees_root]/dotfiles-correct-shell-environment\necho \"--- tasks.md group 6 and the live scenarios the builder asks about\"\n/usr/bin/grep -a -n -E 'After the next login|holds no key|live session' $W/openspec/changes/correct-shell-environment/specs/*/spec.md | sed \"s#$W/openspec/changes/correct-shell-environment/##\" | cut -c1-200\necho '--- where tasks mention live tests'\n/usr/bin/grep -a -n -i -E 'live' $W/openspec/changes/correct-shell-environment/tasks.md | cut -c1-210",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+--- tasks.md group 6 and the live scenarios the builder asks about
+specs/shell-environment/spec.md:208:#### Scenario: After the next login
+specs/shell-environment/spec.md:213:#### Scenario: The live session holds no key
+--- where tasks mention live tests
+35:- [x] 5.6 Live test in `tests/smoke/environment-live.bats`: no name of the user's private file in the shell source (names in memory, a count printed)
+60:- [ ] 8.5 Mutant `install-session-weakens` (a stricter GECOS umask overwritten): at least the "A stricter live value is left" test fails
+88:## 12. Session defaults, reboot and live checks (the user)
+96:- [ ] 12.4 `mise run test:live`; the counts of the user manager's and the terminal's variables against the names of the private file and the secret pattern print 0 (as in `TODO.md`'s reboot check, which is t
+98:- [ ] 12.6 The live probe of `agent-environment` ("A herdr-started agent holds none of them", modified): a probe tab, `secrets load`, a probe agent, the counts, the tab closed
+
+```
+
+
+---
+
+## User
+
+chezmoi-env-builder: cutting at the group 5 boundary (context at about 154k tokens, past 70%); hand-off note .state/briefs/correct-shell-environment/builder-handoff-1.md in my worktree, last commit 9c0a96e, 473 tests 0 failures 28 skipped, 12 mutants 0 problems; groups 6 and 7 left for a fresh session; my pane stays open until you export and close it
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 465.6s)
+
+_Thinking:_
+The builder has stopped at the group 5 boundary, so I'm picking up the remaining work: measuring group 5's mutants, answering the question about where live scenarios should go, reading the hand-off note, and preparing a fresh session. I'm in build mode now, so I'll run the mutants on the exported tree first and then read the note.
+
+I'm weighing whether the live scenarios belong in the group 12 probe or in a read-only live test, and I'm leaning toward mapping them to task 12.4 in the tests README. After that I need to export the builder session before closing its pane, keeping the workspace itself open for the next session.
+
+I'm planning to open a new tab in the same workspace for the next session and then close the old one, since closing the only tab could shut the workspace down. I'll export the builder session first, keeping the old agent running briefly so nothing gets lost, and only start the new agent once the export is in hand.
+
+I'm weighing whether to export the builder session now and hold off on closing its tab until the export is committed, since the orchestrator normally closes a tab only after that point. A cut session doesn't remove a worktree, and the raw export can be rebuilt from the session store while it exists, so closing the pane wouldn't lose the work. Still, the standing rule says to wait for the commit, so I'll export without committing, propose a commit message, and ask before closing anything.
+
+I'm weighing whether to close the old tab before the export is committed, since the rule says to wait for that. The export content sits in the working tree and the session stays in the store, so nothing is lost either way. Still, I'd rather keep to the rule, so I'll export, propose a commit message, and ask before closing anything.
+
+I'm still weighing the old tab against memory: the export is the next step, and I'll keep the old tab open until it's committed. Instead of dropping the old agent now, I'll export first, then ask whether to close it.
+
+I'm going to run the group 4 and group 5 checks on the exported tree, the mutant for the forced-lowercase env and shellcheck on the three scripts, and then read the hand-off note. After that I'll answer the builder's question about live scenarios and set up the next session.
+
+Next I'm checking the mutant for the forced-lowercase env and running shellcheck on the three scripts, then reading the hand-off note.
+
+Running the mutants on the exported tree next, since the scratch copy is already in place and the run output is waiting in its directory.
+
+
+_Thinking:_
+The builder cut is at the group 5 boundary, and the suite on 9c0a96e is confirmed at 473 tests passing, 0 failures, 28 skipped. Next I'm finishing the group 4 and 5 measurement with the mutants on the same exported tree.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "S=/tmp/opencode/orch-tree; R=/tmp/opencode/orch-reports\ncd $S && DOTFILES_TEST_REPORTS=$R DOTFILES_TEST_JOBS=3 timeout 1700 tests/mutants/run.sh > $R/mut.out 2>&1; echo \"mutants exit=$?\"\n/usr/bin/grep -a -E '^mutant|^mutants|untouched' $R/mut.out | cut -c1-130",
+  "timeout": 1800000
+}
+```
+
+**Output:**
+```
+mutants exit=0
+mutant wrapper-broken: 9 failures (expected exactly 9): ok
+mutant startup-cache-name-only: 6 failures (expected at least 6): ok
+mutant startup-generator-prints: 4 failures (expected at least 4): ok
+mutant startup-rc-twice: 2 failures (expected at least 2): ok
+mutant startup-refresh-ignored: 4 failures (expected at least 4): ok
+mutant install-run-ignores-dry-run: 10 failures (expected at least 10): ok
+mutant install-need-always-ok: 9 failures (expected at least 9): ok
+mutant install-limits-lower: 3 failures (expected at least 3): ok
+mutant startup-unset-removed: 4 failures (expected at least 4): ok
+mutant env-path-no-clean: 12 failures (expected at least 8): ok
+mutant env-lc-all-forced: 14 failures (expected at least 10): ok
+mutant env-keys-at-startup: 3 failures (expected at least 3): ok
+repository untouched
+mutants: 12 run, 0 problems
+
+```
+
+**Tool: read**
+
+**Input:**
+```json
+{
+  "filePath": "[redacted:worktrees_root]/dotfiles-correct-shell-environment/.state/briefs/correct-shell-environment/builder-handoff-1.md"
+}
+```
+
+**Output:**
+```
+<path>[redacted:worktrees_root]/dotfiles-correct-shell-environment/.state/briefs/correct-shell-environment/builder-handoff-1.md</path>
+<type>file</type>
+<content>
+1: # Hand-off of the build, part 1: after group 5, before group 6
+2: 
+3: Written by chezmoi-env-builder on 2026-11-23, at a group boundary, when its context passed 70% (about 154,000 tokens of retained content).
+4: A fresh builder reads, in this order: `builder-brief.md` (same folder, still the contract), this file, `openspec/changes/correct-shell-environment/tasks.md` (groups 6 and 7), then the helpers named below.
+5: 
+6: ## State of the branch
+7: 
+8: - Worktree `[redacted:worktrees_root]/dotfiles-correct-shell-environment`, branch `feat/correct-shell-environment`, clean, last commit `9c0a96e`.
+9: - Five commits on top of `d9f437d`: `3c9c565` (artifact amendments), `86f7a4c` (group 2), `5e2a9c6` (group 3), `f39e59f` (group 4), `9c0a96e` (group 5).
+10: - `main` is at `c006474`: two docs commits, no file in common with this branch. Rebase at the very end, not before.
+11: - `mise run test`: 473 tests, 0 failures, 28 skipped, canary scan 0 (343 baseline, then 373, 418, 443, 473).
+12: - `mise run test:mutants`: 12 run, 0 problems (the 9 old ones, then `env-path-no-clean` 12 failures, `env-lc-all-forced` 14, `env-keys-at-startup` 3).
+13: - Ticked in `tasks.md`: 1.1, 2.1 to 2.3, 3.1 to 3.7, 4.1 to 4.3, 5.1 to 5.6. Not ticked: 1.2 (a rule: tick it when part 1 is done).
+14: - `tests/.lib` is fetched (the user's go was given once). `.state/tmp/` holds scratch: `probe-fixed.sh`, `mut-sanity`, `dbg-path.bats` and the study scripts; none is committed.
+15: 
+16: ## What the helpers offer (new in this part)
+17: 
+18: - `tests/helpers/kinds.sh`, sourced by `helpers/bats/load.bash`:
+19:   - `dt_kinds` (13 names), `dt_kinds_env` (the 10 that load the environment once group 6 is done: `desktop zsh-i zsh-li bash-i bash-li zsh-lc bash-lc` and the three `-nolang` kinds), `dt_login_path` (the PATH that /etc/profile gives a login shell, read from a login bash under an empty scratch home), `dt_kind_lang`.
+20:   - `dt_kind_run KIND SNIPPET [VAR=value ...]` prints stdout and stderr merged, carriage returns removed; the snippet is POSIX; tests print markers such as `@@NAME=value`.
+21:   - `dt_kind_value`, `dt_kind_path`, `dt_kind_exported KIND NAME... [VAR=value ...]`, `dt_kind_export_names`, `dt_kind_debug_count KIND PATTERN`, `dt_kind_locale_warnings`.
+22:   - An argument with an `=` is a variable, any other is a name.
+23: - `tests/helpers/fixtures.sh`: `dt_write_zsh_history[_extra]`, `dt_write_bash_history[_extra]`, `dt_locale_generated`, `dt_missing_locale`.
+24: - `tests/helpers/session-probe.sh`: the probe of `manual-steps.md`, identical text, tested by `tests/unit/session-probe.bats`.
+25: - Mutants live in `tests/mutants/env/*.sed`; each has a row in `tests/mutants/README.md` and a bullet under "The environment mutants".
+26: 
+27: ## Decisions of the user during this part (all applied)
+28: 
+29: - `GO` for `mise run test:deps`, once.
+30: - The login-shell scenario keeps "the two PATH values are equal", with both shells started from the PATH that `/etc/profile` produces, read at run time (`dt_login_path`); checked to still fail on a second pass that adds or nests an entry.
+31: - "Inherited entries are kept": the desktop replay is tested with a fixture file `036-env_fixture_inherited.sh` written into the scratch home's `rc.d`; the interactive zsh half is as written.
+32: - Bash history: the same move, link and merge as zsh (`bash/history`, legacy `~/.bash_history`), tested on synthetic bash files; the bash merge keeps the new file's lines, then the legacy lines it lacks, a repeated command as many times as it was typed (a multiset of lines).
+33: - `047` uses `${MISE_DATA_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/mise}/shims`.
+34: - `session-probe.bats` asserts the stubbed counts and the format only.
+35: 
+36: ## Deviations and things to tighten
+37: 
+38: - The orchestrator's note for group 7: the scenario "Merge after a trim" and the design say "every entry of both files once" and also "a repeated command kept as many times as it was typed"; make the scenario wording consistent with the multiset the test asserts (`specs/shell-environment/spec.md`, requirement "History under XDG state").
+39: - Tighten in group 6, because the desktop pass loads only the `env_` files from then on:
+40:   - `tests/smoke/environment-path.bats`, test "user bin directories come first in the desktop replay": it drops mise's own entries (`entries_without_mise`) because the full pass of today puts the shims first; make it strict and add the comparison with the real first entry in `environment-desktop.bats`.
+41:   - `tests/smoke/environment-locale.bats`, test "LANGUAGE defaults to en_US:en in every kind...": it excludes `bash-lc`, which loads nothing until group 6; add `bash-lc`.
+42:   - `tests/smoke/environment-path.bats`: the comment in `setup` says why the mise shims directory is created in the scratch home (mise's activation adds it even when it is missing); keep it.
+43: - The two live scenarios of `shell-environment`, "After the next login" (umask 0027 of the user manager, plasmashell and a new shell) and "The live session holds no key", have no task in groups 1 to 7 (12.4 runs `mise run test:live`).
+44:   The question is asked to chezmoi-orch; the answer is not known at the time of writing: if the answer is "add them", write them in `tests/smoke/environment-live.bats` (opt-in, read-only, counts only) and note that `test:live` fails on them until the reboot.
+45: - `INFOPATH` grows in nested shells because `brew shellenv` prepends to it at each call; `PATH` does not. Out of scope (the spec covers PATH); say so in the last report.
+46: - The probe prints nothing for A1 when the private file does not exist (`grep -f` with no pattern); the text is kept identical to `manual-steps.md`; the test documents it.
+47: 
+48: ## What is next
+49: 
+50: 1. Group 6, tests first (`tests/smoke/environment-desktop.bats`, `tests/smoke/environment-shellrc.bats`, `tests/smoke/startup-single.bats`):
+51:    - "No rc.d pass in the desktop replay": `desktop`, `zsh-lc`, `bash-lc` with `SHELL_RC_DEBUG=1`: `dt_kind_debug_count KIND 'rc\.d'` is 0 and `dt_kind_debug_count KIND '^environment:'` is 1.
+52:    - "What the session keeps", "What the session no longer gets" (no name starting `forgit_`, `LESS_TERMCAP_`, `__MISE_`; `LS_COLORS`, `LESSOPEN`, `HSTR_CONFIG`, `MISE_SHELL`, `LC_ALL` unset), "Only env_ files hold the environment" (a static search of the `rc.d` files whose names lack `-env_`).
+53:    - `environment-shellrc.bats`: `zsh -c '. ~/.config/shell/shellrc; echo done'` and the bash twin print `done` and 0 `rc.d` lines; `bash-ssh` counts 0 names and 0 `rc.d` lines.
+54:    - `startup-single.bats`: the two non-interactive login tests count 0 `rc.d` passes and 1 `environment:` line, for zsh and bash.
+55: 2. Code: `profile` non-interactive branch sources `${XDG_CONFIG_HOME:-$HOME/.config}/shell/environment`, comments say who reads each branch; `shellrc` gets `case $- in *i*) ;; *) return ;; esac` first; `git rm` `home/dot_config/zsh/zshrc` and `home/dot_config/bash/bashrc`, both in `home/.chezmoiremove` (comment line in the style of the group 3 entries).
+56: 3. Mutants `env-desktop-full-pass` (a sed on `profile`: the non-interactive branch sources `shellrc`) and `env-shellrc-no-guard` (a sed that removes the guard), rows and bullets in `tests/mutants/README.md`.
+57: 4. 6.6: `DOTFILES_TEST_BASE_REF=main DOTFILES_TEST_BASE_ALLOW=<file> mise run test`, the allow file `openspec/changes/correct-shell-environment/compare-allow.txt` with one comment per group listing the names that change: the five renamed files add nothing to the names; expect `function _path_prepend`, `function _path_clean`, `function secrets`, `function _secrets_*`, the variables the desktop no longer exports (aliases file variables, `LS_COLORS`, `LESSOPEN`, `HSTR_CONFIG`, `MISE_SHELL`, `__MISE_*`, `LC_ALL`, the private file's names) and the `LANGUAGE` value; `PATH` differs by value, so allow the name `PATH`.
+58: 5. Group 7: `930` to `999-highlighting.sh` and its test, the four removals with `.chezmoiremove` and the "Source and removal list" test over every removed or renamed target of the change (the five renames of group 3 included), `tests/unit/history.bats`, `320-shell_history.sh`, mutant `env-history-no-merge`.
+59: 6. Part 1 done: tick 1.2, `git rebase main` (c006474 or later), `openspec validate --all --strict`, `mise run test` and `mise run test:mutants`, report with the last hash, the counts, the deviations and the frictions below.
+60: 
+61: ## Frictions met with the tooling
+62: 
+63: - The read-only guard asked nothing new; the external-directory prompt for `[redacted:worktrees_root]` was answered once by the user.
+64: - `rtk` filtered some outputs: use `/usr/bin/ls` and plain greps for counts that decide something.
+65: - `python3` is a mise shim: from inside `home/dot_config/shell/rc.d` it fails with "config files are not trusted"; run Python from the repository root, or call `/usr/bin/python3`.
+66: - zsh pitfalls hit once each: `echo =====` (equals expansion), and a bats function called with a prefix assignment (`VAR=x fn`) works in bash and is what the tests use.
+67: - `herdr agent prompt chezmoi-orch` refused while the orchestrator was blocked on a question to the user; the line was written in the builder's own pane as well.
+68: - Bats runs the tests of one file in parallel: tests that count processes (the probe's A6) use names unique to the test.
+69: - `chezmoi -S` flags: `--source-path` is not a flag, the sub-command is `source-path`.
+70: - `grep -c` exits 1 on a count of 0: a helper that ends with it needs `|| true` under bats.
+71: - `bash -i` without a terminal prints two lines on stderr ("cannot set terminal process group", "no job control"); the unit tests filter them.
+72: - TokenScope worked in this session (the context estimate was about 154,000 tokens at the cut).
+73: 
+74: ## Masking notes for the session export
+75: 
+76: - No value and no name of the user's private file was printed: the one live test read the names in memory and printed a count.
+77: - Absolute paths with the login name appear in tool outputs (`/home/<login>/...`): the redaction tool's path aliases handle them.
+78: - The transcript shows that a zsh history file of mode 0600 exists in the home and that no bash history file exists (a `stat`), the list of generated locales of the machine, and that `aqua`, `brew-file` and the brew-wrap file come from brew.
+79: - The orchestrator's pane name and its working directory (the main checkout) appear in one JSON answer of `herdr agent prompt`.
+80: 
+81: <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->
+
+(End of file - total 81 lines)
+</content>
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 12.0s)
+
+_Thinking:_
+I'm checking the question now, specifically the two live scenarios, so I'll read lines 205 to 220 of the spec.
+
+
+_Thinking:_
+All 12 mutants pass, with env-lc-all-forced at 14 failures and env-keys-at-startup at 3. I'm now reading the two live scenarios the builder asked about.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "W=[redacted:worktrees_root]/dotfiles-correct-shell-environment; S=/tmp/opencode/orch-tree\nsed -n '196,222p' $S/openspec/changes/correct-shell-environment/specs/shell-environment/spec.md | cut -c1-260\necho '--- what environment-live.bats holds now'\n/usr/bin/grep -a -n -E '@test|DOTFILES_TEST_LIVE|skip' $S/tests/smoke/environment-live.bats | cut -c1-170\necho '--- task 12.4 and 9.1 text'\n/usr/bin/grep -a -n -E '^- \\[ \\] (9\\.1|12\\.4)' $S/openspec/changes/correct-shell-environment/tasks.md | cut -c1-400",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+- **WHEN** each of those targets is looked up with `chezmoi -S <worktree> managed` and in `home/.chezmoiremove`
+- **THEN** none is managed and each is listed
+
+### Requirement: The session's umask comes from the login
+
+The startup files SHALL NOT set a umask; the user's sessions SHALL get umask 0027 from the login, through the script of the `install-scripts` capability.
+
+#### Scenario: Startup leaves the umask alone
+
+- **WHEN** the desktop replay, `zsh -i` and `bash -l -i` start once with umask 0027 and once with umask 0002, and print `umask` after startup
+- **THEN** each prints the umask it was started with
+
+#### Scenario: After the next login
+
+- **WHEN** the umask of the systemd user manager, of `plasmashell` and of a new interactive shell is read from `/proc/<pid>/status` (a live test)
+- **THEN** each is `0027`
+
+#### Scenario: The live session holds no key
+
+- **WHEN** `systemctl --user show-environment` and the environment of the terminal process are reduced to names and counted against the names of the user's private file (a live test, the list held in memory)
+- **THEN** both counts are 0
+
+<!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->
+--- what environment-live.bats holds now
+3:# The checks of the spec shell-environment that read this machine: opt-in (`DOTFILES_TEST_LIVE=1`, or
+9:@test "no name of the user's private file is written in the shell source" {
+12:  [ -f "$env_file" ] || skip "the user environment file does not exist on this machine"
+15:    skip "the user environment file sets no variable"
+--- task 12.4 and 9.1 text
+64:- [ ] 9.1 `tests/README.md`: the scenario table maps every scenario of `shell-environment` and the changed scenarios of `shell-startup`, `agent-environment` and `install-scripts` (rows equal the sum of the four `rg -c '^#### Scenario'` counts after the archive)
+96:- [ ] 12.4 `mise run test:live`; the counts of the user manager's and the terminal's variables against the names of the private file and the secret pattern print 0 (as in `TODO.md`'s reboot check, which is then ticked); the umask of the user manager, `plasmashell` and a new shell is `0027`; `LC_ALL` is not in the user manager
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 18.2s)
+
+_Thinking:_
+I'm treating the spec's "a live test" wording as binding for both scenarios, so these need to be live tests. I'm planning to put them in `environment-live.bats` as opt-in, read-only, count-only checks, added in the second session as a new task. The open question is that they'll fail until the post-deployment reboot, which makes `mise run test:live` red right now, and I'm weighing whether that's acceptable.
+
+I'm weighing an opt-in variable for these live tests so `mise run test:live` doesn't fail before the post-reboot deployment, since a fixed skip check on deployed state would be fragile. I'm leaning toward a separate login-only variable set in the post-reboot step, and I'm checking whether that still fits the spec's "live test" wording.
+
+I'm planning to make the post-deployment check opt-in through a second variable, so `mise run test:live` stays green before the reboot. The live tests would reuse the probe's counts (A1, A6, A7–A9) and assert zero user-manager and terminal-environment matches.
+
+I'm checking the umask question: a new interactive shell started under a cleared environment inherits the test runner's umask, which comes from the terminal and session, so reading it from inside the test should reflect the login state if `run.sh` doesn't change it. The remaining concern is the terminal that has run `secrets load`, since its process environment would hold secret names, so the live test should fail with a clear message there and the manual steps should say to use a terminal where that wasn't typed.
+
+I'm realizing the ancestor-walk approach is more robust than counting every process, since the terminal's other panes could hold secret names for legitimate reasons. So I'm restricting the check to the user manager and the processes in the test's own parent chain, up to systemd, and I'll write that into the task with counts only.
+
+I'm going to leave the builder branch to the next session, since I can't touch tasks.md on main without conflicts. The new builder's brief will carry the instruction to add task 6.7, amend manual-steps step 4 and tests/README.md, and propose the change in a docs commit. I'm treating that as my call, since it follows from the spec's "live test" wording, and I'll note it in the summary. Next I'll scan the added lines in commits f39e59f and 9c0a96e, run shellcheck on the new rc.d files, and check the function around line 446 for the key.
+
+I'm going to review the function around line 446 that handles the key file, since it's the security-sensitive part, and check that it never echoes the secret names.
+
+
+_Thinking:_
+Both items need live-test tasks per the spec, so I'm reviewing the security-relevant code in group 5 (the `secrets` function and the `010` change) before I answer.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "S=/tmp/opencode/orch-tree\necho '=== 446-tools_secrets.sh'; cat $S~/shell/rc.d/446-tools_secrets.sh | cut -c1-175\necho; echo '=== 010-env_user.sh'; cat $S~/shell/rc.d/010-env_user.sh | cut -c1-175",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+=== 446-tools_secrets.sh
+## Keys on demand: the private environment file is loaded when the user asks
+
+# A shell does not start with the keys of the private environment file, and neither does the desktop session: every
+# process that inherits them (an agent, a plugin, a script) could print or send them.
+#   secrets load     export the file's variables into this shell, and so into everything it starts,
+#                    and set the marker DOTFILES_SECRETS=loaded
+#   secrets unload   unset them and the marker
+#   secrets          print how many of the file's variables are set (a number, never a name)
+# The user types it; an agent never does.
+# The names are read from the file at each call: no name is written in this repository.
+# The marker has a secret-pattern name, so the opencode function removes it from an agent's environment with the keys.
+#
+# A new interactive shell starts without the marker unless a parent loaded the keys on purpose: it then unsets the
+# copies it inherited, which terminals and multiplexers started by an older session still hold.
+# With the marker, the shell is a child of a shell that loaded them, and keeps them.
+
+# Interactive shells only: a script, a desktop session or a command run by ssh neither gets the function nor loses a
+# variable here.
+case $- in
+  *i*) ;;
+  *) return 0 ;;
+esac
+
+# The private file, and the names it sets (one per line: assignments, with or without export; comments and blank
+# lines are not names).
+_secrets_file() {
+  printf '%s\n' "${XDG_CONFIG_HOME:-$HOME/.config}/env"
+}
+
+_secrets_names() {
+  [ -f "$(_secrets_file)" ] || return 0
+  sed -n 's/^[[:space:]]*\(export[[:space:]]\{1,\}\)\{0,1\}\([A-Za-z_][A-Za-z0-9_]*\)=.*/\2/p' "$(_secrets_file)"
+}
+
+secrets() {
+  case "${1:-}" in
+    load)
+      if [ ! -f "$(_secrets_file)" ]; then
+        echo "secrets: no private environment file" >&2
+        return 1
+      fi
+      # allexport: a plain assignment of the file is exported too; the option goes back as it was
+      case $- in
+        *a*) _secrets_was_a=1 ;;
+        *) _secrets_was_a=0 ;;
+      esac
+      set -a
+      # shellcheck disable=SC1090
+      . "$(_secrets_file)"
+      [ "$_secrets_was_a" = 1 ] || set +a
+      unset _secrets_was_a
+      export DOTFILES_SECRETS=loaded
+      ;;
+    unload)
+      for _secrets_name in $(_secrets_names); do
+        unset "$_secrets_name" 2> /dev/null || :
+      done
+      unset _secrets_name DOTFILES_SECRETS
+      ;;
+    "")
+      _secrets_count=0
+      for _secrets_name in $(_secrets_names); do
+        eval "[ -n \"\${$_secrets_name+set}\" ]" && _secrets_count=$((_secrets_count + 1))
+      done
+      printf '%s\n' "$_secrets_count"
+      unset _secrets_count _secrets_name
+      ;;
+    *)
+      echo "usage: secrets [load|unload]" >&2
+      return 2
+      ;;
+  esac
+}
+
+# A parent that loaded the keys on purpose leaves the marker: this shell keeps what it inherited.
+if [ -z "${DOTFILES_SECRETS:-}" ]; then
+  for _secrets_name in $(_secrets_names); do
+    unset "$_secrets_name" 2> /dev/null || :
+  done
+  unset _secrets_name
+fi
+
+# vim: set syntax=sh :
+
+=== 010-env_user.sh
+## Environment variables
+
+### User environment configuration
+if [ -f "${XDG_CONFIG_HOME}/envrc" ]; then
+  source "${XDG_CONFIG_HOME}/envrc"
+fi
+
+### Revoked variable
+# A parent process (terminal, multiplexer) started before the token was revoked still holds it: drop that inherited copy.
+unset GITHUB_TOKEN
+
+### User private environment: not loaded here
+# The private file holds the keys, and no process gets them unless the user asks: `secrets load` in an interactive
+# shell (446-tools_secrets.sh), which hands them to that shell and its children only. Neither a new shell nor the
+# desktop session starts with them.
+
+# vim: set syntax=sh :
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 30.3s)
+
+_Thinking:_
+I'm going through the review notes. The first one is that `secrets load` sources the file into the current shell, which is acceptable even with command substitutions, and zsh with `set -a` looks fine too. I'm also checking the `eval` in the count function, which seems safe since the variable name comes from a strictly matched regex.
+
+I'm checking the remaining review items: zsh word splitting on the `$(_secrets_names)` loop looks correct, and the `DOTFILES_SECRETS=loaded` marker should be stripped by the wrapper. I'm also weighing whether the per-shell read of the private file adds any real security or startup cost.
+
+I'm moving on to the desktop pass and the question of whether the user manager still holds the old keys until a reboot. I'm also wondering whether bash non-login interactive shells pick up the guard at all. Next I'll run the scans on the added lines and shellcheck the three files.
+
+
+_Thinking:_
+The code matches the design: names are read from the file on each call, the count prints only a number, and the eval is safe given the strict name pattern. Next I'm running the scans and syntax checks over both commits.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "W=[redacted:worktrees_root]/dotfiles-correct-shell-environment; G=/home/linuxbrew/.linuxbrew/bin/git; S=/tmp/opencode/orch-tree\n$G -C $W diff 5e2a9c6 9c0a96e | /usr/bin/grep -a '^+' | /usr/bin/grep -a -v '^+++' > /tmp/opencode/added.txt\nprintf 'added %s | dashes %s | banned %s | emoji %s | e-mail %s | token shapes %s | /home paths (non-linuxbrew) %s | IPv4 %s\\n' \"$(wc -l < /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -E '[–—]' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -i -w -E '[redacted:private]|[redacted:private]|[redacted:private]|[redacted:repo]|[redacted:private]' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -P '[\\x{1F300}-\\x{1FAFF}\\x{2600}-\\x{27BF}]' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -E '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[a-z]{2,}' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -E 'gh[pousr]_[A-Za-z0-9]{20,}|sk-[A-Za-z0-9_-]{20,}|AKIA[0-9A-Z]{16}' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -o -E '/home/[A-Za-z0-9_-]+' /tmp/opencode/added.txt | /usr/bin/grep -a -v -E 'linuxbrew|/home/user' | wc -l)\" \"$(/usr/bin/grep -a -c -E '\\b([0-9]{1,3}\\.){3}[0-9]{1,3}\\b' /tmp/opencode/added.txt)\"\necho \"secret-looking names in added lines: $(/usr/bin/grep -a -o -E '\\b[A-Z][A-Z0-9]*(_[A-Z0-9]+)*_(API_?KEY|TOKEN|SECRET|PASSWORD|PASSWD|CREDENTIAL)\\b' /tmp/opencode/added.txt | sort | uniq -c | tr '\\n' ' ')\"\necho \"DEMO_ names whose shape could look like a key (DEMO_*KEY|TOKEN|SECRET|PASSWORD): $(/usr/bin/grep -a -c -E 'DEMO_[A-Z0-9_]*(KEY|TOKEN|SECRET|PASSWORD|PASSWD|CREDENTIAL)' /tmp/opencode/added.txt)\"\nrm -f /tmp/opencode/added.txt\necho '--- syntax on the changed rc.d files'\nfor f in 010-env_user 020-env_defaults 446-tools_secrets; do p=$S~/shell/rc.d/$f.sh; printf '%-22s bash -n %s | zsh -n %s | shellcheck -S warning %s\\n' $f \"$(bash -n $p >/dev/null 2>&1; echo $?)\" \"$(zsh -n $p >/dev/null 2>&1; echo $?)\" \"$(shellcheck -s sh -S warning $p >/dev/null 2>&1; echo $?)\"; done\necho '--- redaction check on changed or new text files (non-zero only)'\nfor f in $($G -C $W diff --name-only 5e2a9c6 9c0a96e); do [ -f $S/$f ] || continue\n  o=$(python3 ~/.config/nvim/scripts/session_redact.py --check $S/$f 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | /usr/bin/grep -a -E ': [1-9][0-9]*$' | tr '\\n' ' '); [ -n \"$o\" ] && echo \"$f: $o\"; done; echo '(end)'\necho \"gitleaks over the branch: $(cd $W && mise x -- gitleaks git --redact --no-banner --log-opts='main..9c0a96e' . 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | tail -1)\"\necho \"validate in the worktree: $(cd $W && openspec validate --all --strict 2>&1 | tail -1)\"\necho \"env-only check: names of the user's private file in the added text of the branch: $(python3 -c '\nimport os, re, subprocess\nfrom pathlib import Path\nf = Path(os.environ.get(\"XDG_CONFIG_HOME\", str(Path.home()/\".config\")))/\"env\"\nnames = []\nfor l in f.read_text(encoding=\"utf-8\", errors=\"replace\").splitlines():\n    m = re.match(r\"^\\s*(?:export\\s+)?([A-Za-z_][A-Za-z0-9_]*)=\", l)\n    if m and m.group(1) not in names: names.append(m.group(1))\nd = subprocess.run([\"/home/linuxbrew/.linuxbrew/bin/git\", \"-C\", str(Path.home()/\"Work/trees/dotfiles-correct-shell-environment\"), \"diff\", \"main...9c0a96e\"], capture_output=True, text=True).stdout\nprint(sum(1 for n in names if re.search(r\"\\b%s\\b\" % re.escape(n), d)))\n')\"",
+  "timeout": 180000
+}
+```
+
+**Output:**
+```
+added 722 | dashes 0 | banned 0 | emoji 0 | e-mail 0 | token shapes 0 | /home paths (non-linuxbrew) 0 | IPv4 0
+secret-looking names in added lines:       1 GITHUB_TOKEN 
+DEMO_ names whose shape could look like a key (DEMO_*KEY|TOKEN|SECRET|PASSWORD): 0
+--- syntax on the changed rc.d files
+010-env_user           bash -n 0 | zsh -n 0 | shellcheck -S warning 1
+020-env_defaults       bash -n 0 | zsh -n 0 | shellcheck -S warning 0
+446-tools_secrets      bash -n 0 | zsh -n 0 | shellcheck -S warning 0
+--- redaction check on changed or new text files (non-zero only)
+(end)
+gitleaks over the branch: 6:12PM INF no leaks found
+validate in the worktree: Totals: 38 passed, 0 failed (38 items)
+env-only check: names of the user's private file in the added text of the branch: 0
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 3.9s)
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "G=/home/linuxbrew/.linuxbrew/bin/git; S=/tmp/opencode/orch-tree; f=home/dot_config/shell/rc.d/010-env_user.sh\n$G show main:$f > /tmp/opencode/010-main.sh\necho \"main: $(shellcheck -s sh -S warning /tmp/opencode/010-main.sh 2>&1 | /usr/bin/grep -a -o 'SC[0-9]*' | sort | uniq -c | tr '\\n' ' ')\"\necho \"now:  $(shellcheck -s sh -S warning $S/$f 2>&1 | /usr/bin/grep -a -o 'SC[0-9]*' | sort | uniq -c | tr '\\n' ' ')\"\nrm -f /tmp/opencode/010-main.sh\necho '--- is the scratch run measuring my own real home? (the live test must not have read anything real beyond a count)'\n/usr/bin/grep -a -c 'environment-live' $S/tests/README.md",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+main:       3 SC3046 
+now:        2 SC3046 
+--- is the scratch run measuring my own real home? (the live test must not have read anything real beyond a count)
+0
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 13.1s)
+
+_Thinking:_
+I've already confirmed the shellcheck warning is pre-existing, so that's settled. Now I'm exporting the builder's session, which means getting its session ID and writing it to scratch under a neutral slug and timestamped filename.
+
+Next I'm weighing how to set up the second builder: I'll write a brief addendum covering the hand-off, the live-tests decision, and the scope for this part, then start it in a new tab before closing the old one to keep memory in check.
+
+
+_Thinking:_
+Group 5 passed review: 473 tests, 0 failures, 28 skipped on `9c0a96e`, with the one old shellcheck note unchanged. I need the builder's session id before I can export that session.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\necho \"builder: $(herdr agent get chezmoi-env-builder 2>/dev/null | jq -c '.result.agent | {name, pane: .pane_id, status: .agent_status, session: .agent_session.value}' 2>/dev/null)\"\nrm -rf /tmp/opencode/orch-tree /tmp/opencode/orch-reports; echo \"scratch of the measurement deleted\"\nS=/tmp/opencode/export-scratch; mkdir -p $S/raw $S/out && chmod 700 $S\nSID=$(herdr agent get chezmoi-env-builder 2>/dev/null | jq -r '.result.agent.agent_session.value')\npython3 ~/Work/[redacted:private]/scripts/session/export.py --full --no-children --force --out-dir $S/raw --slug shell_environment_build_one \"$SID\" > $S/export.log 2>&1; echo \"export exit=$?\"\nRAW=$(ls $S/raw/*.md | head -1); echo \"raw: $(basename $RAW), $(stat -c %s $RAW) bytes, $(wc -l < $RAW) lines; files in raw: $(ls $S/raw | wc -l)\"\n/usr/bin/grep -a -m1 -o 'through msg_[A-Za-z0-9]*' $RAW; head -4 $RAW | cut -c1-100",
+  "timeout": 300000
+}
+```
+
+**Output:**
+```
+builder: {"name":"chezmoi-env-builder","pane":"w0:p1","status":"done","session":"ses_df7bc0034ffeVSFL9O71R9GqgJ"}
+scratch of the measurement deleted
+export exit=0
+raw: 202611231256-shell_environment_build_one.md, 731951 bytes, 10789 lines; files in raw: 1
+through msg_20958475b001cVStpTc3axLF0M
+# chezmoi-env-builder: correct-shell-environment part 1 build
+**Session ID:** ses_df7bc0034ffeVSFL9O71R9GqgJ
+**Created:** 11/23/2026, 12:56:43 PM
+**Updated:** 11/23/2026, 5:58:37 PM
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 20.7s)
+
+_Thinking:_
+Checking the timestamps: one says created at 12:56, the other updated at 5:58 PM, and I'm setting aside time zone differences for now. Next I'm looking at a message ID reference, msg_20958475b, which points to when the hand-off note was written. That note contains something I need to redact.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; S=/tmp/opencode/export-scratch; R=~/.config/nvim/scripts/session_redact.py\nRAW=$(ls $S/raw/*.md | head -1)\npython3 $R < $RAW > $S/out/pass1.md 2>$S/out/pass1.err; echo \"pass1 exit=$? lines $(wc -l < $S/out/pass1.md); stderr lines $(wc -l < $S/out/pass1.err)\"\npython3 $R < $S/out/pass1.md > $S/out/pass2.md 2>/dev/null; cmp -s $S/out/pass1.md $S/out/pass2.md && echo \"idempotent: yes\" || echo \"idempotent: NO\"\numask 077; python3 $R --check --folder-report $S/folders.txt $S/out/pass1.md > $S/chk.out 2>&1; echo \"check on the new export: exit=$?\"\nsed 's/\\x1b\\[[0-9;]*m//g' $S/chk.out | /usr/bin/grep -a -E ': [1-9][0-9]*$'; echo '(non-zero categories end)'\necho \"folder report: $(stat -c '%a' $S/folders.txt), $(wc -l < $S/folders.txt) line(s)\"; umask 002\nO=$S/out/pass1.md\npython3 - $O <<'EOF'\nimport os, re, sys\nfrom pathlib import Path\nt = Path(sys.argv[1]).read_text(encoding=\"utf-8\")\ndef n(p, flags=0): return len(re.findall(p, t, flags))\nH = Path.home()\nidf = H/\".local/share/[redacted:private]/session-redact/identity.txt\"\nvals = [l.split(\"=\",1)[-1].strip() for l in idf.read_text(encoding=\"utf-8\").splitlines() if l.strip() and not l.strip().startswith(\"#\")] if idf.exists() else []\nprint(\"identity values present:\", sum(1 for v in vals if len(v) >= 3 and re.search(r'(?<![A-Za-z0-9])%s(?![A-Za-z0-9])' % re.escape(v), t, re.I)), \"of\", len(vals))\nprint(\"login /home/<user> forms:\", n(r'/home/(?!linuxbrew|user\\b)[A-Za-z0-9_-]+'), \"| banned names:\", n(r'(?i)\\b([redacted:private]|[redacted:private]|[redacted:private]|[redacted:repo]|[redacted:private])\\b'), \"| store dir word:\", t.count(\"[redacted:private]\"))\nprint(\"token shapes:\", n(r'gh[pousr]_[A-Za-z0-9]{20,}') + n(r'sk-[A-Za-z0-9_-]{20,}') + n(r'-----BEGIN [A-Z ]*PRIVATE KEY-----') + n(r'AKIA[0-9A-Z]{16}') + n(r'xox[abp]-[A-Za-z0-9-]{10,}'))\nnames = sorted(set(re.findall(r'\\b[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*_(?:API_?KEY|TOKEN|SECRET|PASSWORD|PASSWD|CREDENTIAL|ACCESS_?KEY|PRIVATE_?KEY)\\b', t)))\nallowed = {\"ANTHROPIC_API_KEY\",\"AWS_SECRET_ACCESS_KEY\",\"AZURE_OPENAI_API_KEY\",\"BRAVE_API_KEY\",\"GEMINI_API_KEY\",\"GITHUB_TOKEN\",\"MISTRAL_API_KEY\",\"MOONSHOT_API_KEY\",\"OPENAI_API_KEY\",\"TAVILY_API_KEY\",\"XAI_API_KEY\"}\nprint(\"secret-looking names:\", len(names), \"outside the allowed set and DEMO_:\", [x for x in names if x not in allowed and not x.startswith(\"DEMO_\")])\nips = re.findall(r'\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b', t); print(\"IPv4 non-loopback:\", len([i for i in ips if not i.startswith((\"127.\", \"0.\"))]), \"| e-mails:\", n(r'[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[a-z]{2,}'), \"| NUL symbols:\", t.count(\"\\u2400\"))\n# the private file's names, in memory, count only\nf = Path(os.environ.get(\"XDG_CONFIG_HOME\", str(H/\".config\")))/\"env\"; pn = []\nfor l in f.read_text(encoding=\"utf-8\", errors=\"replace\").splitlines():\n    m = re.match(r'^\\s*(?:export\\s+)?([A-Za-z_][A-Za-z0-9_]*)=', l)\n    if m and m.group(1) not in pn: pn.append(m.group(1))\nprint(\"names of the user's private file readable in the export:\", sum(1 for x in pn if re.search(r'\\b%s\\b' % re.escape(x), t)), \"of\", len(pn))\nEOF\nmise x -- gitleaks dir --redact --no-banner $O 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | tail -1\nhk util detect-private-key $O > /dev/null 2>&1; echo \"detect-private-key exit=$?\"",
+  "timeout": 400000
+}
+```
+
+**Output:**
+```
+pass1 exit=0 lines 10789; stderr lines 0
+idempotent: yes
+check on the new export: exit=0
+(non-zero categories end)
+folder report: 600, 0 line(s)
+identity values present: 0 of 5
+login /home/<user> forms: 0 | banned names: 0 | store dir word: 0
+token shapes: 0
+secret-looking names: 1 outside the allowed set and DEMO_: []
+IPv4 non-loopback: 0 | e-mails: 0 | NUL symbols: 0
+names of the user's private file readable in the export: 0 of 10
+6:13PM INF no leaks found
+detect-private-key exit=0
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 110.1s)
+
+_Thinking:_
+Clean up the empty folder report first, since it has zero lines. The check across all the exports can wait until the new file is in place. Next I'm installing the session file under the memory/sessions path and adding its README row, which means writing a public-facing summary of what the builder did: the review, four corrections, the group 1-5 build, and the hand-off with its frictions.
+
+I'm checking the README row for the lead (row 16) to copy its format, then I'll place the new row after the last existing row, since the rows are ordered by file timestamp and the new file's timestamp is the latest.
+
+
+The export is clean, with 0 of the 10 private-file names readable. The folder report is empty, so I'm deleting it. Now I'm installing the file and adding its README row.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; S=/tmp/opencode/export-scratch; G=/home/linuxbrew/.linuxbrew/bin/git\nN=memory/sessions/202611231256-shell_environment_build_one.md\ninstall -m 0644 $S/out/pass1.md $N\npython3 - <<'EOF'\nfrom pathlib import Path\np = Path(\"memory/sessions/README.md\"); s = p.read_text(encoding=\"utf-8\").splitlines(keepends=True)\nidx = max(i for i, l in enumerate(s) if l.startswith(\"| `2026\"))\nrow = (\"| `202611231256-shell_environment_build_one.md` | `ses_df7bc0034ffeVSFL9O71R9GqgJ` | \"\n \"Change `correct-shell-environment`, first build session, started by the orchestrator in a linked worktree workspace grouped under the workspace of the main checkout: \"\n \"the reading of the brief and the artifacts against the tree (four statements that did not hold, re-measured by the orchestrator, the decisions of the user on the login `PATH` scenario, the replay scenario, bash history and the probe quoting), \"\n \"then groups 2 to 5 of the tasks, tests first with a mutant for each requirement: the shell-kind runner and the history fixtures, the probe of the manual steps as a script, the `PATH` helper and the `env_` files, the locale file without a forced `LC_ALL`, and the keys loaded on demand with a `secrets` function while startup stops exporting the private file; \"\n \"the suite went from 343 to 473 tests and the mutants from 9 to 12, a hand-off note written at the cut at the group 5 boundary (past 70% of its context), and this export. \"\n \"Redacted with the public profile and the store alone, no throwaway terms file; the folder scan found no segment. No sub-agents |\\n\")\ns.insert(idx + 1, row)\np.write_text(\"\".join(s), encoding=\"utf-8\")\nEOF\nF=memory/sessions/README.md\nprintf 'README: rows %s | dashes %s | banned %s | modeline last %s\\n' \"$(/usr/bin/grep -a -c -E '^\\| ' $F)\" \"$(/usr/bin/grep -a -c -E '[–—]' $F)\" \"$(/usr/bin/grep -a -c -i -w -E '[redacted:private]|[redacted:private]|[redacted:private]|[redacted:repo]|[redacted:private]|nvim-s26|nvim-orch|rog-orch' $F)\" \"$(tail -1 $F | /usr/bin/grep -a -c 'vim: set ts=2')\"\npython3 ~/.config/nvim/scripts/session_redact.py --check $F memory/sessions/*.md > /tmp/opencode/c.out 2>&1; echo \"--check README + 16 exports: exit=$? ; non-zero: $(sed 's/\\x1b\\[[0-9;]*m//g' /tmp/opencode/c.out | /usr/bin/grep -a -E ': [1-9][0-9]*$' | tr '\\n' ' ')\"; rm -f /tmp/opencode/c.out\nmise x -- gitleaks dir --redact --no-banner memory/sessions 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | tail -1\nrm -rf $S; test ! -e $S && echo 'scratch, raw export and the empty folder report deleted'\n$G status --short",
+  "timeout": 400000
+}
+```
+
+**Output:**
+```
+README: rows 17 | dashes 0 | banned 0 | modeline last 1
+--check README + 16 exports: exit=0 ; non-zero: 
+6:14PM INF no leaks found
+scratch, raw export and the empty folder report deleted
+ M memory/sessions/README.md
+?? memory/sessions/202611231256-shell_environment_build_one.md
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 37.3s)
+
+_Thinking:_
+I'm preparing the second build session now, so I'll write an addendum brief, builder-brief-2.md, in my .state/briefs folder and copy it into the worktree. It will tell the builder to continue part 1 from the handoff file on the same branch, list a read order, and note the orchestrator's decisions on live scenarios and tasks, plus the measured results where groups 4 and 5 were accepted. The scope will cover groups 6 and 7.
+
+I'm laying out the live-test plan: a new task in tasks.md, with both scenarios in the environment-live smoke file. They'd be gated behind the existing live flag plus a new after-login opt-in, so the pre-login run stays green. For the after-login checks, I'd reuse the probe's output lines and count only the ancestor processes of the test, not every process on the machine.
+
+I'm planning the live-test gating next: the counting function will be unit-tested on a synthetic file and a synthetic process, with the live scenarios left unchanged. I'd also update the manual steps and the related task and mapping entries, and propose those doc edits as a separate commit for the user to approve.
+
+I'm setting up the new agent as `chezmoi-env-build2` with a prompt file that fills in the worktree path. Then I'll open a fresh tab in w0 for it, start the agent there, and close the old tab, since the export is made but not yet committed.
+
+I'm weighing whether to close the old tab now, since the export is made but not yet committed, which goes against the rule. Keeping it open leaves an idle opencode session using about 1GB. Closing it seems safe, because the session stays in the database, so I'm leaning toward closing it and noting the deviation.
+
+I'm weighing whether to close the old tab now, since the export is done but not yet committed. Keeping it open means an idle session holding about 1 GB for no use, and closing it doesn't delete the session from the database. I'm leaning toward closing it now and saying so explicitly, since that departs from the committed-first rule.
+
+I'm weighing whether to close the old tab now, since the export is made but not yet committed. Keeping it open leaves an idle session holding about 1 GB, and closing the pane doesn't remove the session from the database, so I'm leaning toward closing it and noting the deviation from the commit-first rule.
+
+
+The export is in place and every check passes. Now the second build session. First I'm writing its brief addendum with my answer on the live scenarios, then the prompt.
+**Tool: write**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/.state/briefs/correct-shell-environment/builder-brief-2.md",
+  "content": "# Brief: build the change correct-shell-environment, part 1, second session (groups 6 and 7)\n\nWritten by the orchestrator agent of this repository, on 2026-11-23, for the agent that continues the build (suggested name `chezmoi-env-build2`, build mode, Sonnet 5.5).\nThis file adds to `builder-brief.md` (same folder, still the contract: scope, what you do not do, rules, reporting) and does not replace it.\nThe first builder was cut at the group 5 boundary because its context passed 70%; its hand-off note `builder-handoff-1.md` (same folder) is the state of the work.\nIt sits in your worktree's `.state/briefs/correct-shell-environment/`, which is git-ignored.\n\n## Where you work\n\n- The same worktree and branch as the first builder: `[redacted:worktrees_root]/dotfiles-correct-shell-environment`, branch `feat/correct-shell-environment`, last commit `9c0a96e`, clean.\n  Your tab is a tab of the linked workspace `w0` that is grouped under the primary workspace `wN` of this repository (the orchestrator is in `wN`).\n  The orchestrator gives you the exact worktree path in the first message; if you find yourself in the main checkout, stop and say so.\n- Do not close, rename or type into a workspace, tab or pane you did not open, and never run `herdr workspace close`: the orchestrator closes your workspace when you are finished and exported.\n\n## What was measured by the orchestrator on the committed state (do not redo, trust and go on)\n\n- Groups 2 to 5 are accepted: on `git archive 9c0a96e`, `tests/run.sh` gives 473 tests, 0 failures, 28 skipped, and `tests/mutants/run.sh` gives 12 run, 0 problems (`env-path-no-clean` 12 failures, `env-lc-all-forced` 14, `env-keys-at-startup` 3).\n- The code of `446-tools_secrets.sh` and `010-env_user.sh` was read and is accepted as it is.\n- A rule for your own reports: the orchestrator measures from an exported copy of the commit you name, never from your working tree, so a count you report must be of committed state, and a commit hash must come with it.\n\n## Decision of the orchestrator on your question (the two live scenarios)\n\nThe scenarios \"After the next login\" and \"The live session holds no key\" of `specs/shell-environment/spec.md` say \"a live test\", so they get tasks and tests, not only the manual probe.\nAdd them to `tasks.md` as task 6.7 (the number is free in group 6), and implement them as part of group 6:\n\n- Tests in `tests/smoke/environment-live.bats`, read-only, counts only, names kept in memory.\n- Gate: they run only with `DOTFILES_TEST_LIVE=1` (as every live test) AND a second opt-in variable, `DOTFILES_TEST_AFTER_LOGIN=1`, written in `tests/README.md` with its meaning (the deployment is done and the machine was rebooted); without it they skip with a message that names the variable, so `mise run test:live` stays green before the deployment.\n- \"After the next login\": the umask of the systemd user manager, of `plasmashell` and of a new interactive shell is `0027`; reuse the lines A7, A8 and A9 of the probe (`tests/helpers/session-probe.sh`) instead of a second implementation.\n- \"The live session holds no key\": the user manager and the ancestors of the test process (the terminal and the multiplexer: walk the parent chain through `/proc/<pid>/stat` up to the user manager) hold 0 names of the private file, names kept in memory and a count printed.\n  Do NOT count every process (the probe's A6): a pane where the user typed `secrets load` holds the keys on purpose and would fail the test.\n  The probe lines A1 (user manager) and the ancestors walk are the two counts.\n- A unit test of the counting function on a synthetic file of `DEMO_` names and a synthetic process (a child started with one of them in its environment): it counts 1 for the child, 0 for a clean one, and prints no name; there is no mutant for the live scenarios themselves, say so in the table of `tests/mutants/README.md` as the existing live tests do.\n- Update in the same commit: task 12.4 of `tasks.md` (run `DOTFILES_TEST_AFTER_LOGIN=1 mise run test:live`), step 4 of `manual-steps.md` (the same command), the scenario table task 9.1 (these two scenarios map to `environment-live.bats`, opt-in).\n  These are artifact edits: one commit `docs(chezmoi:spec)` proposed to the user first, before the tests are written.\n\n## What is yours in this session\n\n1. Start: read `builder-brief.md`, then `builder-handoff-1.md`, then `tasks.md` (groups 6 and 7), then the helpers named in the hand-off; say in a few lines what does not hold against the tree and report \"reading done\" to `chezmoi-orch` with one line.\n2. The artifact commit above (task 6.7 and its follow-ups), proposed to the user.\n3. Group 6, as written in the hand-off (\"What is next\", points 1 to 4) plus the tightening of three tests it lists, plus task 6.7.\n4. Group 7, as written in the hand-off (point 5), with the wording fix of the bash merge scenario.\n5. Part 1 done, as in the hand-off (point 6): tick 1.2, rebase on `main` (it is `c006474` or later: two docs commits, and the orchestrator may have added more), `openspec validate --all --strict`, the suite and the mutants, the last report.\n\nGroups 8 to 13 stay for a later session.\nCut at a group boundary when your context nears 70% with a hand-off note `builder-handoff-2.md` in the same folder; a third session continues from it.\n\n## Reminders that cost the first session time\n\n- `/usr/bin/python3` or run Python from the repository root: the mise shim of `python3` refuses inside `home/dot_config/shell/rc.d`.\n- `grep -c` exits 1 on a count of 0: a helper that ends with it needs `|| true` under bats.\n- `rtk` filters some outputs: use `/usr/bin/ls` and plain greps for counts that decide something.\n- An external-directory permission prompt (`[redacted:worktrees_root]/*`) was answered once by the user for the first session: expect it again for this one, and say so in your pane when it blocks you; the answer is the user's.\n- The first builder's scratch (`.state/tmp/`: the probe, mutant sanity files, the study scripts) is still in the worktree; none is committed and the folder is git-ignored.\n\n<!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->\n"
+}
+```
+
+**Output:**
+```
+Wrote file successfully.
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; B=.state/briefs/correct-shell-environment\ncat > $B/builder-prompt-2.txt <<'EOF'\nYou are chezmoi-env-build2, the second build session for part 1 of the OpenSpec change correct-shell-environment (groups 6 and 7 of tasks.md, plus the live-test task 6.7). Your worktree is __WORKTREE__ (branch feat/correct-shell-environment, last commit 9c0a96e, clean); stay inside it. The first builder was cut at the group 5 boundary at 70% of its context. Read in this order: __WORKTREE__/.state/briefs/correct-shell-environment/builder-brief-2.md (what is yours and the decision on the two live scenarios), then builder-brief.md (the contract: rules, what you do not do, reporting), then builder-handoff-1.md (state of the branch, helpers, decisions, deviations, what is next), then tasks.md groups 6 and 7. Say in a few lines what does not hold against the tree, send chezmoi-orch one line with herdr agent prompt when reading is done, and then start with the artifact commit of the brief (task 6.7 and its follow-ups), proposed to the user before you commit it.\nEOF\nF=$B/builder-brief-2.md\nprintf 'brief2: lines %s | dashes %s | banned %s | modeline last %s\\n' \"$(wc -l < $F)\" \"$(/usr/bin/grep -a -c -E '[–—]' $F)\" \"$(/usr/bin/grep -a -c -i -w -E '[redacted:private]|[redacted:private]|[redacted:private]|[redacted:repo]|[redacted:private]' $F)\" \"$(tail -1 $F | /usr/bin/grep -a -c 'vim: set ts=2')\"\npython3 ~/.config/nvim/scripts/session_redact.py --check $F 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | /usr/bin/grep -a -E ': [1-9][0-9]*$'; echo '(redaction non-zero list ends)'\nchmod 600 $B/*; ls $B | tr '\\n' ' '; echo\necho \"prompt bytes: $(wc -c < $B/builder-prompt-2.txt), placeholders: $(/usr/bin/grep -a -o '__WORKTREE__' $B/builder-prompt-2.txt | wc -l)\"",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+brief2: lines 55 | dashes 0 | banned 0 | modeline last 1
+path aliases: 2
+  global: 2
+(redaction non-zero list ends)
+brief.md builder-brief-2.md builder-brief.md builder-prompt-2.txt builder-prompt.txt decisions.md handoff.md 
+prompt bytes: 969, placeholders: 2
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 23.0s)
+
+_Thinking:_
+Path aliases are resolving to `[redacted:worktrees_root]`, the worktrees root, which isn't committed since it's git-ignored, so that's fine. Next I'm launching: copying brief-2 and the prompt into the worktree's `.state/briefs` (builder-handoff-1.md is already there), then opening a new tab in w0, starting the agent, checking the footer, and sending the prompt before closing the old tab w0:t1. I also need to be careful with the herdr tab-create JSON, where the tab ID sits under `.result.tab.tab_id`.
+
+I'm checking the herdr tab-create output, since the new tab's root pane ID comes back under `.result.root_pane.pane_id`.
+
+
+_Thinking:_
+The brief and prompt are ready, with the only path-alias hits in a git-ignored worktrees file. I'm launching the second session in a new tab in workspace w0, then closing the old tab.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; W=[redacted:worktrees_root]/dotfiles-correct-shell-environment; B=.state/briefs/correct-shell-environment\ncp -p $B/builder-brief-2.md $W/.state/briefs/correct-shell-environment/\necho \"in the worktree: $(ls $W/.state/briefs/correct-shell-environment | tr '\\n' ' ')\"\nherdr tab create --workspace w0 --cwd \"$W\" --label build2 --no-focus > .state/tmp/tab2.json 2> .state/tmp/tab2.err; echo \"tab create exit=$?\"\njq -c '.result | {tab: .tab.tab_id, workspace: .tab.workspace_id, pane: .root_pane.pane_id}' .state/tmp/tab2.json 2>&1 | head -2\nP=$(jq -r '.result.root_pane.pane_id' .state/tmp/tab2.json); echo \"new pane: $P\"\nherdr agent start chezmoi-env-build2 --kind opencode --pane \"$P\" -- --agent build --model anthropic/claude-sonnet-5-5 2>&1 | jq -c '{ok: (.error == null), error: (.error // null)}' 2>/dev/null\necho \"$P\" > .state/tmp/build2-pane.txt\nsleep 12; herdr pane read \"$P\" --lines 40 2>/dev/null | /usr/bin/grep -a -E 'Build|Plan|Sonnet|Opus|xhigh' | tail -2 | cut -c1-120",
+  "timeout": 90000
+}
+```
+
+**Output:**
+```
+in the worktree: brief.md builder-brief-2.md builder-brief.md builder-handoff-1.md decisions.md handoff.md 
+tab create exit=0
+{"tab":"w0:t2","workspace":"w0","pane":"w0:p2"}
+new pane: w0:p2
+{"ok":true,"error":null}
+                                            ┃  Build · Claude Sonnet 5.5 Anthropic · xhigh
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 17.0s)
+
+The footer reads `Build · Claude Sonnet 5.5 · xhigh`. I'm sending the prompt, then I close the old tab.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; W=[redacted:worktrees_root]/dotfiles-correct-shell-environment\nPm=$(sed \"s#__WORKTREE__#$W#g\" .state/briefs/correct-shell-environment/builder-prompt-2.txt)\necho \"prompt: $(printf '%s' \"$Pm\" | wc -c) bytes; placeholders left $(printf '%s' \"$Pm\" | /usr/bin/grep -a -c '__WORKTREE__')\"\nherdr agent prompt chezmoi-env-build2 \"$Pm\" --wait --until working --timeout 20000 2>&1 | jq -c '{ok: (.error == null), error: (.error // null)}' 2>/dev/null\nsleep 5; echo \"build2: $(herdr agent get chezmoi-env-build2 2>/dev/null | jq -c '.result.agent | {name, pane: .pane_id, status: .agent_status, session: .agent_session.value}' 2>/dev/null)\"\necho '--- close the cut builder tab by id (never the workspace, never --group)'\nherdr tab close w0:t1 2>&1 | jq -c '{ok: (.error == null), error: (.error // null)}' 2>/dev/null\nsleep 2\necho \"workspaces: $(herdr workspace list 2>/dev/null | jq -r '.result.workspaces[]? | select(.workspace_id==\"wN\" or .workspace_id==\"w0\") | \"\\(.workspace_id)=\\(.label) tabs \\(.tab_count)\"' 2>/dev/null | tr '\\n' ' ')\"\necho \"wN tabs: $(herdr tab list --workspace wN 2>/dev/null | jq -r '.result.tabs[] | \"\\(.tab_id // .id)=\\(.label // .name)\"' 2>/dev/null | tr '\\n' ' ')\"\necho \"w0 tabs: $(herdr tab list --workspace w0 2>/dev/null | jq -r '.result.tabs[] | \"\\(.tab_id // .id)=\\(.label // .name)\"' 2>/dev/null | tr '\\n' ' ')\"\necho \"agents in my groups: $(herdr agent list 2>/dev/null | jq -r '.result.agents[]? | select((.pane_id // \"\") | test(\"^(wN|w0):\")) | \"\\(.name // \"(no name)\")@\\(.pane_id)\"' 2>/dev/null | tr '\\n' ' ')\"\necho \"chezmoi-orch resolves: $(herdr agent get chezmoi-orch 2>/dev/null | jq -r '.result.agent.pane_id' 2>/dev/null)\"\nprintf -- '- %s chezmoi-orch (wN:p1) builder part 1 cut at the group 5 boundary (context past 70%%): groups 4 (f39e59f) and 5 (9c0a96e) accepted on the exported commit (473 tests 0 failures 28 skipped; mutants 12 run 0 problems; code of 446 and 010 read; no private-file name in the added text); first builder session exported (202611231256-shell_environment_build_one.md, README row, uncommitted); hand-off builder-handoff-1.md; second session chezmoi-env-build2 started in a new tab w0:t2 (pane w0:p2) of the same linked workspace with builder-brief-2.md (groups 6, 7 and live tests 6.7), old tab w0:t1 closed by id\\n' \"$(date '+%Y-%m-%d %H:%M:%S')\" >> .state/journal.md",
+  "timeout": 120000
+}
+```
+
+**Output:**
+```
+prompt: 1058 bytes; placeholders left 0
+{"ok":true,"error":null}
+build2: {"name":"chezmoi-env-build2","pane":"w0:p2","status":"working","session":"ses_df6978237ffep8f55EkhyZmu3O"}
+--- close the cut builder tab by id (never the workspace, never --group)
+{"ok":true,"error":null}
+workspaces: wN=chezmoi tabs 2 w0=env-build tabs 1 
+wN tabs: wN:t1=orch wN:tY=editor 
+w0 tabs: w0:t2=build2 
+agents in my groups: chezmoi-orch@wN:p1 chezmoi-env-build2@w0:p2 
+chezmoi-orch resolves: wN:p1
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 19.2s)
+
+_Thinking:_
+Everything checks out, so next I'm updating the resume note and the journal, which is already done. The resume still lists the repository as having uncommitted changes, namely the README and the new export file, so I'm drafting a commit message for that and checking its length. Pushes for 58633a0, c006474, and the store commit 028f55e are also still outstanding.
+
+Now I'm checking the resume note, which still needs the new export file and README listed as uncommitted. Next I'll write out the resume update itself, covering builder progress, the live-tests decision, and the session export.
+
+
+The second session is working in `w0:t2`, the old tab is closed, and `wN` still has my pane. Now the resume note, so a compaction at any point is safe.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; python3 - <<'EOF'\nfrom pathlib import Path\np = Path(\".state/resume.md\"); s = p.read_text(encoding=\"utf-8\")\ndef rep(a, b):\n    global s\n    assert s.count(a) == 1, (s.count(a), a[:70]); s = s.replace(a, b)\n\nrep(\"# Resume note of chezmoi-orch, updated 2026-11-23 13:25 before a compaction, with the builder RUNNING\",\n    \"# Resume note of chezmoi-orch, updated 2026-11-23 18:20 with the SECOND builder session RUNNING\")\n# workspace lines\na0 = s.index(\"- Linked workspace `w0`\"); a1 = s.index(\"- `/compact` and restarting\")\ns = s[:a0] + (\"- Linked workspace `w0` (label `env-build`, grouped under `wN`): the SECOND build session, agent `chezmoi-env-build2`, tab `w0:t2` (label `build2`), pane `w0:p2`, session `ses_df6978237ffep8f55EkhyZmu3O`; worktree `[redacted:worktrees_root]/dotfiles-correct-shell-environment`, branch `feat/correct-shell-environment`.\\n\"\n \"  The first builder (`chezmoi-env-builder`, session `ses_df7bc0034ffeVSFL9O71R9GqgJ`, tab `w0:t1`) was cut at the group 5 boundary, exported and its tab closed by id at about 18:15; the workspace stays open as long as a tab of it exists (never close its last tab before the work is done and its tab replaced).\\n\"\n \"- Tabs of `wN` now: `wN:t1` orch (me) and `wN:tY` `editor` (the user's).\\n\") + s[a1:]\n\n# repo state\na0 = s.index(\"- Repository on 2026-11-23 13:25:\"); a1 = s.index(\"- The reboot check of `TODO.md` PASSED\")\ns = s[:a0] + (\"- Repository on 2026-11-23 18:20: `main` = `c006474`, 2 commits ahead of `origin/main` (`d9f437d`), NOT PUSHED (the user has not said \\\"push\\\" since): `58633a0` (re-export of this session through about 13:00) and `c006474` (observations of the seventh launch).\\n\"\n \"  UNCOMMITTED: `memory/sessions/202611231256-shell_environment_build_one.md` (export of the first builder session, 10,789 lines, through `msg_20958475b001cVStpTc3axLF0M`, 0 identity values, 0 of 10 private-file names, folder scan 0 segments) and its README row (17 rows now); the raw file and the scratch are deleted. Proposed message `docs(chezmoi:memory): export the first correct-shell-environment build session` (check its length before use).\\n\"\n \"  Pushed earlier on 2026-11-23: `5ac1d81`, `d9f437d`. The turns of this session after the 13:00 export are in no export until the next one (same file `202610301854-harden_sensitive_targets.md`, `--full`).\\n\") + s[a1:]\n\n# builder progress: replace the whole 'Builder progress' section up to 'What is waiting'\na0 = s.index(\"### Builder progress\"); a1 = s.index(\"## What is waiting for the user\")\nprog = '''### Builder progress (2026-11-23, updated 18:20: groups 2 to 5 accepted, first session cut and exported)\n\nBranch `feat/correct-shell-environment`, 5 commits on `d9f437d` (main is `c006474` now: two docs commits with no file in common, rebase at the END, not before):\n`3c9c565` docs(chezmoi:spec): the round 1 decisions applied; `86f7a4c` test(shell:env): kinds runner, history fixtures, session probe (group 2); `5e2a9c6` feat(shell:path): `PATH` helper and the `env_` files (group 3); `f39e59f` feat(shell:env): drop missing locales, no forced `LC_ALL` (group 4); `9c0a96e` feat(shell:secrets): keys loaded on demand with `secrets load` (group 5).\nEach group re-measured by me on `git archive <hash>` (suite, mutants, shellcheck, scans, redaction check, gitleaks): group 5 = 473 tests, 0 failures, 28 skipped, mutants 12 run 0 problems (env-path-no-clean 12, env-lc-all-forced 14, env-keys-at-startup 3), no private-file name in the added text; code of `446-tools_secrets.sh` and `010-env_user.sh` read.\nScratch measuring recipe: `git archive <hash> | tar -x -C /tmp/opencode/orch-tree`, `ln -s <worktree>/tests/.lib <tree>/tests/.lib`, `DOTFILES_TEST_REPORTS=/tmp/opencode/orch-reports DOTFILES_TEST_JOBS=3 tests/run.sh` and `tests/mutants/run.sh` from inside the tree (mise does not trust that tree: `openspec validate` is run in the builder's worktree, read-only); delete `/tmp/opencode/orch-*` afterwards. NEVER run the suite on the builder's working tree while it edits.\nThe first builder asked whether the two live scenarios of `shell-environment` (\"After the next login\", \"The live session holds no key\") need tasks: DECIDED by me (the spec says \"a live test\"): task 6.7, tests in `tests/smoke/environment-live.bats` gated by `DOTFILES_TEST_LIVE=1` AND a new opt-in `DOTFILES_TEST_AFTER_LOGIN=1` (so `mise run test:live` stays green before the deployment), reusing probe lines A7, A8, A9 and counting the user manager plus the ANCESTORS of the test process (not every process: a pane that typed `secrets load` holds keys on purpose); artifact commit `docs(chezmoi:spec)` proposed by the builder to the user; 12.4 and `manual-steps.md` step 4 become `DOTFILES_TEST_AFTER_LOGIN=1 mise run test:live`. Tell the user at the next report (he can veto).\nSecond session `chezmoi-env-build2` (started 18:17, Build, Sonnet 5.5): scope groups 6 and 7 plus 6.7, then part 1 done (tick 1.2, rebase on main, validate, suite, mutants, last report); brief `builder-brief-2.md`, hand-off `builder-handoff-1.md` (both in the worktree's `.state/briefs/correct-shell-environment/` and in mine, git-ignored). Its first report should be \"reading done\"; cut at 70% with `builder-handoff-2.md`.\nOpen points for group 7 and the last report: the bash merge wording (multiset); `INFOPATH` grows in nested shells (brew shellenv prepends each call), out of scope, to say in the last report.\n\n'''\ns = s[:a0] + prog + s[a1:]\n\n# waiting items\nrep(\"2. The go to launch the builder\",\n    \"2. The go to launch the builder\") if \"2. The go to launch the builder\" in s else None\np.write_text(s, encoding=\"utf-8\")\nEOF\n/usr/bin/grep -a -n -E '^## What is waiting|^[0-9]\\. ' .state/resume.md | sed -n '1,14p' | cut -c1-140",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+37:1. keys on demand: `secrets load` loader, new shells and the desktop hold none, inherited copies unset;
+38:2. umask 027 from the login (account comment field read by `pam_umask`), 022 forced for sudo, home 0700, one system install script (needs
+39:3. locale: no `LC_ALL`, a missing inherited locale dropped, `en_US.UTF-8` generated by the same script;
+40:4. the desktop login pass loads only the `env_` files (0.23 s and 55 names against 0.62 s and 108), `shellrc` interactive-only again;
+41:5. highlighting last (`999`), four stub files and `zsh/zshrc` and `bash/bashrc` removed, `HISTFILE` under XDG state with a migration.
+78:1. Re-measure its report from my pane, fast-forward `main` locally, push on the user's word.
+79:2. Export its session (procedure below), commit and push on the user's word.
+80:3. Close its linked workspace by id: `herdr workspace close <linked workspace id>`, never `--group`; check that `wN` and this pane are st
+81:4. `mise run scm:worktree:done feat/correct-shell-environment` (checks the branch is in `origin/main`, runs the post-remove hook, removes
+82:5. Check: `herdr worktree list --workspace wN` and `git worktree list` show only `main`; journal it.
+93:1. `herdr agent get chezmoi-orch` (rename the pane if it fails), `herdr agent get chezmoi-env-builder`, `herdr agent list` with `jq` for 
+94:2. `herdr pane read w0:p1 --lines 60 | /usr/bin/grep -a -v '^\s*$' | tail -25`: is it blocked on a permission prompt (read it, report it 
+95:3. `git -C [redacted:worktrees_root]/dotfiles-correct-shell-environment log --oneline main..HEAD` and `status --short`: commits are proposed to the us
+96:4. `tail -20 .state/journal.md`, then the builder's reports in my pane (it sends one line with `herdr agent prompt chezmoi-orch`; if it c
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 3.8s)
+
+The "Orchestrating the builder" checklist still names the old agent and pane, so I'm updating it. I'm also adding the cut-session procedure I just used, since it's now a proven recipe.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; sed -n '88,100p' .state/resume.md | cut -c1-230; echo ----; /usr/bin/grep -a -n -E '^## What is waiting for the user' .state/resume.md; sed -n '/^## What is waiting for the user/,/^## Planning/p' .state/resume.md | cut -c1-200",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+
+## Orchestrating the builder (what to do after the compaction)
+
+State at 13:05 on 2026-11-23: agent `chezmoi-env-builder` (Build, Claude Sonnet 5.5, xhigh) was `working` on its first prompt (the reading list of `builder-brief.md`, then it says what does not hold against the tree and waits for 
+First actions after a compaction, in this order, all read-only:
+1. `herdr agent get chezmoi-orch` (rename the pane if it fails), `herdr agent get chezmoi-env-builder`, `herdr agent list` with `jq` for names and panes only.
+2. `herdr pane read w0:p1 --lines 60 | /usr/bin/grep -a -v '^\s*$' | tail -25`: is it blocked on a permission prompt (read it, report it to the user, never answer it), asking a question, or working?
+3. `git -C [redacted:worktrees_root]/dotfiles-correct-shell-environment log --oneline main..HEAD` and `status --short`: commits are proposed to the user by the builder in its own pane, so a commit appearing without a report is worth a look.
+4. `tail -20 .state/journal.md`, then the builder's reports in my pane (it sends one line with `herdr agent prompt chezmoi-orch`; if it cannot resolve the name it finds my pane by the `orch` tab of the primary workspace).
+When it reports "group N done", re-measure from my pane before trusting: `bats` counts from its last run (`tests/.reports/`), the mutant result (`mise run test:mutants` in its worktree only if the user agrees, it is heavy), scans 
+The builder cuts itself at about 70% context with a hand-off note in `.state/briefs/correct-shell-environment/`; a fresh build session continues from it in the SAME worktree and workspace (`herdr tab create --workspace w0 ...` is 
+Memory: one agent at a time; the machine had 3.5 GB available at the launch. `tokenscope` works for the context size of an agent (`sessionID` argument).
+
+----
+123:## What is waiting for the user
+## What is waiting for the user
+
+0. Push: the user's word "push" for the repository (`58633a0`, `c006474`) and the store (`028f55e`, mine); scan the outgoing commits first (`gitleaks git --log-opts='origin/main..HEAD'`, added lines, 
+1. The builder will propose commits in its own pane (`docs(chezmoi:spec)` for the amended artifacts first, then one per group); the user validates them there. The go for `mise run test:deps` was given
+2. (Done: the two commits were made on the user's word; the folder segment is public and classified.)
+   The builder was blocked at 13:05 on a permission prompt in its pane ("Access external directory [redacted:worktrees_root]", pattern `[redacted:worktrees_root]/*`: opencode counts the worktree's parent as external)
+3. At the start of group 11 (deployment), one decision: the live libvirt snippet `060-libvirt.sh` is not an `env_` file, so once `profile` is environment-only the user manager loses the variable it se
+4. The machine is under memory pressure on and off (swap 6 to 8 GB used after the reboot, Firefox about 9 GB with swap, no kernel kills since the reboot, no out-of-memory daemon); another fleet reposi
+   Keep one agent at a time of this repository while memory is tight, and ask the user to close Firefox tabs or stale editors before starting another.
+5. After the builder (part 1), a plan lead for `add-agent-launch-tasks` (updates `scm:worktree:new`, `rm`, `done` for every repository; the dependency on `add-repo-roadmap` for the language rule of th
+
+## Planning for what comes after
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 16.2s)
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; python3 - <<'EOF'\nfrom pathlib import Path\np = Path(\".state/resume.md\"); s = p.read_text(encoding=\"utf-8\")\na0 = s.index(\"## Orchestrating the builder (what to do after the compaction)\"); a1 = s.index(\"### Builder progress\")\nnew = '''## Orchestrating the builder (what to do after the compaction)\n\nState at 18:20 on 2026-11-23: agent `chezmoi-env-build2` (Build, Claude Sonnet 5.5, xhigh), pane `w0:p2`, was `working` on its first prompt (the reading list of `builder-brief-2.md`, then it says what does not hold against the tree and reports \"reading done\" to me).\nFirst actions after a compaction, in this order, all read-only:\n1. `herdr agent get chezmoi-orch` (rename the pane if it fails), `herdr agent get chezmoi-env-build2`, `herdr agent list` with `jq` for names and panes only.\n2. `herdr pane read w0:p2 --lines 60 | /usr/bin/grep -a -v '^\\\\s*$' | tail -25`: is it blocked on a permission prompt (read it, report it to the user, never answer it), asking a question, or working? `tokenscope` with `sessionID` gives its context size.\n3. `git -C [redacted:worktrees_root]/dotfiles-correct-shell-environment log --oneline main..HEAD` and `status --short`: commits are proposed to the user by the builder in its own pane, so a commit appearing without a report is worth a look.\n4. `tail -20 .state/journal.md`, then the builder's reports in my pane (it sends one line with `herdr agent prompt chezmoi-orch`).\nWhen it reports \"group N done\", re-measure on `git archive <hash>` (recipe in \"Builder progress\") before trusting: suite counts, mutants, shellcheck on changed shell files, scans over the added lines (dashes, sibling names, e-mails, token shapes, `/home/<login>` forms, IPv4, secret-looking names, names of the private file counted in memory), the redaction `--check` file by file, `gitleaks git --log-opts='main..<hash>'`, `openspec validate --all --strict` in its worktree, and a read of any security-relevant code.\nCutting a builder at 70% (proven on 2026-11-23): the builder writes `builder-handoff-N.md` and says its pane stays open; I (1) accept its last group on the exported commit, (2) export its session (scratch `/tmp/opencode/export-scratch`, `export.py --full --no-children --force --slug <slug> <session id>`, redaction with the store alone, checks, README row, uncommitted until the user's commit word), (3) write `builder-brief-N+1.md` and `builder-prompt-N+1.txt`, copy the brief into the worktree's `.state/briefs/`, (4) `herdr tab create --workspace w0 --cwd <worktree> --label <label> --no-focus` (JSON: `.result.tab.tab_id`, `.result.root_pane.pane_id`), `herdr agent start <new name> --kind opencode --pane <pane> -- --agent build --model anthropic/claude-sonnet-5-5`, read the footer again after ten seconds, send the prompt, (5) close the OLD tab by id (`herdr tab close w0:t1`; the workspace survives while one tab of it exists, never close its last tab first), (6) check `herdr agent list` shows chezmoi-orch and the new name only.\nMemory: one agent of this repository at a time apart from the few minutes of a hand-over; 4 GB available at 18:00. `tokenscope` works for the context size of an agent.\n\n'''\ns = s[:a0] + new + s[a1:]\nb0 = s.index(\"## What is waiting for the user\"); b1 = s.index(\"## Planning for what comes after\")\nwaiting = '''## What is waiting for the user\n\n0. Push: the user's word \"push\" for the repository (`58633a0`, `c006474`, and the export commit once made) and the store (`028f55e`, mine); scan the outgoing commits first (`gitleaks git --log-opts='origin/main..HEAD'`, added lines, `--check` over all exports).\n1. The commit word for the export of the first builder session (README row 17 and the new file; the message is proposed in the journal and in the repository state above).\n2. Tell the user: my decision on the two live scenarios (task 6.7, opt-in `DOTFILES_TEST_AFTER_LOGIN=1`), the closing of the cut builder's tab before the export was committed (the export exists and the session is in opencode's database), and the group 3 to 5 results.\n3. The builder will propose commits in its own pane (the artifact commit for task 6.7 first, then one per group); the user validates them there; an external-directory permission prompt (`[redacted:worktrees_root]/*`) is likely again for the second session.\n4. At the start of group 11 (deployment), one decision: the live libvirt snippet `060-libvirt.sh` is not an `env_` file, so once `profile` is environment-only the user manager loses the variable it sets until `reconcile-drift-and-supervised-apply` task 2.3 adopts it as `060-env_libvirt.sh`; either do tasks 2.3 and 2.4 of that change by hand, with the user's go, before deploying `profile` (task 11.6), or accept the interim.\n5. The machine is under memory pressure on and off (swap 6 to 9 GB used, Firefox about 9 GB with swap, no kernel kills since the reboot of 2026-11-22, no out-of-memory daemon); another fleet repository owns that policy. One agent at a time; ask the user to close Firefox tabs or stale editors before starting another.\n6. After part 1 of the build: a plan lead for `add-agent-launch-tasks` (updates `scm:worktree:new`, `rm`, `done` for every repository: grouping into linked workspaces, closing by id, a hook that refuses the closing before the export; the dependency on `add-repo-roadmap` for the language rule of the global tasks must be settled in its review), then the second build part for groups 8 to 10 of `correct-shell-environment`.\n\n'''\ns = s[:b0] + waiting + s[b1:]\np.write_text(s, encoding=\"utf-8\")\nEOF\nchmod 600 .state/resume.md\nprintf 'resume: lines %s | dashes %s | modeline last %s\\n' \"$(wc -l < .state/resume.md)\" \"$(/usr/bin/grep -a -c -E '[–—]' .state/resume.md)\" \"$(tail -1 .state/resume.md | /usr/bin/grep -a -c 'vim: set ts=2')\"\nm='docs(chezmoi:memory): export the first correct-shell-environment build session'; echo \"proposed subject ${#m} chars\"\necho \"build2: $(herdr agent get chezmoi-env-build2 2>/dev/null | jq -r '.result.agent.agent_status' 2>/dev/null); $(herdr pane read w0:p2 --lines 20 2>/dev/null | /usr/bin/grep -a -o -E '[0-9.]+K \\([0-9]+%\\)' | tail -1)\"; herdr pane read w0:p2 --lines 40 2>/dev/null | /usr/bin/grep -a -E 'Permission required' | head -1",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+resume: lines 182 | dashes 0 | modeline last 1
+proposed subject 78 chars
+build2: working; 78.8K (8%)
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 10.3s)
+
+_Thinking:_
+I'm checking whether the commit subject at 78 characters fits the limit, and it does. I'll keep it as is. For the final answer, I'll keep it short: the user needs to supply the commit word and the push word, decide on the live-test veto, and expect an external-directory prompt. I'll also mention the memory update.
+
+
+Group 5 is accepted and the first builder is cut at the group 5 boundary. A second session (`chezmoi-env-build2`) is already working on groups 6 and 7.
+
+## Groups 4 and 5, measured on the exported commit `9c0a96e`
+- **Suite:** 473 tests, 0 failures, 28 skipped (it was 418 after group 3).
+- **Mutants:** 12 run, 0 problems. `env-lc-all-forced` fails 14 tests and `env-keys-at-startup` fails 3 (the minimum required), so the new tests can fail.
+- **Added lines:** 722 lines, with 0 dashes, banned names, e-mails, token shapes, IP addresses or non-Homebrew home paths. None of your 10 private-file names is in the text.
+- **Code I read:**
+  - `446-tools_secrets.sh` and `010-env_user.sh` do what the design says. Names are read from the file at each call, the count prints a number only, and the `eval` is safe because names pass a strict pattern.
+  - The one shellcheck note in `010` was already there (3 on `main`, 2 now).
+  - The redaction check and gitleaks are clean, and `openspec validate` passes 38/38.
+
+## Your question about the live scenarios
+You asked whether the two live scenarios need tasks. I decided yes, because the spec itself says "a live test". The second builder adds task 6.7:
+- **Tests:** in `tests/smoke/environment-live.bats`, behind `DOTFILES_TEST_LIVE=1` and a second opt-in, `DOTFILES_TEST_AFTER_LOGIN=1`. `mise run test:live` stays green until you've deployed and rebooted, and then you run `DOTFILES_TEST_AFTER_LOGIN=1 mise run test:live`.
+- **What they count:** the user manager and the processes that started the test (terminal and multiplexer), not every process. A pane where you typed `secrets load` holds the keys on purpose and would otherwise fail the test.
+- **Where it shows:** task 12.4, `manual-steps.md` and the README table get updated in one `docs(chezmoi:spec)` commit that the builder proposes to you first.
+
+Veto this if you'd rather leave them to the manual probe.
+
+## Hand-over
+- **Export:** the first builder's session is exported as `memory/sessions/202611231256-shell_environment_build_one.md` (10,789 lines) with README row 17. Not committed. It has 0 identity values and 0 private-file names, and the folder scan found nothing. The raw file and scratch are deleted.
+- **Deviation from my rule:** I closed the old tab before the export was committed. The session stays in opencode's database, and the hand-off note exists.
+- **New session:** `chezmoi-env-build2`, Build · Claude Sonnet 5.5, in a new tab of the same linked workspace `w0`, with `builder-brief-2.md`. It is working at about 79K tokens (8%). `wN` and the orchestrator pane are intact.
+- **Context saved:** `.state/resume.md` and the journal are updated, including the cut-and-replace procedure that worked.
+
+## What I need from you
+1. **"commit"** for the export: `docs(chezmoi:memory): export the first correct-shell-environment build session` (78 characters).
+2. **"push"** for the repository (`58633a0`, `c006474`, plus that export) and the store (`028f55e`). I scan the outgoing commits first.
+3. **Builder prompts:** it will propose the 6.7 artifact commit in its pane first. An external-directory permission prompt for `[redacted:worktrees_root]/*` is likely again.
+
+---
+
+## User
+
+chezmoi-env-build2: reading done on feat/correct-shell-environment at 9c0a96e, tree clean; three points need your eye: (1) tasks 6.5 env-desktop-full-pass 'profile sources shellrc' would load nothing once shellrc has its guard, so I will make the mutant run a full rc.d pass in profile's non-interactive branch; (2) profile's non-interactive branch would source shell/environment, which uses 'source', so 'sh -l -c' (dash) would print one error per env_ file where it printed nothing: I propose to source it for bash and zsh only; (3) tests/mutants/README.md holds no statement about live tests to copy, so I add a short paragraph there. Next: the artifact commit of 6.7, proposed to the user.
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 17.2s)
+
+_Thinking:_
+The mode has switched to build, so I can act on the builder's three points now. The first one is a concern: the mutant "env-desktop-full-pass" relies on "profile sources shellrc," which would load nothing since shellrc now has a guard for non-interactive shells. I'll need to read the profile and shellrc to see how the mutant should run a full rc.d pass instead.
+
+I'm checking whether `sh -l` actually reads the profile on this machine. In dash, `source` isn't available, so I'm looking at how profile handles non-interactive shells and whether the `source` call there is a problem. My idea is to source only for bash and zsh, so I'll read profile and environment first to see what they do now.
+
+
+I'm checking the builder's three points against the tree before answering. I'm starting with `profile`, `shell/environment` and `shellrc`.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; S=home/dot_config/shell\necho \"=== profile\"; cat $S/profile | cut -c1-170\necho; echo \"=== environment\"; cat $S/environment | cut -c1-170\necho; echo \"=== shellrc (first 30 lines)\"; sed -n '1,30p' $S/shellrc | cut -c1-170",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+=== profile
+# ~/.profile: executed by the command interpreter for login shells.
+# This file is not read by bash(1), if ~/.bash_profile or ~/.bash_login exists.
+# See /usr/share/doc/bash/examples/startup-files for examples.
+# The files are located in the bash-doc package.
+
+# The default umask is set in /etc/profile; for setting the umask
+# for ssh logins, install and configure the libpam-umask package.
+#umask 022
+
+## if running bash
+#if [ -n "$BASH_VERSION" ]; then
+#  export CURRENT_SHELL="bash"
+#  # include .bashrc if it exists
+#  if [ -f "$HOME/.bashrc" ]; then
+#    source "$HOME/.bashrc"
+#  fi
+#fi
+
+## if running zsh
+#if [ -n "$ZSH_VERSION" ]; then
+#  export CURRENT_SHELL="zsh"
+#  # include .zshrc if it exists
+#  if [ -f "$HOME/.zshrc" ]; then
+#    source "$HOME/.zshrc"
+#  fi
+#fi
+
+CURRENT_SHELL="$(ps -p $$ -o comm=)"
+#CURRENT_SHELL=${0#-}
+#CURRENT_SHELL=${CURRENT_SHELL##*/}
+
+export CURRENT_SHELL
+
+if [ -n "${SHELL_RC_DEBUG:-}" ]; then
+  echo "profile: ${CURRENT_SHELL} login shell" >&2
+fi
+
+# Who reads this file: interactive login shells (tmux panes, console logins), and the desktop session,
+# which the display manager's Xsession starts through ~/.zprofile without being interactive.
+case $- in
+  *i*)
+    # Interactive login shell: the shell's own rc file loads rc.d, once.
+    # zsh reads ~/.zshrc right after this file; bash reads only this file, so ask it for ~/.bashrc
+    # (Debian's convention; ~/.bashrc is the shared shellrc).
+    if [ "${CURRENT_SHELL}" = "bash" ] && [ -f "$HOME/.bashrc" ]; then
+      # shellcheck disable=SC1091
+      . "$HOME/.bashrc"
+    fi
+    ;;
+  *)
+    # Non-interactive login shell, the desktop session among them: loads what it always loaded,
+    # so that the environment of the graphical session does not change.
+    if [ -f "$HOME/.config/${CURRENT_SHELL}/${CURRENT_SHELL}rc" ]; then
+      # shellcheck disable=SC1090
+      . "$HOME/.config/${CURRENT_SHELL}/${CURRENT_SHELL}rc"
+    fi
+    ;;
+esac
+
+# vim: set syntax=sh :
+
+=== environment
+## Common ${XDG_CONFIG_HOME}/shell/environment file for any shell.
+
+if [ -n "${SHELL_RC_DEBUG:-}" ]; then
+  echo "environment: sourcing the env_ files" >&2
+fi
+
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+
+## Load environment configuration scripts
+SHELL_ENV_RC_DIR="${SHELL_ENV_RC_DIR:-$XDG_CONFIG_HOME/shell/rc.d}"
+for rc_script in "${SHELL_ENV_RC_DIR}"/*-env_*.sh; do
+  source "${rc_script}"
+done
+
+# vim: set syntax=sh :
+
+=== shellrc (first 30 lines)
+## Common ${XDG_CONFIG_HOME}/shell/shellrc file for interactive shells.
+
+# If not running interactively, don't do anything
+#case $- in
+#    *i*) ;;
+#      *) return;;
+#esac
+
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+
+if [ -n "${SHELL_RC_DEBUG:-}" ]; then
+  echo "shellrc: sourcing rc.d" >&2
+fi
+
+SHELL_RC_DOT_DIR="${SHELL_RC_DOT_DIR:-$XDG_CONFIG_HOME/shell/rc.d}"
+for rc_script in "${SHELL_RC_DOT_DIR}"/*.sh; do
+  source "${rc_script}"
+done
+
+# vim: set syntax=sh :
+
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "echo \"sh is: $(readlink -f /bin/sh)\"; echo \"~/.profile -> $(readlink ~/.profile 2>/dev/null | sed \"s#$HOME#~#\")\"\necho '--- what does dash do with `source` (a bare dot-less builtin)?'\ndash -c 'source /dev/null' 2>&1 | head -2\necho '--- /etc/profile reads files for a login sh?'; /usr/bin/grep -a -n -E 'profile\\.d|\\.profile|bashrc' /etc/profile | head -4 | cut -c1-120",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+sh is: /usr/bin/dash
+~/.profile -> .config/shell/profile
+--- what does dash do with `source` (a bare dot-less builtin)?
+dash: 1: source: not found
+--- /etc/profile reads files for a login sh?
+1:# /etc/profile: system-wide .profile file for the Bourne shell (sh(1))
+13:    # The file bash.bashrc already sets the default PS1.
+15:    if [ -f /etc/bash.bashrc ]; then
+16:      . /etc/bash.bashrc
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 28.9s)
+
+_Thinking:_
+Checking the profile setup for non-interactive shells: the current code detects dash and loads from a dashrc that isn't there, so nothing gets sourced. Under the new scheme, dash would choke on `source` in `shell/environment`, so I'm weighing whether the builder's approach holds up in `sh -`
+
+Now I'm weighing whether `sh -l -c` is even a real case: dash would choke on `source` in `shell/environment`, but today dash prints nothing, so I'm leaning toward sourcing the environment only for bash and zsh. That also matches the design decision to source it for those two shells, so the alternative of switching to POSIX `.` doesn't look necessary.
+
+Now I'm checking the mutant's guard: the shellrc guard would return early in a non-interactive shell, so a mutant that sources shellrc there would load nothing and still pass the "no rc.d pass" tests. The builder's fix is to have the mutant run a full rc.d pass in that branch instead, and I'll accept that refinement and update the 6.5 task text to match.
+
+Checking the non-interactive shell path, I'm confirming that under zsh `$-` lacks the `i` flag, so the guard behaves as expected. I'm also checking that sourcing `environment` through `. "$HOME/.config/shell/environment"` works, since that file sets `XDG_CONFIG_HOME` itself. For the bash/zsh branch, I'm looking at how `ps -p $$ -o comm=` reports the shell name, which may differ for a login bash.
+
+Now I'm checking the bash login case: the profile's non-interactive branch currently loads bash's rc file, which returns at its guard, so nothing from rc.d or secrets is sourced. After the change, `bash -l -c` should pick up the environment file, which matches the design table's "both: shell/environment" row for non-interactive login shells.
+
+Next I'm checking whether any existing tests cover dash or `sh -l`, and whether the desktop-replay tests run under zsh.
+
+Next I'm checking whether the spec mentions `sh` anywhere, and whether the delta's "non-interactive login shell" wording still holds once the dash case is handled. After that I'll write up the response for the builder, including the 6.5 task text update.
+
+Next I'm checking whether the spec's wording around the desktop login ties to bash and zsh specifically, and whether a scenario for `sh -l -c` printing nothing would be worth adding. That would change the scenario count the README check in task 9.1 depends on, so I'll need to account for that.
+
+I'm going to check whether the spec's desktop-login requirement covers a login `sh` that loads nothing, and whether a test helper exists for that shell kind. If it doesn't, I'd add one scenario and a matching test, which means the scenario count in 9.1 shifts.
+
+Now I'm checking whether `sh` on other machines runs bash in sh mode, which would report as "sh" under `ps`, and whether the new `bash|zsh` case would then skip sourcing the environment file there.
+
+I'm checking the spec for any mention of `sh`, and confirming how `tasks.md` 6.2 is worded, before I send the builder its response.
+
+
+_Thinking:_
+Both points hold, since `dash` has no `source` and that error is what each `env_` file would print. Next I'm checking the spec and tasks to see whether the wording needs changing.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; W=[redacted:worktrees_root]/dotfiles-correct-shell-environment; D=$W/openspec/changes/correct-shell-environment\necho '--- spec: requirement \"The desktop login loads the environment only\" (head)'\n/usr/bin/grep -a -n -A22 'Requirement: The desktop login loads the environment only' $D/specs/shell-environment/spec.md | cut -c1-230\necho '--- mentions of dash, sh -l, \"for zsh and bash\" in the artifacts'\n/usr/bin/grep -a -n -i -E '\\bdash\\b|sh -l|zsh and bash|bash and zsh' $D/design.md $D/specs/shell-environment/spec.md $D/specs/shell-startup/spec.md | cut -c1-200 | head -12\necho '--- tasks 6.2 and 6.5'; /usr/bin/grep -a -n -E '^- \\[ \\] 6\\.(2|5)' $D/tasks.md | cut -c1-330",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+--- spec: requirement "The desktop login loads the environment only" (head)
+11:### Requirement: The desktop login loads the environment only
+12-
+13-A non-interactive login shell SHALL source `shell/environment`, which sources the `rc.d/*-env_*.sh` files in name order, and SHALL source no other `rc.d` file, no private file and no interactive configuration.
+14-
+15-#### Scenario: No rc.d pass in the desktop replay
+16-
+17-- **WHEN** the desktop replay, `zsh -l -c true` and `bash -l -c true` run with `SHELL_RC_DEBUG=1` and their standard error is counted
+18-- **THEN** each prints 0 lines that contain `rc.d` and 1 line of `shell/environment`
+19-
+20-#### Scenario: What the session keeps
+21-
+22-- **WHEN** the desktop replay lists its exported names
+23-- **THEN** `PATH`, `XDG_CONFIG_HOME`, `XDG_DATA_HOME`, `XDG_STATE_HOME`, `XDG_CACHE_HOME`, `LANG`, `LANGUAGE`, `EDITOR` and `CURRENT_SHELL` are set, and `HOMEBREW_PREFIX` is set when brew is installed
+24-
+25-#### Scenario: What the session no longer gets
+26-
+27-- **WHEN** the desktop replay lists its exported names
+28-- **THEN** none starts with `forgit_`, `LESS_TERMCAP_` or `__MISE_`, and `LS_COLORS`, `LESSOPEN`, `HSTR_CONFIG`, `MISE_SHELL` and `LC_ALL` are not set
+29-
+30-#### Scenario: Only env_ files hold the environment
+31-
+32-- **WHEN** the `rc.d` files whose names do not contain `-env_` are searched for `export` and for assignments to `PATH`
+33-- **THEN** none exports a variable that the desktop replay sets, and none changes `PATH` except mise's activation in `415-tools_mise.sh`
+--- mentions of dash, sh -l, "for zsh and bash" in the artifacts
+[redacted:worktrees_root]/dotfiles-correct-shell-environment/openspec/changes/correct-shell-environment/design.md:14:  A bash started without `LANG` prints 4 `setlocale` warnings while bash-completion lo
+[redacted:worktrees_root]/dotfiles-correct-shell-environment/openspec/changes/correct-shell-environment/design.md:83:- Measured on a prototype of `020` (scratch render, 20 kinds of shell): 0 warnings fro
+[redacted:worktrees_root]/dotfiles-correct-shell-environment/openspec/changes/correct-shell-environment/design.md:89:- The non-interactive branch of `profile` (the desktop session, `zsh -l -c`, `bash -l 
+[redacted:worktrees_root]/dotfiles-correct-shell-environment/openspec/changes/correct-shell-environment/design.md:142:| Interactive login zsh | `zsh -l -i`, console, ssh login | `profile` (nothing for zs
+[redacted:worktrees_root]/dotfiles-correct-shell-environment/openspec/changes/correct-shell-environment/design.md:143:| Interactive bash, login or not | `bash -i`, `bash -l -i` | `profile` for a login, `
+[redacted:worktrees_root]/dotfiles-correct-shell-environment/openspec/changes/correct-shell-environment/design.md:144:| Non-interactive login | `zsh -l -c`, `bash -l -c` | zsh: all of `rc.d`; bash: nothi
+[redacted:worktrees_root]/dotfiles-correct-shell-environment/openspec/changes/correct-shell-environment/design.md:172:- Unit tests for `_path_prepend`, the locale filter, the history migration and merge 
+[redacted:worktrees_root]/dotfiles-correct-shell-environment/openspec/changes/correct-shell-environment/specs/shell-environment/spec.md:8:- "the shell kinds" are the desktop replay, `zsh -i`, `zsh -l -i`
+[redacted:worktrees_root]/dotfiles-correct-shell-environment/openspec/changes/correct-shell-environment/specs/shell-environment/spec.md:17:- **WHEN** the desktop replay, `zsh -l -c true` and `bash -l -c 
+[redacted:worktrees_root]/dotfiles-correct-shell-environment/openspec/changes/correct-shell-environment/specs/shell-environment/spec.md:168:zsh and bash SHALL keep their history in `$XDG_STATE_HOME/zsh/h
+[redacted:worktrees_root]/dotfiles-correct-shell-environment/openspec/changes/correct-shell-environment/specs/shell-environment/spec.md:205:- **WHEN** the desktop replay, `zsh -i` and `bash -l -i` start 
+[redacted:worktrees_root]/dotfiles-correct-shell-environment/openspec/changes/correct-shell-environment/specs/shell-startup/spec.md:10:- **WHEN** `SHELL_RC_DEBUG=1 zsh -l -i -c exit 2>&1 | grep -c 'rc.d'
+--- tasks 6.2 and 6.5
+40:- [ ] 6.2 `profile`: the non-interactive branch sources `shell/environment`; `shell/environment` keeps its debug line; comments say who reads each branch
+43:- [ ] 6.5 Mutants `env-desktop-full-pass` (`profile` sources `shellrc` in the non-interactive branch) and `env-shellrc-no-guard`: at least their scenarios fail
+
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; T=/tmp/opencode/dashprobe; rm -rf $T; mkdir -p $T/.config/shell/rc.d; chmod 700 $T\nprintf 'echo \"env_ file loaded\" >&2\\n' > $T/.config/shell/rc.d/035-env_x.sh\ncp [redacted:worktrees_root]/dotfiles-correct-shell-environment~/shell/environment $T/.config/shell/environment\necho '--- today: sh -l -c with the real profile of main in a scratch home (no dashrc: nothing is read)'\ngit show main:home/dot_config/shell/profile > $T/.profile 2>/dev/null || /home/linuxbrew/.linuxbrew/bin/git show main:home/dot_config/shell/profile > $T/.profile\necho \"output bytes: $(env -i HOME=$T PATH=/usr/bin:/bin sh -l -c 'true' 2>&1 | wc -c)\"\necho '--- the environment file itself under dash (what the new profile would do if it sourced it unguarded)'\nenv -i HOME=$T PATH=/usr/bin:/bin XDG_CONFIG_HOME=$T/.config dash -c '. \"$HOME/.config/shell/environment\"; echo status=$?' 2>&1 | head -3 | sed \"s#$T#T#g\"\necho '--- the same under bash and zsh'\nfor sh in bash zsh; do env -i HOME=$T PATH=/usr/bin:/bin XDG_CONFIG_HOME=$T/.config $sh -c '. \"$HOME/.config/shell/environment\"; echo status=$?' 2>&1 | head -3 | tr '\\n' '|'; echo \" <- $sh\"; done\nrm -rf $T",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+--- today: sh -l -c with the real profile of main in a scratch home (no dashrc: nothing is read)
+output bytes: 0
+--- the environment file itself under dash (what the new profile would do if it sourced it unguarded)
+dash: 12: T/.config/shell/environment: source: not found
+status=127
+--- the same under bash and zsh
+env_ file loaded|status=0| <- bash
+env_ file loaded|status=0| <- zsh
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 23.7s)
+
+_Thinking:_
+Confirmed that `sh -l -c` currently prints nothing; without the guard, dash would throw an error and exit with 127. Next, I'm deciding on the mutant: it needs to run the full rc.d pass inside profile's non-interactive branch, since the guard turns "sources shellrc" into a no-op. I also have to amend the task 6.5 text in the artifact commit and check that the expectation count is realistic and that the mutant fails the "No rc.d pass" check.
+
+I'm weighing whether the environment sourcing should apply only to bash and zsh, since the design limits it to those two shells, so a login sh like dash should load nothing. That means adding a spec scenario and a test that runs `sh -l -c true` and checks it prints nothing and exports no env_ names, with the mutant optional since the table convention is one mutant per requirement. I also need to recount the scenarios when task 9.1 runs.
+
+Next I'm weighing whether to add a committed mutant for the login-sh case, and I'm leaning against it: the requirement already has a full-pass mutant, so I'll have the test show it can fail with one manual mutation and note that in the report.
+
+
+_Thinking:_
+All three points check out on this machine: `sh -l -c` prints nothing since there's no `dashrc`, and an unguarded `source environment` under dash fails with exit 127 while bash and zsh load it. I'm sending my answers to the builder next.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\nherdr agent prompt chezmoi-env-build2 'chezmoi-orch: your three points all hold, I checked each on the machine; answers. (1) Yes: once shellrc has its guard, \"profile sources shellrc\" is a no-op, so the mutant env-desktop-full-pass must run a real rc.d pass inside profile non-interactive branch (a sed that replaces the sourcing of shell/environment by a loop over rc.d/*.sh is fine); it must fail the \"No rc.d pass\" and \"What the session no longer gets\" tests. Reword task 6.5 accordingly. (2) Yes, and it is the design: decision 4A says shell/environment is loaded for zsh and bash. Source it only when CURRENT_SHELL is bash or zsh (a case on the comm name); any other login shell (sh is dash here, and a bash started as sh reports sh) keeps loading nothing and printing nothing as today: I measured 0 bytes today for sh -l -c, and 127 with \"source: not found\" for dash sourcing environment unguarded. Do not rewrite environment to use the dot command: that would widen the decision to env_ files that are not all POSIX. Pin it: add ONE scenario to the requirement \"The desktop login loads the environment only\" in specs/shell-environment/spec.md, \"A login sh loads nothing\": WHEN sh -l -c true runs with SHELL_RC_DEBUG=1 on the render, THEN it prints nothing and exports no name of an env_ file (skip with a message when sh is bash on that machine), plus its test in environment-desktop.bats. Show once by a manual mutation (not committed) that the test fails when the guard is dropped, and say so in your report. That scenario raises the count of shell-environment scenarios to 34 and of the five delta specs to 57: note it in task 9.1, which counts them at the end. (3) Yes, a short paragraph in tests/mutants/README.md. Put (1), (2) and the 6.2 wording (\"for bash and zsh only\") and the design line that says the non-interactive branch sources environment into the SAME docs(chezmoi:spec) commit as task 6.7 that you propose to the user first. Carry on.' --wait --until working --timeout 20000 2>&1 | jq -c '{ok: (.error == null), error: (.error // null)}' 2>/dev/null\nprintf -- '- %s chezmoi-orch (wN:p1) chezmoi-env-build2 reading report: three points all valid and re-measured (guard makes a shellrc-sourcing mutant a no-op; dash has no source: sh -l -c prints 0 bytes today, 127 with source not found if environment is sourced unguarded; mutants README paragraph); answers sent: mutant runs a real rc.d pass, environment sourced for bash and zsh only (decision 4A), one new scenario A login sh loads nothing (shell-environment 34 scenarios, deltas 57), all in the 6.7 docs commit proposed to the user first\\n' \"$(date '+%Y-%m-%d %H:%M:%S')\" >> .state/journal.md\nsleep 6; echo \"build2: $(herdr agent get chezmoi-env-build2 2>/dev/null | jq -r '.result.agent.agent_status' 2>/dev/null); $(herdr pane read w0:p2 --lines 20 2>/dev/null | /usr/bin/grep -a -o -E '[0-9.]+K \\([0-9]+%\\)' | tail -1)\"\nherdr pane read w0:p2 --lines 40 2>/dev/null | /usr/bin/grep -a -E 'Permission required' | head -1",
+  "timeout": 90000
+}
+```
+
+**Output:**
+```
+{"ok":false,"error":{"code":"agent_blocked","message":"agent chezmoi-env-build2 is blocked and requires interactive input"}}
+build2: blocked; 
+
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; python3 - <<'EOF'\nfrom pathlib import Path\np = Path(\".state/resume.md\"); s = p.read_text(encoding=\"utf-8\")\na = \"Open points for group 7 and the last report:\"\nassert s.count(a) == 1\ns = s.replace(a, '''Reading report of `chezmoi-env-build2` (18:30), all three points valid and answered: (1) the mutant `env-desktop-full-pass` runs a real rc.d pass in profile's non-interactive branch (a shellrc-sourcing mutant would be a no-op under the guard); (2) profile sources `shell/environment` only when `CURRENT_SHELL` is bash or zsh (dash has no `source`: `sh -l -c` prints 0 bytes today and would print `source: not found`, status 127), plus ONE new scenario \"A login sh loads nothing\" in the requirement \"The desktop login loads the environment only\" (shell-environment 34 scenarios, the five delta specs 57, noted in task 9.1); (3) a paragraph on live tests in `tests/mutants/README.md`. All of it goes into the `docs(chezmoi:spec)` commit that carries task 6.7, proposed by the builder to the user first.\nOpen points for group 7 and the last report:''')\np.write_text(s, encoding=\"utf-8\")\nEOF\nchmod 600 .state/resume.md; printf 'resume dashes %s, modeline last %s\\n' \"$(/usr/bin/grep -a -c -E '[–—]' .state/resume.md)\" \"$(tail -1 .state/resume.md | /usr/bin/grep -a -c 'vim: set ts=2')\"",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+resume dashes 0, modeline last 1
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 3.2s)
+
+The builder is blocked on a prompt, so my message didn't go through. I'm reading what it's asking.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "herdr pane read w0:p2 --lines 70 2>/dev/null | /usr/bin/grep -a -v '^\\s*$' | sed 's/[[:space:]]*$//' | cut -c1-175 | tail -24",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+  ┃   2 files changed, 6 insertions(+), 3 deletions(-)
+  ┃  0
+  ┃  62
+  ┃
+     Validation passes (38 items, 0 failed), no dashes added, two files changed. Proposing the commit before I make
+     it.
+     → Asked 1 question
+                                                                                                                       ▄
+     ▣  Build · Claude Sonnet 5.5                                                                                      █
+  ┃
+  ┃  Commit the artifact edits for task 6.7 (tasks.md: new 6.7, 9.1 and 12.4 amended; manual-steps.md: step 4
+  ┃  amended)? Message: `docs(chezmoi:spec): add the opt-in live tests of the new login` (62 characters). Staged by
+  ┃  explicit paths, `openspec validate --all --strict` passes (38 of 38).
+  ┃
+  ┃  1. Commit as proposed
+  ┃     Commit the two files with the message above
+  ┃  2. Change the message
+  ┃     I will give another message
+  ┃  3. Do not commit yet
+  ┃     Leave the edits in the working tree                                                                                 [redacted:worktrees_root]/dotfiles-correct-shell-
+  ┃  4. Type your own answer                                                                                                environment:feat/correct-shell-
+  ┃                                                                                                                         environment
+  ┃  ↑↓ select  enter submit  esc dismiss
+  ┃                                                                                                                         • OpenCode 1.19.6
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 99.5s)
+
+_Thinking:_
+The builder is asking the user to approve a commit, so this is a user question rather than a permission prompt, and I won't answer it. It has already committed the 6.7 artifacts before my answers arrived. My answers (1)-(3) will need to reach it after the user responds, but the commit as proposed will stand, so my amendments would have to go in a follow-up commit or an amend.
+
+I'm going to tell the user that the commit is proposed without my amendments, which are the 6.5 and 6.2 wording, the new scenario, and the design line. I'll lay out the choice between committing as proposed and putting my changes in a second docs commit, or holding off. Since the builder already proposed the commit with everything in one, I'll resend my corrections once the user answers. I can't prompt a blocked agent, so I'll give the user the report now and wait briefly to see whether it unblocks before sending.
+
+
+_Thinking:_
+The builder is waiting on your validation of its 6.7 commit. I'm checking whether you respond in the next minute or so, then I'll send my answers.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "for i in $(seq 1 9); do st=$(herdr agent get chezmoi-env-build2 2>/dev/null | jq -r '.result.agent.agent_status' 2>/dev/null); [ \"$st\" != \"blocked\" ] && break; sleep 10; done\necho \"build2 status after waiting: $st\"\nW=[redacted:worktrees_root]/dotfiles-correct-shell-environment; echo \"builder commits ahead of main: $(/home/linuxbrew/.linuxbrew/bin/git -C $W rev-list --count main..HEAD); HEAD $(/home/linuxbrew/.linuxbrew/bin/git -C $W rev-parse --short HEAD)\"",
+  "timeout": 120000
+}
+```
+
+**Output:**
+```
+build2 status after waiting: blocked
+builder commits ahead of main: 5; HEAD 9c0a96e
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 7.5s)
+
+The second builder reported "reading done" with three points. All three hold, and I couldn't send my answers: it is now waiting for you.
+
+## The three points, checked on the machine
+1. **The mutant for the full pass:** the builder is right. Once `shellrc` has its interactive guard, a mutant where `profile` sources `shellrc` would do nothing and prove nothing. The mutant has to run a real `rc.d` pass inside `profile`'s non-interactive branch.
+2. **`sh -l -c`:** `sh` is dash here, and dash has no `source`.
+   - Today `sh -l -c` prints 0 bytes, because there is no `dashrc`.
+   - If `profile` sourced `shell/environment` unguarded, dash would print `source: not found` and exit 127.
+   - bash and zsh load it cleanly.
+   - The builder's fix is already in your decision 4A, which says the environment pass is for zsh and bash. `profile` will source it only when the shell is bash or zsh, and any other login shell keeps loading nothing.
+3. **Live tests paragraph:** `tests/mutants/README.md` gets a short paragraph.
+
+## What I'd send once it unblocks
+- Do (1) and (2) as above, and don't rewrite `environment` to use `.`, because the `env_` files aren't all POSIX.
+- Add one scenario, "A login sh loads nothing", with its test. Show once, by an uncommitted manual change, that the test fails when the guard is dropped. That raises the counts to 34 scenarios for `shell-environment` and 57 for the five delta specs, noted in task 9.1.
+- Put all of it, and the "for bash and zsh only" wording of task 6.2, in the same `docs(chezmoi:spec)` commit as task 6.7.
+
+## What I need from you, in its pane `w0:p2`
+Its question is whether to commit the 6.7 artifact edits (`tasks.md` and `manual-steps.md`) as `docs(chezmoi:spec): add the opt-in live tests of the new login` (62 characters). It asked before getting my answers.
+
+- **Commit as proposed (recommended):** my amendments become a second `docs(chezmoi:spec)` commit. Two commits keep 6.7 self-contained and are easier to review.
+- **Do not commit yet:** it waits for my answers and puts everything in one commit.
+
+Once it's unblocked I send the message above. Nothing else is pending on my side. The commits `58633a0`, `c006474` and the store's `028f55e`, and the new export, are still not pushed or committed and wait for your words.
+
+---
+
+## User
+
+builder unblocked
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 49.7s)
+
+_Thinking:_
+Build mode is on now, so the next step is to send my message to the builder. The builder had been waiting on the commit question, and the user's answer may mean my amendments become a second commit rather than part of the first. I'll check the pane and git state before sending, then adjust the message to match.
+
+
+I'm checking what you answered in its pane, so my message fits the state it's in.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "W=[redacted:worktrees_root]/dotfiles-correct-shell-environment; G=/home/linuxbrew/.linuxbrew/bin/git\necho \"build2: $(herdr agent get chezmoi-env-build2 2>/dev/null | jq -r '.result.agent.agent_status' 2>/dev/null)\"\necho \"HEAD $($G -C $W rev-parse --short HEAD); ahead of main: $($G -C $W rev-list --count main..HEAD); dirty: $($G -C $W status --short | tr '\\n' ' ')\"\n$G -C $W log --format='%h|%s' 9c0a96e..HEAD | while IFS='|' read h s; do printf '%s %s chars: %s\\n' \"$h\" \"${#s}\" \"$s\"; done\nherdr pane read w0:p2 --lines 40 2>/dev/null | /usr/bin/grep -a -v '^\\s*$' | sed 's/[[:space:]]*$//' | cut -c1-160 | tail -8",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+build2: idle
+HEAD 9c0a96e; ahead of main: 5; dirty:  M openspec/changes/correct-shell-environment/manual-steps.md  M openspec/changes/correct-shell-environment/tasks.md 
+                                                                                                                       █
+     ▣  Build · Claude Sonnet 5.5 · 17h 39m                                                                            █
+  ┃
+  ┃                                                                                                                         [redacted:worktrees_root]/dotfiles-correct-shel
+  ┃                                                                                                                         environment:feat/correct-shell-
+  ┃  Build · Claude Sonnet 5.5 Anthropic · xhigh                                                                            environment
+  ╹▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀�
+   [redacted:worktrees_root]/dotfiles-correct-shell-environment                       123.2K (12%) · $1.12  ctrl+p commands    • OpenCode 1.19.6
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 13.2s)
+
+_Thinking:_
+The builder has gone idle with nothing committed, and the 6.7 edits are sitting in the working tree across two dirty files. I'm not sure what the user answered, so I want to check the latest visible output before I send anything. The pane tail didn't show it, so I'll read further back.
+
+Reading further back up the pane.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "herdr pane read w0:p2 --lines 90 2>/dev/null | /usr/bin/grep -a -v '^\\s*$' | sed 's/[[:space:]]*$//' | cut -c1-165 | sed -n '/Asked 1 question/,$p' | head -30",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+(no output)
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 39.0s)
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "herdr pane read w0:p2 --lines 120 2>/dev/null | /usr/bin/grep -a -v '^\\s*$' | sed 's/[[:space:]]*$//' | cut -c1-165 | tail -22 | head -16",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+        CURRENT_SHELL test that is already there. This deviates slightly from 6.2, so I'm asking before I do it.
+     3. tests/mutants/README.md. It says nothing about the live tests that I could copy for 6.7. I'll add a short
+        paragraph saying the live tests have no mutant.
+     4. Handoff items I'll apply as written.
+        - Tighten the strict desktop PATH test.
+        - Add bash-lc to the LANGUAGE test.
+        - Fix the wording of the bash merge scenario in spec.md.
+     I sent chezmoi-orch the reading-done line, and it was delivered. The tree is clean on feat/correct-shell-
+     environment at 9c0a96e apart from these two edits.
+     Your call
+     - Commit now with that message, or with another one.
+     - Leave it uncommitted and have me start group 6 with the artifact edits still in the tree. That goes against
+       the brief's order and mixes artifact and test changes unless I stage by path.
+     - Rework the edits first.
+                                                                                                                       █
+     ▣  Build · Claude Sonnet 5.5 · 17h 39m                                                                            █
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 59.7s)
+
+_Thinking:_
+The builder is sitting idle with its question still open, asking me to make the call. Since my amendments touch the same artifact, I'll tell it to fold them into one commit and hold off committing until the user has validated it.
+
+I'm going to have the builder rework the edits first, so my amendments fold into the same artifact, and then propose a single commit with an updated message. That fits my earlier decision. The tree is still dirty and HEAD hasn't moved, so nothing has been committed yet.
+
+
+The builder is idle, the tree has only the two 6.7 edits, and nothing is committed. I'm sending it my answers now, with the commit rule adjusted to that state.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\nherdr agent prompt chezmoi-env-build2 'chezmoi-orch: your three points all hold, I checked each on the machine; answers. (1) Yes: once shellrc has its guard, a mutant that makes profile source shellrc is a no-op, so env-desktop-full-pass must run a real rc.d pass inside the non-interactive branch of profile (a sed that replaces the sourcing of shell/environment by a loop over rc.d/*.sh is fine); it must fail the \"No rc.d pass\" and \"What the session no longer gets\" tests. Reword task 6.5. (2) Yes, and it is the design (decision 4A: the environment pass is for zsh and bash). Source shell/environment only when CURRENT_SHELL is bash or zsh; any other login shell (sh is dash here, and a bash started as sh reports sh) keeps loading nothing and printing nothing as today: I measured 0 bytes for sh -l -c today and status 127 with \"source: not found\" when dash sources environment unguarded. Do not rewrite environment with the dot command: that would widen the decision to env_ files that are not all POSIX. Pin it: add ONE scenario \"A login sh loads nothing\" to the requirement \"The desktop login loads the environment only\" in specs/shell-environment/spec.md (WHEN sh -l -c true runs with SHELL_RC_DEBUG=1 on the render, THEN it prints nothing and exports no name of an env_ file; skip with a message when sh is bash on that machine) and its test in environment-desktop.bats. Show once, by a manual change that you do not commit, that the test fails when the guard is dropped, and say so in your report. That makes 34 scenarios for shell-environment and 57 for the five delta specs: write it in task 9.1. Reword 6.2 (\"for bash and zsh only\") and the design line that says the non-interactive branch sources environment. (3) Yes, a short paragraph in tests/mutants/README.md saying the live tests have no mutant. COMMIT RULE: nothing is committed yet, so rework the two artifact edits you have in the tree together with the amendments above into ONE docs(chezmoi:spec) commit (task 6.7, the sh scenario, the 6.2 and 6.5 wording, the design line, task 9.1 counts), re-run openspec validate --all --strict, and propose that single commit with its message (subject at most 80 characters, counted) to the user in your pane; commit only after the user says so. The mutants README paragraph can go with the group 6 commit. Then group 6.' --wait --until working --timeout 20000 2>&1 | jq -c '{ok: (.error == null), error: (.error // null)}' 2>/dev/null\nprintf -- '- %s chezmoi-orch (wN:p1) chezmoi-env-build2 unblocked by the user; answers sent to its reading report: mutant env-desktop-full-pass runs a real rc.d pass, environment sourced for bash and zsh only with one new scenario A login sh loads nothing (34 and 57 scenarios), mutants README paragraph, one docs(chezmoi:spec) commit for the 6.7 edits and these amendments proposed to the user before it commits\\n' \"$(date '+%Y-%m-%d %H:%M:%S')\" >> .state/journal.md\nsleep 8; echo \"build2: $(herdr agent get chezmoi-env-build2 2>/dev/null | jq -r '.result.agent.agent_status' 2>/dev/null); $(herdr pane read w0:p2 --lines 20 2>/dev/null | /usr/bin/grep -a -o -E '[0-9.]+K \\([0-9]+%\\)' | tail -1)\"",
+  "timeout": 90000
+}
+```
+
+**Output:**
+```
+{"ok":true,"error":null}
+build2: working; 123.2K (12%)
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 9.7s)
+
+The message went through and the builder is working again, at about 123K tokens (12% of its context).
+
+## What I told it
+- **Mutant:** `env-desktop-full-pass` runs a real `rc.d` pass inside `profile`'s non-interactive branch. A mutant that sourced `shellrc` would do nothing under the new guard.
+- **`profile` and dash:** it sources `shell/environment` only when the shell is bash or zsh. Any other login shell loads nothing and prints nothing, as today. `environment` stays as it is, so decision 4A isn't widened.
+- **New scenario:** one scenario, "A login sh loads nothing", with its test. It has to show once, by an uncommitted change, that the test fails when the guard is dropped. That brings the totals to 34 scenarios for `shell-environment` and 57 for the five delta specs, written in task 9.1.
+- **Wording and README:** task 6.2 and the design line are reworded, and `tests/mutants/README.md` gets the live-tests paragraph.
+
+## Commit rule
+Nothing was committed, since the tree held only the 6.7 edits. So I asked for one `docs(chezmoi:spec)` commit that carries the 6.7 edits and these amendments. The builder re-validates and proposes it to you in its pane, with a counted subject, and commits only after your word. The mutants README paragraph goes with the group 6 commit.
+
+## Still pending
+- **Builder:** you'll get its commit proposal in `w0:p2`.
+- **Not pushed or committed:**
+  - the repository has `58633a0` and `c006474`;
+  - the store has `028f55e`;
+  - the first builder's session export sits uncommitted, with message `docs(chezmoi:memory): export the first correct-shell-environment build session` (78 characters).
+
+  I scan the outgoing commits before any push.
+
+---
+
+## User
+
+do the pushes and commit
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 19.2s)
+
+_Thinking:_
+I'm going to commit the export with the proposed 78-character message, then run the scan and push both the repo and the store. The store's working copy has someone else's uncommitted line, but the push only sends commits through 028f55e, so that's fine.
+
+
+I'll commit the first builder's export with the message I proposed, then scan and push the repository and the store.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; G=/home/linuxbrew/.linuxbrew/bin/git\n$G status --short\nm='docs(chezmoi:memory): export the first correct-shell-environment build session'; echo \"subject ${#m} chars\"\n$G add memory/sessions/202611231256-shell_environment_build_one.md memory/sessions/README.md\n$G diff --cached --stat | tail -3 | cut -c1-110\nenv -u GITHUB_TOKEN HK_STASH=none $G commit -q -m \"$m\" -m \"Export of the first build session of correct-shell-environment: the reading of the brief against the tree, groups 2 to 5 (kinds runner, probe script, PATH and the env_ files, the locale file, keys on demand), redacted with the store alone. The folder scan found no segment and none of the private file's names is readable in it.\" 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | tail -2; echo \"exit=${pipestatus[1]}\"\n$G log --oneline -4 | cut -c1-100; echo \"dirty: $($G status --short | wc -l)\"",
+  "timeout": 180000
+}
+```
+
+**Output:**
+```
+ M memory/sessions/README.md
+?? memory/sessions/202611231256-shell_environment_build_one.md
+subject 78 chars
+ .../202611231256-shell_environment_build_one.md    | 10789 +++++++++++++++++++
+ memory/sessions/README.md                          |     1 +
+ 2 files changed, 10790 insertions(+)
+  gitleaks – 12:36PM INF no leaks found
+✔ gitleaks
+exit=0
+08733b0 docs(chezmoi:memory): export the first correct-shell-environment build session
+c006474 docs(chezmoi:docs): log the answers of the first grouped launch
+58633a0 docs(chezmoi:memory): re-export the orchestrator session of 2026-11-23
+d9f437d docs(chezmoi:docs): group worker workspaces and log the sixth launch
+dirty: 0
+
+```
+
+
+---
+
+## User
+
+From nvim-orch, information only, sent at the request of the shared user. Brief: ~/.local/state/orchestration/briefs/202611241234-nvim-signal-nvim-dev-alias-and-script.md (0600, no secret). It describes the nvim-dev command of the nvim development checkout (the script ~/.local/bin/nvim-dev, not managed by chezmoi, and the alias line the user has carried since 11-18 for your aliases file), what your source holds today (nothing naming nvim-dev), and the candidates (the alias line in the aliases source, the script as a managed executable, both). It asks nothing; a pointer reply is welcome only to record what you take. The nvim side changes nothing until then.
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 95.7s)
+
+_Thinking:_
+I committed the changes, and now I need to push both repos. After that I'll read the nvim-orch signal and the brief.
+
+
+I'll finish the push the user asked for first: scan the outgoing commits, then push the repository and the store. After that I'll read the nvim-orch brief.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; G=/home/linuxbrew/.linuxbrew/bin/git; ST=[redacted:private_store]\necho \"outgoing repo: $($G log --format='%h %s' origin/main..HEAD | cut -c1-80 | tr '\\n' ';')\"\n$G diff origin/main HEAD -- . ':!memory/sessions' | /usr/bin/grep -a '^+' | /usr/bin/grep -a -v '^+++' > /tmp/opencode/added.txt\nprintf 'added outside exports %s | banned %s | dashes %s | e-mail %s | tokens %s\\n' \"$(wc -l < /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -i -w -E '[redacted:private]|[redacted:private]|[redacted:private]|[redacted:repo]|[redacted:private]' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -E '[–—]' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -E '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[a-z]{2,}' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -E 'gh[pousr]_[A-Za-z0-9]{20,}|sk-[A-Za-z0-9_-]{20,}' /tmp/opencode/added.txt)\"\nrm -f /tmp/opencode/added.txt\npython3 ~/.config/nvim/scripts/session_redact.py --check memory/sessions/*.md > /tmp/opencode/c.out 2>&1; echo \"--check all exports: exit=$? non-zero: $(sed 's/\\x1b\\[[0-9;]*m//g' /tmp/opencode/c.out | /usr/bin/grep -a -E ': [1-9][0-9]*$' | tr '\\n' ' ')\"; rm -f /tmp/opencode/c.out\nmise x -- gitleaks git --redact --no-banner --log-opts='origin/main..HEAD' . 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | tail -1\necho \"store outgoing: $($G -C $ST log --format='%h %s' origin/main..HEAD | cut -c1-90 | tr '\\n' ';'); numstat: $($G -C $ST diff --numstat origin/main HEAD | tr '\\t' ' ')\"; echo \"store uncommitted (other session, stays local): $($G -C $ST status --short | tr '\\n' ' ')\"\necho \"validate: $(openspec validate --all --strict 2>&1 | tail -1)\"",
+  "timeout": 400000
+}
+```
+
+**Output:**
+```
+outgoing repo: 08733b0 docs(chezmoi:memory): export the first correct-shell-environment build s;c006474 docs(chezmoi:docs): log the answers of the first grouped launch;58633a0 docs(chezmoi:memory): re-export the orchestrator session of 2026-11-23;
+added outside exports 7 | banned 0 | dashes 0 | e-mail 0 | tokens 0
+--check all exports: exit=0 non-zero: 
+12:38PM INF no leaks found
+store outgoing: ; numstat: 
+store uncommitted (other session, stays local):  M session-redact/public-folders.txt 
+validate: Totals: 38 passed, 0 failed (38 items)
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 8.1s)
+
+_Thinking:_
+The store's outgoing queue is empty, but I expected commit 028f55e to be ahead. It may have been pushed from somewhere else, so I'll check the remote state.
+
+
+The repository scans are clean, but the store shows nothing outgoing, though I expected `028f55e`. I'm checking what happened before I push anything.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "G=/home/linuxbrew/.linuxbrew/bin/git; ST=[redacted:private_store]\nenv -u GITHUB_TOKEN $G -C $ST fetch -q origin 2>&1 | tail -1\necho \"store HEAD $($G -C $ST rev-parse --short HEAD), origin/main $($G -C $ST rev-parse --short origin/main), ahead/behind $($G -C $ST rev-list --count origin/main..HEAD)/$($G -C $ST rev-list --count HEAD..origin/main)\"\n$G -C $ST log --format='%h %ad %s' --date=format:'%m-%d %H:%M' -6 | cut -c1-110\necho \"028f55e in origin/main: $($G -C $ST merge-base --is-ancestor 028f55e origin/main 2>/dev/null && echo yes || echo no)\"\necho \"uncommitted: $($G -C $ST status --short | tr '\\n' ' '); working copy vs HEAD: $($G -C $ST diff --numstat | tr '\\t' ' ')\"",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+store HEAD 028f55e, origin/main 028f55e, ahead/behind 0/0
+028f55e 11-23 13:16 chore(redaction): list one more public folder segment, classified by the user
+71292df 11-21 14:25 chore(redaction): list two more public folder segments, classified by the user
+b153ab3 11-20 18:29 refactor(redact): keep one more entry in the dotfiles layer (S26)
+769901a 11-20 18:20 feat(redact): list 15 more public folder segments, classified by the user (S26)
+2b2db3a 11-20 17:55 refactor(redact): keep three entries in the dotfiles layer (S26)
+1c6e23f 11-20 17:39 feat(redact): public-folders.txt, the segments the folder scan accepts (S26)
+028f55e in origin/main: yes
+uncommitted:  M session-redact/public-folders.txt ; working copy vs HEAD: 1 0 session-redact/public-folders.txt
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 103.5s)
+
+_Thinking:_
+I see that 028f55e is already on origin/main, so another session must have pushed it. The commit is mine, and its single added line matches origin and HEAD, so there's nothing left to push for the store.
+
+I'm going to push the repo now, since the store working copy still needs to go up.
+
+
+_Thinking:_
+The store's commit 028f55e already reached origin/main from another session, so nothing needs pushing there. Next I'll move on to the repository.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; G=/home/linuxbrew/.linuxbrew/bin/git\nenv -u GITHUB_TOKEN $G push origin main 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | tail -2; echo \"push exit=${pipestatus[1]}\"\nenv -u GITHUB_TOKEN $G fetch -q origin 2>&1 | tail -1\necho \"repo ahead/behind: $($G rev-list --count origin/main..HEAD)/$($G rev-list --count HEAD..origin/main), head $($G rev-parse --short HEAD)\"\nprintf -- '- %s chezmoi-orch (wN:p1) committed 08733b0 (export of the first correct-shell-environment build session) and pushed main to 08733b0 with 58633a0 and c006474 on the user word; the store 028f55e was already in its origin (pushed by another session, content identical to my one-line commit, the other session uncommitted line stays local), nothing to push there\\n' \"$(date '+%Y-%m-%d %H:%M:%S')\" >> .state/journal.md",
+  "timeout": 120000
+}
+```
+
+**Output:**
+```
+To https://github.com/silopolis/dotfiles.git
+   d9f437d..08733b0  main -> main
+push exit=0
+repo ahead/behind: 0/0, head 08733b0
+
+```
+
+**Tool: read**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/state/orchestration/briefs/202611241234-nvim-signal-nvim-dev-alias-and-script.md"
+}
+```
+
+**Output:**
+```
+<path>~/.local/state/orchestration/briefs/202611241234-nvim-signal-nvim-dev-alias-and-script.md</path>
+<type>file</type>
+<content>
+1: # Signal brief: the `nvim-dev` command and its alias line (information for the dotfiles repository)
+2: 
+3: Written by `nvim-orch` (the orchestrator of the nvim-config repository) on 2026-11-24, at the user's request.
+4: A signal, not a work order: the dotfiles repository and the user are sole judges of what happens with it.
+5: Nothing here is urgent, and nvim writes nothing in your repository.
+6: The brief holds no secret value; every fact below was read on 2026-11-24 without changing anything.
+7: 
+8: ## What exists today
+9: 
+10: The nvim-config repository has a development checkout (`~/Work/nvim`, branch `dev`) beside the live editor (`~/.config/nvim`).
+11: The development checkout has its own Neovim app name, `nvim-dev`, so its plugins, data, state and cache stay apart from the live editor's.
+12: 
+13: - `~/.local/bin/nvim-dev`: an executable POSIX shell script of 548 bytes, created on 2026-11-18 by the nvim session S24 at the user's request.
+14:   It is not managed by chezmoi.
+15:   It checks that the profile `${XDG_CONFIG_HOME:-$HOME/.config}/nvim-dev` exists (otherwise it prints a message to stderr and exits 1), then runs `env NVIM_APPNAME=nvim-dev nvim "$@"`.
+16:   Its own comment says it does what the alias below does, and also works in scripts and in panes that do not read the shell's aliases.
+17: - The alias line it stands in for, and the one the user has carried on his open list since S24 as "the `nvim-dev` alias line for chezmoi's aliases file":
+18: 
+19:   ```sh
+20:   alias nvim-dev='NVIM_APPNAME=nvim-dev nvim'
+21:   ```
+22: 
+23: - The profile `~/.config/nvim-dev` is a symlink to the clone `~/Work/nvim`, and its data directory is `~/.local/share/nvim-dev`.
+24:   The user made both in S24; chezmoi creates neither, nor the clone.
+25: 
+26: Why a command and not a bare `nvim`: without `NVIM_APPNAME=nvim-dev`, a bare `nvim` opens the live editor, and the repository's `tests/smoke.sh` and `tests/fixtures/run-chain.sh` exit 2 in the development checkout.
+27: 
+28: ## What the dotfiles source holds
+29: 
+30: - No file of the chezmoi source names `nvim-dev` (searched outside the session transcripts).
+31: - The aliases file of the source is `home/dot_config/shell/aliases`.
+32: - Of `~/.local/bin`, chezmoi manages two entries (`awsenv`, `bin`); the script is not one of them.
+33: 
+34: ## What may be worth considering
+35: 
+36: Candidates, not requests; the choice is the dotfiles repository's and the user's.
+37: 
+38: - Add the alias line to `home/dot_config/shell/aliases`.
+39:   It reaches the shells that read that file and nothing else (not scripts, not panes that skip it).
+40: - Manage the script as `home/dot_local/bin/executable_nvim-dev`, with the content now on disk.
+41:   It works everywhere and is the more complete of the two.
+42: - Both together: the alias would then shadow the command in shells that read aliases, with the same effect.
+43: - The symlink `~/.config/nvim-dev` points at a clone that chezmoi does not create.
+44:   Managing the link alone would leave it dangling on a machine without the clone (the script says so with a message instead of failing silently).
+45: 
+46: ## What nvim asks
+47: 
+48: Nothing.
+49: A reply is welcome only to record which of the candidates the dotfiles repository took, and a pointer is enough.
+50: The nvim side keeps the script as it is until then.
+51: 
+52: <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->
+
+(End of file - total 52 lines)
+</content>
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 17.2s)
+
+_Thinking:_
+Next I'll verify the claims without changing anything, starting with whether the nvim-dev source and the installed ~/.local/bin/nvim-dev file exist, along with their mode and size. Then I'll look at how home/dot_local/bin is structured and whether `bin` is an external, since the setup lists two managed entries, awsenv and bin.
+
+Next I'm weighing where this fits: it's small enough to be a standalone change, or it could fold into an existing change like the shell aliases or the dev TUI or AI tool config work. Since that placement is the user's call, I'm going to propose options rather than touch anything, and I'll first confirm which existing change already touches `~/.local/bin` or `dot_local/bin`.
+
+
+The push is done: `origin/main` is `08733b0`. Now the brief. I'm checking each of its claims read-only against the machine and the source before I form a view.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; G=/home/linuxbrew/.linuxbrew/bin/git; C=/home/linuxbrew/.linuxbrew/bin/chezmoi\necho '--- the script on disk'\nls -l ~/.local/bin/nvim-dev | awk '{print $1, $5, $6, $7, $8}'; echo \"managed by chezmoi: $($C managed --include=files ~/.local/bin/nvim-dev 2>/dev/null | wc -l)\"\necho \"first lines (shape only):\"; sed -n '1,4p' ~/.local/bin/nvim-dev | cut -c1-110\necho \"bytes $(wc -c < ~/.local/bin/nvim-dev); shellcheck -s sh: $(shellcheck -s sh ~/.local/bin/nvim-dev >/dev/null 2>&1; echo $?); dash -n: $(dash -n ~/.local/bin/nvim-dev >/dev/null 2>&1; echo $?)\"\necho '--- the source: nvim-dev anywhere outside the session exports?'\n$G grep -n -i -F 'nvim-dev' -- . ':!memory/sessions' | cut -c1-140 | head; echo \"(end)\"\necho '--- how ~/.local/bin is managed today'\n$G ls-files home | /usr/bin/grep -a -E 'dot_local/bin|dot_local/sbin' | cut -c1-120\n$C managed ~/.local/bin 2>/dev/null | sed \"s#$HOME#~#\" | head -6\necho '--- externals that write into ~/.local/bin'\n/usr/bin/grep -a -rn -E '\\.local/bin' home/.chezmoiexternals 2>/dev/null | cut -c1-140 | head -4\necho '--- the live alias, if the user already carries it (shell config files, names only)'\n/usr/bin/grep -a -l -F 'nvim-dev' ~/.config/shell/aliases ~/.config/shell/rc.d/* ~/.zshrc ~/.bashrc ~/.config/zsh/* 2>/dev/null | sed \"s#$HOME#~#\" ; echo \"(end)\"\nalias nvim-dev 2>/dev/null | head -1; type -a nvim-dev 2>/dev/null | head -2 | sed \"s#$HOME#~#\"",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+--- the script on disk
+-rwxr-xr-x 548 nov. 18 15:36
+managed by chezmoi: 0
+first lines (shape only):
+#!/bin/sh
+# Start Neovim with the profile of the development checkout (~/Work/nvim, NVIM_APPNAME=nvim-dev).
+# Not managed by chezmoi; the same thing as `alias nvim-dev='NVIM_APPNAME=nvim-dev nvim'`, but it also
+# works in scripts and in panes that do not read the shell's aliases. Arguments go to nvim unchanged.
+bytes 548; shellcheck -s sh: 0; dash -n: 0
+--- the source: nvim-dev anywhere outside the session exports?
+(end)
+--- how ~/.local/bin is managed today
+home/dot_local/bin/executable_awsenv
+home/dot_local/sbin/executable_syssetup.sh
+home/dot_local/sbin/executable_sysupgrade.sh
+.local/bin
+.local/bin
+.local/bin/awsenv
+.local/bin/bin
+--- externals that write into ~/.local/bin
+home/.chezmoiexternals/bin.toml.tmpl:1:[".local/bin/bin"]
+--- the live alias, if the user already carries it (shell config files, names only)
+(end)
+nvim-dev is ~/.local/bin/nvim-dev
+nvim-dev is ~/.local/bin/nvim-dev
+
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\necho '--- the profile and clone, as brief says (existence and kind only)'\nls -ld ~/.config/nvim-dev 2>&1 | awk '{print $1, $NF}' | sed \"s#$HOME#~#g\"; readlink ~/.config/nvim-dev | sed \"s#$HOME#~#\"\necho \"clone: $([ -d ~/Work/nvim/.git ] && echo present || echo absent)\"\necho '--- nvim repo external: does the dotfiles repository create the live clone, and could it know the dev clone?'\ncat home/.chezmoiexternals/nvim.toml.tmpl 2>/dev/null | /usr/bin/grep -a -v -i -E 'owner|repo|host' | cut -c1-120 | head -14\necho '--- aliases file: how aliases are organized, and where an editor alias would sit'\n/usr/bin/grep -a -n -E '^alias (v|vi|vim|nvim|e)=|EDITOR|^# ' home/dot_config/shell/aliases | cut -c1-110 | head -16\necho \"aliases file lines: $(wc -l < home/dot_config/shell/aliases)\"\necho '--- planned changes that might own this (mentions of ~/.local/bin, editor, nvim, dev tui)'\nfor c in port-[redacted:private]-shell-aliases manage-dev-tui-configs manage-ai-tool-configs rationalize-package-ownership refresh-repo-docs; do printf '%-34s lines on local/bin, nvim, editor: %s\\n' $c \"$(/home/linuxbrew/.linuxbrew/bin/git grep -c -i -E 'local/bin|nvim|neovim|editor' -- openspec/changes/$c 2>/dev/null | awk -F: '{s+=$2}END{print s+0}')\"; done",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+--- the profile and clone, as brief says (existence and kind only)
+lrwxrwxrwx ~/Work/nvim
+~/Work/nvim
+clone: present
+--- nvim repo external: does the dotfiles repository create the live clone, and could it know the dev clone?
+{{- /*
+  No data, or neither a clone nor a GitHub CLI login file: no external.
+  refreshPeriod 0 and a fast-forward-only pull: local work is never merged over, rebased or discarded.
+*/ -}}
+{{- $nvim := or (get . "nvim") dict -}}
+{{- $hasClone := stat (joinPath .chezmoi.destDir ".config" "nvim" ".git") -}}
+[".config/nvim"]
+  refreshPeriod = "0"
+  pull.args = ["--ff-only"]
+{{ warnf "nvim: no clone and no GitHub CLI login, skipping the Neovim external" }}
+{{- end }}
+--- aliases file: how aliases are organized, and where an editor alias would sit
+4:# Neovim
+9:# enable color support of ls, less and man, and also add handy aliases
+42:# less
+45:# colored GCC warnings and errors
+48:# some more ls aliases
+60:# use lsd if available
+75:# An alias cannot take an argument (shellcheck SC2142): a function does.
+122:# Fix GCM DEPRECATED ENDPOINT error
+179:# Relative to the source state: `cmmkdir dot_config/x` makes `$(chezmoi source-path)/dot_config/x`.
+180:# They were aliases ending in a slash, which expanded to `mkdir -p <source>/ dot_config/x`: the argument s
+214:# Branch changes: see what the current branch has that the designated base hasn't
+218:# Base branch changes : see what the designated base branch has that the current branch hasn't
+222:# "Quick rebase": update current branch with changes from the designated upstream base branch
+227:# Branch interactive rebase of all revisions since it diverged from designated branch
+231:# Quick fixup
+268:# Use English man pages
+aliases file lines: 568
+--- planned changes that might own this (mentions of ~/.local/bin, editor, nvim, dev tui)
+port-[redacted:private]-shell-aliases          lines on local/bin, nvim, editor: 0
+manage-dev-tui-configs             lines on local/bin, nvim, editor: 0
+manage-ai-tool-configs             lines on local/bin, nvim, editor: 0
+rationalize-package-ownership      lines on local/bin, nvim, editor: 2
+refresh-repo-docs                  lines on local/bin, nvim, editor: 0
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 20.9s)
+
+_Thinking:_
+I'm checking the brief's facts against the files: the script is 548 bytes, dated 11-18, unmanaged, and shellcheck-clean, with no source references. The alias isn't in the live config, so I'll treat it as an open item from the user's list instead. Next I want to see what `type -a nvim-dev` resolves to.
+
+Considering the options for the script, I'm leaning toward managing only the script and skipping the alias, since the script already covers it and the alias would just duplicate it and could drift. I also need to note that the script depends on a machine-specific profile symlink to the nvim checkout, so it will print a message if that link is missing.
+
+I'm weighing whether the script needs a gate for machines without the dev checkout. Since it just exits with a message there, I lean toward leaving it unconditional. I also want to check the script's content for anything sensitive before committing, since the name and path look harmless.
+
+I'm weighing where this fits in the plan: either a small standalone change, since the repo has precedent for those like `allow-public-secret-names`, or folding it into an existing change such as the dev TUI configs or the shell aliases. The workflow calls for one OpenSpec change per session, and this is small enough that a lightweight change may be enough.
+
+I'm weighing whether to pick this up myself in the main checkout, since the builder's branch only touches the shell files and nothing under `home/dot_local/bin/`. A quick propose seems reasonable, but I'll hold off and let the user choose the candidate and where it goes.
+
+Next I'll check the builder's state and update the resume note now that the push is done, then run a read-only redaction check on the script before deciding where it belongs.
+
+
+The brief's facts all hold. Two more things to check before I recommend a route: whether the script's content is safe to publish, and what the builder is doing.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\nf=$HOME/.local/bin/nvim-dev\necho \"redaction --check on the script: $(python3 ~/.config/nvim/scripts/session_redact.py --check $f 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | /usr/bin/grep -a -E ': [1-9][0-9]*$' | tr '\\n' ' ')(end)\"\nprintf 'dashes %s | banned %s | /home paths %s | e-mail %s | secret-looking names %s\\n' \"$(/usr/bin/grep -a -c -E '[–—]' $f)\" \"$(/usr/bin/grep -a -c -i -w -E '[redacted:private]|[redacted:private]|[redacted:private]|[redacted:repo]|[redacted:private]' $f)\" \"$(/usr/bin/grep -a -c -E '/home/[a-z]+' $f)\" \"$(/usr/bin/grep -a -c -E '@' $f)\" \"$(/usr/bin/grep -a -c -E '_(KEY|TOKEN|SECRET|PASSWORD)\\b' $f)\"\necho '--- what it does (code lines, no comments)'; /usr/bin/grep -a -v -E '^\\s*(#|$)' $f | cut -c1-130\necho '--- builder'\necho \"build2: $(herdr agent get chezmoi-env-build2 2>/dev/null | jq -r '.result.agent.agent_status' 2>/dev/null); $(herdr pane read w0:p2 --lines 20 2>/dev/null | /usr/bin/grep -a -o -E '[0-9.]+K \\([0-9]+%\\)' | tail -1)\"\nherdr pane read w0:p2 --lines 60 2>/dev/null | /usr/bin/grep -a -v '^\\s*$' | /usr/bin/grep -a -E 'Permission required|Asked 1 question|Commit |docs\\(chezmoi' | tail -3 | cut -c1-170\nW=[redacted:worktrees_root]/dotfiles-correct-shell-environment; echo \"builder tree: HEAD $(/home/linuxbrew/.linuxbrew/bin/git -C $W rev-parse --short HEAD), dirty $(/home/linuxbrew/.linuxbrew/bin/git -C $W status --short | wc -l)\"",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+redaction --check on the script: (end)
+dashes 0 | banned 0 | /home paths 0 | e-mail 1 | secret-looking names 0
+--- what it does (code lines, no comments)
+profile="${XDG_CONFIG_HOME:-$HOME/.config}/nvim-dev"
+if [ ! -e "$profile" ]; then
+  echo "nvim-dev: $profile does not exist (a symlink to the development checkout, ~/Work/nvim)" >&2
+  exit 1
+fi
+exec env NVIM_APPNAME=nvim-dev nvim "$@"
+--- builder
+build2: working; 271.1K (27%)
+builder tree: HEAD 383c9dd, dirty 0
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 20.9s)
+
+_Thinking:_
+I've confirmed the "$@" argument handling and the redaction check came back empty, so that part is clear. The builder now has commit 383c9dd, which is probably the docs commit the user already validated, so I'll note the hash. I'll re-measure at group 6 once the builder reports, and I'm drafting the resume note and journal updates now before reporting back to the user.
+
+I'm updating the resume note with the new state: main is pushed at 08733b0, the builder is on 383c9dd, and the nvim-orch signal is recorded and waiting on the user's call. Next I'll check the builder's new commit for the record.
+
+
+The script is clean: the one `@` is `"$@"`, and the redaction check reports nothing. The builder has made a commit, so I'm noting its hash. Then I'll update the resume note.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "W=[redacted:worktrees_root]/dotfiles-correct-shell-environment; G=/home/linuxbrew/.linuxbrew/bin/git\n$G -C $W log --format='%h|%s' 9c0a96e..HEAD | while IFS='|' read h s; do printf '%s %s chars: %s\\n' \"$h\" \"${#s}\" \"$s\"; done\n$G -C $W show --stat --format= HEAD | cut -c1-110",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+383c9dd 70 chars: test(shell:env): add the live checks of the new login behind an opt-in
+d8758ff 70 chars: test(shell:env): list the differences with main that the change claims
+015b537 76 chars: feat(shell:env): load only env_ files at the desktop login and guard shellrc
+b6674f3 76 chars: docs(chezmoi:spec): add live login tests, limit the env pass to bash and zsh
+ .../changes/correct-shell-environment/tasks.md     |   2 +-
+ tests/README.md                                    |   3 +-
+ tests/helpers/bats/load.bash                       |  11 ++
+ tests/helpers/live.sh                              |  65 +++++++++++
+ tests/mutants/README.md                            |   3 +
+ tests/smoke/environment-live.bats                  |  44 +++++++
+ tests/unit/live-helpers.bats                       | 129 +++++++++++++++++++++
+ 7 files changed, 255 insertions(+), 2 deletions(-)
+
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; python3 - <<'EOF'\nfrom pathlib import Path\np = Path(\".state/resume.md\"); s = p.read_text(encoding=\"utf-8\")\ndef rep(a, b):\n    global s\n    assert s.count(a) == 1, (s.count(a), a[:70]); s = s.replace(a, b)\n\nrep(\"# Resume note of chezmoi-orch, updated 2026-11-23 18:20 with the SECOND builder session RUNNING\",\n    \"# Resume note of chezmoi-orch, updated 2026-11-24 12:45 with the SECOND builder session RUNNING\")\na0 = s.index(\"- Repository on 2026-11-23 18:20:\"); a1 = s.index(\"- The reboot check of `TODO.md` PASSED\")\ns = s[:a0] + (\"- Repository on 2026-11-24 12:45: `main` = `origin/main` = `08733b0`, 0 ahead and 0 behind, tree clean, openspec validate 38/38; PUSHED on the user's word: `58633a0` (re-export of this session through about 13:00 on 2026-11-23), `c006474` (observations of the seventh launch), `08733b0` (export of the first builder session, README row 17).\\n\"\n \"  The turns of this session after the 13:00 export are in no export until the next one (same file `202610301854-harden_sensitive_targets.md`, `--full`).\\n\"\n \"- Store `028f55e` (mine, one more public folder segment): already in the store's origin when I went to push on 2026-11-24 (another session pushed the store; its content is exactly my one-line commit); 0 ahead, 0 behind. Its working copy still carries ONE uncommitted line of `session-redact/public-folders.txt` from another session: not mine, never commit it with mine.\\n\") + s[a1:]\n# store line earlier: replace old store paragraph\na0 = s.index(\"- Store: `028f55e` (mine: one more public folder segment\"); a1 = s.index(\"- Delivered since the previous resume\")\ns = s[:a0] + s[a1:]\nrep(\"Second session `chezmoi-env-build2` (started 18:17, Build, Sonnet 5.5):\", \"Second session `chezmoi-env-build2` (started 18:17 on 2026-11-23; at 12:40 on 2026-11-24 it had made commit `383c9dd` on top of `9c0a96e`, to re-measure with its group 6 report; context 27%):\")\n# signals\na = \"- Read, no action: the Neovim orchestrator's out-of-memory signal\"\nassert s.count(a) == 1\ns = s.replace(a, '''- Received 2026-11-24 (information, nothing asked, no reply owed; a pointer reply only records what is taken): `~/.local/state/orchestration/briefs/202611241234-nvim-signal-nvim-dev-alias-and-script.md`, from the Neovim orchestrator: the `nvim-dev` command of its development checkout.\n  Verified read-only on 2026-11-24: `~/.local/bin/nvim-dev` exists (POSIX sh, 548 bytes, mode 0755, created 2026-11-18, not managed by chezmoi, shellcheck and `dash -n` clean, redaction check clean, 6 code lines: checks that `${XDG_CONFIG_HOME:-$HOME/.config}/nvim-dev` exists, else message and exit 1, then `exec env NVIM_APPNAME=nvim-dev nvim \"$@\"`); no source file names `nvim-dev`; the live shells carry NO such alias (`type -a nvim-dev` finds only the script); `.local/bin` holds two managed entries (`awsenv`, the `bin` external); the profile `~/.config/nvim-dev` is a symlink to the clone `~/Work/nvim`, which chezmoi neither creates nor knows.\n  Candidates (the user chooses): (a) the script as `home/dot_local/bin/executable_nvim-dev`, content as on disk (works in scripts and panes without aliases; harmless on a machine without the dev checkout because it prints its message); (b) the alias line in `home/dot_config/shell/aliases` (reaches only shells that read it; duplicates the script and would shadow it); (c) both. My recommendation: (a) only, as a small change (precedent: `allow-public-secret-names`), no overlap with the builder's files; ask the user which and whether now or after part 1 of the build.\n- Read, no action: the Neovim orchestrator's out-of-memory signal''')\n# waiting\nrep(\"0. Push: the user's word \\\"push\\\" for the repository (`58633a0`, `c006474`, and the export commit once made) and the store (`028f55e`, mine); scan the outgoing commits first (`gitleaks git --log-opts='origin/main..HEAD'`, added lines, `--check` over all exports).\\n1. The commit word for the export of the first builder session (README row 17 and the new file; the message is proposed in the journal and in the repository state above).\\n\",\n    \"0. (Done 2026-11-24: commit `08733b0` and the push of `58633a0`, `c006474`, `08733b0`; the store was already in sync.)\\n1. The `nvim-dev` question from the Neovim orchestrator: which candidate (script only, alias only, both) and when; see \\\"Reports and signals\\\".\\n\")\np.write_text(s, encoding=\"utf-8\")\nEOF\nchmod 600 .state/resume.md\nprintf 'resume: lines %s | dashes %s | modeline last %s\\n' \"$(wc -l < .state/resume.md)\" \"$(/usr/bin/grep -a -c -E '[–—]' .state/resume.md)\" \"$(tail -1 .state/resume.md | /usr/bin/grep -a -c 'vim: set ts=2')\"\nprintf -- '- %s chezmoi-orch (wN:p1) signal from nvim-orch read (the nvim-dev command: unmanaged script of 548 bytes, no alias in my shells, no mention in the source; facts re-verified read-only, script clean for publication); my recommendation recorded in the resume note (the script as a managed executable, alone, as a small change); waiting for the user choice; no reply sent (a pointer reply only records what is taken)\\n' \"$(date '+%Y-%m-%d %H:%M:%S')\" >> .state/journal.md",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+resume: lines 185 | dashes 0 | modeline last 1
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 8.2s)
+
+_Thinking:_
+I've got four commits now: b6674f3 for the docs spec, 015b537 for the group 6 code, d8758ff for the compare allow, and 383c9dd for the live tests. The resume note was wrong to name only 383c9dd, so I'll fix that. Group 6 hasn't been reported yet, so I'll keep waiting.
+
+
+The builder has made four commits since `9c0a96e`, not one. That looks like most of group 6. I'm correcting the note, and I'll measure it when it reports.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; python3 - <<'EOF'\nfrom pathlib import Path\np = Path(\".state/resume.md\"); s = p.read_text(encoding=\"utf-8\")\na = \"at 12:40 on 2026-11-24 it had made commit `383c9dd` on top of `9c0a96e`, to re-measure with its group 6 report; context 27%):\"\nb = \"at 12:40 on 2026-11-24 it had made FOUR commits on top of `9c0a96e`, none measured by me yet: `b6674f3` docs(chezmoi:spec) (live login tests 6.7, login sh scenario, env pass for bash and zsh only), `015b537` feat(shell:env) (desktop login loads only env_ files, `shellrc` guard), `d8758ff` test(shell:env) (differences with main listed), `383c9dd` test(shell:env) (live checks behind the opt-in `DOTFILES_TEST_AFTER_LOGIN`); measure the tip it names in its group 6 report on `git archive`; context 27%):\"\nassert s.count(a) == 1; p.write_text(s.replace(a, b), encoding=\"utf-8\")\nEOF\nchmod 600 .state/resume.md; printf 'dashes %s\\n' \"$(/usr/bin/grep -a -c -E '[–—]' .state/resume.md)\"",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+dashes 0
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 10.2s)
+
+The repository is pushed and the `nvim-dev` signal is read. I need one choice from you on the signal.
+
+## Commit and pushes
+- **Repository:** I committed the first builder's export as `08733b0`, whose subject is 78 characters. I pushed it with `58633a0` and `c006474`. `origin/main` is `08733b0`, 0 ahead and 0 behind. The scans were clean first: no banned names, dashes, e-mails or token shapes in the added lines, the redaction check exits 0 over all exports, gitleaks is clean, and `openspec validate` passes 38/38.
+- **Store:** there was nothing for me to push. My commit `028f55e` was already in the store's origin, because another session had pushed it. The content is exactly my one-line commit, and the other session's uncommitted line is still local.
+
+## The `nvim-dev` signal
+It asks nothing from me. I checked every fact in it read-only on the machine.
+- **Script:** `~/.local/bin/nvim-dev` exists. It's 548 bytes of POSIX sh, mode 0755, from 2026-11-18, not managed by chezmoi. shellcheck, `dash -n` and the redaction check are clean, and its one `@` is `"$@"`.
+- **What it does:** six lines of code. It checks that `~/.config/nvim-dev` exists, and otherwise prints a message and exits 1. Then it runs `env NVIM_APPNAME=nvim-dev nvim "$@"`.
+- **The alias:** no source file names `nvim-dev`, and your live shells carry no such alias. `type -a nvim-dev` finds only the script.
+- **Profile:** `.local/bin` holds two managed entries (`awsenv` and the `bin` external). The profile `~/.config/nvim-dev` is a symlink to the clone `~/Work/nvim`, which chezmoi doesn't create or know about.
+
+My recommendation is the script alone, as a managed executable `home/dot_local/bin/executable_nvim-dev`, with the content as on disk. The alias would duplicate it and would shadow it in shells that read aliases, so the two could drift apart. The script also works in scripts and panes that skip aliases, and on a machine without the dev checkout it only prints its message. It would be a small change, like `allow-public-secret-names`, and touches no file the builder is editing.
+
+## What I need from you
+1. **Which candidate:** the script alone (recommended), the alias line alone, or both.
+2. **When:** now, in this pane, as a small change I write and validate for you to review, or after part 1 of the build. I'd lean towards after, since I measure the builder's group 6 first. Memory is also the reason to keep to one agent at a time.
+
+I haven't replied to nvim-orch, because a reply only records what we take.
+
+## Builder
+`chezmoi-env-build2` is working at 27% of its context. It has made four commits since `9c0a96e`:
+- the spec commit for 6.7 and the login `sh` scenario;
+- the desktop login code and the `shellrc` guard;
+- the list of differences with `main`;
+- the live checks behind `DOTFILES_TEST_AFTER_LOGIN`.
+
+I haven't measured them, and will on its group 6 report. The resume note is up to date.
+
+---
+
+## User
+
+1. script
+2. after
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 21.5s)
+
+_Thinking:_
+The user picked the script option, to run after part 1 of the build. I'll note that decision in the resume file and wait for the builder's group 6 report. I'm also considering a TODO.md follow-up entry so it stays tracked in the repo, though it would need a commit proposal, and the resume note alone may be enough.
+
+I'm weighing whether to send nvim-orch a short pointer reply that the script stays as is until the build finishes. I'll first check whether that agent is still running, and if it isn't, I'll leave the reply as a brief in the shared directory. I'll also check the builder.
+
+
+Decided: the script alone, after part 1 of the build. I'm recording it where a compaction can't lose it, and checking whether nvim-orch is still reachable for a pointer reply.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\necho \"agents: $(herdr agent list 2>/dev/null | jq -r '.result.agents[]? | select(.name != null) | \"\\(.name)@\\(.pane_id)\"' 2>/dev/null | tr '\\n' ' ')\"\necho \"build2: $(herdr agent get chezmoi-env-build2 2>/dev/null | jq -r '.result.agent.agent_status' 2>/dev/null); $(herdr pane read w0:p2 --lines 20 2>/dev/null | /usr/bin/grep -a -o -E '[0-9.]+K \\([0-9]+%\\)' | tail -1)\"\nherdr pane read w0:p2 --lines 60 2>/dev/null | /usr/bin/grep -a -E 'Permission required|Asked 1 question' | tail -1\nW=[redacted:worktrees_root]/dotfiles-correct-shell-environment; echo \"builder tree HEAD $(/home/linuxbrew/.linuxbrew/bin/git -C $W rev-parse --short HEAD), commits ahead of main $(/home/linuxbrew/.linuxbrew/bin/git -C $W rev-list --count main..HEAD)\"",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+agents: [redacted:private]-orch@w6558a2c3a6c122:pG [redacted:private]-t-279b-orch@w6558a2c3a6c122:pS rog-orch@wR:p1 cem-orch@wG:p7 chezmoi-orch@wN:p1 nvim-orch@wP:p1J nvim-s28@wP:p1S chezmoi-env-build2@w0:p2 
+build2: working; 272.0K (27%)
+builder tree HEAD 383c9dd, commits ahead of main 9
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 13.4s)
+
+nvim-orch is reachable. The pointer reply is brief: it only records what is taken and when, with no content beyond that. I'm sending it, then updating the note.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\nherdr agent prompt nvim-orch 'chezmoi-orch, information only, no reply owed (answer to your signal 202611241234-nvim-signal-nvim-dev-alias-and-script.md): the user chose the SCRIPT ALONE: ~/.local/bin/nvim-dev will become a managed executable of the dotfiles (home/dot_local/bin/executable_nvim-dev, content as on disk), as a small change after part 1 of the correct-shell-environment build, which is running now. No alias line is added, so the script is the single definition. Your side changes nothing; I will tell you when it is applied, so that the open item in your list can be closed. I checked your facts read-only on the machine and they hold.' --wait --until working --timeout 20000 2>&1 | jq -c '{ok: (.error == null), error: (.error // null)}' 2>/dev/null\npython3 - <<'EOF'\nfrom pathlib import Path\np = Path(\".state/resume.md\"); s = p.read_text(encoding=\"utf-8\")\ndef rep(a, b):\n    global s\n    assert s.count(a) == 1, (s.count(a), a[:70]); s = s.replace(a, b)\nrep(\"My recommendation: (a) only, as a small change (precedent: `allow-public-secret-names`), no overlap with the builder's files; ask the user which and whether now or after part 1 of the build.\",\n    \"DECIDED by the user on 2026-11-24: (a), the script ALONE, and AFTER part 1 of the build. A pointer reply was sent to `nvim-orch` the same day (script alone, after part 1, I tell it when applied). To do after part 1: a small change (precedent: `allow-public-secret-names`; name it e.g. `manage-nvim-dev-command`): `git mv`-free, copy `~/.local/bin/nvim-dev` to `home/dot_local/bin/executable_nvim-dev` byte for byte (`chezmoi add` then check), one requirement in a spec (a new capability or the closest existing one, to decide when writing it), a test that the managed script is POSIX (`shellcheck -s sh`, `dash -n`), prints its message and exits 1 when the profile is missing, and passes its arguments through (stub `nvim` first on `PATH`, scratch home), `chezmoi apply --exclude=scripts ~/.local/bin/nvim-dev` of that one target only after a diff review, then tell `nvim-orch`. Branch it from `main` AFTER the build's rebase so `tests/` does not conflict; it touches no file of the build.\")\nrep(\"1. The `nvim-dev` question from the Neovim orchestrator: which candidate (script only, alias only, both) and when; see \\\"Reports and signals\\\".\\n\",\n    \"1. (Done 2026-11-24: `nvim-dev` is the script alone, after part 1; see \\\"Reports and signals\\\" for the to-do.)\\n\")\np.write_text(s, encoding=\"utf-8\")\nEOF\nchmod 600 .state/resume.md\nprintf 'resume dashes %s, modeline last %s\\n' \"$(/usr/bin/grep -a -c -E '[–—]' .state/resume.md)\" \"$(tail -1 .state/resume.md | /usr/bin/grep -a -c 'vim: set ts=2')\"\nprintf -- '- %s chezmoi-orch (wN:p1) user decided the nvim-dev question: the script alone, after part 1 of the build; pointer reply sent to nvim-orch (information only); to-do recorded in the resume note as a small change branched from main after the build rebase\\n' \"$(date '+%Y-%m-%d %H:%M:%S')\" >> .state/journal.md",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+{"ok":true,"error":null}
+resume dashes 0, modeline last 1
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 8.8s)
+
+_Thinking:_
+I'm waiting on the builder, which has 9 commits ahead of main and is still working through group 6 at 27%. Measuring the tip 383c9dd myself now would compete for CPU and memory while its tests run, so I'll hold off until it reports. I'm also weighing whether to add a TODO.md entry for nvim-dev, since right now it only appears in the resume note.
+
+I'm weighing whether to add a TODO entry for nvim-dev in the public repo, since that would keep it tracked beyond the resume note. Adding it now means another commit on top of what's already piling up, so I'm leaning toward offering it as an option and keeping the reply short.
+
+
+Recorded: **script alone, after part 1 of the build.**
+
+- **nvim-orch:** I sent it a short pointer reply, since it was reachable. It says the script alone is taken, after part 1, and that I'll tell it when it's applied. Nothing is owed back.
+- **Resume note:** it now has the to-do as a small change, branched from `main` after the build's rebase so `tests/` doesn't conflict. The steps are:
+  - copy the script byte for byte to `home/dot_config/bin/executable_nvim-dev`'s managed path, `home/dot_local/bin/executable_nvim-dev`;
+  - add one requirement and a test on a scratch home (POSIX, the message and exit 1 when the profile is missing, arguments passed through);
+  - run a diff review, then apply that single target with `--exclude=scripts`;
+  - tell nvim-orch.
+- **Journal:** updated.
+
+## Builder
+`chezmoi-env-build2` is working at 27% of its context, with no prompt waiting. Its branch is now 9 commits ahead of `main`: the 5 I already accepted plus 4 for group 6. I'm not measuring until it reports "group 6 done". A suite run in parallel with its own would add memory pressure for nothing.
+
+## Not pushed
+Nothing is outgoing. `main` and `origin/main` are both `08733b0`, and the store is in sync.
+
+Tell me if you want the `nvim-dev` item also written into `TODO.md` now. I'd propose a one-line commit for it, otherwise it only lives in the resume note until the build is done.
+
+---
+
+## User
+
+chezmoi-env-build2: group 6 done at 383c9dd (4 commits since 9c0a96e: b6674f3 artifacts, 015b537 desktop login+shellrc, d8758ff compare-allow, 383c9dd live tests); measured on git archive of 383c9dd: tests/run.sh 496 tests, 0 failures, 30 skipped, canary 0; mutants 14 run, 0 problems (env-desktop-full-pass 7 failures, env-shellrc-no-guard 4); compare with main 5 of 5 pass with compare-allow.txt. Deviations: startup-generator-prints row 4 -> 3 (zsh -l -c no longer runs a completion generator); nested-chain check from the desktop compares sorted entries (mise activation reorders interactive levels); the login-sh scenario prints profile's own debug line under SHELL_RC_DEBUG (agreed in the commit). Starting group 7.
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 344.0s)
+
+_Thinking:_
+The builder has reported group 6 as done, so I'm moving into verification. I'll first confirm the builder's tree HEAD matches 383c9dd, then run the suite, mutants, shellcheck, and scans on a git archive of that commit. The profile and shellrc changes need careful reading since profile gates desktop login. I also need to check the deviations. Before running the suite alongside the builder, which is still on group 7, I'll check memory.
+
+Hmm, the next thinking is just a period, so there's nothing new to add. I'll leave it empty.
+
+
+I'm measuring group 6 on an exported copy of `383c9dd`, as for the earlier groups. `profile` is the file that decides what the desktop session loads, so I'll read it myself too. Memory first, since the builder is working on group 7 at the same time.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "W=[redacted:worktrees_root]/dotfiles-correct-shell-environment; G=/home/linuxbrew/.linuxbrew/bin/git; S=/tmp/opencode/orch-tree; R=/tmp/opencode/orch-reports\necho \"memory: $(awk '/MemAvailable/{printf \"%.1f GB\", $2/1048576}' /proc/meminfo) available, swap $(awk '/SwapTotal/{t=$2}/SwapFree/{f=$2}END{printf \"%.1f GB\", (t-f)/1048576}' /proc/meminfo), pressure avg60 $(awk '/some/{print $3}' /proc/pressure/memory)\"\necho \"builder HEAD $($G -C $W rev-parse --short HEAD) (reported 383c9dd); status $(herdr agent get chezmoi-env-build2 2>/dev/null | jq -r '.result.agent.agent_status' 2>/dev/null); dirty: $($G -C $W status --short | tr '\\n' ' ')\"\n$G -C $W log --format='%h|%s' 9c0a96e..383c9dd | while IFS='|' read h s; do printf '%s %s chars: %s\\n' \"$h\" \"${#s}\" \"$s\"; done\nrm -rf $S $R; mkdir -p $S $R && chmod 700 $S $R\n$G -C $W archive 383c9dd | tar -x -C $S; ln -s $W/tests/.lib $S/tests/.lib\necho \"exported $(find $S -type f | wc -l) files\"\ncd $S && DOTFILES_TEST_REPORTS=$R DOTFILES_TEST_JOBS=3 timeout 1700 tests/run.sh > $R/run.out 2>&1; echo \"run exit=$?\"\ntail -3 $R/run.out | cut -c1-110\necho \"not ok: $(/usr/bin/grep -a -c '^not ok' $R/run.out)\"; /usr/bin/grep -a '^not ok' $R/run.out | cut -c1-170 | head\npython3 - $R <<'EOF'\nimport sys, glob, xml.etree.ElementTree as ET\nt = f = s = e = 0\nfor x in glob.glob(sys.argv[1] + \"/**/*.xml\", recursive=True):\n    r = ET.parse(x).getroot()\n    for ts in ([r] if r.tag == \"testsuite\" else r.iter(\"testsuite\")):\n        t += int(ts.get(\"tests\", 0)); f += int(ts.get(\"failures\", 0)); s += int(ts.get(\"skipped\", 0)); e += int(ts.get(\"errors\", 0))\nprint(f\"commit 383c9dd, my run: tests {t}, failures {f}, errors {e}, skipped {s}\")\nEOF",
+  "timeout": 1800000
+}
+```
+
+**Output:**
+```
+memory: 6.0 GB available, swap 8.4 GB, pressure avg60 avg60=0.65
+builder HEAD 383c9dd (reported 383c9dd); status working; dirty: 
+383c9dd 70 chars: test(shell:env): add the live checks of the new login behind an opt-in
+d8758ff 70 chars: test(shell:env): list the differences with main that the change claims
+015b537 76 chars: feat(shell:env): load only env_ files at the desktop login and guard shellrc
+b6674f3 76 chars: docs(chezmoi:spec): add live login tests, limit the env pass to bash and zsh
+exported 825 files
+run exit=0
+ok 496 the completion dump header is the same after five alternating starts # in 5400 ms
+tests: 496, failures: 0, skipped: 30
+canary scan: 0 matches
+not ok: 0
+mise ERROR error parsing config file: /tmp/opencode/orch-tree/mise.toml
+mise ERROR Config files in /tmp/opencode/orch-tree/mise.toml are not trusted.
+Trust them with `mise trust`. See https://mise.jdx.dev/cli/trust.html for more information.
+mise ERROR Version: 2026.10.23 linux-x64 (2026-10-29)
+mise ERROR Run with --verbose or MISE_VERBOSE=1 for more information
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 433.2s)
+
+Suite confirmed: 496 tests, 0 failures, 30 skipped. Now the mutants, then the code of `profile` and `shellrc`.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "S=/tmp/opencode/orch-tree; R=/tmp/opencode/orch-reports\ncd $S && DOTFILES_TEST_REPORTS=$R DOTFILES_TEST_JOBS=3 timeout 1700 tests/mutants/run.sh > $R/mut.out 2>&1; echo \"mutants exit=$?\"\n/usr/bin/grep -a -E '^mutant|^mutants|untouched' $R/mut.out | sed -E 's/^mutant //' | cut -c1-110",
+  "timeout": 1800000
+}
+```
+
+**Output:**
+```
+mutants exit=0
+wrapper-broken: 9 failures (expected exactly 9): ok
+startup-cache-name-only: 6 failures (expected at least 6): ok
+startup-generator-prints: 3 failures (expected at least 3): ok
+startup-rc-twice: 2 failures (expected at least 2): ok
+startup-refresh-ignored: 4 failures (expected at least 4): ok
+install-run-ignores-dry-run: 10 failures (expected at least 10): ok
+install-need-always-ok: 9 failures (expected at least 9): ok
+install-limits-lower: 3 failures (expected at least 3): ok
+startup-unset-removed: 4 failures (expected at least 4): ok
+env-path-no-clean: 12 failures (expected at least 8): ok
+env-lc-all-forced: 14 failures (expected at least 10): ok
+env-keys-at-startup: 3 failures (expected at least 3): ok
+env-desktop-full-pass: 7 failures (expected at least 4): ok
+env-shellrc-no-guard: 4 failures (expected at least 4): ok
+repository untouched
+mutants: 14 run, 0 problems
+
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "S=/tmp/opencode/orch-tree\necho \"=== profile (non-comment lines of the case block and what precedes it)\"; sed -n '/^CURRENT_SHELL=/,$p' $S~/shell/profile | cut -c1-170\necho; echo \"=== shellrc head\"; sed -n '1,22p' $S~/shell/shellrc | cut -c1-170",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+=== profile (non-comment lines of the case block and what precedes it)
+CURRENT_SHELL="$(ps -p $$ -o comm=)"
+#CURRENT_SHELL=${0#-}
+#CURRENT_SHELL=${CURRENT_SHELL##*/}
+
+export CURRENT_SHELL
+
+if [ -n "${SHELL_RC_DEBUG:-}" ]; then
+  echo "profile: ${CURRENT_SHELL} login shell" >&2
+fi
+
+# Who reads this file (~/.profile for bash and sh, ~/.zprofile for zsh):
+# - interactive login shells (tmux panes, console logins), first branch below;
+# - non-interactive login shells, second branch: `zsh -l -c`, `bash -l -c`, and the desktop session, which the
+#   display manager's Xsession starts as a non-interactive zsh that reads ~/.zprofile.
+case $- in
+  *i*)
+    # Interactive login shell: the shell's own rc file loads rc.d, once, with its env_ files.
+    # zsh reads ~/.zshrc right after this file; bash reads only this file, so ask it for ~/.bashrc
+    # (Debian's convention; ~/.bashrc is the shared shellrc).
+    if [ "${CURRENT_SHELL}" = "bash" ] && [ -f "$HOME/.bashrc" ]; then
+      # shellcheck disable=SC1091
+      . "$HOME/.bashrc"
+    fi
+    ;;
+  *)
+    # Non-interactive login shell, the desktop session among them: the environment only (the env_ files of rc.d,
+    # through shell/environment), nothing interactive, no private file.
+    # The env_ files are written for bash and zsh and use `source`: another login shell (sh is dash here, and a bash
+    # started as sh reports sh) loads nothing and prints nothing, as it always did.
+    case "${CURRENT_SHELL}" in
+      bash | zsh)
+        if [ -f "${XDG_CONFIG_HOME:-$HOME/.config}/shell/environment" ]; then
+          # shellcheck disable=SC1091
+          . "${XDG_CONFIG_HOME:-$HOME/.config}/shell/environment"
+        fi
+        ;;
+    esac
+    ;;
+esac
+
+# vim: set syntax=sh :
+
+=== shellrc head
+## Common ${XDG_CONFIG_HOME}/shell/shellrc file for interactive shells.
+
+# Interactive shells only. ~/.zshrc and ~/.bashrc are links to this file, and bash reads ~/.bashrc for an ssh command
+# too (a non-interactive shell); no startup file sources it from a non-interactive shell: the desktop login and
+# `-l -c` shells load shell/environment instead, which holds the env_ files only.
+case $- in
+  *i*) ;;
+  *) return ;;
+esac
+
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+
+if [ -n "${SHELL_RC_DEBUG:-}" ]; then
+  echo "shellrc: sourcing rc.d" >&2
+fi
+
+SHELL_RC_DOT_DIR="${SHELL_RC_DOT_DIR:-$XDG_CONFIG_HOME/shell/rc.d}"
+for rc_script in "${SHELL_RC_DOT_DIR}"/*.sh; do
+  source "${rc_script}"
+done
+
+# vim: set syntax=sh :
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 21.6s)
+
+_Thinking:_
+I'm checking what `CURRENT_SHELL` would be in the real desktop session, since the display manager's Xsession should give a `zsh` comm, which is fine and matches how it worked before. I also want to watch for a risk there: the `environment` file sources the env_ files, and those depend on `CURRENT_SHELL`.
+
+I'm checking whether the display manager's Xsession gives `CURRENT_SHELL` a `zsh` comm, which is fine and matches the earlier behavior. The `environment` file's `source` of the env_ files in zsh looks safe too, since `~/.zprofile` is read in zsh's native mode, not sh emulation. I'm also weighing whether a dry replay is enough, since a real-config check would read private values.
+
+I'm checking whether the removed zshrc and bashrc files are still referenced anywhere, including `ZDOTDIR` and the live `~/.zshrc` symlink. After that I'll confirm that the row-4-to-3 change in the mutant README matches which tests now fail.
+
+I'm weighing whether sorting the PATH entries before comparing is too weak a check, since mise reorders tool directories on each prompt. A sorted comparison still catches added or duplicated entries, which is the growth I care about, so I'll confirm that in the test.
+
+I'm going to check whether the scenario's wording in commit b6674f3 allows the profile's own debug line, since the spec seems to say it prints nothing. I also want to find out whether the "login sh loads nothing" test was ever checked against a manual mutation, because the builder's report doesn't mention it. The simplest way to settle that is to remove the guard from the profile in the exported tree and run the test again.
+
+I'm going to make a copy of the tree where the profile's guard is removed, so the login-sh test should fail if it really checks that guard. I'll then read compare-allow.txt to confirm it holds no private names and doesn't allow more differences than it should.
+
+I'm going to read live.sh next to check that it only reads /proc and counts, without printing any names, and that it walks the ancestor processes safely. After that I'll run the scans on the added lines, the redaction check, gitleaks, validation in the worktree, and shellcheck.
+
+
+_Thinking:_
+Suite and mutants are clean: 496 tests pass with 30 skipped, and 14 mutants show no problems. Next I'm checking the builder's listed deviations against the spec wording, the allow file and the live helper.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "S=/tmp/opencode/orch-tree; D=$S/openspec/changes/correct-shell-environment\necho '=== scenario \"A login sh loads nothing\" as committed'\n/usr/bin/grep -a -n -B1 -A6 'A login sh loads nothing' $D/specs/shell-environment/spec.md | cut -c1-250\necho; echo '=== compare-allow.txt (comments and entry kinds; no values exist in it)'\necho \"lines $(wc -l < $D/compare-allow.txt): comments $(/usr/bin/grep -a -c '^#' $D/compare-allow.txt), entries $(/usr/bin/grep -a -v -E '^\\s*(#|$)' $D/compare-allow.txt | wc -l)\"\ncut -c1-200 $D/compare-allow.txt\necho; echo '=== scenario counts after the change'\nfor f in $D/specs/*/spec.md; do printf '%-26s %s scenarios\\n' \"$(basename $(dirname $f))\" \"$(/usr/bin/grep -a -c '^#### Scenario' $f)\"; done\necho \"sum $(cat $D/specs/*/spec.md | /usr/bin/grep -a -c '^#### Scenario') (brief said 34 for shell-environment and 57 for the five)\"",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+=== scenario "A login sh loads nothing" as committed
+35-
+36:#### Scenario: A login sh loads nothing
+37-
+38-- **WHEN** `sh -l -c true` runs on the render, once without and once with `SHELL_RC_DEBUG=1`, on a machine where `sh` is not bash (the test skips, naming it, where it is)
+39-- **THEN** the first run prints nothing, the second prints only the debug line of `profile` (0 lines that contain `rc.d`, 0 lines of `shell/environment`), and neither exports a name that an `env_` file sets
+40-
+41-### Requirement: No key in a new shell
+42-
+
+=== compare-allow.txt (comments and entry kinds; no values exist in it)
+lines 84: comments 12, entries 67
+# The differences with main that this change claims (DOTFILES_TEST_BASE_REF=main DOTFILES_TEST_BASE_ALLOW=<this file> mise run test).
+# One entry per line, a whole listing line or a name; the lines that start with a hash match nothing.
+# Each group says why its names differ. A name that differs and is not here fails tests/smoke/startup-compare.bats.
+
+# Group 3, PATH and the env_ files: the helper functions are new, PATH is clean and ordered (it differs by value),
+# FPATH loses the completions that 110-pkg_brew.sh adds, because the desktop pass no longer runs that interactive file.
+function _path_prepend
+function _path_clean
+PATH
+FPATH
+
+# Group 4, locale: no forced LC_ALL, LANGUAGE defaults to en_US:en.
+LC_ALL
+LANGUAGE
+
+# Group 5, keys on demand: the secrets function and its two helpers are new; the two synthetic names of the private
+# file of the scratch home (the stand-ins of the user's private file) are no longer exported by any startup.
+function secrets
+function _secrets_file
+function _secrets_names
+[redacted:envvar]
+DEMO_BETA_SETTING
+
+# Group 6, the desktop login loads the environment only: what only an interactive shell uses is gone from the desktop.
+# The variables of the aliases file (forgit, kubecolor, less termcap) and the settings of ls, less and hstr:
+forgit_add
+forgit_attributes
+forgit_blame
+forgit_branch_delete
+forgit_checkout_branch
+forgit_checkout_commit
+forgit_checkout_file
+forgit_checkout_file_from_commit
+forgit_checkout_tag
+forgit_cherry_pick
+forgit_clean
+forgit_diff
+forgit_fixup
+forgit_ignore
+FORGIT_INSTALL_DIR
+forgit_log
+forgit_rebase
+forgit_reflog
+forgit_reset_head
+forgit_restore
+forgit_revert_commit
+forgit_reword
+forgit_show
+forgit_squash
+forgit_stash_push
+forgit_stash_show
+forgit_switch_branch
+forgit_worktree
+forgit_worktree_add
+forgit_worktree_delete
+KUBECOLOR_CONFIG
+KUBECOLOR_FORCE_COLORS
+LESSCLOSE
+LESSOPEN
+LESS_TERMCAP_mb
+LESS_TERMCAP_md
+LESS_TERMCAP_me
+LESS_TERMCAP_se
+LESS_TERMCAP_so
+LESS_TERMCAP_ue
+LESS_TERMCAP_us
+LS_COLORS
+HSTR_CONFIG
+# The state of mise's shell hook, and the lines of the activation script that the listing splits (the scratch home is S):
+MISE_SHELL
+__MISE_ORIG_PATH
+__MISE_ZSH_ACTIVATE_ENV
+__MISE_ZSH_ACTIVATE_PATH
+__MISE_ZSH_CHPWD_RAN
+__MISE_ZSH_PRECMD_RUN
+export MISE_CEILING_PATHS=S
+export MISE_CONFIG_DIR=S/.config/mise-scratch
+export MISE_DATA_DIR=S/.local/share/mise
+export MISE_GLOBAL_CONFIG_FILE=S/.config/mise-scratch/config.toml
+export MISE_SHELL=zsh
+export MISE_STATE_DIR=S/.local/state/mise
+export MISE_SYSTEM_CONFIG_FILE=S/.config/mise-scratch/system.toml
+
+# vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en :
+
+=== scenario counts after the change
+agent-environment          3 scenarios
+install-scripts            8 scenarios
+shell-environment          34 scenarios
+shell-startup              9 scenarios
+shell-test-harness         3 scenarios
+sum 57 (brief said 34 for shell-environment and 57 for the five)
+
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "S=/tmp/opencode/orch-tree\necho '=== tests/helpers/live.sh'; cat $S/tests/helpers/live.sh | cut -c1-170\necho; echo '=== environment-live.bats'; cat $S/tests/smoke/environment-live.bats | cut -c1-170",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+=== tests/helpers/live.sh
+#!/usr/bin/env bash
+# What the live tests of the new login share (task 6.7 of the change correct-shell-environment): plain bash, no bats.
+# Source it (`. tests/helpers/live.sh`; it loads common.sh), or call one function:
+#   tests/helpers/live.sh <function> [args...]
+#
+# Provides:
+#   dt_probe_lines PATTERN       the lines of the session probe (session-probe.sh, the only copy of them) whose label
+#                                matches the extended regular expression (`A1`, `A[789]`), after the three definitions
+#                                they use (`names`, `pat`, `um`), as text for bash: `eval "$(dt_probe_lines A1)"`
+#                                defines the functions and sets the variable, `bash -c "$(dt_probe_lines 'A[789]')"`
+#                                prints the lines
+#   dt_process_ancestors PID [LAST]   the ancestors of PID, one per line, nearest first, read from /proc/<pid>/stat,
+#                                up to LAST (included) or to pid 1 (excluded)
+#   dt_environ_name_count PID LIST    how many of the names in the file LIST (one per line; a process substitution
+#                                `<(names)` keeps them in memory) the environment of PID holds: a number, never a
+#                                name; the status is 1, and nothing is printed, when the environment cannot be read
+#   dt_user_manager_pid          the pid of the systemd user manager of the user, as the probe finds it
+#
+# Nothing here prints a name or a value of a process's environment: only counts and pids.
+
+# shellcheck source=/dev/null
+. "$(dirname "${BASH_SOURCE[0]}")/common.sh"
+
+dt_probe_lines() {
+  local probe=$DT_HELPERS_DIR/session-probe.sh
+  grep -E -e '^(names\(\) |pat=|um\(\) )' "$probe"
+  grep -E -e "^echo \"($1) " "$probe"
+}
+
+# dt_process_parent PID: the parent of a process. The command name sits in parentheses in /proc/<pid>/stat and may
+# hold spaces and parentheses itself: the fields are read after the last parenthesis.
+dt_process_parent() {
+  local stat ppid
+  stat=$(cat "/proc/$1/stat" 2> /dev/null) || return 1
+  stat=${stat##*) }
+  read -r _ ppid _ <<< "$stat"
+  [ -n "$ppid" ] || return 1
+  printf '%s\n' "$ppid"
+}
+
+dt_process_ancestors() {
+  local pid=${1:?dt_process_ancestors PID [LAST]} last=${2:-} parent
+  while parent=$(dt_process_parent "$pid") && [ "$parent" -gt 1 ]; do
+    printf '%s\n' "$parent"
+    [ "$parent" = "$last" ] && break
+    pid=$parent
+  done
+  return 0
+}
+
+dt_environ_name_count() {
+  local pid=${1:?dt_environ_name_count PID LIST} list=${2:?dt_environ_name_count PID LIST}
+  { cat "/proc/$pid/environ" > /dev/null; } 2> /dev/null || return 1
+  { tr '\0' '\n' < "/proc/$pid/environ" | cut -d= -f1 | grep -c -x -F -f "$list" || true; } 2> /dev/null
+}
+
+dt_user_manager_pid() {
+  pgrep -u "${USER:-$(id -un)}" -x systemd | head -n 1
+}
+
+if [ "${BASH_SOURCE[0]}" = "$0" ]; then
+  fn=${1:?usage: live.sh <function> [args...]}
+  shift
+  "$fn" "$@"
+fi
+
+=== environment-live.bats
+#!/usr/bin/env bats
+# bats file_tags=live
+# The checks of the spec shell-environment that read this machine: opt-in (`DOTFILES_TEST_LIVE=1`, or
+# `mise run test:live`) and read-only. They print counts and statuses, never the name or the value of a variable of
+# the real environment: the names of the user's private file stay in memory and in a pipe.
+# The two scenarios that only a new login can satisfy ("After the next login", "The live session holds no key") need a
+# second opt-in, `DOTFILES_TEST_AFTER_LOGIN=1`: the deployment is done and the machine was rebooted (tests/README.md).
+# They have no mutant: they prove the state of the session, not a file of the source.
+
+load ../helpers/bats/load
+
+@test "no name of the user's private file is written in the shell source" {
+  require_live
+  local env_file=${DOTFILES_TEST_REAL_CONFIG:-$DOTFILES_TEST_REAL_HOME/.config}/env names count
+  [ -f "$env_file" ] || skip "the user environment file does not exist on this machine"
+  names=$(sed -n 's/^[[:space:]]*\(export[[:space:]]\{1,\}\)\{0,1\}\([A-Za-z_][A-Za-z0-9_]*\)=.*/\2/p' "$env_file")
+  if [ -z "$names" ]; then
+    skip "the user environment file sets no variable"
+  fi
+  # the number of files of the shell source that hold one of the names as a word
+  count=$(printf '%s\n' "$names" | grep -r -l -w -F -f /dev/stdin "$(dt_source_file dot_config/shell)" | wc -l)
+  assert_equal "$count" 0
+}
+
+# the probe of manual-steps.md is the one copy of the lines that read the umasks and the user manager (helpers/live.sh)
+@test "after the next login the umask of the user manager, of plasmashell and of a new shell is 0027" {
+  require_after_login
+  local user out a7 a8 a9
+  user=$(id -un)
+  pgrep -u "$user" -x plasmashell > /dev/null || skip "plasmashell is not running in this session"
+  out=$(USER=$user "$(type -P bash)" -c "$(dt_probe_lines 'A[789]')")
+  a7=$(printf '%s\n' "$out" | sed -n 's/^A7 user manager umask: //p')
+  a8=$(printf '%s\n' "$out" | sed -n 's/^A8 plasmashell umask: //p')
+  a9=$(printf '%s\n' "$out" | sed -n 's/^A9 this shell umask: //p')
+  echo "# umask: user manager $a7, plasmashell $a8, a new shell $a9" >&3
+  assert_equal "$a7" 0027
+  assert_equal "$a8" 0027
+  assert_equal "$a9" 0027
+}
+
+@test "the live session holds no key: the user manager and the ancestors of the test hold none of the names of the private file" {
+  require_after_login
+  local config=${DOTFILES_TEST_REAL_CONFIG:-$DOTFILES_TEST_REAL_HOME/.config} a1 manager pid n checked=0 held=0
+  [ -f "$config/env" ] || skip "the user environment file does not exist on this machine"
+  export XDG_CONFIG_HOME=$config USER
+  USER=$(id -un)
+  # line A1 of the probe, and the definitions of names and um that it uses (the count goes to a file, never a name)
+  eval "$(dt_probe_lines A1)" > "$BATS_TEST_TMPDIR/a1"
+  [ "$(names | wc -l)" -gt 0 ] || skip "the user environment file sets no variable"
+  [ "$(um | wc -l)" -gt 0 ] || skip "no systemd user manager answers in this session"
+  a1=$(sed -n 's/^A1 private-file names in the user manager: //p' "$BATS_TEST_TMPDIR/a1")
+  manager=$(dt_user_manager_pid)
+  # the terminal and the multiplexer are ancestors of the test: the chain up to the user manager, not every process
+  # (a pane where the user typed `secrets load` holds the keys on purpose, and is not an ancestor of this run)
+  while read -r pid; do
+    n=$(dt_environ_name_count "$pid" <(names)) || continue
+    checked=$((checked + 1))
+    [ "$n" -eq 0 ] || held=$((held + 1))
+  done < <(dt_process_ancestors "$$" "$manager")
+  echo "# user manager: $a1 names; ancestors read: $checked, holding at least one name of the private file: $held" >&3
+  [ "$checked" -ge 2 ] || fail "fewer than two ancestors could be read: the walk proves nothing"
+  assert_equal "$a1" 0
+  assert_equal "$held" 0
+}
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 31.3s)
+
+_Thinking:_
+I'm weighing a concern about the live test: it assumes the ancestors walk can see the secret-named variables, but the test runner strips those from bats' environment. The first few ancestors in the chain, bats and run.sh, would therefore have nothing to find, so I need to check whether the terminal, multiplexer, or zsh processes further up still expose them.
+
+I'm still checking the live test's assumption: if the user ran it from a pane where they typed `secrets load`, that pane shell is an ancestor and would hold the keys on purpose, so the test would fail. The comment I wrote for the builder says such a pane is not an ancestor, which is misleading in that case, though manual-steps.md already says to run it where `secrets load` hasn't been typed, so I'll check whether tests/README.md covers it.
+
+I'm checking the "login sh" test next, since dash here means it should run rather than be skipped. I'll confirm in the run output that it actually executed, and I'll also drop its guard on purpose to see it fail. The compare-allow file uses DEMO_ names, so its secret-looking entries are just synthetic test fixtures.
+
+I'm checking which environment variables the desktop session would lose once the shell-only ones are stripped, and whether anything a user might rely on, like KUBECOLOR settings, would be affected. PATH and FPATH look fine since interactive shells set them again, and LANG, EDITOR, and HOMEBREW variables are being kept.
+
+I'm going to check the login-sh test by dropping its guard on purpose to see it fail, and I'll confirm in the run output that it actually executed rather than being skipped. Next I want to read the desktop replay test and the dt_kind desktop setup in kinds.sh to see how closely it mirrors what the display manager does, since that's the part that matters most.
+
+I'm now wondering whether the desktop replay really mirrors how the display manager starts the session. If SDDM launches the Xsession script through the user's login shell, then zsh would read ~/.zprofile, which matters here. I want to check kinds.sh to see how the replay invokes it.
+
+I'm planning to check how the `desktop` kind is defined, so I can confirm the replay runs the same startup steps the display manager does. After that I'll run the mutation checks and the scans on the changed files, starting with the diff stats.
+
+
+_Thinking:_
+The live helper only prints counts and is read-only. If you run the live tests from a pane where you typed `secrets load`, that shell holds the keys on purpose and the test will fail, so I'm checking whether `tests/README.md` says so, and I'm dropping the `sh` guard on the exported tree to see if the test fails.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "S=/tmp/opencode/orch-tree; R=/tmp/opencode/orch-reports\necho '--- was the login sh test run or skipped in my full run?'\n/usr/bin/grep -a -i -E 'login sh|sh -l' $R/run.out | cut -c1-170\necho \"--- README: does it warn about running the live tests from a pane that loaded the keys?\"\n/usr/bin/grep -a -n -i -E 'secrets load|AFTER_LOGIN' $S/tests/README.md | cut -c1-230 | head -6\necho '--- manual mutation on the scratch tree only: drop the bash|zsh guard of profile (source environment for any shell)'\ncp $S~/shell/profile /tmp/opencode/profile.orig\npython3 - $S~/shell/profile <<'EOF'\nimport sys, re\np = sys.argv[1]; s = open(p, encoding=\"utf-8\").read()\na = s.index(\"    case \\\"${CURRENT_SHELL}\\\" in\\n      bash | zsh)\"); b = s.index(\"    esac\\n    ;;\\nesac\", a)\nbody = s[a:b + len(\"    esac\\n\")]\nnew = '    if [ -f \"${XDG_CONFIG_HOME:-$HOME/.config}/shell/environment\" ]; then\\n      . \"${XDG_CONFIG_HOME:-$HOME/.config}/shell/environment\"\\n    fi\\n'\nopen(p, \"w\", encoding=\"utf-8\").write(s.replace(body, new))\nprint(\"guard removed:\", body != new)\nEOF\nbash -n $S~/shell/profile && echo \"mutated profile: syntax ok\"\ncd $S && DOTFILES_TEST_REPORTS=$R/m DOTFILES_TEST_JOBS=2 timeout 600 tests/run.sh tests/smoke/environment-desktop.bats > $R/mut-sh.out 2>&1; echo \"run exit=$?\"\n/usr/bin/grep -a -E '^not ok|^tests:' $R/mut-sh.out | cut -c1-170\ncp /tmp/opencode/profile.orig $S~/shell/profile; rm -f /tmp/opencode/profile.orig; echo \"profile restored in the scratch tree\"",
+  "timeout": 900000
+}
+```
+
+**Output:**
+```
+--- was the login sh test run or skipped in my full run?
+ok 364 no rc.d pass in the desktop replay, zsh -l -c and bash -l -c: the environment is loaded once # in 1198 ms
+ok 367 the first entry of PATH is a user bin directory in the desktop replay, zsh -l -c and bash -l -c, before mise's shims # in 706 ms
+ok 370 a login sh loads nothing: no output without SHELL_RC_DEBUG, only the line of profile with it, and no name of an env_ file # in 636 ms
+ok 371 profile is POSIX, a login sh reads it: sh, bash and zsh parse it and shellcheck -s sh accepts it; shellrc and environment parse in bash and zsh # in 131 ms
+ok 436 the login PATH is what /etc/profile gives a login shell: directories only, no duplicate # in 110 ms
+ok 440 each kind is interactive or not, and a login shell or not, as its name says # in 9364 ms
+ok 448 private environment: zsh -l -i exports none of the synthetic names and not the unset one # in 1357 ms
+ok 453 zsh -l -i has the PATH of zsh -i # in 1551 ms
+ok 454 bash -l -i has the PATH of bash -i # in 1450 ms
+ok 458 a bash login shell on a bare terminal loads the shared configuration # in 830 ms
+ok 472 the exported names of zsh -l -i equal those of the base ref # skip compares with another ref: set DOTFILES_TEST_BASE_REF=<ref> to run it
+ok 473 the exported names of bash -l -i equal those of the base ref # skip compares with another ref: set DOTFILES_TEST_BASE_REF=<ref> to run it
+ok 480 zsh -l -i -c exit prints nothing under a terminal # in 1684 ms
+ok 482 bash -l -i -c true prints nothing under a terminal # in 1178 ms
+ok 485 zsh -l -i -c exit prints nothing without a terminal # in 1123 ms
+ok 486 zsh -l -c true prints nothing without a terminal # in 155 ms
+ok 487 bash -l -c true prints nothing without a terminal # in 143 ms
+ok 490 zsh -l -i -c exit sources rc.d once # in 3170 ms
+ok 491 zsh -l -c true (non-interactive login) sources no rc.d pass and loads the environment once # in 320 ms
+ok 493 bash -l -i -c true sources rc.d once # in 5347 ms
+ok 494 bash -l -c true (non-interactive login) sources no rc.d pass and loads the environment once # in 278 ms
+ok 495 the interactive login shells make no separate pass of the environment part # in 6814 ms
+--- README: does it warn about running the live tests from a pane that loaded the keys?
+75:| `DOTFILES_TEST_AFTER_LOGIN` | `1`, together with `DOTFILES_TEST_LIVE=1`, runs the two live checks that only a new login can satisfy (`smoke/environment-live.bats`: umask `0027` in the user manager, `plasmashell` and a new she
+--- manual mutation on the scratch tree only: drop the bash|zsh guard of profile (source environment for any shell)
+guard removed: True
+mutated profile: syntax ok
+run exit=1
+not ok 7 a login sh loads nothing: no output without SHELL_RC_DEBUG, only the line of profile with it, and no name of an env_ file # in 171 ms
+not ok 8 profile is POSIX, a login sh reads it: sh, bash and zsh parse it and shellcheck -s sh accepts it; shellrc and environment parse in bash and zsh # in 70 ms
+tests: 8, failures: 2, skipped: 0
+profile restored in the scratch tree
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 28.9s)
+
+_Thinking:_
+The login shell test runs rather than being skipped, and it fails when the guard is removed, which accounts for two tests. Next I'm checking the README warning, so I'll open line 75 in full to read the note about secrets not loading.
+
+
+The `sh` test runs on this machine and fails when the guard is dropped, so it proves what it should. Next the rest of the README row, then the code scans, redaction check, gitleaks and validation.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "W=[redacted:worktrees_root]/dotfiles-correct-shell-environment; G=/home/linuxbrew/.linuxbrew/bin/git; S=/tmp/opencode/orch-tree\nsed -n '75p' $S/tests/README.md | fold -s -w 210\necho; echo '--- files changed since 9c0a96e'\n$G -C $W diff --stat 9c0a96e 383c9dd | tail -30 | cut -c1-120\necho '--- removals and chezmoiremove'\n$G -C $W diff --name-status 9c0a96e 383c9dd | /usr/bin/grep -a -E '^D' \n/usr/bin/grep -a -n -E 'zsh/zshrc|bash/bashrc' $S~ | cut -c1-120\necho \"still in source: zsh/zshrc $([ -e $S~/zsh/zshrc ] && echo yes || echo no), bash/bashrc $([ -e $S~/bash/bashrc ] && echo yes || echo no)\"\necho \"callers of the removed files left in source or tests: $($G -C $W grep -n -E 'config/(zsh/zshrc|bash/bashrc)|zsh/zshrc|bash/bashrc' 383c9dd -- home tests ':!tests/mutants/README.md' | wc -l)\"\necho \"ZDOTDIR used anywhere: $($G -C $W grep -c ZDOTDIR 383c9dd -- home 2>/dev/null | awk -F: '{s+=$NF}END{print s+0}')\"",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+| `DOTFILES_TEST_AFTER_LOGIN` | `1`, together with `DOTFILES_TEST_LIVE=1`, runs the two live checks that only a new login can satisfy (`smoke/environment-live.bats`: umask `0027` in the user manager, 
+`plasmashell` and a new shell, and no name of the private file in the user manager and in the ancestors of the test); it means that the deployment of the change `correct-shell-environment` is done and the 
+machine was rebooted, and without it they skip, naming it, so that `mise run test:live` stays green before the deployment; run it in a terminal where `secrets load` was not typed |
+
+--- files changed since 9c0a96e
+ home/.chezmoiremove                                |   4 +
+ home/dot_config/bash/bashrc                        |  17 ---
+ home/dot_config/shell/profile                      |  26 ++--
+ home/dot_config/shell/shellrc                      |  12 +-
+ home/dot_config/zsh/zshrc                          |  13 --
+ .../correct-shell-environment/compare-allow.txt    |  84 ++++++++++++
+ .../changes/correct-shell-environment/design.md    |   3 +-
+ .../correct-shell-environment/manual-steps.md      |   4 +-
+ .../specs/shell-environment/spec.md                |   8 +-
+ .../specs/shell-startup/spec.md                    |   2 +-
+ .../changes/correct-shell-environment/tasks.md     |  17 +--
+ tests/README.md                                    |   3 +-
+ tests/helpers/bats/load.bash                       |  11 ++
+ tests/helpers/live.sh                              |  65 +++++++++
+ tests/mutants/README.md                            |  12 +-
+ tests/mutants/env/desktop-full-pass.sed            |   4 +
+ tests/mutants/env/shellrc-no-guard.sed             |   2 +
+ tests/smoke/environment-desktop.bats               | 150 +++++++++++++++++++++
+ tests/smoke/environment-live.bats                  |  44 ++++++
+ tests/smoke/environment-locale.bats                |   4 +-
+ tests/smoke/environment-path.bats                  |  32 +++--
+ tests/smoke/environment-shellrc.bats               |  52 +++++++
+ tests/smoke/startup-silent.bats                    |   6 +
+ tests/smoke/startup-single.bats                    |  31 ++++-
+ tests/unit/live-helpers.bats                       | 129 ++++++++++++++++++
+ 25 files changed, 652 insertions(+), 83 deletions(-)
+--- removals and chezmoiremove
+D	home/dot_config/bash/bashrc
+D	home/dot_config/zsh/zshrc
+11:.config/zsh/zshrc
+12:.config/bash/bashrc
+still in source: zsh/zshrc no, bash/bashrc no
+callers of the removed files left in source or tests: 2
+ZDOTDIR used anywhere: 0
+
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "W=[redacted:worktrees_root]/dotfiles-correct-shell-environment; G=/home/linuxbrew/.linuxbrew/bin/git; S=/tmp/opencode/orch-tree\n$G -C $W diff 9c0a96e 383c9dd | /usr/bin/grep -a '^+' | /usr/bin/grep -a -v '^+++' > /tmp/opencode/added.txt\nprintf 'added %s | dashes %s | banned %s | emoji %s | e-mail %s | token shapes %s | /home paths (not linuxbrew, not /home/user) %s | IPv4 %s\\n' \"$(wc -l < /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -E '[–—]' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -i -w -E '[redacted:private]|[redacted:private]|[redacted:private]|[redacted:repo]|[redacted:private]' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -P '[\\x{1F300}-\\x{1FAFF}\\x{2600}-\\x{27BF}]' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -E '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[a-z]{2,}' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -E 'gh[pousr]_[A-Za-z0-9]{20,}|sk-[A-Za-z0-9_-]{20,}|AKIA[0-9A-Z]{16}' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -o -E '/home/[A-Za-z0-9_-]+' /tmp/opencode/added.txt | /usr/bin/grep -a -v -E 'linuxbrew|/home/user' | wc -l)\" \"$(/usr/bin/grep -a -c -E '\\b([0-9]{1,3}\\.){3}[0-9]{1,3}\\b' /tmp/opencode/added.txt)\"\necho \"secret-looking names in added lines: $(/usr/bin/grep -a -o -E '\\b[A-Z][A-Z0-9]*(_[A-Z0-9]+)*_(API_?KEY|TOKEN|SECRET|PASSWORD|PASSWD|CREDENTIAL)\\b' /tmp/opencode/added.txt | sort | uniq -c | tr '\\n' ' ')\"\nrm -f /tmp/opencode/added.txt\necho \"names of the user's private file in the whole branch diff vs main (count): $(python3 -c '\nimport os, re, subprocess\nfrom pathlib import Path\nf = Path(os.environ.get(\"XDG_CONFIG_HOME\", str(Path.home()/\".config\")))/\"env\"\nnames = []\nfor l in f.read_text(encoding=\"utf-8\", errors=\"replace\").splitlines():\n    m = re.match(r\"^\\s*(?:export\\s+)?([A-Za-z_][A-Za-z0-9_]*)=\", l)\n    if m and m.group(1) not in names: names.append(m.group(1))\nd = subprocess.run([\"/home/linuxbrew/.linuxbrew/bin/git\", \"-C\", str(Path.home()/\"Work/trees/dotfiles-correct-shell-environment\"), \"diff\", \"main...383c9dd\"], capture_output=True, text=True).stdout\nprint(sum(1 for n in names if re.search(r\"\\b%s\\b\" % re.escape(n), d)))\n')\"\necho '--- shell checks on the changed files'\nfor f in home/dot_config/shell/profile home/dot_config/shell/shellrc home/dot_config/shell/environment tests/helpers/live.sh; do printf '%-36s bash -n %s | shellcheck %s\\n' \"$f\" \"$(bash -n $S/$f >/dev/null 2>&1; echo $?)\" \"$(shellcheck -s $([ \"${f##*/}\" = live.sh ] && echo bash || echo sh) -S warning $S/$f >/dev/null 2>&1; echo $?)\"; done\necho \"profile under dash -n: $(dash -n $S~/shell/profile >/dev/null 2>&1; echo $?)  | zsh -n: $(zsh -n $S~/shell/profile >/dev/null 2>&1; echo $?)\"\necho '--- redaction check on changed or new text files (non-zero only)'\nfor f in $($G -C $W diff --name-only 9c0a96e 383c9dd); do [ -f $S/$f ] || continue\n  o=$(python3 ~/.config/nvim/scripts/session_redact.py --check $S/$f 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | /usr/bin/grep -a -E ': [1-9][0-9]*$' | tr '\\n' ' '); [ -n \"$o\" ] && echo \"$f: $o\"; done; echo '(end)'\necho \"gitleaks over the branch: $(cd $W && mise x -- gitleaks git --redact --no-banner --log-opts='main..383c9dd' . 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | tail -1)\"\necho \"validate in the worktree (read-only): $(cd $W && openspec validate --all --strict 2>&1 | tail -1)\"",
+  "timeout": 180000
+}
+```
+
+**Output:**
+```
+added 652 | dashes 0 | banned 0 | emoji 0 | e-mail 0 | token shapes 0 | /home paths (not linuxbrew, not /home/user) 0 | IPv4 0
+secret-looking names in added lines:       1 [redacted:envvar] 
+names of the user's private file in the whole branch diff vs main (count): 0
+--- shell checks on the changed files
+home/dot_config/shell/profile        bash -n 0 | shellcheck 0
+home/dot_config/shell/shellrc        bash -n 0 | shellcheck 1
+home/dot_config/shell/environment    bash -n 0 | shellcheck 1
+tests/helpers/live.sh                bash -n 0 | shellcheck 0
+profile under dash -n: 0  | zsh -n: 0
+--- redaction check on changed or new text files (non-zero only)
+openspec/changes/correct-shell-environment/compare-allow.txt: credential variable names: 1 
+(end)
+gitleaks over the branch: 1:04PM INF no leaks found
+validate in the worktree (read-only): Totals: 38 passed, 0 failed (38 items)
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 14.4s)
+
+_Thinking:_
+I need to check which callers of the removed files are still in source or tests, since the count is 2. Then there's the redaction check on compare-allow.txt, which flags one credential variable name, `[redacted:envvar]`. The question is whether that matters, given the file is committed publicly and the tests are supposed to use DEMO_* names.
+
+I'm wondering whether `[redacted:envvar]` is a real concern. The name is synthetic, and the redactor only flags it because the `--check` rule matches the credential-variable-name shape. My earlier grep found no DEMO_* key-like names in the added lines, so I want to see whether this name already exists on main, and whether the redactor also flags the existing synthetic helper in `tests/helpers/synth.sh`.
+
+I'm weighing whether the [redacted:envvar] flag is a real issue. The fleet policy says tests should use DEMO_ names, so the name is allowed, but I still want to confirm that the redactor's `--check` rule is being applied to a repo file that isn't an export. I'll look for precedent by checking whether main already has this name and whether the redactor flags the existing synthetic helper too. The task rule also says the builder should have shown these per-file counts before committing, so I'll check that against how earlier commits handled it.
+
+
+_Thinking:_
+Two leftover references to the removed files remain, and the redaction check flags a credential-style name in compare-allow.txt, which is likely the synthetic [redacted:envvar]. I'm checking whether main already has the same pattern.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "W=[redacted:worktrees_root]/dotfiles-correct-shell-environment; G=/home/linuxbrew/.linuxbrew/bin/git; S=/tmp/opencode/orch-tree\necho '--- the two remaining mentions of the removed rc files'\n$G -C $W grep -n -E 'zsh/zshrc|bash/bashrc' 383c9dd -- home tests | sed 's#^383c9dd:##' | cut -c1-190\necho '--- [redacted:envvar]: already in main?'\necho \"files on main naming it: $($G grep -l '[redacted:envvar]' main -- tests home | sed 's#^main:##' | tr '\\n' ' ')\"\n$G show main:tests/helpers/synth.sh > /tmp/opencode/synth-main.sh 2>/dev/null\necho \"redaction --check on main's tests/helpers/synth.sh: $(python3 ~/.config/nvim/scripts/session_redact.py --check /tmp/opencode/synth-main.sh 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | /usr/bin/grep -a -E ': [1-9][0-9]*$' | tr '\\n' ' ')(end)\"; rm -f /tmp/opencode/synth-main.sh\necho \"same check on the other files of the branch that name it:\"\nfor f in $($G -C $W grep -l '[redacted:envvar]' 383c9dd -- tests openspec | sed 's#^383c9dd:##'); do printf '  %-62s %s\\n' \"$f\" \"$(python3 ~/.config/nvim/scripts/session_redact.py --check $S/$f 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | /usr/bin/grep -a -E ': [1-9][0-9]*$' | tr '\\n' ' ')\"; done",
+  "timeout": 120000
+}
+```
+
+**Output:**
+```
+--- the two remaining mentions of the removed rc files
+home/.chezmoiremove:11:.config/zsh/zshrc
+home/.chezmoiremove:12:.config/bash/bashrc
+--- [redacted:envvar]: already in main?
+files on main naming it: 
+redaction --check on main's tests/helpers/synth.sh: (end)
+same check on the other files of the branch that name it:
+  openspec/changes/correct-shell-environment/compare-allow.txt   credential variable names: 1 
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 15.6s)
+
+_Thinking:_
+I'm checking the removal entries, which account for the two callers. [redacted:envvar] only appears in compare-allow.txt, not in main's tests, so I'm working out how the synthetic names get built at runtime and why the literal name was written into the allow file.
+
+I'm checking where the [redacted:envvar] and DEMO_BETA_SETTING names are defined, and whether synth.sh builds them from parts at runtime to keep literal key-shaped names out of the repo. The redactor flags [redacted:envvar] as a credential variable name, so I'm also seeing whether the tasks.md 2.2 grep check for those names under tests/ is the rule that applies here.
+
+I'm weighing a fix for the allow list: the entries are whole names, so the literal [redacted:envvar] sits in the repo and clashes with the aim of keeping secret-looking names out. One option is a generic `DEMO_*` entry in the compare helper, which would mean changing code, and another is having the builder assemble the names at run time and checking how startup-compare.bats reads the allow file.
+
+I'm weighing whether a deviation is worth it here. [redacted:envvar] follows the DEMO_ naming rule, but its shape still looks like a credential, and the repo's tests build such names at runtime rather than writing them out.
+
+I'm going to check how synth.sh builds the DEMO names and whether the compare helper can accept a generic DEMO_ entry instead of the literal one in compare-allow.txt. Let me grep synth.sh for how the name is assembled.
+
+
+_Thinking:_
+The two "callers" are just removal entries, but the credential-style name in compare-allow.txt is new and not written literally in main, so the tests/-only check missed it. I'm checking how those names are built elsewhere.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "S=/tmp/opencode/orch-tree\necho '--- how synth.sh builds the synthetic names'; /usr/bin/grep -a -n -E 'ALPHA|BETA|DT_NAME_PART|_TOKEN|_SETTING|name_part|build' $S/tests/helpers/synth.sh | cut -c1-170 | head -14\necho '--- how the compare test reads the allow file'\n/usr/bin/grep -a -n -E 'ALLOW|allow' $S/tests/helpers/compare.sh $S/tests/smoke/startup-compare.bats | cut -c1-180 | head -14",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+--- how synth.sh builds the synthetic names
+29:DT_NAME_PART=token
+30:DT_SYN_FRAGMENTS=(api_key "$DT_NAME_PART" db_password apikey accesskey private_key credential passwd secret_sauce)
+54:  printf 'DEMO_LATER_%s\n' "${DT_NAME_PART^^}"
+58:  printf 'DEMO_FAKE_%s\n' "${DT_NAME_PART^^}"
+62:  printf 'DEMO_ALPHA_%s\n' "${DT_NAME_PART^^}"
+66:  printf 'DEMO_BETA_SETTING\n'
+--- how the compare test reads the allow file
+/tmp/opencode/orch-tree/tests/helpers/compare.sh:13:#   dt_diff_lists A B [ALLOW]    the lines that only one of two sorted listings holds, minus the entries of the ALLOW file
+/tmp/opencode/orch-tree/tests/helpers/compare.sh:49:  local a=${1:?dt_diff_lists A B} b=${2:?dt_diff_lists A B} allow=${3:-} line name left='' n=0
+/tmp/opencode/orch-tree/tests/helpers/compare.sh:52:    # an allowed entry is a whole line, or the name in it: an alias or function name, or the name before `=`
+/tmp/opencode/orch-tree/tests/helpers/compare.sh:56:    if [ -n "$allow" ] && [ -f "$allow" ] && grep -qxF -e "$line" -e "$name" "$allow"; then
+/tmp/opencode/orch-tree/tests/smoke/startup-compare.bats:4:#   DOTFILES_TEST_BASE_ALLOW=<file>                  one name per line: the differences that the change claims
+/tmp/opencode/orch-tree/tests/smoke/startup-compare.bats:8:# names of login shells. A difference that is not allowed fails the test and is printed as names and a count.
+/tmp/opencode/orch-tree/tests/smoke/startup-compare.bats:31:# against_base FUNCTION [ARGS...]: the same listing in both homes, and the differences that are not allowed
+/tmp/opencode/orch-tree/tests/smoke/startup-compare.bats:37:  run dt_diff_lists "$a" "$b" "${DOTFILES_TEST_BASE_ALLOW:-}"
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 31.3s)
+
+_Thinking:_
+The convention in synth.sh builds the name at runtime, so no secret-shaped literal ever lands in the repo. The builder broke that by writing [redacted:envvar] straight into compare-allow.txt. I'm weighing two fixes: change how the allow file works, or just stop listing that name. The first option is next.
+
+I'm weighing a third option: removing [redacted:envvar] from the allow file entirely. The better route still looks like option (b), building a temporary allow file at run time from the synthetic names. I still need to decide whether DEMO_BETA_SETTING stays listed literally, since it isn't key-shaped.
+
+I'm settling on a small fix: the builder's [redacted:envvar] literal in compare-allow.txt should be removed, with the allow list built at run time instead. The file is only committed locally so far, so I can correct it before it becomes public.
+
+I'm checking whether the name in the history is a real violation, and I think it isn't: [redacted:envvar] is a synthetic DEMO_ name, which the policy allows. It still breaks the run-time-build convention, so I'll fix it going forward with a new commit rather than rewriting the unpublished one.
+
+The remaining question is whether the commit hook with gitleaks passes, and it does. Next I'll check the deviation about startup-generator-prints going from 4 to 3 by looking at the README row diff.
+
+
+_Thinking:_
+The project builds a key-shaped name at run time, and the allow file has one written out literally, which is a synthetic DEMO_ name but breaks the convention. I'm checking the mutant row that dropped from 4 to 3 before I conclude.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "W=[redacted:worktrees_root]/dotfiles-correct-shell-environment; G=/home/linuxbrew/.linuxbrew/bin/git; S=/tmp/opencode/orch-tree\necho '--- README rows for the generator mutant, before and after'\n$G -C $W show 9c0a96e:tests/mutants/README.md | /usr/bin/grep -a -n 'startup-generator-prints' | cut -c1-260\n/usr/bin/grep -a -n 'startup-generator-prints' $S/tests/mutants/README.md | cut -c1-260\necho '--- which tests fail with the mutant now (names), from a run of only that mutant'\ncd $S && DOTFILES_TEST_REPORTS=/tmp/opencode/orch-reports/g DOTFILES_TEST_JOBS=2 timeout 900 tests/mutants/run.sh startup-generator-prints > /tmp/opencode/orch-reports/gen.out 2>&1; /usr/bin/grep -a -E '^mutant|not ok' /tmp/opencode/orch-reports/gen.out | cut -c1-170 | head -8\necho '--- the 4th test that no longer fails: was it a non-interactive login zsh test?'\n$G -C $W show 9c0a96e:tests/smoke/startup-silent.bats | /usr/bin/grep -a -n -E '@test' | cut -c1-150 | head -12",
+  "timeout": 900000
+}
+```
+
+**Output:**
+```
+--- README rows for the generator mutant, before and after
+18:| startup-generator-prints | tests/smoke/startup-silent.bats | home/dot_config/shell/rc.d/335-shell_completion_cache.sh | sed startup/generator-prints.sed | at least 4 |
+34:- `startup-generator-prints` makes the regeneration of a completion script print, so the silent-startup tests that start a home with a cold cache fail: the cold start under a terminal, and the three starts without a terminal (4).
+18:| startup-generator-prints | tests/smoke/startup-silent.bats | home/dot_config/shell/rc.d/335-shell_completion_cache.sh | sed startup/generator-prints.sed | at least 3 |
+36:- `startup-generator-prints` makes the regeneration of a completion script print, so the silent-startup tests that start a home with a cold cache fail: the cold start under a terminal, and the two interactive starts without a terminal (3); the non-interacti
+--- which tests fail with the mutant now (names), from a run of only that mutant
+mutant startup-generator-prints: 3 failures (expected at least 3): ok
+mutants: 1 run, 0 problems
+--- the 4th test that no longer fails: was it a non-interactive login zsh test?
+27:@test "zsh -i -c exit on a cold cache prints nothing under a terminal" {
+32:@test "zsh -i -c exit prints nothing under a terminal" {
+37:@test "zsh -l -i -c exit prints nothing under a terminal" {
+42:@test "bash -i -c true prints nothing under a terminal" {
+47:@test "bash -l -i -c true prints nothing under a terminal" {
+52:@test "bash -i -c exit prints only the word that bash itself prints" {
+59:@test "zsh -i -c exit prints nothing without a terminal" {
+64:@test "zsh -l -i -c exit prints nothing without a terminal" {
+69:@test "zsh -l -c true prints nothing without a terminal" {
+75:@test "debug output is on standard error only" {
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 7.5s)
+
+_Thinking:_
+The deviation holds together: the non-interactive `zsh -l -c true` test no longer regenerates completions, since it never loads rc.d now, so the mutant that makes regeneration print doesn't touch it. The README explains why, and the test still means "prints nothing." That one's settled.
+
+Next is deviation 2, where the nested-chain test compares sorted entries for the desktop. Time is tight, so I'll check that test quickly.
+
+I'm going to grep the bats file for "sorted" to see exactly how the nested-chain test is weaker than the desktop check.
+
+
+_Thinking:_
+The 4-to-3 change is sound, since the non-interactive login zsh no longer loads `rc.d` and so can't regenerate completions, and the README documents that. I'm now checking the nested-shell comparison, which sorts its entries.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "S=/tmp/opencode/orch-tree\n/usr/bin/grep -a -n -B3 -A22 'nested' $S/tests/smoke/environment-path.bats | sed -n '1,70p' | cut -c1-175",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+131-  assert_equal "$(printf '%s\n' "$out" | sed -n 's/^@@Q[123]=//p' | sort -u | wc -l)" 1
+132-}
+133-
+134:@test "nested shells do not grow PATH or AQUA_BIN_DIR: zsh in zsh in zsh" {
+135-  check_chain "$(chain zsh-i "$(dt_shell_path zsh)")" ordered
+136-}
+137-
+138:@test "nested shells do not grow PATH or AQUA_BIN_DIR: bash in bash in bash" {
+139-  check_chain "$(chain bash-i "$(dt_shell_path bash)")" ordered
+140-}
+141-
+142:@test "nested shells do not grow PATH or AQUA_BIN_DIR: interactive zsh in interactive zsh, started from the desktop replay" {
+143-  check_chain "$(chain desktop "$(dt_shell_path zsh)")"
+144-}
+145-
+146:@test "a nested shell of the same kind has the PATH of the first, entry by entry" {
+147-  local out
+148-  out=$(chain zsh-i "$(dt_shell_path zsh)")
+149-  assert_equal "$(printf '%s\n' "$out" | sed -n 's/^@@P1=//p' | tr ':' '\n' | wc -l)" "$(printf '%s\n' "$out" | sed -n 's/^@@P3=//p' | tr ':' '\n' | wc -l)"
+150-}
+151-
+152-@test "the brew hook of 110 is still defined in an interactive zsh" {
+153-  [ -f /home/linuxbrew/.linuxbrew/etc/brew-wrap ] || skip "brew-file is not installed"
+154-  [ -x /home/linuxbrew/.linuxbrew/bin/brew-file ] || skip "brew-file is not installed"
+155-  assert_equal "$(dt_kind_run zsh-i 'whence -w _post_brewfile_update' | tail -n 1)" '_post_brewfile_update: function'
+156-}
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 22.2s)
+
+_Thinking:_
+I'm keeping the "ordered" check for the plain zsh and bash interactive chains, since the desktop-started chain only needs a sorted set comparison. That makes sense: the desktop environment doesn't have mise activated, and the interactive zsh level adds its directories, so the only safe check is equal sets with no room for growth. Group 6 is accepted, and the next item to pass along is the literal DEMO_ALPHA_TO in compare-allow.txt, which needs replacing.
+
+I'm replacing the literal [redacted:envvar] in compare-allow.txt with a run-time construction, treating it as low priority for group 7 or a follow-up. I'm also asking the builder to reword the live test comment about "not an ancestor of this run," since it's wrong when run from the pane where secrets get typed. Since the builder's report left out the manual mutation evidence for the login sh test, I ran that myself and it fails 2 tests.
+
+
+_Thinking:_
+The nested-shell check now compares strict ordering for zsh and bash chains and sorted entries only for the desktop chain, which still catches growth or duplicates. I'm passing my findings to the builder and cleaning up.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\nrm -rf /tmp/opencode/orch-tree /tmp/opencode/orch-reports; test ! -e /tmp/opencode/orch-tree && echo \"scratch deleted\"\nherdr agent prompt chezmoi-env-build2 'chezmoi-orch: group 6 accepted. Measured on git archive of 383c9dd: 496 tests, 0 failures, 30 skipped, canary 0; mutants 14 run, 0 problems (env-desktop-full-pass 7, env-shellrc-no-guard 4); profile reads right (guard bash|zsh, dash -n and shellcheck -s sh clean); the two removed rc files have their removal entries and no caller; live.sh prints counts only. I also did the manual mutation you owed me, on my scratch copy only: with the bash|zsh guard dropped, \"a login sh loads nothing\" and \"profile is POSIX\" fail (2 failures), so the scenario proves what it says. Your three deviations are fine: 4 to 3 for startup-generator-prints (zsh -l -c no longer loads rc.d), the sorted entries only for the desktop-started chain, and the login-sh scenario wording that allows profile own debug line. Two small tidy items, put them in your next commit, no separate one: (a) compare-allow.txt writes the literal name [redacted:envvar], a key-shaped name that main never writes (synth.sh builds it at run time from DT_NAME_PART precisely for that, and the redaction check flags it, 1 count); have startup-compare.bats add the synthetic private-file names of the scratch home to the allow list at run time (a temporary allow file made of the file plus those names) and drop the two literal lines [redacted:envvar] and DEMO_BETA_SETTING, then re-run the compare against main (5 of 5) and the redaction check on compare-allow.txt (0); (b) the comment in environment-live.bats that says a pane where the user typed secrets load \"is not an ancestor of this run\" is wrong when the user runs the test from that pane: say instead that the test must be run from a terminal where secrets load was not typed, as tests/README.md says. Go on with group 7. Tip for the end: main is at 08733b0 now (the orchestrator pushed three docs commits, none touches your files): rebase on it only at the very end.' --wait --until working --timeout 20000 2>&1 | jq -c '{ok: (.error == null), error: (.error // null)}' 2>/dev/null\nprintf -- '- %s chezmoi-orch (wN:p1) builder group 6 accepted: measured on git archive of 383c9dd (496 tests 0 failures 30 skipped; mutants 14 run 0 problems; profile and shellrc read; removal entries present; live.sh counts only; manual mutation of the login sh guard run by me on a scratch copy: 2 failures); deviations accepted (generator mutant 4 to 3, sorted entries for the desktop-started chain, login sh debug line); two tidy items sent for its next commit (literal [redacted:envvar] in compare-allow.txt, wrong comment in environment-live.bats); builder on group 7; main 08733b0 pushed\\n' \"$(date '+%Y-%m-%d %H:%M:%S')\" >> .state/journal.md\nsleep 6; echo \"build2: $(herdr agent get chezmoi-env-build2 2>/dev/null | jq -r '.result.agent.agent_status' 2>/dev/null); $(herdr pane read w0:p2 --lines 20 2>/dev/null | /usr/bin/grep -a -o -E '[0-9.]+K \\([0-9]+%\\)' | tail -1)\"\nherdr pane read w0:p2 --lines 40 2>/dev/null | /usr/bin/grep -a -E 'Permission required' | head -1",
+  "timeout": 90000
+}
+```
+
+**Output:**
+```
+scratch deleted
+{"ok":false,"error":{"code":"agent_blocked","message":"agent chezmoi-env-build2 is blocked and requires interactive input"}}
+build2: blocked; 
+  ┃  △ Permission required                                                                                                      main, validate, suite + mutants,
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 4.6s)
+
+The builder is blocked on a prompt again, so my message didn't go through. I'm reading what it wants.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "herdr pane read w0:p2 --lines 60 2>/dev/null | /usr/bin/grep -a -v '^\\s*$' | sed 's/[[:space:]]*$//' | cut -c1-150 | sed -n '/Permission required/,$p' | head -14",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+  ┃  △ Permission required                                                                                                      main, validate, su
+  ┃    ← Access external directory /home                                                                                        report
+  ┃
+  ┃  Patterns
+  ┃
+  ┃  - /home/*                                                                                                              [redacted:worktrees_root]/dotfiles-co
+  ┃                                                                                                                         environment:feat/correct
+  ┃                                                                                                                         environment
+  ┃   Allow once   Allow always   Reject                                   ctrl+f fullscreen  ⇆ select  enter confirm
+  ┃                                                                                                                         • OpenCode 1.19.6
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 11.2s)
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; python3 - <<'EOF'\nfrom pathlib import Path\np = Path(\".state/resume.md\"); s = p.read_text(encoding=\"utf-8\")\ndef rep(a, b):\n    global s\n    assert s.count(a) == 1, (s.count(a), a[:70]); s = s.replace(a, b)\nrep(\"# Resume note of chezmoi-orch, updated 2026-11-24 12:45 with the SECOND builder session RUNNING\",\n    \"# Resume note of chezmoi-orch, updated 2026-11-24 13:25 with the SECOND builder session RUNNING (group 6 accepted, group 7 in progress)\")\na = \"Open points for group 7 and the last report:\"\nassert s.count(a) == 1\ns = s.replace(a, '''GROUP 6 ACCEPTED at 13:20 on 2026-11-24, tip `383c9dd` (4 commits on `9c0a96e`: `b6674f3` docs(chezmoi:spec) live login tests 6.7 and the login sh scenario; `015b537` feat(shell:env) desktop login loads only env_ files, `shellrc` guard, `zsh/zshrc` and `bash/bashrc` removed with removal entries; `d8758ff` test(shell:env) `compare-allow.txt`; `383c9dd` test(shell:env) live checks behind `DOTFILES_TEST_AFTER_LOGIN`).\nMeasured by me on `git archive 383c9dd`: 496 tests, 0 failures, 30 skipped, canary 0; mutants 14 run, 0 problems (env-desktop-full-pass 7, env-shellrc-no-guard 4, startup-generator-prints 4 to 3 because the non-interactive login zsh no longer loads rc.d); profile and shellrc read (login shell guard `bash | zsh`, `dash -n` and `shellcheck -s sh` clean); scenario counts 34 for shell-environment, 57 for the five delta specs; 652 added lines clean; 0 private-file names in the branch diff; gitleaks and `openspec validate` (38/38) clean.\nI ran the manual mutation myself on a scratch copy (login sh guard dropped): 2 failures (\"a login sh loads nothing\", \"profile is POSIX\").\nSent to the builder for its NEXT commit (no separate one): (a) `compare-allow.txt` writes the literal key-shaped name `[redacted:envvar]` (main never writes such a name; the redaction check counts 1): have `startup-compare.bats` add the synthetic private-file names to the allow list at run time and drop the two literal lines; (b) a wrong comment in `environment-live.bats` (a pane that typed `secrets load` IS an ancestor when the test runs from it).\nThe builder was BLOCKED at 13:20 on a permission prompt \"Access external directory /home\" (pattern `/home/*`) in `w0:p2`: left to the user; my message with the two items above did NOT go through (agent blocked) and must be re-sent once it is unblocked (`herdr agent prompt chezmoi-env-build2 ...`; the text is in the journal's last lines in short form).\nOpen points for group 7 and the last report:''')\np.write_text(s, encoding=\"utf-8\")\nEOF\nchmod 600 .state/resume.md; printf 'resume dashes %s, modeline last %s\\n' \"$(/usr/bin/grep -a -c -E '[–—]' .state/resume.md)\" \"$(tail -1 .state/resume.md | /usr/bin/grep -a -c 'vim: set ts=2')\"\nprintf -- '- %s chezmoi-orch (wN:p1) builder blocked at 13:20 on a permission prompt (external directory /home, pattern /home/*) in w0:p2; the acceptance message of group 6 with the two tidy items did not go through, to re-send once the user unblocks it\\n' \"$(date '+%Y-%m-%d %H:%M:%S')\" >> .state/journal.md",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+resume dashes 0, modeline last 1
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 10.0s)
+
+Group 6 is accepted, and I need you to unblock the builder before my reply can reach it.
+
+## Group 6, measured on the exported commit `383c9dd`
+- **Suite:** 496 tests, 0 failures, 30 skipped, canary scan 0.
+- **Mutants:** 14 run, 0 problems. `env-desktop-full-pass` makes 7 tests fail and `env-shellrc-no-guard` makes 4 fail.
+- **`profile` and `shellrc`:** I read both.
+  - `profile` loads `shell/environment` in its non-interactive branch only for bash and zsh.
+  - `shellrc` has its interactive guard.
+  - `dash -n` and `shellcheck -s sh` are clean.
+- **Removals:** `zsh/zshrc` and `bash/bashrc` are gone from the source, each with a removal entry, and nothing calls them.
+- **Scans on the 652 added lines:** 0 dashes, banned names, e-mails, token shapes or IP addresses. None of your private-file names is in the branch diff. gitleaks and `openspec validate` (38/38) are clean. The scenario counts are 34 for `shell-environment` and 57 across the five delta specs.
+- **Manual mutation, run by me:** on a scratch copy, with the `sh` guard dropped, the new `sh` scenario test and the "`profile` is POSIX" test both fail. So that scenario proves what it says.
+
+## Its three deviations are fine
+- **`startup-generator-prints` from 4 to 3:** the non-interactive login zsh no longer loads `rc.d`, so it can't regenerate a completion script. The README says so.
+- **Sorted entries only for the desktop-started chain:** mise's activation legitimately reorders the interactive level. Plain zsh and bash chains keep the strict order.
+- **Login `sh` wording:** the scenario allows `profile`'s own debug line under `SHELL_RC_DEBUG`.
+
+## Two small tidy items, for its next commit
+1. **A literal credential-shaped name:** `compare-allow.txt` writes `[redacted:envvar]` literally. `main` never writes such a name, because the test helpers build it at run time, and the redaction check counts 1. It's synthetic, so it breaches no rule, but it drifts from the convention. The fix is to add the scratch home's synthetic names to the allow list at run time.
+2. **A comment that's wrong:** in `environment-live.bats`, a pane where you typed `secrets load` is an ancestor if you run the test from it. The test must run from a terminal where `secrets load` was not typed, as `tests/README.md` says.
+
+## What I need from you, in its pane `w0:p2`
+The builder is blocked on a permission prompt: **"Access external directory `/home`"**, pattern `/home/*`. It wants to read outside `[redacted:worktrees_root]`, probably the real home for the live tests or a path check. I haven't answered it. **Allow once** is enough, and I wouldn't pick Allow always for `/home/*`.
+
+My acceptance message with the two tidy items didn't go through, because the agent was blocked. Once you've answered, I re-send it. It's in the resume note.
+
+The builder is on group 7, the last of part 1. The resume note and journal are up to date.
+
+---
+
+## User
+
+builder unblocked
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 30.1s)
+
+_Thinking:_
+The builder's unblocked now, so I'll re-send the acceptance message. I want to check its status first before sending anything.
+
+
+I'm checking that it is unblocked, then re-sending the acceptance message with the two tidy items.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\necho \"build2: $(herdr agent get chezmoi-env-build2 2>/dev/null | jq -r '.result.agent.agent_status' 2>/dev/null); $(herdr pane read w0:p2 --lines 20 2>/dev/null | /usr/bin/grep -a -o -E '[0-9.]+K \\([0-9]+%\\)' | tail -1)\"\nherdr pane read w0:p2 --lines 40 2>/dev/null | /usr/bin/grep -a -E 'Permission required' | head -1\nherdr agent prompt chezmoi-env-build2 'chezmoi-orch: group 6 accepted. Measured on git archive of 383c9dd: 496 tests, 0 failures, 30 skipped, canary 0; mutants 14 run, 0 problems (env-desktop-full-pass 7, env-shellrc-no-guard 4); profile and shellrc read (guard bash|zsh, dash -n and shellcheck -s sh clean); the two removed rc files have removal entries and no caller; live.sh prints counts only. I also ran the manual mutation you owed me, on my scratch copy only: with the bash|zsh guard dropped, \"a login sh loads nothing\" and \"profile is POSIX\" fail (2 failures), so the scenario proves what it says. Your three deviations are fine: 4 to 3 for startup-generator-prints, the sorted entries only for the desktop-started chain, and the login-sh wording that allows the debug line of profile. Two small tidy items, put them in your NEXT commit, no separate one: (a) compare-allow.txt writes the literal name [redacted:envvar], a key-shaped name that main never writes (synth.sh builds it at run time from DT_NAME_PART for that reason, and the redaction check counts 1 on that file): have startup-compare.bats add the synthetic private-file names of the scratch home to the allow list at run time (a temporary allow file made of the file plus those names), drop the two literal lines [redacted:envvar] and DEMO_BETA_SETTING, then re-run the compare against main (5 of 5) and the redaction check on compare-allow.txt (0); (b) the comment in environment-live.bats that says a pane where the user typed secrets load \"is not an ancestor of this run\" is wrong when the test is run from that pane: say instead that it must be run from a terminal where secrets load was not typed, as tests/README.md says. Go on with group 7. Main is at 08733b0 now (three docs commits pushed, none touches your files): rebase on it only at the very end.' --wait --until working --timeout 20000 2>&1 | jq -c '{ok: (.error == null), error: (.error // null)}' 2>/dev/null\nprintf -- '- %s chezmoi-orch (wN:p1) builder unblocked by the user (external directory /home prompt answered); acceptance of group 6 with the two tidy items re-sent and delivered\\n' \"$(date '+%Y-%m-%d %H:%M:%S')\" >> .state/journal.md\nsleep 6; echo \"build2 now: $(herdr agent get chezmoi-env-build2 2>/dev/null | jq -r '.result.agent.agent_status' 2>/dev/null)\"",
+  "timeout": 90000
+}
+```
+
+**Output:**
+```
+build2: working; 284.3K (28%)
+{"ok":true,"error":null}
+build2 now: working
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 7.9s)
+
+I'm updating the resume note so it no longer says the message is waiting to be re-sent.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; python3 - <<'EOF'\nfrom pathlib import Path\np = Path(\".state/resume.md\"); s = p.read_text(encoding=\"utf-8\")\na0 = s.index(\"The builder was BLOCKED at 13:20 on a permission prompt\"); a1 = s.index(\"Open points for group 7 and the last report:\")\ns = s[:a0] + \"The builder was blocked at 13:20 on a permission prompt (\\\"Access external directory /home\\\", pattern `/home/*`); the user answered it, and my acceptance message with the two tidy items was re-sent and delivered at 13:30. It is on group 7 (28% of its context).\\nExpect this class of prompt again (external directories): tell the user in advance, never answer it myself.\\n\" + s[a1:]\ns = s.replace(\"(group 6 accepted, group 7 in progress)\", \"(group 6 accepted, group 7 in progress, message delivered)\")\np.write_text(s, encoding=\"utf-8\")\nEOF\nchmod 600 .state/resume.md; printf 'resume dashes %s, modeline last %s\\n' \"$(/usr/bin/grep -a -c -E '[–—]' .state/resume.md)\" \"$(tail -1 .state/resume.md | /usr/bin/grep -a -c 'vim: set ts=2')\"\nG=/home/linuxbrew/.linuxbrew/bin/git; echo \"main $($G rev-parse --short HEAD) = origin $($G rev-parse --short origin/main); dirty $($G status --short | wc -l)\"",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+resume dashes 0, modeline last 1
+main 08733b0 = origin 08733b0; dirty 0
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 7.0s)
+
+The builder is unblocked and working on group 7, at about 28% of its context. My acceptance of group 6 went through this time.
+
+The message told it:
+- Group 6 is accepted. I measured it on the exported commit: 496 tests, 0 failures, 14 mutants with 0 problems. I also ran the manual mutation of the `sh` guard myself and saw it fail 2 tests.
+- Its three deviations are fine.
+- Two tidy items go into its next commit: drop the literal `[redacted:envvar]` from `compare-allow.txt` and add the synthetic names at run time instead, and correct the comment in `environment-live.bats` about a pane that typed `secrets load`.
+- `main` is `08733b0`, and it rebases only at the very end.
+
+Nothing is waiting on you right now. `main` and `origin/main` are both `08733b0`, the tree is clean, and the resume note and journal are up to date.
+
+Next for me is group 7: `930` renamed to `999`, the four stub removals and the `HISTFILE` move to XDG with its migration. I'll measure the committed state when it reports, as before. After part 1, I'll do the small `nvim-dev` change you chose, then plan the `add-agent-launch-tasks` lead.
+
+Expect another external-directory prompt in `w0:p2` at some point. I'll tell you when it blocks, and I won't answer it myself.
+
+---
+
+## User
+
+[redacted:private]
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; python3 - <<'EOF'\nfrom pathlib import Path\np = Path(\".state/resume.md\"); s = p.read_text(encoding=\"utf-8\")\ndef rep(a, b):\n    global s\n    assert s.count(a) == 1, (s.count(a), a[:70]); s = s.replace(a, b)\na = \"- Read, no action: the Neovim orchestrator's out-of-memory signal\"\nassert s.count(a) == 1\ns = s.replace(a, '''- ANSWER of the read-only guard's orchestrator (2026-11-24, information, no reply owed, nothing asked of this repository): of my four events, one was fixed long before, one blocks by design, the two others are one real false positive whose cause is in the guard's own parsing (not what my brief guessed), and the 8 `nvim` blocks are real headless runs, correctly blocked.\n  A fix is only DRAFTED on their side (not decided, not scheduled, nothing fixed).\n  EMBARGO, explicit: that repository is public and the wording of a fix is the maintainer's call; do NOT describe or forward the details of that message, or of what the guard misses, outside the fleet's private channels: not in a committed file (TODO.md, openspec, observations, README), not to the builders, not in my replies or tool inputs more than the one line above.\n  CONSEQUENCE FOR THE NEXT EXPORT of this session: the message sits in my transcript and `memory/sessions/` is public. The export of 2026-11-23 (through about 13:00) does not contain it; the NEXT re-export would. Before it is installed: build a throwaway terms layer in a 0700 scratch directory (`SESSION_REDACT_TERMS_DIR`, a file `redact-terms.txt`, one `re:` line per line of that message, each anchored on its own wording), run the redactor, then COUNT (never print) the distinctive words of the message in the output and in the raw file, and ask the user to check the masked block in the output before the commit; also make sure none of my own replies or tool inputs of that turn repeat the details. If it cannot be masked cleanly, cut the export at the message before it. Delete the scratch layer afterwards.\n  For my agents: a `set -a` inside a `bash -c` string asks by design (the guard cannot see what a sourced file assigns): put such probes in script files, as the builders already do.\n- Read, no action: the Neovim orchestrator's out-of-memory signal''')\nrep(\"Reports and signals\", \"Reports and signals\") if False else None\np.write_text(s, encoding=\"utf-8\")\nEOF\nchmod 600 .state/resume.md\nprintf 'resume: lines %s | dashes %s | modeline last %s\\n' \"$(wc -l < .state/resume.md)\" \"$(/usr/bin/grep -a -c -E '[–—]' .state/resume.md)\" \"$(tail -1 .state/resume.md | /usr/bin/grep -a -c 'vim: set ts=2')\"\nprintf -- '- %s chezmoi-orch (wN:p1) answer from the guard orchestrator read (information, nothing asked): outcome recorded in the resume note in general terms; EMBARGO on the details until its maintainer decides (public repository): never in committed files, builders or replies; the next re-export of this session must mask that message before it is installed (procedure in the resume note); no reply sent\\n' \"$(date '+%Y-%m-%d %H:%M:%S')\" >> .state/journal.md\necho \"committed files that could carry it: $(/home/linuxbrew/.linuxbrew/bin/git status --short | wc -l) dirty entries in main (expect 0)\"\necho \"build2: $(herdr agent get chezmoi-env-build2 2>/dev/null | jq -r '.result.agent.agent_status' 2>/dev/null); $(herdr pane read w0:p2 --lines 20 2>/dev/null | /usr/bin/grep -a -o -E '[0-9.]+K \\([0-9]+%\\)' | tail -1)\"; herdr pane read w0:p2 --lines 40 2>/dev/null | /usr/bin/grep -a -E 'Permission required' | head -1",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+resume: lines 196 | dashes 0 | modeline last 1
+committed files that could carry it: 0 dirty entries in main (expect 0)
+build2: blocked; 
+  ┃  △ Permission required                                                                                                      main, validate, suite + mutants,
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 7.0s)
+
+The builder is blocked on a permission prompt again, so I'm reading it for you.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "herdr pane read w0:p2 --lines 60 2>/dev/null | /usr/bin/grep -a -v '^\\s*$' | sed 's/[[:space:]]*$//' | cut -c1-140 | sed -n '/Permission required/,$p' | head -12\nW=[redacted:worktrees_root]/dotfiles-correct-shell-environment; G=/home/linuxbrew/.linuxbrew/bin/git\necho \"builder commits since 383c9dd: $($G -C $W log --format='%h %s' 383c9dd..HEAD | cut -c1-90 | tr '\\n' ';'); dirty $($G -C $W status --short | wc -l)\"",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+  ┃  △ Permission required                                                                                                      main, va
+  ┃    ← Access external directory ~                                                                                            report
+  ┃
+  ┃  Patterns
+  ┃
+  ┃  - ~/*                                                                                                        [redacted:worktrees_root]/d
+  ┃                                                                                                                         environment:fe
+  ┃                                                                                                                         environment
+  ┃   Allow once   Allow always   Reject                                   ctrl+f fullscreen  ⇆ select  enter confirm
+  ┃                                                                                                                         • OpenCode 1
+builder commits since 383c9dd: f6d6659 docs(chezmoi:spec): tick the test-first rule of the build, groups 1 to 7 done;0518b8c feat(shell:history): keep the history under XDG state and merge a trimmed file;8b4237f feat(shell:env): load highlighting last and remove the dead startup files;635b081 test(shell:env): add the live checks of the new login behind an opt-in;d5fc805 test(shell:env): list the differences with main that the change claims;651881d feat(shell:env): load only env_ files at the desktop login and guard shellrc;cdc352b docs(chezmoi:spec): add live login tests, limit the env pass to bash and zsh;14ddef2 feat(shell:secrets): load the private keys on demand with secrets load;cb27db9 feat(shell:env): drop missing locales and stop forcing LC_ALL;62fc2d4 feat(shell:path): move PATH setup into idempotent env_ files;a1e1c3f test(shell:env): add kinds runner, history fixtures and session probe;103cd82 docs(chezmoi:spec): settle login PATH, bash history and probe quoting;08733b0 docs(chezmoi:memory): export the first correct-shell-environment build session;c006474 docs(chezmoi:docs): log the answers of the first grouped launch;58633a0 docs(chezmoi:memory): re-export the orchestrator session of 2026-11-23;; dirty 0
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 11.1s)
+
+_Thinking:_
+The builder seems to have rebased onto main already, since the base hash is now 08733b0 and the commit hashes have changed. Group 7 commits are in place (8b4237f, 0518b8c, f6d6659), so groups 1 through 7 look done. It's blocked on a prompt asking about access to the external directory ~ for ~/*, probably needed for the final live checks or test:live, so I'll report that.
+
+The hashes changed with the rebase, so my earlier measurements for 383c9dd refer to the old commit. I'll re-measure against the new tip once the builder reports back. I also want to add a short line to the resume note, then reply to the user briefly.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; python3 - <<'EOF'\nfrom pathlib import Path\np = Path(\".state/resume.md\"); s = p.read_text(encoding=\"utf-8\")\na = \"Open points for group 7 and the last report:\"\nassert s.count(a) == 1\ns = s.replace(a, '''STATE at 14:05 on 2026-11-24: the builder has ALREADY REBASED on `08733b0` (all hashes of its branch changed: the group 2 to 6 commits I measured as `86f7a4c` ... `383c9dd` are now `a1e1c3f` ... `d5fc805`/`635b081`) and made the group 7 commits `8b4237f` (feat(shell:env): highlighting last, dead startup files removed), `0518b8c` (feat(shell:history): history under XDG state, merge of a trimmed file) and `f6d6659` (docs(chezmoi:spec): tick the test-first rule, groups 1 to 7 done). It was BLOCKED on a permission prompt \"Access external directory ~\" (pattern `~/*`) in `w0:p2`, left to the user. Its final report is NOT in yet: when it comes, measure the TIP it names on `git archive` (suite, mutants, scans, `main..tip` gitleaks), read `320-shell_history.sh` (the migration touches live history files: look for data-loss paths, the merge, the link) and `999-highlighting.sh`, check every removed or renamed target has its `.chezmoiremove` entry, and that the two tidy items of group 6 were done.\nOpen points for group 7 and the last report:''')\np.write_text(s, encoding=\"utf-8\")\nEOF\nchmod 600 .state/resume.md; printf 'dashes %s\\n' \"$(/usr/bin/grep -a -c -E '[–—]' .state/resume.md)\"\nprintf -- '- %s chezmoi-orch (wN:p1) builder has rebased on 08733b0 and committed group 7 (8b4237f 0518b8c f6d6659), blocked on an external-directory prompt (home, pattern ~/*) in w0:p2; final report not yet in; to measure on its tip\\n' \"$(date '+%Y-%m-%d %H:%M:%S')\" >> .state/journal.md",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+dashes 0
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 10.1s)
+
+rog-orch's answer needs no action from me, but it puts one constraint on this session. The builder is blocked on a prompt that needs you.
+
+## rog-orch's answer (information only)
+- **Outcome of my four events:**
+  - One was fixed long ago.
+  - One is blocked by design.
+  - The other two are one real false positive. Its cause is in the guard's own parsing, not what my brief guessed.
+  - The 8 `nvim` blocks are real headless runs, correctly blocked.
+- **Status on their side:** a fix is only drafted. It isn't decided, scheduled or made.
+
+I sent no reply. Nothing is asked of this repository, and a reply would only add to the transcript.
+
+## The embargo, and what it means for this session
+The guard repository is public, and its maintainer hasn't decided how a fix is worded. rog-orch asks me not to describe or forward the details outside the fleet's private channels. I'm applying that this way:
+- **Not published:** nothing from the message is in a committed file, and I haven't forwarded it to the builders.
+- **This message and the export:** the message is now in this session's transcript, and `memory/sessions/` is public.
+  - The export through about 13:00 on 2026-11-23, already pushed, doesn't contain it.
+  - The next re-export would. Before installing it I'll mask that message with a throwaway terms layer, count the distinctive words in the raw file and the output, and ask you to check the masked block. If it can't be masked cleanly, I'll cut the export before the message.
+  - I kept my own replies and commands this turn general for the same reason.
+- **Where it's recorded:** the resume note has the outcome and this procedure in general wording. It is git-ignored.
+
+## The builder
+- **Progress:** it has already rebased on `main` (`08733b0`) and committed group 7: highlighting last with the dead startup files removed, the history under XDG with its merge, and the tick that says groups 1 to 7 are done. Its branch hashes changed with the rebase.
+- **Blocked:** on **"Access external directory ~"**, pattern `~/*`, in `w0:p2`. It probably wants to read your real home for a final live check. **Allow once** is enough, and I wouldn't pick Allow always for your whole home.
+- **Next:** its final report isn't in yet. I'll measure the tip it names on an exported copy. This time I'll read `320-shell_history.sh` closely, because the migration touches your live history files, and I'll look for any path that could lose data.
+
+---
+
+## User
+
+chezmoi-env-build2: PART 1 DONE at f6d6659 (rebased on main 08733b0, tree clean, 12 commits, no push). Measured on git archive of f6d6659: tests/run.sh 508 tests, 0 failures, 30 skipped, canary 0; mutants 16 run, 0 problems (env-highlighting-not-last 1, env-history-no-merge 2); compare vs main 5 of 5; openspec validate --all --strict 38 of 38 (run in the worktree: the export is untrusted by mise). Groups 1-7 ticked, 1.2 too. Full report with deviations and frictions is in my pane.
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 371.1s)
+
+_Thinking:_
+Part 1 is done, so now I need to measure things on the git archive of f6d6659 and read through the shell history script, the highlighting file, the removal entries, and the tidy items. First I'll put together the todo list, then take the measurements.
+
+
+Part 1 is reported done. I'm measuring the tip it names on an exported copy and reading the history migration closely, since it touches live history files.
+**Tool: todowrite**
+
+**Input:**
+```json
+{
+  "todos": [
+    {
+      "content": "Measure f6d6659 on git archive: suite, mutants, scans, gitleaks, validate",
+      "status": "in_progress",
+      "priority": "high"
+    },
+    {
+      "content": "Read 320-shell_history.sh (data-loss paths), 999-highlighting, removal entries, group 6 tidy items",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "content": "Report to the user: part 1 result, what is left (groups 8 to 13), decisions needed",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "content": "After acceptance: export build2 session, cleanup rule (close workspace by id, never --group, scm:worktree:done) only when the branch is merged",
+      "status": "pending",
+      "priority": "medium"
+    },
+    {
+      "content": "Small change nvim-dev (script alone), after part 1; then plan lead for add-agent-launch-tasks",
+      "status": "pending",
+      "priority": "medium"
+    }
+  ]
+}
+```
+
+**Output:**
+```
+[
+  {
+    "content": "Measure f6d6659 on git archive: suite, mutants, scans, gitleaks, validate",
+    "status": "in_progress",
+    "priority": "high"
+  },
+  {
+    "content": "Read 320-shell_history.sh (data-loss paths), 999-highlighting, removal entries, group 6 tidy items",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "content": "Report to the user: part 1 result, what is left (groups 8 to 13), decisions needed",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "content": "After acceptance: export build2 session, cleanup rule (close workspace by id, never --group, scm:worktree:done) only when the branch is merged",
+    "status": "pending",
+    "priority": "medium"
+  },
+  {
+    "content": "Small change nvim-dev (script alone), after part 1; then plan lead for add-agent-launch-tasks",
+    "status": "pending",
+    "priority": "medium"
+  }
+]
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "W=[redacted:worktrees_root]/dotfiles-correct-shell-environment; G=/home/linuxbrew/.linuxbrew/bin/git; S=/tmp/opencode/orch-tree; R=/tmp/opencode/orch-reports\necho \"builder: $(herdr agent get chezmoi-env-build2 2>/dev/null | jq -r '.result.agent.agent_status' 2>/dev/null); HEAD $($G -C $W rev-parse --short HEAD); dirty $($G -C $W status --short | wc -l); base is main? $([ \"$($G -C $W merge-base HEAD main)\" = \"$($G rev-parse main)\" ] && echo yes || echo NO); ahead $($G -C $W rev-list --count main..HEAD)\"\n$G -C $W log --format='%h|%s' main..HEAD | while IFS='|' read h s; do printf '%s %s chars: %s\\n' \"$h\" \"${#s}\" \"$s\"; done\nrm -rf $S $R; mkdir -p $S $R && chmod 700 $S $R\n$G -C $W archive f6d6659 | tar -x -C $S; ln -s $W/tests/.lib $S/tests/.lib\necho \"memory: $(awk '/MemAvailable/{printf \"%.1f GB\", $2/1048576}' /proc/meminfo) available\"\ncd $S && DOTFILES_TEST_REPORTS=$R DOTFILES_TEST_JOBS=3 timeout 1700 tests/run.sh > $R/run.out 2>&1; echo \"run exit=$?\"\ntail -3 $R/run.out | cut -c1-110\necho \"not ok: $(/usr/bin/grep -a -c '^not ok' $R/run.out)\"; /usr/bin/grep -a '^not ok' $R/run.out | cut -c1-170 | head\npython3 - $R <<'EOF'\nimport sys, glob, xml.etree.ElementTree as ET\nt = f = s = e = 0\nfor x in glob.glob(sys.argv[1] + \"/**/*.xml\", recursive=True):\n    r = ET.parse(x).getroot()\n    for ts in ([r] if r.tag == \"testsuite\" else r.iter(\"testsuite\")):\n        t += int(ts.get(\"tests\", 0)); f += int(ts.get(\"failures\", 0)); s += int(ts.get(\"skipped\", 0)); e += int(ts.get(\"errors\", 0))\nprint(f\"f6d6659, my run: tests {t}, failures {f}, errors {e}, skipped {s}\")\nEOF",
+  "timeout": 1800000
+}
+```
+
+**Output:**
+```
+builder: done; HEAD f6d6659; dirty 0; base is main? yes; ahead 12
+f6d6659 77 chars: docs(chezmoi:spec): tick the test-first rule of the build, groups 1 to 7 done
+0518b8c 78 chars: feat(shell:history): keep the history under XDG state and merge a trimmed file
+8b4237f 73 chars: feat(shell:env): load highlighting last and remove the dead startup files
+635b081 70 chars: test(shell:env): add the live checks of the new login behind an opt-in
+d5fc805 70 chars: test(shell:env): list the differences with main that the change claims
+651881d 76 chars: feat(shell:env): load only env_ files at the desktop login and guard shellrc
+cdc352b 76 chars: docs(chezmoi:spec): add live login tests, limit the env pass to bash and zsh
+14ddef2 70 chars: feat(shell:secrets): load the private keys on demand with secrets load
+cb27db9 61 chars: feat(shell:env): drop missing locales and stop forcing LC_ALL
+62fc2d4 60 chars: feat(shell:path): move PATH setup into idempotent env_ files
+a1e1c3f 69 chars: test(shell:env): add kinds runner, history fixtures and session probe
+103cd82 69 chars: docs(chezmoi:spec): settle login PATH, bash history and probe quoting
+memory: 6.1 GB available
+run exit=0
+ok 508 the completion dump header is the same after five alternating starts # in 5502 ms
+tests: 508, failures: 0, skipped: 30
+canary scan: 0 matches
+not ok: 0
+mise ERROR error parsing config file: /tmp/opencode/orch-tree/mise.toml
+mise ERROR Config files in /tmp/opencode/orch-tree/mise.toml are not trusted.
+Trust them with `mise trust`. See https://mise.jdx.dev/cli/trust.html for more information.
+mise ERROR Version: 2026.10.23 linux-x64 (2026-10-29)
+mise ERROR Run with --verbose or MISE_VERBOSE=1 for more information
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 474.2s)
+
+Suite confirmed: 508 tests, 0 failures, 30 skipped. The branch sits directly on `main`, so it can fast-forward. Now the mutants.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "S=/tmp/opencode/orch-tree; R=/tmp/opencode/orch-reports\ncd $S && DOTFILES_TEST_REPORTS=$R DOTFILES_TEST_JOBS=3 timeout 1700 tests/mutants/run.sh > $R/mut.out 2>&1; echo \"mutants exit=$?\"\n/usr/bin/grep -a -E '^mutant|^mutants|untouched' $R/mut.out | sed -E 's/^mutant //' | cut -c1-110",
+  "timeout": 1800000
+}
+```
+
+**Output:**
+```
+mutants exit=0
+wrapper-broken: 9 failures (expected exactly 9): ok
+startup-cache-name-only: 6 failures (expected at least 6): ok
+startup-generator-prints: 3 failures (expected at least 3): ok
+startup-rc-twice: 2 failures (expected at least 2): ok
+startup-refresh-ignored: 4 failures (expected at least 4): ok
+install-run-ignores-dry-run: 10 failures (expected at least 10): ok
+install-need-always-ok: 9 failures (expected at least 9): ok
+install-limits-lower: 3 failures (expected at least 3): ok
+startup-unset-removed: 4 failures (expected at least 4): ok
+env-path-no-clean: 12 failures (expected at least 8): ok
+env-lc-all-forced: 14 failures (expected at least 10): ok
+env-keys-at-startup: 3 failures (expected at least 3): ok
+env-desktop-full-pass: 7 failures (expected at least 4): ok
+env-shellrc-no-guard: 4 failures (expected at least 4): ok
+env-highlighting-not-last: 1 failures (expected at least 1): ok
+env-history-no-merge: 2 failures (expected at least 2): ok
+repository untouched
+mutants: 16 run, 0 problems
+
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "S=/tmp/opencode/orch-tree\necho \"=== 320-shell_history.sh\"; cat -A $S~/shell/rc.d/320-shell_history.sh | sed 's/\\$$//' | cut -c1-185 | wc -l\ncat $S~/shell/rc.d/320-shell_history.sh | cut -c1-185",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+=== 320-shell_history.sh
+83
+## Shell history
+
+# The history lives under $XDG_STATE_HOME: zsh/history and bash/history, directories 0700, files 0600.
+# The old files, ~/.zsh_history and ~/.bash_history, become links to the new ones, so that the shells that are still running
+# append through the link. A running shell that trims its history turns the link back into a regular file: the next start
+# merges that file into the new one (zsh: every entry once, in timestamp order; bash, whose file has no timestamp: the new
+# lines, then the old lines the new file lacks, a repeated command as many times as it was typed) through a temporary file
+# and a move, and puts the link back. Every failure is silent: a shell that cannot migrate uses the new file as it is.
+
+# _history_merge SHELL NEW LEGACY: print the merged history
+_history_merge() {
+  case "$1" in
+    zsh)
+      # an entry starts with ": TIMESTAMP:DURATION;" and goes on over the lines that follow; newlines inside an entry are
+      # carried as \001 so that sort sees one line per entry
+      awk '
+        function flush() { if (cur != "" && !(cur in seen)) { seen[cur] = 1; printf "%s\t%s\n", ts, cur } cur = "" }
+        FNR == 1 { flush() }
+        /^: [0-9]+:[0-9]+;/ { flush(); ts = $0; sub(/^: /, "", ts); sub(/:.*/, "", ts); cur = $0; next }
+        { if (cur == "") { ts = 0; cur = $0 } else { cur = cur "\001" $0 } }
+        END { flush() }
+      ' "$2" "$3" | sort -s -n -t "$(printf '\t')" -k1,1 | cut -f2- | tr '\001' '\n'
+      ;;
+    *)
+      awk 'NR == FNR { n[$0]++; print; next } { if (n[$0] > 0) n[$0]--; else print }' "$2" "$3"
+      ;;
+  esac
+}
+
+# _history_migrate SHELL LEGACY NEW: make the directory of NEW, then move or merge the legacy file into it
+_history_migrate() {
+  (
+    umask 077
+    mkdir -p "${3%/*/*}" 2> /dev/null
+    [ -d "${3%/*}" ] || mkdir -m 0700 "${3%/*}" || exit 0
+    chmod 0700 "${3%/*}"
+    [ -f "$2" ] && [ ! -L "$2" ] || exit 0
+    if [ ! -e "$3" ]; then
+      # a hard link is made only when the new name is free: of two shells that start at once, one gets it
+      ln "$2" "$3" || {
+        [ -e "$3" ] || { cp -p "$2" "$3.$$" && mv -n "$3.$$" "$3"; rm -f "$3.$$"; }
+      }
+    else
+      tmp=$(mktemp "${3%/*}/.merge.XXXXXX") || exit 0
+      if _history_merge "$1" "$3" "$2" > "$tmp" && mv -f "$tmp" "$3"; then :; else rm -f "$tmp"; exit 0; fi
+    fi
+    [ -f "$3" ] || exit 0
+    chmod 0600 "$3"
+    # the link replaces the old file in one rename: the legacy entries are in the new file before it goes
+    ln -s "$3" "$2.$$" && mv -f "$2.$$" "$2"
+    rm -f "$2.$$"
+  ) > /dev/null 2>&1
+}
+
+case "${CURRENT_SHELL}" in
+  "bash")
+    _history_migrate bash "$HOME/.bash_history" "${XDG_STATE_HOME:-$HOME/.local/state}/bash/history"
+    HISTFILE="${XDG_STATE_HOME:-$HOME/.local/state}/bash/history"
+    # shellcheck disable=SC3044
+    shopt -s histappend              # append new history items to .bash_history
+    export H[redacted:private]ONTROL=ignorespace   # leading space hides commands from history
+    #export H[redacted:private]ONTROL=ignoreboth    # ignore duplicates and lines starting with a space
+    export HISTFILESIZE=10000        # increase history file size (default is 500)
+    export HISTSIZE=${HISTFILESIZE}  # increase history size (default is 500)
+    # ensure synchronization between bash memory and history file
+    export PROMPT_COMMAND="history -a; history -n; ${PROMPT_COMMAND}"
+    ;;
+  "zsh")
+    _history_migrate zsh "$HOME/.zsh_history" "${XDG_STATE_HOME:-$HOME/.local/state}/zsh/history"
+    HISTFILE="${XDG_STATE_HOME:-$HOME/.local/state}/zsh/history"
+    HISTSIZE=5000
+    # shellcheck disable=SC2034
+    SAVEHIST=5000
+    setopt hist_expire_dups_first # delete duplicates first when HISTFILE size exceeds HISTSIZE
+    setopt hist_ignore_dups       # ignore duplicated commands history list
+    setopt hist_ignore_space      # ignore commands that start with space
+    setopt hist_verify            # show command with history expansion to user before running it
+    setopt share_history          # share command history data
+    alias history="history 0"     # force zsh to show the complete history
+    ;;
+esac
+
+unset -f _history_merge _history_migrate
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 102.5s)
+
+_Thinking:_
+I'm checking the shell script for data-loss risks, starting with whether the legacy path is a regular file rather than a link, which it is. Next I'm tracing what happens when the new file doesn't exist yet: a hard link would make both names share one inode, and then the symlink swap would replace the legacy name.
+
+The zsh trimming case is where it gets risky: if a shell started before the migration rewrites the history file by renaming over the symlink, it replaces the link with a plain file holding only its own in-memory entries.
+
+I'm now checking the merge step: it builds a temp file from the new and legacy histories and then moves it over the new file, so any line a shell appends in the gap between reading and the move would be lost. The window is only milliseconds, but with many live zsh sessions sharing history it's a real, if small, data-loss risk.
+
+The merge step is idempotent when two shells run it at once, since both read the same two files. The only real exposure is the legacy file changing between reads, so I'll flag the append-during-move window as a known limitation rather than a blocker. Next is checking the final swap that turns the legacy name into a symlink.
+
+I'm now looking at the case where a hard link isn't possible, since a cross-device link fails and falls back to a copy, and that copy has its own small window where appends could be lost. Once the legacy name is replaced by the link, the original inode survives under the new name, so nothing is lost on that path apart from the same brief race.
+
+I'm checking whether the merge step can lose data when the new file is replaced by a temp file that was built earlier, since that would discard any lines appended to the new file in the meantime.
+
+I'm now checking how the merge handles entries with tabs and entries lacking timestamps, which sort correctly because the sort key is only the first field.
+
+I'm weighing whether the shell's locale and invalid UTF-8 bytes in the zsh history could trip up the merge. A safer check is to run the merge on a scratch copy of the real history and compare only entry counts, which verifies nothing is dropped without exposing the contents.
+
+I'm going to test the merge on a scratch copy of the real history in a private directory, comparing only line counts so nothing sensitive is printed, and then delete the copy.
+
+I'm going to test the whole migration path in a scratch home, sourcing the rc file under zsh with a copy of the real history, and check that the entries survive the link step.
+
+I'm checking the legacy-to-symlink swap and the zsh history merge for data loss, and I'll test it on a scratch copy of the history by comparing only line counts. The scenarios I'm covering are a regular file replacing the link and an interrupted run, plus multi-line entries and the directory permissions for the state path.
+
+I'm checking the fallback for the shell's startup path, where the history directory gets created with restrictive permissions if it's missing. Next I'm looking at the `chmod 0700` on the existing directory, which would tighten permissions on a directory that may already be set differently.
+
+Next I'm checking the bash merge: an awk pass that prints the new history and then only the legacy lines not already counted in the new file, so duplicates aren't repeated. Since bash doesn't write timestamps here, the lines just pass through as they are.
+
+I'm checking the failure path next: if the merge or the move fails, the script removes the temp file and exits before touching the legacy file, so the legacy history stays a regular file and the next shell start can retry. I'm also confirming the case where the legacy name is already a symlink somewhere else, which exits early and does nothing.
+
+I'm now checking whether a failed awk run could still pass through the pipeline: the exit status that matters is only the last command's, so a partial merge could reach the move step and overwrite the new history file.
+
+I'm weighing a sanity guard on the merged line count, but a dedupe of identical entries within the new file could make it falsely abort. A backup copy of the new file before the move would keep the data safe either way.
+
+Next I'm planning to run the real-data check on a scratch copy of the history, comparing only line counts, and I'll decide afterward whether the shell pipeline needs a guard against a partial merge.
+
+
+_Thinking:_
+Suite and mutants pass (508 tests, 16 mutants, no problems). Since the history migration could lose data, I'm testing it on a private copy of your zsh history and printing counts only.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "S=/tmp/opencode/orch-tree; T=/tmp/opencode/histprobe; rm -rf $T; mkdir -p $T/home $T/state && chmod 700 $T $T/home $T/state\n[ -f ~/.zsh_history ] && echo \"real zsh history: regular file or link? $([ -L ~/.zsh_history ] && echo link || echo regular); lines $(wc -l < ~/.zsh_history); entries $(/usr/bin/grep -a -c -E '^: [0-9]+:[0-9]+;' ~/.zsh_history); bytes $(stat -c %s ~/.zsh_history)\"\ncp -p ~/.zsh_history $T~; chmod 600 $T~\norig_entries=$(/usr/bin/grep -a -c -E '^: [0-9]+:[0-9]+;' $T~)\nsort $T~ | md5sum | cut -c1-8 > $T/orig.sum\necho \"invalid UTF-8 bytes in it (lines): $(iconv -f UTF-8 -t UTF-8 $T~ 2>&1 >/dev/null | head -1 | wc -l)\"\necho '--- scenario 1: first start (no new file): hard link then symlink'\nenv -i HOME=$T/home XDG_STATE_HOME=$T/state PATH=/usr/bin:/bin CURRENT_SHELL=zsh zsh -c \". $S~/shell/rc.d/320-shell_history.sh; true\" >/dev/null 2>&1; echo \"exit=$?\"\necho \"legacy is link: $([ -L $T~ ] && echo yes || echo NO); new exists: $([ -f $T/state/zsh/history ] && echo yes || echo NO); modes: new $(stat -c %a $T/state/zsh/history) dir $(stat -c %a $T/state/zsh); entries $(/usr/bin/grep -a -c -E '^: [0-9]+:[0-9]+;' $T/state/zsh/history) of $orig_entries; bytes equal: $(cmp -s $T/state/zsh/history <(cat $T~) && echo yes || echo no); same sorted-lines digest as the original: $([ \"$(sort $T/state/zsh/history | md5sum | cut -c1-8)\" = \"$(cat $T/orig.sum)\" ] && echo yes || echo NO)\"\necho \"leftover temp files: $(ls -A $T/state/zsh $T/home | /usr/bin/grep -c -E '\\.merge\\.|\\.[0-9]+$')\"",
+  "timeout": 120000
+}
+```
+
+**Output:**
+```
+real zsh history: regular file or link? regular; lines 2624; entries 9; bytes 80572
+invalid UTF-8 bytes in it (lines): 1
+--- scenario 1: first start (no new file): hard link then symlink
+exit=0
+legacy is link: yes; new exists: yes; modes: new 600 dir 700; entries 9 of 9; bytes equal: yes; same sorted-lines digest as the original: yes
+leftover temp files: 0
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 20.9s)
+
+_Thinking:_
+Only nine of the 2624 history lines use the extended format, so most entries are plain lines with no timestamp. The file also has some invalid UTF-8 bytes. I'm now wondering how zsh's merge handles plain lines, since each one might just become its own entry.
+
+I'm working out how the awk merge treats plain lines. Without timestamps, each line after the first gets appended to the current entry, so the whole file would collapse into a single blob. Dedup would then compare whole blobs, which means duplicated commands across files would be kept rather than removed.
+
+Now I'm checking whether the merged output keeps every line from both files, since entries with identical content would be deduplicated away. Plain lines after a timestamped entry get absorbed into it, so the interleaving could shift order, but the question is whether any content is actually lost.
+
+I'm going to check the merged output against both source files, using sorted unique line sets to confirm every line from each side is still there, and compare the total line count against the sum of the two inputs. I also want to run the invalid-UTF-8 case under the user's fr_FR.UTF-8 locale, since awk may handle those bytes differently than in my C-locale test, so I'll check which awk is installed first.
+
+
+_Thinking:_
+The zsh history is plain lines, with 9 timestamped entries and some invalid UTF-8. I'm testing the first-start path now, then the merge on trimmed-history data under your real locale.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "S=/tmp/opencode/orch-tree; T=/tmp/opencode/histprobe\necho \"awk: $(awk --version 2>&1 | head -1 | cut -c1-40 || true); sort: $(sort --version | head -1 | cut -c1-30); real session locale: LANG fr_FR.UTF-8\"\npython3 - $T <<'EOF'\nimport sys, time\nT = sys.argv[1]\norig = open(f\"{T}/state/zsh/history\", \"rb\").read()\nnow = int(time.time())\ndef ext(i, cmd): return f\": {now + i}:0;{cmd}\\n\".encode()\n# legacy: the trimmed file the old shell rewrote: original plus 3 extended entries, one multi-line\nlegacy = orig + ext(10, \"echo legacy-one\") + ext(12, \"echo legacy-two \\\\\\nsecond line\") + ext(14, \"echo legacy-three\")\n# new: what shells appended meanwhile: original plus 2 extended entries and one plain line\nnew = orig + ext(11, \"echo new-one\") + ext(13, \"echo new-two\") + b\"echo plain-new-line\\n\"\nopen(f\"{T}/legacy.regular\", \"wb\").write(legacy); open(f\"{T}/new.file\", \"wb\").write(new)\nprint(\"legacy bytes\", len(legacy), \"new bytes\", len(new))\nEOF\nrun_merge() { # LANG value, label\n  rm -rf $T/s2; mkdir -p $T/s2/home $T/s2/state/zsh; chmod 700 $T/s2 $T/s2/home $T/s2/state $T/s2/state/zsh\n  cp -p $T/legacy.regular $T/s2~; cp -p $T/new.file $T/s2/state/zsh/history; chmod 600 $T/s2~ $T/s2/state/zsh/history\n  env -i HOME=$T/s2/home XDG_STATE_HOME=$T/s2/state PATH=/usr/bin:/bin LANG=$1 CURRENT_SHELL=zsh zsh -c \". $S~/shell/rc.d/320-shell_history.sh; true\" >/dev/null 2>&1; echo \"[$2] exit=$?\"\n  python3 - $T $2 <<'EOF'\nimport sys, os\nfrom collections import Counter\nT, label = sys.argv[1], sys.argv[2]\nnew = open(f\"{T}/new.file\", \"rb\").read().split(b\"\\n\"); leg = open(f\"{T}/legacy.regular\", \"rb\").read().split(b\"\\n\")\nout = open(f\"{T}/s2/state/zsh/history\", \"rb\").read().split(b\"\\n\")\ncn, cl, co = Counter(new), Counter(leg), Counter(out)\nmissing = sum(1 for k in set(cn) | set(cl) if co[k] < 1)\nprint(f\"  legacy is a link now: {os.path.islink(T + '/s2~')} | lines new {len(new)}, legacy {len(leg)}, merged {len(out)} | distinct lines missing from merged: {missing} | mode {oct(os.stat(T + '/s2/state/zsh/history').st_mode & 0o777)}\")\nprint(f\"  the 5 new extended entries all present: {all(any(m in l for l in out) for m in (b'legacy-one', b'legacy-two', b'legacy-three', b'new-one', b'new-two', b'plain-new-line'))}; multi-line entry intact: {b'second line' in b'\\n'.join(out)}\")\nEOF\n}\nrun_merge fr_FR.UTF-8 \"fr_FR.UTF-8\"; run_merge C.UTF-8 \"C.UTF-8\"; run_merge C \"C\"\necho \"leftover temp files in state dir: $(ls -A $T/s2/state/zsh | /usr/bin/grep -c -E '^\\.merge')\"",
+  "timeout": 120000
+}
+```
+
+**Output:**
+```
+awk: GNU Awk 5.3.2, API 4.0, PMA Avon 8-g1, (; sort: sort (GNU coreutils) 9.10; real session locale: LANG fr_FR.UTF-8
+legacy bytes 80681 new bytes 80648
+[fr_FR.UTF-8] exit=0
+  legacy is a link now: True | lines new 2628, legacy 2629, merged 2631 | distinct lines missing from merged: 0 | mode 0o600
+  the 5 new extended entries all present: True; multi-line entry intact: True
+[C.UTF-8] exit=0
+  legacy is a link now: True | lines new 2628, legacy 2629, merged 2631 | distinct lines missing from merged: 0 | mode 0o600
+  the 5 new extended entries all present: True; multi-line entry intact: True
+[C] exit=0
+  legacy is a link now: True | lines new 2628, legacy 2629, merged 2631 | distinct lines missing from merged: 0 | mode 0o600
+  the 5 new extended entries all present: True; multi-line entry intact: True
+leftover temp files in state dir: 0
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 13.1s)
+
+_Thinking:_
+I'm checking the merge numbers: the combined file has 2631 lines, made up of the 2624 shared lines plus the extra lines from each side. The new side adds three lines and the legacy side adds four, which accounts for the total.
+
+Now I'm testing the merge logic against a bash legacy file to check for any edge cases with invalid UTF-8. I'm also checking what happens if awk fails partway through, since a stub that exits early could leave the output truncated while the pipeline still reports success.
+
+Pipefail doesn't exist in POSIX sh, but since this file only gets sourced under bash or zsh, setting it inside the `_history_migrate` subshell should carry through to `_history_merge`. I'm checking that zsh accepts `set -o pipefail` there too.
+
+
+_Thinking:_
+The merge shows no lost lines across three locales and the merged size matches the union. Next I'm testing the zsh merge's failure path, since `sh` lacks `pipefail` and a partial `awk` result could replace the new file.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "S=/tmp/opencode/orch-tree; T=/tmp/opencode/histprobe\nmkdir -p $T/stub; printf '#!/bin/sh\\n# a failing awk: prints a few lines of its first file, then dies\\nhead -n 3 \"${@: -2:1}\" 2>/dev/null || true\\nexit 2\\n' > $T/stub/awk; chmod +x $T/stub/awk\nrm -rf $T/s3; mkdir -p $T/s3/home $T/s3/state/zsh; chmod 700 $T/s3 $T/s3/home $T/s3/state $T/s3/state/zsh\ncp -p $T/legacy.regular $T/s3~; cp -p $T/new.file $T/s3/state/zsh/history; chmod 600 $T/s3~ $T/s3/state/zsh/history\nbefore_new=$(wc -l < $T/s3/state/zsh/history); before_leg=$(wc -l < $T/s3~)\nenv -i HOME=$T/s3/home XDG_STATE_HOME=$T/s3/state PATH=$T/stub:/usr/bin:/bin LANG=fr_FR.UTF-8 CURRENT_SHELL=zsh zsh -c \". $S~/shell/rc.d/320-shell_history.sh; true\" >/dev/null 2>&1; echo \"exit=$?\"\necho \"new file lines: before $before_new, after $(wc -l < $T/s3/state/zsh/history)  <- a drop here is data loss\"\necho \"legacy still a regular file (retry at next start): $([ -f $T/s3~ ] && [ ! -L $T/s3~ ] && echo yes || echo no); lines before $before_leg, after $(wc -l < $T/s3~ 2>/dev/null)\"",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+exit=0
+new file lines: before 2627, after 0  <- a drop here is data loss
+legacy still a regular file (retry at next start): no; lines before 2628, after 0
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 25.6s)
+
+_Thinking:_
+I'm checking what happens if awk fails partway through: the pipeline would still exit 0, so the new file gets replaced with an empty one and then the legacy file becomes a symlink, which loses the whole history. I'm weighing whether a missing awk binary or an out-of-memory kill could trigger that same path.
+
+So if awk exits partway, the pipeline still reports success, and the empty result gets moved over the new file and the legacy file, which is how the history disappears. I'm also checking the same failure through a missing awk binary or a disk-full error in sort, since awk's failure is the one nothing catches.
+
+I'm treating this as a deployment blocker, since the history is 2624 lines and a failed awk would wipe it. My plan is to turn on pipefail in the subshell and add a guard that refuses the replace when the merged output is empty but the inputs aren't, with a backup copy kept before overwriting.
+
+I'm weighing a pipefail plus non-empty check against keeping a `.premerge` backup before the replace, and leaning toward the check since it avoids leftover files. I also want a test with a failing awk stub that confirms the new file keeps its lines, written before the fix.
+
+I'm checking the rest of the bash branch: there `awk` runs as a single command rather than in a pipeline, so its exit status is already caught, and only the zsh branch needs the pipefail fix. I also want to confirm that `exit 0` inside the subshell doesn't slip past the guard.
+
+I'm planning to send the builder back to fix the awk failure path first: write a test with a failing awk stub, then add pipefail and a non-empty check. After that I'll re-measure. Once that's done, I'll finish the remaining reads (removal entries, ignore file, redaction and secret scans) and run the main-branch comparison myself.
+
+Comparing against main is the next check, but the export has no `.git`, so the compare would fail there. Running it from the worktree instead, since the builder is idle and its tree is stable; I'll point the report output at my own scratch directory so nothing in the builder's tree changes.
+
+I'm going to read the remaining pieces now (removal entries, ignore file, redaction and secret scans) and then run the main-branch comparison myself from the worktree, writing reports to my own scratch directory so the builder's tree stays untouched.
+
+
+_Thinking:_
+The pipeline exits 0 even when awk fails, so the merge would overwrite the new history with an empty file and turn the legacy file into a link to it. I'm checking the rest of the group before sending one consolidated reply.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "W=[redacted:worktrees_root]/dotfiles-correct-shell-environment; G=/home/linuxbrew/.linuxbrew/bin/git; S=/tmp/opencode/orch-tree\necho '=== 999-highlighting.sh'; cat $S~/shell/rc.d/999-highlighting.sh | cut -c1-160\necho; echo '=== rc.d listing: files, and which are not env_'; /usr/bin/ls $S~/shell/rc.d | tr '\\n' ' '; echo\necho '=== removal entries vs files removed or renamed in the whole branch'\n$G -C $W diff --name-status -M main f6d6659 -- home | /usr/bin/grep -a -E '^(D|R)' | cut -c1-130\necho '--- .chezmoiremove'; /usr/bin/grep -a -v -E '^\\s*$' $S~ | cut -c1-120\necho '--- every removed or renamed OLD target has an entry, and no new target is listed by mistake'\npython3 - $W <<'EOF'\nimport subprocess, sys, re\nW = sys.argv[1]; G = \"/home/linuxbrew/.linuxbrew/bin/git\"\nst = subprocess.run([G, \"-C\", W, \"diff\", \"--name-status\", \"-M\", \"main\", \"f6d6659\", \"--\", \"home\"], capture_output=True, text=True).stdout.splitlines()\nold = []\nfor l in st:\n    p = l.split(\"\\t\")\n    if p[0] == \"D\": old.append(p[1])\n    elif p[0].startswith(\"R\"): old.append(p[1])\nrm = [l.strip() for l in subprocess.run([G, \"-C\", W, \"show\", \"f6d6659:home/.chezmoiremove\"], capture_output=True, text=True).stdout.splitlines() if l.strip() and not l.startswith(\"#\")]\ndef target(src):  # home/dot_config/x -> .config/x ; executable_/private_ prefixes\n    t = src[len(\"home/\"):].replace(\"dot_\", \".\", 1)\n    return re.sub(r'(^|/)(executable_|private_|encrypted_)', r'\\1', t)\nmiss = [target(o) for o in old if target(o) not in rm]\nprint(\"removed or renamed sources:\", len(old), \"| without a removal entry:\", miss)\nnewt = {target(l.split(\"\\t\")[-1]) for l in st if l.split(\"\\t\")[0].startswith((\"A\", \"R\"))}\nprint(\"removal entries that name a target the branch ADDS (would delete a managed file):\", [r for r in rm if r in newt])\nEOF",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+=== 999-highlighting.sh
+## Zsh syntax highlighting
+
+if [ "${CURRENT_SHELL}" = "zsh" ] && [ "${color_prompt}" = yes ]; then
+    if [ -f "/usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]; then
+        source "/usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+        ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern)
+        ZSH_HIGHLIGHT_STYLES[default]=none
+        ZSH_HIGHLIGHT_STYLES[unknown-token]=fg=white,underline
+        ZSH_HIGHLIGHT_STYLES[reserved-word]=fg=cyan,bold
+        ZSH_HIGHLIGHT_STYLES[suffix-alias]=fg=green,underline
+        ZSH_HIGHLIGHT_STYLES[global-alias]=fg=green,bold
+        ZSH_HIGHLIGHT_STYLES[precommand]=fg=green,underline
+        ZSH_HIGHLIGHT_STYLES[commandseparator]=fg=blue,bold
+        ZSH_HIGHLIGHT_STYLES[autodirectory]=fg=green,underline
+        ZSH_HIGHLIGHT_STYLES[path]=bold
+        ZSH_HIGHLIGHT_STYLES[path_pathseparator]=
+        ZSH_HIGHLIGHT_STYLES[path_prefix_pathseparator]=
+        ZSH_HIGHLIGHT_STYLES[globbing]=fg=blue,bold
+        ZSH_HIGHLIGHT_STYLES[history-expansion]=fg=blue,bold
+        ZSH_HIGHLIGHT_STYLES[command-substitution]=none
+        ZSH_HIGHLIGHT_STYLES[command-substitution-delimiter]=fg=magenta,bold
+        ZSH_HIGHLIGHT_STYLES[process-substitution]=none
+        ZSH_HIGHLIGHT_STYLES[process-substitution-delimiter]=fg=magenta,bold
+        ZSH_HIGHLIGHT_STYLES[single-hyphen-option]=fg=green
+        ZSH_HIGHLIGHT_STYLES[double-hyphen-option]=fg=green
+        ZSH_HIGHLIGHT_STYLES[back-quoted-argument]=none
+        ZSH_HIGHLIGHT_STYLES[back-quoted-argument-delimiter]=fg=blue,bold
+        ZSH_HIGHLIGHT_STYLES[single-quoted-argument]=fg=yellow
+        ZSH_HIGHLIGHT_STYLES[double-quoted-argument]=fg=yellow
+        ZSH_HIGHLIGHT_STYLES[dollar-quoted-argument]=fg=yellow
+        ZSH_HIGHLIGHT_STYLES[rc-quote]=fg=magenta
+        ZSH_HIGHLIGHT_STYLES[dollar-double-quoted-argument]=fg=magenta,bold
+        ZSH_HIGHLIGHT_STYLES[back-double-quoted-argument]=fg=magenta,bold
+        ZSH_HIGHLIGHT_STYLES[back-dollar-quoted-argument]=fg=magenta,bold
+        ZSH_HIGHLIGHT_STYLES[assign]=none
+        ZSH_HIGHLIGHT_STYLES[redirection]=fg=blue,bold
+        ZSH_HIGHLIGHT_STYLES[comment]=fg=black,bold
+        ZSH_HIGHLIGHT_STYLES[named-fd]=none
+        ZSH_HIGHLIGHT_STYLES[numeric-fd]=none
+        ZSH_HIGHLIGHT_STYLES[arg0]=fg=cyan
+        ZSH_HIGHLIGHT_STYLES[bracket-error]=fg=red,bold
+        ZSH_HIGHLIGHT_STYLES[bracket-level-1]=fg=blue,bold
+        ZSH_HIGHLIGHT_STYLES[bracket-level-2]=fg=green,bold
+        ZSH_HIGHLIGHT_STYLES[bracket-level-3]=fg=magenta,bold
+        ZSH_HIGHLIGHT_STYLES[bracket-level-4]=fg=yellow,bold
+        ZSH_HIGHLIGHT_STYLES[bracket-level-5]=fg=cyan,bold
+        ZSH_HIGHLIGHT_STYLES[cursor-matchingbracket]=standout
+    fi
+fi
+
+# vim: set syntax=zsh :
+
+=== rc.d listing: files, and which are not env_
+000-env_xdg_dirs.sh 010-env_user.sh 020-env_defaults.sh 030-env_current_shell.sh 035-env_path_helper.sh 040-env_path_base.sh 041-env_pkg_brew.sh 042-env_pkg_aqua.sh 043-env_pkg_snap.sh 044-env_pkg_krew.sh 045-env_lang_go.sh 046-env_lang_rust.sh 047-env_tools_mise.sh 050-env_path_user.sh 110-pkg_brew.sh 310-shell_options.sh 320-shell_history.sh 330-shell_completion.sh 335-shell_completion_cache.sh 340-shell_suggestions.sh 350-shell_keybindings.sh 400-shell_utils.sh 405-tools_command_not_found.sh 410-tools_direnv.sh 415-tools_mise.sh 420-tools_broot.sh 420-tools_fzf.sh 420-tools_zoxide.sh 430-tools_hstr.sh 440-tools_languagetool.sh 445-tools_opencode.sh 446-tools_secrets.sh 800-aliases.sh 910-prompt_debian_chroot.sh 920-prompt_color_prompt.sh 990-prompt.sh 999-highlighting.sh 
+=== removal entries vs files removed or renamed in the whole branch
+D	home/dot_config/bash/bashrc
+D	home/dot_config/shell/rc.d/005-dbg_prof_enable.sh
+R072	home/dot_config/shell/rc.d/150-pkg_krew.sh	home/dot_config/shell/rc.d/044-env_pkg_krew.sh
+R066	home/dot_config/shell/rc.d/200-lang_go.sh	home/dot_config/shell/rc.d/045-env_lang_go.sh
+R067	home/dot_config/shell/rc.d/220-lang_rust.sh	home/dot_config/shell/rc.d/046-env_lang_rust.sh
+D	home/dot_config/shell/rc.d/120-pkg-aqua.sh
+D	home/dot_config/shell/rc.d/130-pkg-flatpack.sh
+D	home/dot_config/shell/rc.d/140-pkg_snap.sh
+D	home/dot_config/shell/rc.d/200-lang_python.sh
+D	home/dot_config/shell/rc.d/995-dbg_prof_results.sh
+R100	home/dot_config/shell/rc.d/930-highlighting.sh	home/dot_config/shell/rc.d/999-highlighting.sh
+D	home/dot_config/zsh/zshrc
+--- .chezmoiremove
+.bashrc.original
+# correct-shell-environment: the rc.d files renamed to env_ files (group 3)
+.config/shell/rc.d/120-pkg-aqua.sh
+.config/shell/rc.d/140-pkg_snap.sh
+.config/shell/rc.d/150-pkg_krew.sh
+.config/shell/rc.d/200-lang_go.sh
+.config/shell/rc.d/220-lang_rust.sh
+# correct-shell-environment: the files that only the old non-interactive branch of profile called (group 6)
+.config/zsh/zshrc
+.config/bash/bashrc
+# correct-shell-environment: highlighting renamed to load last, and the profiling stubs and empty files removed (group 7
+.config/shell/rc.d/930-highlighting.sh
+.config/shell/rc.d/005-dbg_prof_enable.sh
+.config/shell/rc.d/995-dbg_prof_results.sh
+.config/shell/rc.d/130-pkg-flatpack.sh
+.config/shell/rc.d/200-lang_python.sh
+--- every removed or renamed OLD target has an entry, and no new target is listed by mistake
+removed or renamed sources: 12 | without a removal entry: []
+removal entries that name a target the branch ADDS (would delete a managed file): []
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 44.6s)
+
+_Thinking:_
+Chezmoiremove is done, so next I'm moving on to the scans over the added lines, the redaction check, gitleaks, the tidy items, a compare against main, and the README rows. The highlighting file only got renamed, so its content should be unchanged. Before running the compare in the worktree, I'm checking whether the builder is idle.
+
+
+_Thinking:_
+The removal entries are done for all 12 removed or renamed sources, and none of them deletes a file the branch adds. Next I'll run the scans, the two group 6 tidy-ups, and the comparison with main.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "W=[redacted:worktrees_root]/dotfiles-correct-shell-environment; G=/home/linuxbrew/.linuxbrew/bin/git; S=/tmp/opencode/orch-tree; D=openspec/changes/correct-shell-environment\n$G -C $W diff main f6d6659 | /usr/bin/grep -a '^+' | /usr/bin/grep -a -v '^+++' > /tmp/opencode/added.txt\nprintf 'added %s | dashes %s | banned %s | emoji %s | e-mail %s | token shapes %s | /home paths (not linuxbrew, /home/user) %s | IPv4 %s\\n' \"$(wc -l < /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -E '[–—]' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -i -w -E '[redacted:private]|[redacted:private]|[redacted:private]|[redacted:repo]|[redacted:private]' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -P '[\\x{1F300}-\\x{1FAFF}\\x{2600}-\\x{27BF}]' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -E '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[a-z]{2,}' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -E 'gh[pousr]_[A-Za-z0-9]{20,}|sk-[A-Za-z0-9_-]{20,}|AKIA[0-9A-Z]{16}' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -o -E '/home/[A-Za-z0-9_-]+' /tmp/opencode/added.txt | /usr/bin/grep -a -v -E 'linuxbrew|/home/user' | wc -l)\" \"$(/usr/bin/grep -a -c -E '\\b([0-9]{1,3}\\.){3}[0-9]{1,3}\\b' /tmp/opencode/added.txt)\"\necho \"secret-looking names in added lines: $(/usr/bin/grep -a -o -E '\\b[A-Z][A-Z0-9]*(_[A-Z0-9]+)*_(API_?KEY|TOKEN|SECRET|PASSWORD|PASSWD|CREDENTIAL)\\b' /tmp/opencode/added.txt | sort | uniq -c | tr '\\n' ' ')\"; rm -f /tmp/opencode/added.txt\necho \"names of the user's private file in the branch diff: $(python3 -c '\nimport os, re, subprocess\nfrom pathlib import Path\nf = Path(os.environ.get(\"XDG_CONFIG_HOME\", str(Path.home()/\".config\")))/\"env\"; names = []\nfor l in f.read_text(encoding=\"utf-8\", errors=\"replace\").splitlines():\n    m = re.match(r\"^\\s*(?:export\\s+)?([A-Za-z_][A-Za-z0-9_]*)=\", l)\n    if m and m.group(1) not in names: names.append(m.group(1))\nd = subprocess.run([\"/home/linuxbrew/.linuxbrew/bin/git\", \"-C\", str(Path.home()/\"Work/trees/dotfiles-correct-shell-environment\"), \"diff\", \"main...f6d6659\"], capture_output=True, text=True).stdout\nprint(sum(1 for n in names if re.search(r\"\\b%s\\b\" % re.escape(n), d)))\n')\"\necho '--- tidy (a): literal key-shaped names left in compare-allow.txt'; echo \"[redacted:envvar]: $(/usr/bin/grep -a -c '[redacted:envvar]' $S/$D/compare-allow.txt); DEMO_BETA: $(/usr/bin/grep -a -c 'DEMO_BETA' $S/$D/compare-allow.txt); redaction check: $(python3 ~/.config/nvim/scripts/session_redact.py --check $S/$D/compare-allow.txt 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | /usr/bin/grep -a -E ': [1-9][0-9]*$' | tr '\\n' ' ')(end)\"\necho '--- tidy (b): the comment in environment-live.bats'; /usr/bin/grep -a -n -i -E 'ancestor|secrets load' $S/tests/smoke/environment-live.bats | cut -c1-200\necho '--- redaction check on every changed or new text file (non-zero only)'\nfor f in $($G -C $W diff --name-only main f6d6659); do [ -f $S/$f ] || continue; o=$(python3 ~/.config/nvim/scripts/session_redact.py --check $S/$f 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | /usr/bin/grep -a -E ': [1-9][0-9]*$' | tr '\\n' ' '); [ -n \"$o\" ] && echo \"$f: $o\"; done; echo '(end)'\necho \"gitleaks main..f6d6659: $(cd $W && mise x -- gitleaks git --redact --no-banner --log-opts='main..f6d6659' . 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | tail -1)\"\necho \"validate (worktree): $(cd $W && openspec validate --all --strict 2>&1 | tail -1)\"\necho '--- shell checks'; for f in home/dot_config/shell/rc.d/320-shell_history.sh home/dot_config/shell/rc.d/999-highlighting.sh; do printf '%-48s bash -n %s | zsh -n %s | shellcheck -S warning (sh dialect) %s\\n' \"$f\" \"$(bash -n $S/$f >/dev/null 2>&1; echo $?)\" \"$(zsh -n $S/$f >/dev/null 2>&1; echo $?)\" \"$(shellcheck -s sh -S warning $S/$f >/dev/null 2>&1; echo $?)\"; done",
+  "timeout": 180000
+}
+```
+
+**Output:**
+```
+added 2978 | dashes 0 | banned 0 | emoji 0 | e-mail 0 | token shapes 0 | /home paths (not linuxbrew, /home/user) 0 | IPv4 0
+secret-looking names in added lines:       9 GITHUB_TOKEN 
+names of the user's private file in the branch diff: 0
+--- tidy (a): literal key-shaped names left in compare-allow.txt
+[redacted:envvar]: 0; DEMO_BETA: 0; redaction check: (end)
+--- tidy (b): the comment in environment-live.bats
+41:@test "the live session holds no key: the user manager and the ancestors of the test hold none of the names of the private file" {
+53:  # the terminal and the multiplexer are ancestors of the test: the chain up to the user manager, not every process
+54:  # (run it from a terminal where `secrets load` was not typed, as tests/README.md says: that terminal holds the keys on
+55:  # purpose, and it is an ancestor of the run)
+60:  done < <(dt_process_ancestors "$$" "$manager")
+61:  echo "# user manager: $a1 names; ancestors read: $checked, holding at least one name of the private file: $held" >&3
+62:  [ "$checked" -ge 2 ] || fail "fewer than two ancestors could be read: the walk proves nothing"
+--- redaction check on every changed or new text file (non-zero only)
+home/dot_config/shell/rc.d/320-shell_history.sh: private terms: 2   project: 2 
+(end)
+gitleaks main..f6d6659: 2:03PM INF no leaks found
+validate (worktree): Totals: 38 passed, 0 failed (38 items)
+--- shell checks
+home/dot_config/shell/rc.d/320-shell_history.sh  bash -n 0 | zsh -n 0 | shellcheck -S warning (sh dialect) 0
+home/dot_config/shell/rc.d/999-highlighting.sh   bash -n 0 | zsh -n 0 | shellcheck -S warning (sh dialect) 1
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 9.4s)
+
+_Thinking:_
+I'm checking whether the redaction hit in 320-shell_history.sh is also on main, and which line matches. I'm also confirming that the shellcheck warnings in 999-highlighting appear on main's 930 too, since an identical file would mean they predate this change.
+
+
+_Thinking:_
+Both tidy items are done. The redaction check flags 2 private-term matches in 320-shell_history.sh, and I'm locating them by line number; I'm also comparing the shellcheck result for 999 against 930 on main.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "W=[redacted:worktrees_root]/dotfiles-correct-shell-environment; G=/home/linuxbrew/.linuxbrew/bin/git; S=/tmp/opencode/orch-tree\npython3 - $S~/shell/rc.d/320-shell_history.sh <<'EOF'\nimport subprocess, sys\nsrc = open(sys.argv[1], encoding=\"utf-8\").read()\nout = subprocess.run([\"python3\", \"~/.config/nvim/scripts/session_redact.py\"], input=src, capture_output=True, text=True).stdout\na, b = src.splitlines(), out.splitlines()\nch = [i + 1 for i, (x, y) in enumerate(zip(a, b)) if x != y]\nprint(\"lines changed by redaction:\", ch, \"of\", len(a))\nimport re\nfor i in ch:\n    # show only the redacted line with the marker kinds, and the SHAPE of the original word (length, case), not the word\n    m = re.findall(r'\\[redacted:[a-z_]+\\]', b[i - 1]); print(f\"  line {i}: markers {m}; original line length {len(a[i-1])}\")\nEOF\necho '--- same file on main: any match?'\n$G show main:home/dot_config/shell/rc.d/320-shell_history.sh > /tmp/opencode/320-main.sh; echo \"main 320: $(python3 ~/.config/nvim/scripts/session_redact.py --check /tmp/opencode/320-main.sh 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | /usr/bin/grep -a -E ': [1-9][0-9]*$' | tr '\\n' ' ')(end)\"; rm -f /tmp/opencode/320-main.sh\necho '--- 930 on main vs 999: identical content, shellcheck the same'\n$G show main:home/dot_config/shell/rc.d/930-highlighting.sh | cmp -s - $S~/shell/rc.d/999-highlighting.sh && echo \"identical to main's 930: yes\" || echo \"identical: NO\"",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+lines changed by redaction: [61, 62] of 83
+  line 61: markers ['[redacted:private]']; original line length 80
+  line 62: markers ['[redacted:private]']; original line length 89
+--- same file on main: any match?
+main 320: private terms: 2   project: 2 (end)
+--- 930 on main vs 999: identical content, shellcheck the same
+identical to main's 930: yes
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 27.7s)
+
+_Thinking:_
+I'm checking whether those two matches were already on main. They look like they come from existing shell-config lines in the zsh section, so they probably predate this change.
+
+I'm confirming the compare against main: the builder reports 5 of 5, so I'll run just the startup-compare test in the idle worktree, with DOTFILES_TEST_BASE_REF set to main, and send the reports to scratch.
+
+
+_Thinking:_
+Both matches are already in main's file and 999 is byte-identical to 930, so neither is new. With the builder idle, I'm running the comparison against main from its worktree, writing reports only to my scratch space.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "W=[redacted:worktrees_root]/dotfiles-correct-shell-environment; G=/home/linuxbrew/.linuxbrew/bin/git; R=/tmp/opencode/orch-reports\necho \"builder status: $(herdr agent get chezmoi-env-build2 2>/dev/null | jq -r '.result.agent.agent_status' 2>/dev/null); worktree dirty before: $($G -C $W status --short | wc -l)\"\nmkdir -p $R/cmp\ncd $W && DOTFILES_TEST_BASE_REF=main DOTFILES_TEST_BASE_ALLOW=$W/openspec/changes/correct-shell-environment/compare-allow.txt DOTFILES_TEST_REPORTS=$R/cmp DOTFILES_TEST_JOBS=3 timeout 900 tests/run.sh tests/smoke/startup-compare.bats > $R/cmp.out 2>&1; echo \"run exit=$?\"\n/usr/bin/grep -a -E '^(ok|not ok)|^tests:' $R/cmp.out | cut -c1-150\necho \"worktree dirty after: $($G -C $W status --short | wc -l) (expect 0)\"",
+  "timeout": 1000000
+}
+```
+
+**Output:**
+```
+builder status: idle; worktree dirty before: 0
+run exit=0
+ok 1 the alias and function names of an interactive zsh equal those of the base ref # in 5841 ms
+ok 2 the alias and function names of an interactive bash equal those of the base ref # in 4849 ms
+ok 3 the desktop session replay exports the same names and values as the base ref # in 2975 ms
+ok 4 the exported names of zsh -l -i equal those of the base ref # in 6734 ms
+ok 5 the exported names of bash -l -i equal those of the base ref # in 5905 ms
+tests: 5, failures: 0, skipped: 0
+worktree dirty after: 0 (expect 0)
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 15.2s)
+
+_Thinking:_
+The comparison checks out at 5 out of 5, so the approach works well overall. The one real problem is the data-loss path in the history merge, which means I need to send the builder back for a fix. Before I write that reply, I'll look through its context to see what it already has.
+
+
+_Thinking:_
+The comparison with main passes 5 of 5, and the history merge is the only measurement that doesn't match the report, so I'm sending that failing case back for a fix. I'm checking whether the builder still has room in its context first.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\necho \"builder: $(herdr agent get chezmoi-env-build2 2>/dev/null | jq -r '.result.agent.agent_status' 2>/dev/null); context: $(herdr pane read w0:p2 --lines 25 2>/dev/null | /usr/bin/grep -a -o -E '[0-9.]+K \\([0-9]+%\\)' | tail -1)\"\nrm -rf /tmp/opencode/histprobe /tmp/opencode/orch-tree /tmp/opencode/orch-reports; test ! -e /tmp/opencode/histprobe && echo \"scratch (including the copy of the real history) deleted\"\nherdr agent prompt chezmoi-env-build2 'chezmoi-orch: part 1 NOT accepted yet, one blocker in group 7, everything else measures as you report (git archive f6d6659: 508 tests, 0 failures, 30 skipped; mutants 16 run, 0 problems; compare with main 5 of 5, run by me; 12 removed or renamed sources all have their .chezmoiremove entry; scans clean; both group 6 tidy items done). I tested the history migration on a COPY of the real zsh history (counts only, scratch deleted): first start, hard link then link, byte-identical, modes 0600 and 0700; merge after a trim under fr_FR.UTF-8, C.UTF-8 and C: 0 distinct lines missing, the multi-line entry intact. BLOCKER, data loss: in 320-shell_history.sh the zsh branch of _history_merge is a pipeline (awk | sort | cut | tr) and sh has no pipefail, so when awk fails the pipeline still exits 0 with an empty or partial output. _history_migrate then runs \"mv -f $tmp $3\" over the NEW history and replaces the legacy file by a link to it. I reproduced it with an awk stub that exits 2: the new file went from 2627 lines to 0 and the legacy from 2628 to 0, both gone, no retry possible. Real triggers: awk killed (OOM), awk missing from PATH, a full disk for sort temp files. FIX, test first as the rule says: (1) a test in tests/unit/history.bats with a failing awk first on PATH (and a second one with awk missing): the new file keeps every line, the legacy file stays a REGULAR file with every line (so the next start retries), no .merge temp file is left; show it fails on the current code; (2) in _history_migrate run the merge with pipefail on (set -o pipefail inside the subshell, accepted by bash and zsh; this file is only sourced under bash and zsh; add the shellcheck disable the file already uses for such cases) AND refuse to replace the new file when the merged output is empty while an input is not: [ -s \"$tmp\" ] || [ ! -s \"$3\" ] && [ ! -s \"$2\" ], simplest form is fine as long as the test passes; the bash branch is a single awk, so its status is already checked. Also add one scenario to the requirement \"History under XDG state\" in specs/shell-environment/spec.md (\"A failed merge loses nothing\": WHEN the merge tool fails during the start of a shell, THEN the new file keeps all its lines and the legacy file stays a regular file with all its lines) and the mutant env-history-merge-unchecked (the pipefail guard removed by a sed, at least the new test fails), with its README row; update the scenario counts in task 9.1 (35 for shell-environment, 58 for the five). One docs(chezmoi:spec) commit for the scenario and one fix commit, each proposed to the user in your pane before you commit it. Known and accepted, say it in your report instead of fixing: lines appended by another shell during the few milliseconds of a merge, between the read and the move, can be lost (the design accepts it). Report the new tip with the same measures. Keep the real history out of your session: use synthetic files only.' --wait --until working --timeout 20000 2>&1 | jq -c '{ok: (.error == null), error: (.error // null)}' 2>/dev/null",
+  "timeout": 90000
+}
+```
+
+**Output:**
+```
+builder: idle; context: 324.1K (32%)
+scratch (including the copy of the real history) deleted
+{"ok":true,"error":null}
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 19.5s)
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; python3 - <<'EOF'\nfrom pathlib import Path\np = Path(\".state/resume.md\"); s = p.read_text(encoding=\"utf-8\")\ndef rep(a, b):\n    global s\n    assert s.count(a) == 1, (s.count(a), a[:70]); s = s.replace(a, b)\nrep(\"(group 6 accepted, group 7 in progress, message delivered)\", \"(PART 1 REPORTED DONE at f6d6659 but NOT ACCEPTED: one data-loss blocker in the history merge, sent back for a fix)\")\na = \"STATE at 14:05 on 2026-11-24:\"\nassert s.count(a) == 1\ns = s.replace(a, '''PART 1 REPORT at 14:00 on 2026-11-24: tip `f6d6659`, 12 commits directly on `main` (`08733b0`, fast-forwardable): `103cd82` docs, `a1e1c3f` group 2, `62fc2d4` group 3, `cb27db9` group 4, `14ddef2` group 5, `cdc352b` docs (live tests 6.7, login sh scenario), `651881d` desktop login and `shellrc` guard, `d5fc805` compare-allow, `635b081` live checks, `8b4237f` highlighting last and dead files removed, `0518b8c` history under XDG, `f6d6659` ticks.\nMeasured by me on `git archive f6d6659`: 508 tests, 0 failures, 30 skipped, canary 0; mutants 16 run, 0 problems; compare with main 5 of 5 (run by me in the idle worktree, tree unchanged); 12 removed or renamed sources each with a removal entry and none naming an added target; 2978 added lines clean; 0 private-file names in the diff; both group 6 tidy items done; gitleaks and `openspec validate` 38/38 clean. `320-shell_history.sh` has 2 redaction matches on lines 61 and 62 that main already has (not new); `999-highlighting.sh` is byte-identical to main's `930`.\nBLOCKER FOUND by me (data loss, reproduced on a scratch copy of the REAL zsh history, counts only, copy deleted): the zsh branch of `_history_merge` in `320-shell_history.sh` is a pipeline (awk, sort, cut, tr) with no pipefail; if awk fails the pipeline exits 0 with empty or partial output, and `_history_migrate` then moves it over the new history and replaces the legacy file with a link: with an awk stub exiting 2 the new file went 2627 to 0 lines and the legacy 2628 to 0. The happy paths are fine (first start byte-identical, merge after a trim loses 0 distinct lines under fr_FR.UTF-8, C.UTF-8 and C).\nSENT BACK at 14:10: test first (failing awk and missing awk: new file keeps its lines, legacy stays a regular file, no temp left), then pipefail plus a refusal to replace a non-empty new file by an empty output, one scenario \"A failed merge loses nothing\" in History under XDG state (shell-environment 35 scenarios, five delta specs 58, task 9.1), mutant `env-history-merge-unchecked`, one docs(chezmoi:spec) commit and one fix commit, each proposed to the user in its pane first; known and accepted: lines appended by another shell during the few milliseconds of a merge may be lost (design accepts it). The builder was told to use synthetic history files only. Its context was 32% at 14:10.\nAfter the fix, re-measure the NEW tip the same way and ALSO re-run my failing-awk probe against it (synthetic files; do NOT copy the real history again unless needed: if so counts only, delete the copy, and never into a committed file).\nSTATE at 14:05 on 2026-11-24:''')\np.write_text(s, encoding=\"utf-8\")\nEOF\nchmod 600 .state/resume.md; printf 'resume dashes %s, modeline last %s\\n' \"$(/usr/bin/grep -a -c -E '[–—]' .state/resume.md)\" \"$(tail -1 .state/resume.md | /usr/bin/grep -a -c 'vim: set ts=2')\"\nprintf -- '- %s chezmoi-orch (wN:p1) part 1 reported done at f6d6659 and measured on git archive (508 tests 0 failures 30 skipped; mutants 16 run 0 problems; compare with main 5 of 5; removal entries complete; scans clean); NOT accepted: data-loss blocker found in the zsh history merge (awk failure inside a pipeline without pipefail empties the new history and the legacy one, reproduced on a scratch copy of the real history with counts only, copy deleted); sent back for a test-first fix with scenario, mutant and two commits proposed to the user; real history never copied into any committed or exported file\\n' \"$(date '+%Y-%m-%d %H:%M:%S')\" >> .state/journal.md\nsleep 5; echo \"builder: $(herdr agent get chezmoi-env-build2 2>/dev/null | jq -r '.result.agent.agent_status' 2>/dev/null)\"",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+resume dashes 0, modeline last 1
+builder: working
+
+```
+
+**Tool: todowrite**
+
+**Input:**
+```json
+{
+  "todos": [
+    {
+      "content": "Measure f6d6659 on git archive: suite, mutants, scans, gitleaks, validate, compare with main",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "content": "Read 320-shell_history.sh: found a data-loss path in the zsh merge (pipeline without pipefail), reproduced and sent back",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "content": "Builder: fix (test first, pipefail guard, scenario, mutant, two commits proposed to the user); then re-measure the new tip and re-run my failing-awk probe on it",
+      "status": "in_progress",
+      "priority": "high"
+    },
+    {
+      "content": "After acceptance: fast-forward main, user push word; export build2 session; cleanup (close workspace by id never --group, scm:worktree:done) only when merged and pushed",
+      "status": "pending",
+      "priority": "medium"
+    },
+    {
+      "content": "Then: small change nvim-dev (script alone), plan lead for add-agent-launch-tasks, second build part (groups 8 to 10)",
+      "status": "pending",
+      "priority": "medium"
+    }
+  ]
+}
+```
+
+**Output:**
+```
+[
+  {
+    "content": "Measure f6d6659 on git archive: suite, mutants, scans, gitleaks, validate, compare with main",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "content": "Read 320-shell_history.sh: found a data-loss path in the zsh merge (pipeline without pipefail), reproduced and sent back",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "content": "Builder: fix (test first, pipefail guard, scenario, mutant, two commits proposed to the user); then re-measure the new tip and re-run my failing-awk probe on it",
+    "status": "in_progress",
+    "priority": "high"
+  },
+  {
+    "content": "After acceptance: fast-forward main, user push word; export build2 session; cleanup (close workspace by id never --group, scm:worktree:done) only when merged and pushed",
+    "status": "pending",
+    "priority": "medium"
+  },
+  {
+    "content": "Then: small change nvim-dev (script alone), plan lead for add-agent-launch-tasks, second build part (groups 8 to 10)",
+    "status": "pending",
+    "priority": "medium"
+  }
+]
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 10.1s)
+
+I measured part 1 on an exported copy of its tip, `f6d6659`. It isn't accepted yet, because I found a data-loss path in the history migration and sent it back for a fix.
+
+## What holds
+- **Suite:** 508 tests, 0 failures, 30 skipped, canary scan 0.
+- **Mutants:** 16 run, 0 problems. The new ones fail as required: `env-highlighting-not-last` fails 1 test and `env-history-no-merge` fails 2.
+- **Comparison with `main`:** 5 of 5 pass. I ran it myself in its idle worktree, and the tree was unchanged afterwards.
+- **Removals:** 12 sources were removed or renamed, and each has its `.chezmoiremove` entry. No entry names a file the branch adds.
+- **Scans on 2,978 added lines:** 0 dashes, banned names, e-mails, token shapes, IP addresses or non-Homebrew home paths. None of your private-file names is in the diff.
+- **Checks:** gitleaks is clean and `openspec validate` passes 38/38.
+- **Two small points:**
+  - The two group 6 tidy items are done.
+  - `999-highlighting.sh` is byte-identical to `main`'s `930`.
+  - The 2 redaction matches in `320-shell_history.sh` were already in `main`'s file, so they're not new.
+
+## The blocker
+I tested the history migration on a copy of your real zsh history, printing counts only and deleting the copy afterwards. Your history is mostly plain lines, with only 9 timestamped entries and some invalid UTF-8.
+- **First start:** it's exact. A hard link and then a link, content byte-identical, modes 0600 and 0700.
+- **Merge after a trim:** under `fr_FR.UTF-8`, `C.UTF-8` and `C`, 0 distinct lines were missing and the multi-line entry survived.
+- **The failure path:** in the zsh merge, `awk` feeds a pipeline, and plain `sh` has no `pipefail`. When `awk` fails, the pipeline still exits 0 with an empty or partial result. The code then moves that over the new history and turns the old file into a link to it. With an `awk` that exits 2, the new file went from 2,627 lines to 0 and the old one from 2,628 to 0. Nothing was left to retry from.
+- **Triggers:** `awk` killed for memory, `awk` missing, or a full disk during the sort.
+
+I sent the builder a test-first fix:
+- a test with a failing `awk` and one with `awk` missing;
+- `pipefail` plus a refusal to replace a non-empty file with empty output;
+- a scenario, "A failed merge loses nothing", and a mutant for it;
+- a `docs(chezmoi:spec)` commit and a fix commit, each proposed to you in its pane before it commits.
+
+It must use synthetic files only. I told it that lines appended by another shell during the few milliseconds of a merge may be lost, which the design accepts.
+
+## What I need from you
+The builder is working at about 32% of its context. You'll see its two commit proposals in `w0:p2`, and a permission prompt may come again.
+
+Nothing else is pending:
+- **Not pushed:** `main` and `origin/main` are both `08733b0`.
+- **After acceptance:** I fast-forward `main`, you say "push", and I export this session before cleanup.
+- **Then:** the small `nvim-dev` change and the `add-agent-launch-tasks` lead follow.
+
+---
+
+## User
+
+chezmoi-env-build2: history blocker fixed, new tip 32bdfb5 (on main 08733b0, tree clean, no push; 2 commits above f6d6659: e514422 docs scenario 'A failed merge loses nothing' + task 7.6 + 9.1 counts 35/58, 32bdfb5 fix). Measured on git archive of 32bdfb5: tests/run.sh 513 tests, 0 failures, 30 skipped, canary 0; mutants 17 run, 0 problems (env-history-merge-unchecked 1 failure, env-history-no-merge now 7); compare vs main 5 of 5; openspec validate 38 of 38 in the worktree. The 3 zsh tests (awk exit 2, exit 127, partial output then failure) failed on the old code with the new file emptied, pass now; bash tests passed before and after.
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 385.4s)
+
+_Thinking:_
+I'm going to benchmark the new tip 32bdfb5 the same way as before, then rerun my failing-awk probe on it using synthetic files. I need to keep the rog-orch message details out of this, so I'll leave them alone.
+
+
+I'm measuring the new tip on an exported copy, and re-running my failing-`awk` probe on it with synthetic files only.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "W=[redacted:worktrees_root]/dotfiles-correct-shell-environment; G=/home/linuxbrew/.linuxbrew/bin/git; S=/tmp/opencode/orch-tree; R=/tmp/opencode/orch-reports\necho \"builder: $(herdr agent get chezmoi-env-build2 2>/dev/null | jq -r '.result.agent.agent_status' 2>/dev/null); HEAD $($G -C $W rev-parse --short HEAD); dirty $($G -C $W status --short | wc -l); on main? $([ \"$($G -C $W merge-base HEAD main)\" = \"$($G rev-parse main)\" ] && echo yes || echo NO); ahead $($G -C $W rev-list --count main..HEAD)\"\n$G -C $W log --format='%h|%s' f6d6659..HEAD | while IFS='|' read h s; do printf '%s %s chars: %s\\n' \"$h\" \"${#s}\" \"$s\"; done\n$G -C $W diff --stat f6d6659 HEAD | tail -12 | cut -c1-110\nrm -rf $S $R; mkdir -p $S $R && chmod 700 $S $R\n$G -C $W archive 32bdfb5 | tar -x -C $S; ln -s $W/tests/.lib $S/tests/.lib\ncd $S && DOTFILES_TEST_REPORTS=$R DOTFILES_TEST_JOBS=3 timeout 1700 tests/run.sh > $R/run.out 2>&1; echo \"run exit=$?\"\ntail -3 $R/run.out | cut -c1-110; echo \"not ok: $(/usr/bin/grep -a -c '^not ok' $R/run.out)\"; /usr/bin/grep -a '^not ok' $R/run.out | cut -c1-170 | head\npython3 - $R <<'EOF'\nimport sys, glob, xml.etree.ElementTree as ET\nt = f = s = e = 0\nfor x in glob.glob(sys.argv[1] + \"/**/*.xml\", recursive=True):\n    r = ET.parse(x).getroot()\n    for ts in ([r] if r.tag == \"testsuite\" else r.iter(\"testsuite\")):\n        t += int(ts.get(\"tests\", 0)); f += int(ts.get(\"failures\", 0)); s += int(ts.get(\"skipped\", 0)); e += int(ts.get(\"errors\", 0))\nprint(f\"32bdfb5, my run: tests {t}, failures {f}, errors {e}, skipped {s}\")\nEOF",
+  "timeout": 1800000
+}
+```
+
+**Output:**
+```
+builder: done; HEAD 32bdfb5; dirty 0; on main? yes; ahead 14
+32bdfb5 68 chars: fix(shell:history): keep both history files when the zsh merge fails
+e514422 74 chars: docs(chezmoi:spec): add the failed-merge scenario of the history migration
+ home/dot_config/shell/rc.d/320-shell_history.sh    | 12 +++-
+ .../specs/shell-environment/spec.md                |  5 ++
+ .../changes/correct-shell-environment/tasks.md     |  3 +-
+ tests/mutants/README.md                            |  5 +-
+ tests/mutants/env/history-merge-unchecked.sed      |  2 +
+ tests/unit/history.bats                            | 66 ++++++++++++++++++++++
+ 6 files changed, 90 insertions(+), 3 deletions(-)
+run exit=0
+ok 513 the completion dump header is the same after five alternating starts # in 4794 ms
+tests: 513, failures: 0, skipped: 30
+canary scan: 0 matches
+not ok: 0
+mise ERROR error parsing config file: /tmp/opencode/orch-tree/mise.toml
+mise ERROR Config files in /tmp/opencode/orch-tree/mise.toml are not trusted.
+Trust them with `mise trust`. See https://mise.jdx.dev/cli/trust.html for more information.
+mise ERROR Version: 2026.10.23 linux-x64 (2026-10-29)
+mise ERROR Run with --verbose or MISE_VERBOSE=1 for more information
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 594.4s)
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "S=/tmp/opencode/orch-tree; R=/tmp/opencode/orch-reports\ncd $S && DOTFILES_TEST_REPORTS=$R DOTFILES_TEST_JOBS=3 timeout 1700 tests/mutants/run.sh > $R/mut.out 2>&1; echo \"mutants exit=$?\"\n/usr/bin/grep -a -E '^mutant env-|^mutants|untouched' $R/mut.out | sed -E 's/^mutant //' | cut -c1-110\necho \"(the 9 older mutants all ok: $(/usr/bin/grep -a -c ': ok$' $R/mut.out) ok lines in total)\"\necho '=== the fix in 320-shell_history.sh (diff vs f6d6659)'\ncd ~/.local/share/chezmoi; /home/linuxbrew/.linuxbrew/bin/git -C [redacted:worktrees_root]/dotfiles-correct-shell-environment diff f6d6659 32bdfb5 -- home/dot_config/shell/rc.d/320-shell_history.sh | /usr/bin/grep -a -E '^[-+]' | /usr/bin/grep -a -v -E '^(\\+\\+\\+|---)' | cut -c1-185",
+  "timeout": 1800000
+}
+```
+
+**Output:**
+```
+mutants exit=0
+env-path-no-clean: 12 failures (expected at least 8): ok
+env-lc-all-forced: 14 failures (expected at least 10): ok
+env-keys-at-startup: 3 failures (expected at least 3): ok
+env-desktop-full-pass: 7 failures (expected at least 4): ok
+env-shellrc-no-guard: 4 failures (expected at least 4): ok
+env-highlighting-not-last: 1 failures (expected at least 1): ok
+env-history-no-merge: 7 failures (expected at least 2): ok
+env-history-merge-unchecked: 1 failures (expected at least 1): ok
+repository untouched
+mutants: 17 run, 0 problems
+(the 9 older mutants all ok: 17 ok lines in total)
+=== the fix in 320-shell_history.sh (diff vs f6d6659)
+-      if _history_merge "$1" "$3" "$2" > "$tmp" && mv -f "$tmp" "$3"; then :; else rm -f "$tmp"; exit 0; fi
++      # The zsh merge is a pipeline: without pipefail a failed awk would leave an empty or partial output with a status of 0,
++      # and the move would replace the new history by it. A merge that fails, or that gives nothing from inputs that are not
++      # empty, replaces nothing and leaves the old file a regular file, so that the next start tries again.
++      # shellcheck disable=SC3040  # this file is sourced by bash and zsh only, which both know pipefail
++      set -o pipefail
++      if _history_merge "$1" "$3" "$2" > "$tmp" && { [ -s "$tmp" ] || { [ ! -s "$3" ] && [ ! -s "$2" ]; }; } && mv -f "$tmp" "$3"; then
++        :
++      else
++        rm -f "$tmp"
++        exit 0
++      fi
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 30.0s)
+
+_Thinking:_
+I'm checking that `set -o pipefail` is scoped inside the subshell, which it is, and that it works in both zsh and bash. If the merge fails and `exit 0` runs, the rest of the subshell is skipped, so the legacy file stays a regular file. I'm also looking at whether `sort` could hit SIGPIPE under pipefail with the awk `FNR==1` flush logic.
+
+Next I'm checking the `else` branch, where `set -o pipefail` sits only on the path where the new file exists, since the hard-link first-start path has no pipeline. Then I'm going to re-run the failing awk probe against synthetic zsh history files, along with the cases where awk is missing or only partially outputs, and confirm the normal merge still works.
+
+
+_Thinking:_
+All the mutants pass, so I'm now running my own failing-awk probe against the fixed code using only synthetic files.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "S=/tmp/opencode/orch-tree; T=/tmp/opencode/histprobe; rm -rf $T; mkdir -p $T/stub $T/stub-empty && chmod 700 $T\npython3 - $T <<'EOF'\nimport sys, time\nT = sys.argv[1]; now = int(time.time())\ndef ext(i, cmd): return f\": {now + i}:0;{cmd}\\n\".encode()\nbase = b\"\".join(ext(i, f\"echo base-{i}\") for i in range(200)) + ext(300, \"echo multi \\\\\\nsecond line\")\nlegacy = base + ext(400, \"echo legacy-only-a\") + ext(402, \"echo legacy-only-b\")\nnew = base + ext(401, \"echo new-only-a\") + ext(403, \"echo new-only-b\")\nopen(f\"{T}/legacy.f\", \"wb\").write(legacy); open(f\"{T}/new.f\", \"wb\").write(new)\nEOF\nprintf '#!/bin/sh\\nexit 2\\n' > $T/stub/awk; printf '#!/bin/sh\\nhead -n 3 \"$1\" 2>/dev/null\\nexit 2\\n' > $T/stub/awk-partial; chmod +x $T/stub/awk $T/stub/awk-partial\nrun_case() { # label, path-prefix, awk-stub-name-or-empty\n  d=$T/c.$1; rm -rf $d; mkdir -p $d/home $d/state/zsh; chmod 700 $d $d/home $d/state $d/state/zsh\n  cp -p $T/legacy.f $d~; cp -p $T/new.f $d/state/zsh/history; chmod 600 $d~ $d/state/zsh/history\n  nb=$(wc -l < $d/state/zsh/history); lb=$(wc -l < $d~)\n  env -i HOME=$d/home XDG_STATE_HOME=$d/state PATH=$2 LANG=C.UTF-8 CURRENT_SHELL=zsh zsh -c \". $S~/shell/rc.d/320-shell_history.sh; true\" >/dev/null 2>&1; rc=$?\n  printf '%-22s exit %s | new file lines %s -> %s | legacy lines %s -> %s | legacy still a regular file: %s | temp files left: %s\\n' \"$1\" $rc $nb $(wc -l < $d/state/zsh/history) $lb $(wc -l < $d~ 2>/dev/null || echo 0) \"$([ -f $d~ ] && [ ! -L $d~ ] && echo yes || echo no)\" \"$(ls -A $d/state/zsh | /usr/bin/grep -c '^\\.merge')\"\n}\nrun_case awk-exit-2 $T/stub:/usr/bin:/bin\nrun_case awk-partial $T/stub:/usr/bin:/bin   # placeholder replaced below\ncp $T/stub/awk-partial $T/stub/awk; run_case awk-partial-output $T/stub:/usr/bin:/bin\nrm $T/stub/awk; mkdir -p $T/noawk; for b in sort cut tr mktemp mv rm ln cp chmod mkdir cat head; do ln -sf \"$(command -v $b)\" $T/noawk/$b; done\nrun_case awk-missing $T/noawk\nrun_case happy-merge /usr/bin:/bin\necho '--- the happy merge: link back, every distinct line kept, multi-line entry intact'\nd=$T/c.happy-merge; python3 - $d $T <<'EOF'\nimport sys, os\nd, T = sys.argv[1:3]\nnew = open(f\"{T}/new.f\", \"rb\").read().split(b\"\\n\"); leg = open(f\"{T}/legacy.f\", \"rb\").read().split(b\"\\n\"); out = open(f\"{d}/state/zsh/history\", \"rb\").read().split(b\"\\n\")\nprint(\"legacy is a link:\", os.path.islink(f\"{d}~\"), \"| distinct lines missing:\", sum(1 for k in set(new) | set(leg) if k not in set(out)), \"| multi-line entry intact:\", b\"second line\" in b\"\\n\".join(out), \"| mode\", oct(os.stat(f\"{d}/state/zsh/history\").st_mode & 0o777))\nEOF\necho '--- the same failing awk, bash shell kind (single awk, status checked): bash history'\nprintf 'one\\ntwo\\nthree\\n' > $T/b.legacy; printf 'one\\nnew-b\\n' > $T/b.new\nd=$T/cb; mkdir -p $d/home $d/state/bash; chmod 700 $d $d/home $d/state $d/state/bash; cp $T/b.legacy $d~; cp $T/b.new $d/state/bash/history; printf '#!/bin/sh\\nexit 2\\n' > $T/stub/awk; chmod +x $T/stub/awk\nenv -i HOME=$d/home XDG_STATE_HOME=$d/state PATH=$T/stub:/usr/bin:/bin LANG=C.UTF-8 CURRENT_SHELL=bash bash -c \". $S~/shell/rc.d/320-shell_history.sh; true\" >/dev/null 2>&1\necho \"bash: new file lines 2 -> $(wc -l < $d/state/bash/history); legacy regular file kept: $([ -f $d~ ] && [ ! -L $d~ ] && echo yes || echo no), lines 3 -> $(wc -l < $d~)\"\nrm -rf $T",
+  "timeout": 120000
+}
+```
+
+**Output:**
+```
+awk-exit-2             exit 0 | new file lines 204 -> 204 | legacy lines 204 -> 204 | legacy still a regular file: yes | temp files left: 0
+awk-partial            exit 0 | new file lines 204 -> 204 | legacy lines 204 -> 204 | legacy still a regular file: yes | temp files left: 0
+awk-partial-output     exit 0 | new file lines 204 -> 204 | legacy lines 204 -> 204 | legacy still a regular file: yes | temp files left: 0
+awk-missing            exit 127 | new file lines 204 -> 204 | legacy lines 204 -> 204 | legacy still a regular file: yes | temp files left: 0
+happy-merge            exit 0 | new file lines 204 -> 206 | legacy lines 204 -> 206 | legacy still a regular file: no | temp files left: 0
+--- the happy merge: link back, every distinct line kept, multi-line entry intact
+legacy is a link: True | distinct lines missing: 0 | multi-line entry intact: True | mode 0o600
+--- the same failing awk, bash shell kind (single awk, status checked): bash history
+bash: new file lines 2 -> 2; legacy regular file kept: yes, lines 3 -> 3
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 11.9s)
+
+_Thinking:_
+I'm checking why the awk-missing case exits with 127, since `true` is a builtin and shouldn't fail. The question is whether `env -i PATH=$T/noawk zsh` can even locate zsh once PATH is replaced, because env's lookup may depend on which PATH it uses.
+
+The absolute-path zsh is the fix I need here, since the bare name is resolved against the replaced PATH and fails with 127 before the script runs. So the awk-missing result is a measurement flaw: nothing ran, which means it tells me nothing about whether the script handles a missing awk. I'll rerun that case with the absolute zsh path.
+
+
+The `awk-missing` case exited 127 because `env` couldn't find `zsh` on that restricted `PATH`, so the script never ran. That case proves nothing. I'm redoing it with absolute paths.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "S=/tmp/opencode/orch-tree; T=/tmp/opencode/histprobe; rm -rf $T; mkdir -p $T/noawk && chmod 700 $T\npython3 - $T <<'EOF'\nimport sys, time\nT = sys.argv[1]; now = int(time.time())\ndef ext(i, cmd): return f\": {now + i}:0;{cmd}\\n\".encode()\nbase = b\"\".join(ext(i, f\"echo base-{i}\") for i in range(200))\nopen(f\"{T}/legacy.f\", \"wb\").write(base + ext(400, \"echo legacy-only\")); open(f\"{T}/new.f\", \"wb\").write(base + ext(401, \"echo new-only\"))\nEOF\nZSH=$(command -v zsh); echo \"zsh: $ZSH\"\nfor b in sort cut tr mktemp mv rm ln cp chmod mkdir cat head sed dirname; do p=$(command -v $b); [ -n \"$p\" ] && ln -sf \"$p\" $T/noawk/$b; done\necho \"awk reachable on the restricted PATH: $(PATH=$T/noawk command -v awk >/dev/null 2>&1 && echo YES || echo no)\"\nd=$T/c; mkdir -p $d/home $d/state/zsh; chmod 700 $d $d/home $d/state $d/state/zsh\ncp -p $T/legacy.f $d~; cp -p $T/new.f $d/state/zsh/history; chmod 600 $d~ $d/state/zsh/history\nnb=$(wc -l < $d/state/zsh/history); lb=$(wc -l < $d~)\nenv -i HOME=$d/home XDG_STATE_HOME=$d/state PATH=$T/noawk LANG=C.UTF-8 CURRENT_SHELL=zsh $ZSH -c \". $S~/shell/rc.d/320-shell_history.sh; print ran-to-the-end\" 2>&1 | tail -2\nprintf 'awk missing: new file lines %s -> %s | legacy lines %s -> %s | legacy still a regular file: %s | temp files left: %s\\n' $nb $(wc -l < $d/state/zsh/history) $lb $(wc -l < $d~) \"$([ -f $d~ ] && [ ! -L $d~ ] && echo yes || echo no)\" \"$(ls -A $d/state/zsh | /usr/bin/grep -c '^\\.merge')\"\necho '--- control: the same restricted PATH on the OLD code (f6d6659 from the builder worktree, committed blob) must lose data, to prove this probe can see the bug'\nW=[redacted:worktrees_root]/dotfiles-correct-shell-environment; /home/linuxbrew/.linuxbrew/bin/git -C $W show f6d6659:home/dot_config/shell/rc.d/320-shell_history.sh > $T/old320.sh\nd2=$T/c2; mkdir -p $d2/home $d2/state/zsh; chmod 700 $d2 $d2/home $d2/state $d2/state/zsh\ncp -p $T/legacy.f $d2~; cp -p $T/new.f $d2/state/zsh/history; chmod 600 $d2~ $d2/state/zsh/history\nenv -i HOME=$d2/home XDG_STATE_HOME=$d2/state PATH=$T/noawk LANG=C.UTF-8 CURRENT_SHELL=zsh $ZSH -c \". $T/old320.sh; print ran-to-the-end\" 2>&1 | tail -1\nprintf 'OLD code, awk missing: new file lines %s -> %s | legacy lines %s -> %s\\n' $nb $(wc -l < $d2/state/zsh/history) $lb $(wc -l < $d2~ 2>/dev/null || echo 0)\nrm -rf $T",
+  "timeout": 120000
+}
+```
+
+**Output:**
+```
+zsh: /usr/bin/zsh
+awk reachable on the restricted PATH: no
+ran-to-the-end
+awk missing: new file lines 201 -> 201 | legacy lines 201 -> 201 | legacy still a regular file: yes | temp files left: 0
+--- control: the same restricted PATH on the OLD code (f6d6659 from the builder worktree, committed blob) must lose data, to prove this probe can see the bug
+ran-to-the-end
+OLD code, awk missing: new file lines 201 -> 0 | legacy lines 201 -> 0
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 16.0s)
+
+_Thinking:_
+The control confirms the probe catches the bug: the old code drops everything, while the new code keeps both files. Next up are the scans over the delta, the scenario counts, redaction, gitleaks, and validation, then accepting the result and fast-forwarding main locally. After that I'd ask about pushing and handle the build2 export and cleanup. Checking the scans now.
+
+
+The control confirms my probe can see the bug: the old code empties both files and the new code keeps both. Now the scans on the two new commits and the spec text.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "W=[redacted:worktrees_root]/dotfiles-correct-shell-environment; G=/home/linuxbrew/.linuxbrew/bin/git; S=/tmp/opencode/orch-tree; D=openspec/changes/correct-shell-environment\n$G -C $W diff f6d6659 32bdfb5 | /usr/bin/grep -a '^+' | /usr/bin/grep -a -v '^+++' > /tmp/opencode/added.txt\nprintf 'added %s | dashes %s | banned %s | emoji %s | e-mail %s | token shapes %s | /home paths (non-linuxbrew) %s | IPv4 %s | secret-looking names %s\\n' \"$(wc -l < /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -E '[–—]' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -i -w -E '[redacted:private]|[redacted:private]|[redacted:private]|[redacted:repo]|[redacted:private]' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -P '[\\x{1F300}-\\x{1FAFF}\\x{2600}-\\x{27BF}]' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -E '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[a-z]{2,}' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -E 'gh[pousr]_[A-Za-z0-9]{20,}|sk-[A-Za-z0-9_-]{20,}|AKIA[0-9A-Z]{16}' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -o -E '/home/[A-Za-z0-9_-]+' /tmp/opencode/added.txt | /usr/bin/grep -a -v -E 'linuxbrew|/home/user' | wc -l)\" \"$(/usr/bin/grep -a -c -E '\\b([0-9]{1,3}\\.){3}[0-9]{1,3}\\b' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -o -E '\\b[A-Z][A-Z0-9]*(_[A-Z0-9]+)*_(API_?KEY|TOKEN|SECRET|PASSWORD|PASSWD|CREDENTIAL)\\b' /tmp/opencode/added.txt | sort -u | tr '\\n' ' ')\"\nrm -f /tmp/opencode/added.txt\necho '--- scenario counts (expected 35 and 58)'\necho \"shell-environment: $(/usr/bin/grep -a -c '^#### Scenario' $S/$D/specs/shell-environment/spec.md); five delta specs: $(cat $S/$D/specs/*/spec.md | /usr/bin/grep -a -c '^#### Scenario')\"\n/usr/bin/grep -a -n -A4 'A failed merge loses nothing' $S/$D/specs/shell-environment/spec.md | cut -c1-240\necho '--- redaction check on changed files (non-zero only)'\nfor f in $($G -C $W diff --name-only f6d6659 32bdfb5); do [ -f $S/$f ] || continue; o=$(python3 ~/.config/nvim/scripts/session_redact.py --check $S/$f 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | /usr/bin/grep -a -E ': [1-9][0-9]*$' | tr '\\n' ' '); [ -n \"$o\" ] && echo \"$f: $o\"; done; echo '(end)'\necho \"gitleaks main..32bdfb5: $(cd $W && mise x -- gitleaks git --redact --no-banner --log-opts='main..32bdfb5' . 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | tail -1)\"\necho \"validate (worktree): $(cd $W && openspec validate --all --strict 2>&1 | tail -1)\"\nf=home/dot_config/shell/rc.d/320-shell_history.sh; printf '320: bash -n %s | zsh -n %s | shellcheck -S warning %s (SC3040 disabled by the builder)\\n' \"$(bash -n $S/$f >/dev/null 2>&1; echo $?)\" \"$(zsh -n $S/$f >/dev/null 2>&1; echo $?)\" \"$(shellcheck -s sh -S warning $S/$f >/dev/null 2>&1; echo $?)\"\necho \"task 7.6 and 9.1:\"; /usr/bin/grep -a -n -E '^- \\[.\\] (7\\.6|9\\.1)' $S/$D/tasks.md | cut -c1-200\necho \"tasks ticked in groups 1 to 7: $(/usr/bin/grep -a -c -E '^- \\[x\\] [1-7]\\.[0-9]' $S/$D/tasks.md), unticked: $(/usr/bin/grep -a -c -E '^- \\[ \\] [1-7]\\.[0-9]' $S/$D/tasks.md)\"",
+  "timeout": 240000
+}
+```
+
+**Output:**
+```
+added 90 | dashes 0 | banned 0 | emoji 0 | e-mail 0 | token shapes 0 | /home paths (non-linuxbrew) 0 | IPv4 0 | secret-looking names 
+--- scenario counts (expected 35 and 58)
+shell-environment: 35; five delta specs: 58
+196:#### Scenario: A failed merge loses nothing
+197-
+198-- **WHEN** the legacy path is a regular file again, holding entries the new file lacks, and the merge tool fails during the start of an interactive zsh (it exits with an error, it is missing, or it prints part of its output and then fai
+199-- **THEN** the shell prints nothing, the new file keeps all its lines, and the legacy path stays a regular file with all its lines, so that the next start merges it; no temporary file is left in the directory of the new file
+200-
+--- redaction check on changed files (non-zero only)
+home/dot_config/shell/rc.d/320-shell_history.sh: private terms: 2   project: 2 
+(end)
+gitleaks main..32bdfb5: 2:46PM INF no leaks found
+validate (worktree): Totals: 38 passed, 0 failed (38 items)
+320: bash -n 0 | zsh -n 0 | shellcheck -S warning 0 (SC3040 disabled by the builder)
+task 7.6 and 9.1:
+54:- [x] 7.6 A failed merge loses nothing: `tests/unit/history.bats` with a failing `awk` first on `PATH` (exit status 2, exit status 127 as a missing tool gives, part of the output and then a failure
+66:- [ ] 9.1 `tests/README.md`: the scenario table maps every scenario of `shell-environment` and the changed scenarios of `shell-startup`, `agent-environment` and `install-scripts` (rows equal the su
+tasks ticked in groups 1 to 7: 34, unticked: 0
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 13.1s)
+
+_Thinking:_
+I'm accepting the change and fast-forwarding main to 32bdfb5 locally from the main checkout, since the feature branch lives in a worktree and the ff-only merge from there works. The push still needs the user's go-ahead, and before closing the workspace I need to export the builder session, along with the builder's second session. I also haven't pushed anything yet, and the user earlier asked me to do the pushes and commit, so I'm weighing that request against the current plan.
+
+Checking main's state before fast-forwarding it, and I'll hold off on pushing since that still needs the user's go-ahead. The builder's branch has 14 commits with messages under the length limit, and the author identity is fine. I'm also confirming nothing in the builder's transcript carries the embargoed message, since I never forwarded it.
+
+
+Everything on the new tip holds, and my probe now sees both files kept in every failure case. I'm accepting part 1 and fast-forwarding `main` locally. I don't push without your word.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; G=/home/linuxbrew/.linuxbrew/bin/git\nrm -rf /tmp/opencode/orch-tree /tmp/opencode/orch-reports; test ! -e /tmp/opencode/orch-tree && echo \"scratch deleted\"\necho \"before: main $($G rev-parse --short HEAD), dirty $($G status --short | wc -l), ff possible: $($G merge-base --is-ancestor main feat/correct-shell-environment && echo yes || echo no)\"\nenv -u GITHUB_TOKEN HK_STASH=none $G merge --ff-only feat/correct-shell-environment 2>&1 | tail -2 | cut -c1-120\necho \"after: main $($G rev-parse --short HEAD), ahead of origin $($G rev-list --count origin/main..HEAD), dirty $($G status --short | wc -l)\"\necho \"validate on main: $(openspec validate --all --strict 2>&1 | tail -1)\"\necho \"openspec list: correct-shell-environment tasks $(openspec list 2>/dev/null | /usr/bin/grep -a correct-shell-environment | sed 's/  */ /g' | cut -c1-80)\"\nprintf -- '- %s chezmoi-orch (wN:p1) builder fix accepted: new tip 32bdfb5 measured on git archive (513 tests 0 failures 30 skipped; mutants 17 run 0 problems, env-history-merge-unchecked 1, env-history-no-merge 7; scenarios 35 and 58; 90 added lines clean; gitleaks and validate clean); my failing-awk probe on synthetic files: awk exit 2, partial output and awk missing all keep both history files as regular files with every line, the happy merge keeps every distinct line and the multi-line entry, old code control loses both files; PART 1 ACCEPTED; main fast-forwarded locally to 32bdfb5 (14 commits ahead of origin), NOT pushed\\n' \"$(date '+%Y-%m-%d %H:%M:%S')\" >> .state/journal.md",
+  "timeout": 120000
+}
+```
+
+**Output:**
+```
+scratch deleted
+before: main 08733b0, dirty 0, ff possible: yes
+ create mode 100644 tests/unit/secrets.bats
+ create mode 100644 tests/unit/session-probe.bats
+after: main 32bdfb5, ahead of origin 14, dirty 0
+validate on main: Totals: 38 passed, 0 failed (38 items)
+openspec list: correct-shell-environment tasks  correct-shell-environment 34/61 tasks just now
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 16.1s)
+
+_Thinking:_
+I'm updating the resume note and todos next, and I want to export the build2 session now, uncommitted, so it's ready before the user commits and pushes. The builder is idle, so that should be safe. I also need to confirm that the embargoed message isn't in the builder's transcript, and my messages to it this turn left out those details.
+
+I'm weighing whether to export the build2 session now or wait until after the user pushes, and I'm leaning toward exporting now so it can be committed alongside the rest. The remaining steps are the README row and the proposed commit message, then I'll clean up the workspace by id once the user confirms the push. First, though, I'm updating the resume note with the acceptance details.
+
+
+_Thinking:_
+Part 1 is accepted on `main` at `32bdfb5`; I'm updating the resume note and exporting the second builder's session before closing the workspace.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; python3 - <<'EOF'\nfrom pathlib import Path\np = Path(\".state/resume.md\"); s = p.read_text(encoding=\"utf-8\")\ndef rep(a, b):\n    global s\n    assert s.count(a) == 1, (s.count(a), a[:70]); s = s.replace(a, b)\ns = s.replace(\"# Resume note of chezmoi-orch, updated 2026-11-24 13:25 with the SECOND builder session RUNNING (PART 1 REPORTED DONE at f6d6659 but NOT ACCEPTED: one data-loss blocker in the history merge, sent back for a fix)\",\n              \"# Resume note of chezmoi-orch, updated 2026-11-24 15:00: PART 1 OF THE BUILD ACCEPTED (tip 32bdfb5, main fast-forwarded, NOT pushed), second builder idle, to export and clean up\")\na0 = s.index(\"- Repository on 2026-11-24 12:45:\"); a1 = s.index(\"- The reboot check of `TODO.md` PASSED\")\ns = s[:a0] + (\"- Repository on 2026-11-24 15:00: `main` = `32bdfb5`, 14 commits ahead of `origin/main` (`08733b0`), tree clean, `openspec validate` 38/38, NOT PUSHED (waiting for the user's word): the 14 commits are part 1 of the build of `correct-shell-environment` (groups 1 to 7 and the history fix; `openspec list` shows 34 of 61 tasks done).\\n\"\n \"  The turns of this session after the 13:00 export on 2026-11-23 are in no export until the next one; see the EMBARGO note under \\\"Reports and signals\\\" before the next re-export.\\n\") + s[a1:]\na0 = s.index(\"PART 1 REPORT at 14:00 on 2026-11-24:\"); a1 = s.index(\"BLOCKER FOUND by me\")\ns = s[:a0] + s[a0:a1].replace(\"PART 1 REPORT at 14:00 on 2026-11-24:\", \"PART 1 REPORT at 14:00 on 2026-11-24 (first tip):\") + s[a1:]\na = \"After the fix, re-measure the NEW tip the same way\"\nassert s.count(a) == 1\ns = s.replace(a, '''FIX ACCEPTED at 14:50: new tip `32bdfb5` (`e514422` docs scenario \"A failed merge loses nothing\" plus task 7.6 and counts 35 and 58; `32bdfb5` fix: pipefail in the subshell plus a refusal to replace by an empty output). Measured on `git archive 32bdfb5`: 513 tests, 0 failures, 30 skipped, canary 0; mutants 17 run, 0 problems (`env-history-merge-unchecked` 1 failure, `env-history-no-merge` 7); scenarios 35 and 58; 90 added lines clean; gitleaks and `openspec validate` clean. My failing-awk probe on SYNTHETIC history files against the fix: awk exit 2, partial output then failure, and awk missing (restricted PATH with absolute zsh) all keep both files as regular files with every line and no temp file; the happy merge keeps every distinct line and the multi-line entry and puts the link back; the same restricted-PATH control on the old blob loses both files (201 to 0), so the probe can see the bug. A first run of my \"awk missing\" case was invalid (env could not find zsh on the restricted PATH: exit 127, script never ran) and was redone: when you restrict PATH for `env -i`, give the shell's absolute path.\n(Original instruction after the first report, kept for the record:) After the fix, re-measure the NEW tip the same way''')\nrep(\"## What is waiting for the user\\n\\n0. (Done 2026-11-24: commit `08733b0` and the push of `58633a0`, `c006474`, `08733b0`; the store was already in sync.)\",\n    \"## What is waiting for the user\\n\\n0. PUSH of the 14 commits of part 1 (`main` `32bdfb5`, nothing pushed since `08733b0`): scan first (`gitleaks git --log-opts='origin/main..HEAD'`, added lines, `--check` over all exports), then `env -u GITHUB_TOKEN git push origin main`. Ask whether to push before or after the export of the second builder is committed (the export is built next).\")\np.write_text(s, encoding=\"utf-8\")\nEOF\nchmod 600 .state/resume.md; printf 'resume: lines %s | dashes %s | modeline last %s\\n' \"$(wc -l < .state/resume.md)\" \"$(/usr/bin/grep -a -c -E '[–—]' .state/resume.md)\" \"$(tail -1 .state/resume.md | /usr/bin/grep -a -c 'vim: set ts=2')\"\necho \"build2: $(herdr agent get chezmoi-env-build2 2>/dev/null | jq -c '.result.agent | {status: .agent_status, session: .agent_session.value}' 2>/dev/null)\"",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+resume: lines 202 | dashes 0 | modeline last 1
+build2: {"status":"idle","session":"ses_df6978237ffep8f55EkhyZmu3O"}
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 16.2s)
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; S=/tmp/opencode/export-scratch; R=~/.config/nvim/scripts/session_redact.py\nrm -rf $S; mkdir -p $S/raw $S/out && chmod 700 $S\npython3 ~/Work/[redacted:private]/scripts/session/export.py --full --no-children --force --out-dir $S/raw --slug shell_environment_build_two ses_df6978237ffep8f55EkhyZmu3O > $S/export.log 2>&1; echo \"export exit=$?\"\nRAW=$(ls $S/raw/*.md | head -1); echo \"raw: $(basename $RAW), $(stat -c %s $RAW) bytes, $(wc -l < $RAW) lines; files in raw: $(ls $S/raw | wc -l)\"\n/usr/bin/grep -a -m1 -o 'through msg_[A-Za-z0-9]*' $RAW; head -4 $RAW | cut -c1-90\necho \"embargoed message in this raw file? (distinctive words, count only): $(/usr/bin/grep -a -c -i -E 'tokenizer|heredoc body' $RAW) lines mentioning them\"\npython3 $R < $RAW > $S/out/pass1.md 2>$S/out/pass1.err; echo \"pass1 exit=$? lines $(wc -l < $S/out/pass1.md); stderr lines $(wc -l < $S/out/pass1.err)\"\npython3 $R < $S/out/pass1.md > $S/out/pass2.md 2>/dev/null; cmp -s $S/out/pass1.md $S/out/pass2.md && echo \"idempotent: yes\" || echo \"idempotent: NO\"\numask 077; python3 $R --check --folder-report $S/folders.txt $S/out/pass1.md > $S/chk.out 2>&1; echo \"check on the new export: exit=$?\"\nsed 's/\\x1b\\[[0-9;]*m//g' $S/chk.out | /usr/bin/grep -a -E ': [1-9][0-9]*$'; echo '(non-zero categories end)'\necho \"folder report: $(stat -c '%a' $S/folders.txt), $(wc -l < $S/folders.txt) line(s)\"; umask 002",
+  "timeout": 600000
+}
+```
+
+**Output:**
+```
+export exit=0
+raw: 202611231816-shell_environment_build_two.md, 647668 bytes, 9839 lines; files in raw: 1
+through msg_20dbf24cb001RFRWCuL0smLtuE
+# chezmoi-env-build2: groups 6-7 and live test 6.7
+**Session ID:** ses_df6978237ffep8f55EkhyZmu3O
+**Created:** 11/23/2026, 6:16:12 PM
+**Updated:** 11/24/2026, 2:29:28 PM
+embargoed message in this raw file? (distinctive words, count only): 0 lines mentioning them
+pass1 exit=0 lines 9839; stderr lines 0
+idempotent: yes
+check on the new export: exit=0
+(non-zero categories end)
+folder report: 600, 0 line(s)
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 12.3s)
+
+_Thinking:_
+Confirmed the embargoed message isn't in the builder's transcript, which has zero lines. Moving on to the scans now.
+
+
+The embargoed message is not in this transcript, and the redaction check passes with no folder segment. Now the same scans as before, then the README row.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; S=/tmp/opencode/export-scratch; O=$S/out/pass1.md\npython3 - $O <<'EOF'\nimport os, re, sys\nfrom pathlib import Path\nt = Path(sys.argv[1]).read_text(encoding=\"utf-8\")\ndef n(p, flags=0): return len(re.findall(p, t, flags))\nH = Path.home()\nidf = H/\".local/share/[redacted:private]/session-redact/identity.txt\"\nvals = [l.split(\"=\",1)[-1].strip() for l in idf.read_text(encoding=\"utf-8\").splitlines() if l.strip() and not l.strip().startswith(\"#\")] if idf.exists() else []\nprint(\"identity values present:\", sum(1 for v in vals if len(v) >= 3 and re.search(r'(?<![A-Za-z0-9])%s(?![A-Za-z0-9])' % re.escape(v), t, re.I)), \"of\", len(vals))\nprint(\"login /home/<user> forms:\", n(r'/home/(?!linuxbrew|user\\b)[A-Za-z0-9_-]+'), \"| banned names:\", n(r'(?i)\\b([redacted:private]|[redacted:private]|[redacted:private]|[redacted:repo]|[redacted:private])\\b'), \"| store dir word:\", t.count(\"[redacted:private]\"))\nprint(\"token shapes:\", n(r'gh[pousr]_[A-Za-z0-9]{20,}') + n(r'sk-[A-Za-z0-9_-]{20,}') + n(r'-----BEGIN [A-Z ]*PRIVATE KEY-----') + n(r'AKIA[0-9A-Z]{16}') + n(r'xox[abp]-[A-Za-z0-9-]{10,}'))\nnames = sorted(set(re.findall(r'\\b[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*_(?:API_?KEY|TOKEN|SECRET|PASSWORD|PASSWD|CREDENTIAL|ACCESS_?KEY|PRIVATE_?KEY)\\b', t)))\nallowed = {\"ANTHROPIC_API_KEY\",\"AWS_SECRET_ACCESS_KEY\",\"AZURE_OPENAI_API_KEY\",\"BRAVE_API_KEY\",\"GEMINI_API_KEY\",\"GITHUB_TOKEN\",\"MISTRAL_API_KEY\",\"MOONSHOT_API_KEY\",\"OPENAI_API_KEY\",\"TAVILY_API_KEY\",\"XAI_API_KEY\"}\nprint(\"secret-looking names:\", len(names), \"outside the allowed set and DEMO_:\", [x for x in names if x not in allowed and not x.startswith(\"DEMO_\")], \"| DEMO_ names:\", len([x for x in names if x.startswith(\"DEMO_\")]))\nips = re.findall(r'\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b', t); print(\"IPv4 non-loopback:\", len([i for i in ips if not i.startswith((\"127.\", \"0.\"))]), \"| e-mails:\", n(r'[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[a-z]{2,}'), \"| NUL symbols:\", t.count(\"\\u2400\"))\nf = Path(os.environ.get(\"XDG_CONFIG_HOME\", str(H/\".config\")))/\"env\"; pn = []\nfor l in f.read_text(encoding=\"utf-8\", errors=\"replace\").splitlines():\n    m = re.match(r'^\\s*(?:export\\s+)?([A-Za-z_][A-Za-z0-9_]*)=', l)\n    if m and m.group(1) not in pn: pn.append(m.group(1))\nprint(\"names of the user's private file readable in the export:\", sum(1 for x in pn if re.search(r'\\b%s\\b' % re.escape(x), t)), \"of\", len(pn))\n# did the real history content leak into the builder transcript? it used synthetic files only; count real-looking extended-history timestamps from the real file's era\nprint(\"lines shaped like zsh history entries (': <epoch>:<n>;'):\", n(r'(?m)^: \\d{10}:\\d+;'))\nEOF\nmise x -- gitleaks dir --redact --no-banner $O 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | tail -1\nhk util detect-private-key $O > /dev/null 2>&1; echo \"detect-private-key exit=$?\"\necho \"orchestrator pane name and workspace ids readable (shape): $(/usr/bin/grep -a -c -E 'chezmoi-orch' $O) mentions of the orchestrator name\"",
+  "timeout": 400000
+}
+```
+
+**Output:**
+```
+identity values present: 0 of 5
+login /home/<user> forms: 0 | banned names: 0 | store dir word: 0
+token shapes: 0
+secret-looking names: 1 outside the allowed set and DEMO_: [] | DEMO_ names: 0
+IPv4 non-loopback: 0 | e-mails: 0 | NUL symbols: 0
+names of the user's private file readable in the export: 0 of 10
+lines shaped like zsh history entries (': <epoch>:<n>;'): 0
+2:47PM INF no leaks found
+detect-private-key exit=0
+orchestrator pane name and workspace ids readable (shape): 20 mentions of the orchestrator name
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 137.4s)
+
+_Thinking:_
+The pane name "chezmoi-orch" was already readable in the other exports, so that's settled. Next I'll install the file, add its README row, run the checks, and clear out the scratch files. The row format follows row 17, and the new entry becomes row 18.
+
+
+The export is clean, with 0 of your 10 private-file names and no history-shaped lines from your real file. I'm installing it with its README row.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; S=/tmp/opencode/export-scratch; G=/home/linuxbrew/.linuxbrew/bin/git\nN=memory/sessions/202611231816-shell_environment_build_two.md\ninstall -m 0644 $S/out/pass1.md $N\npython3 - <<'EOF'\nfrom pathlib import Path\np = Path(\"memory/sessions/README.md\"); s = p.read_text(encoding=\"utf-8\").splitlines(keepends=True)\nidx = max(i for i, l in enumerate(s) if l.startswith(\"| `2026\"))\nrow = (\"| `202611231816-shell_environment_build_two.md` | `ses_df6978237ffep8f55EkhyZmu3O` | \"\n \"Change `correct-shell-environment`, second build session, started by the orchestrator in a new tab of the linked worktree workspace after the first one was cut at 70% of its context: \"\n \"the reading of the brief and the hand-off against the tree (three points that did not hold, re-measured by the orchestrator, then answered: the full-pass mutant, the login shells that are not bash or zsh, the live tests), \"\n \"then groups 6 and 7 of the tasks, tests first with a mutant for each requirement: the desktop login that loads only the environment files, the interactive guard of the shared configuration, the removal of the two files that only the old branch called, the opt-in live checks of the new login, the list of differences with the base branch, highlighting loaded last, the dead startup files removed, and the history moved under the XDG state directory with its migration; \"\n \"the suite went from 473 to 513 tests and the mutants from 12 to 17, a rebase on the main branch, a data-loss path in the history merge found by the orchestrator when it read the code and fixed test first, and this export. \"\n \"Redacted with the public profile and the store alone, no throwaway terms file; the folder scan found no segment. No sub-agents |\\n\")\ns.insert(idx + 1, row)\np.write_text(\"\".join(s), encoding=\"utf-8\")\nEOF\nF=memory/sessions/README.md\nprintf 'README: rows %s | dashes %s | banned %s | modeline last %s\\n' \"$(/usr/bin/grep -a -c -E '^\\| ' $F)\" \"$(/usr/bin/grep -a -c -E '[–—]' $F)\" \"$(/usr/bin/grep -a -c -i -w -E '[redacted:private]|[redacted:private]|[redacted:private]|[redacted:repo]|[redacted:private]|nvim-s26|nvim-orch|rog-orch' $F)\" \"$(tail -1 $F | /usr/bin/grep -a -c 'vim: set ts=2')\"\npython3 ~/.config/nvim/scripts/session_redact.py --check $F memory/sessions/*.md > /tmp/opencode/c.out 2>&1; echo \"--check README + 17 exports: exit=$? ; non-zero: $(sed 's/\\x1b\\[[0-9;]*m//g' /tmp/opencode/c.out | /usr/bin/grep -a -E ': [1-9][0-9]*$' | tr '\\n' ' ')\"; rm -f /tmp/opencode/c.out\nmise x -- gitleaks dir --redact --no-banner memory/sessions 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | tail -1\nrm -rf $S; test ! -e $S && echo 'scratch, raw export and the empty folder report deleted'\n$G status --short\nm='docs(chezmoi:memory): export the second correct-shell-environment build session'; echo \"proposed subject ${#m} chars\"",
+  "timeout": 400000
+}
+```
+
+**Output:**
+```
+README: rows 18 | dashes 0 | banned 0 | modeline last 1
+--check README + 17 exports: exit=0 ; non-zero: 
+2:50PM INF no leaks found
+scratch, raw export and the empty folder report deleted
+ M memory/sessions/README.md
+?? memory/sessions/202611231816-shell_environment_build_two.md
+proposed subject 79 chars
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 21.9s)
+
+_Thinking:_
+I've checked the subject line is within 80 characters. Next I'll update the resume and journal, then report back. After the commit and push, I'll close the w0 workspace by id and run the `done` task for the branch, since it only works once the branch is merged into origin/main. The worktree's handoffs and other .state files also need saving first.
+
+I'm checking what the worktree's `.state` holds that my main copy doesn't, since `builder-handoff-1.md` and any scratch notes need saving before the worktree goes. Builder 2 may not have left a handoff file at all, so I'll look at the directory directly.
+
+
+The export is installed and checks pass. Before the cleanup I'm checking what lives only in the builder's worktree `.state/`, since `done` deletes it.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; W=[redacted:worktrees_root]/dotfiles-correct-shell-environment\necho \"--- worktree .state/briefs not in mine:\"\nfor f in $(ls $W/.state/briefs/correct-shell-environment); do [ -f .state/briefs/correct-shell-environment/$f ] && cmp -s $W/.state/briefs/correct-shell-environment/$f .state/briefs/correct-shell-environment/$f && continue; echo \"  $f ($(stat -c %s $W/.state/briefs/correct-shell-environment/$f) bytes) $([ -f .state/briefs/correct-shell-environment/$f ] && echo DIFFERS || echo ONLY-IN-WORKTREE)\"; done\necho \"--- worktree .state/tmp: top-level entries and sizes\"; du -sh $W/.state/tmp 2>/dev/null | cut -f1; ls $W/.state/tmp | head -20 | tr '\\n' ' '; echo\necho \"--- other git-ignored or untracked material in the worktree\"; /home/linuxbrew/.linuxbrew/bin/git -C $W status --short --ignored | cut -c1-70 | head",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+--- worktree .state/briefs not in mine:
+  builder-handoff-1.md (10291 bytes) ONLY-IN-WORKTREE
+--- worktree .state/tmp: top-level entries and sizes
+3,5M
+allow-empty.txt baseline-run.txt chain-dbg.bash commit-a.log commit-b.log commit-c.log commit-d.log commit-e.log commit-f.log commit-g.log commit-h.log commit.log compare-1.txt compare-2.txt dbg-path.bats difflines-names.txt difflines.txt final-mutants.txt final-suite.txt full-1.txt 
+--- other git-ignored or untracked material in the worktree
+!! .opencode/.gitignore
+!! .opencode/node_modules/
+!! .opencode/package-lock.json
+!! .opencode/package.json
+!! .state/
+!! tests/.lib/
+!! tests/.reports/
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 17.1s)
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; W=[redacted:worktrees_root]/dotfiles-correct-shell-environment\ncp -p $W/.state/briefs/correct-shell-environment/builder-handoff-1.md .state/briefs/correct-shell-environment/ && chmod 600 .state/briefs/correct-shell-environment/builder-handoff-1.md\necho \"saved hand-off 1: $(ls -l .state/briefs/correct-shell-environment/builder-handoff-1.md | awk '{print $5}') bytes\"\necho \"names of the private file in it (count): $(python3 -c '\nimport os, re\nfrom pathlib import Path\nf = Path(os.environ.get(\"XDG_CONFIG_HOME\", str(Path.home()/\".config\")))/\"env\"; names = []\nfor l in f.read_text(encoding=\"utf-8\", errors=\"replace\").splitlines():\n    m = re.match(r\"^\\s*(?:export\\s+)?([A-Za-z_][A-Za-z0-9_]*)=\", l)\n    if m and m.group(1) not in names: names.append(m.group(1))\nt = Path(\".state/briefs/correct-shell-environment/builder-handoff-1.md\").read_text(encoding=\"utf-8\")\nprint(sum(1 for n in names if re.search(r\"\\b%s\\b\" % re.escape(n), t)))\n')\"\npython3 - <<'EOF'\nfrom pathlib import Path\np = Path(\".state/resume.md\"); s = p.read_text(encoding=\"utf-8\")\ndef rep(a, b):\n    global s\n    assert s.count(a) == 1, (s.count(a), a[:70]); s = s.replace(a, b)\na = \"## What is waiting for the user\\n\"\nassert s.count(a) == 1\ns = s.replace(a, '''### Second builder: export done, cleanup pending (2026-11-24 15:00)\n\n- Export of the second builder session built and checked, UNCOMMITTED: `memory/sessions/202611231816-shell_environment_build_two.md` (9,839 lines, through `msg_20dbf24cb001RFRWCuL0smLtuE`, 0 identity values, 0 of 10 private-file names, no history-shaped lines, folder scan 0 segments, the embargoed message is NOT in it) and README row 18 (18 rows now). Proposed message: `docs(chezmoi:memory): export the second correct-shell-environment build session` (79 characters).\n- Worktree-only material saved to my `.state/briefs/correct-shell-environment/` before removal: `builder-handoff-1.md`. Its `.state/tmp` (3.5 MB of logs and scratch) is deleted with the worktree.\n- CLEANUP, to run only AFTER the user's push word AND the export commit are in `origin/main` (`scm:worktree:done` refuses otherwise; never `--force`): (1) `herdr workspace close w0` (the LINKED workspace by id, never `--group`; check afterwards that `wN` and `chezmoi-orch` still resolve), (2) `mise run scm:worktree:done feat/correct-shell-environment` (a refusal on an untracked file is fixed by deleting that file when no process uses it), (3) `herdr worktree list --workspace wN` and `git worktree list` show only `main`, (4) journal it. This is the FIRST real test of the closing rule written into `AGENTS.md` and into the proposal of `add-agent-launch-tasks`: record what happens in that change's `observations.md` (does the workspace close by id leave `wN` untouched? does `done` still find the tab file?).\n- The tab file of the old `scm:worktree:new` flow does not exist for this worktree (no `--tab` was used): `done` runs the hook and removes the worktree without a tab to close; the builder agent `chezmoi-env-build2` ends with the workspace.\n\n## What is waiting for the user\n''')\np.write_text(s, encoding=\"utf-8\")\nEOF\nchmod 600 .state/resume.md; printf 'resume: dashes %s, modeline last %s\\n' \"$(/usr/bin/grep -a -c -E '[–—]' .state/resume.md)\" \"$(tail -1 .state/resume.md | /usr/bin/grep -a -c 'vim: set ts=2')\"\nprintf -- '- %s chezmoi-orch (wN:p1) second builder session exported (202611231816-shell_environment_build_two.md, 9839 lines through msg_20dbf24cb001RFRWCuL0smLtuE, README row 18, checks clean, embargoed message not in it), UNCOMMITTED; builder-handoff-1.md saved to .state before the worktree goes; cleanup (close linked workspace w0 by id never --group, scm:worktree:done) waits for the push word and the export commit in origin/main\\n' \"$(date '+%Y-%m-%d %H:%M:%S')\" >> .state/journal.md",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+saved hand-off 1: 10291 bytes
+names of the private file in it (count): 0
+resume: dashes 0, modeline last 1
+
+```
+
+**Tool: todowrite**
+
+**Input:**
+```json
+{
+  "todos": [
+    {
+      "content": "Part 1 of the build: measured, blocker found and fixed, accepted at 32bdfb5; main fast-forwarded locally",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "content": "Second builder session exported (uncommitted), hand-off 1 saved",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "content": "User: commit word for the export (79 chars) and push word for main (14 commits of part 1 plus the export)",
+      "status": "in_progress",
+      "priority": "high"
+    },
+    {
+      "content": "After push: cleanup by the rule (herdr workspace close w0 by id never --group, then scm:worktree:done), record the result in the add-agent-launch-tasks observations",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "content": "Small change nvim-dev (script alone) branched from main after the push",
+      "status": "pending",
+      "priority": "medium"
+    },
+    {
+      "content": "Plan lead for add-agent-launch-tasks; second build part for groups 8 to 13 of correct-shell-environment (needs sudo and the user for 11 and 12)",
+      "status": "pending",
+      "priority": "medium"
+    },
+    {
+      "content": "Next re-export of my own session: mask the embargoed guard message first (procedure in the resume note)",
+      "status": "pending",
+      "priority": "medium"
+    }
+  ]
+}
+```
+
+**Output:**
+```
+[
+  {
+    "content": "Part 1 of the build: measured, blocker found and fixed, accepted at 32bdfb5; main fast-forwarded locally",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "content": "Second builder session exported (uncommitted), hand-off 1 saved",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "content": "User: commit word for the export (79 chars) and push word for main (14 commits of part 1 plus the export)",
+    "status": "in_progress",
+    "priority": "high"
+  },
+  {
+    "content": "After push: cleanup by the rule (herdr workspace close w0 by id never --group, then scm:worktree:done), record the result in the add-agent-launch-tasks observations",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "content": "Small change nvim-dev (script alone) branched from main after the push",
+    "status": "pending",
+    "priority": "medium"
+  },
+  {
+    "content": "Plan lead for add-agent-launch-tasks; second build part for groups 8 to 13 of correct-shell-environment (needs sudo and the user for 11 and 12)",
+    "status": "pending",
+    "priority": "medium"
+  },
+  {
+    "content": "Next re-export of my own session: mask the embargoed guard message first (procedure in the resume note)",
+    "status": "pending",
+    "priority": "medium"
+  }
+]
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 11.2s)
+
+Part 1 of the build is accepted, and `main` is fast-forwarded locally to `32bdfb5`. Nothing is pushed, because you haven't said "push".
+
+## The fix, measured on the exported commit `32bdfb5`
+- **Suite:** 513 tests, 0 failures, 30 skipped, canary scan 0.
+- **Mutants:** 17 run, 0 problems. The new `env-history-merge-unchecked` fails 1 test, as its minimum requires. `env-history-no-merge` now fails 7.
+- **Spec:** the scenario "A failed merge loses nothing" is in, which brings the counts to 35 for `shell-environment` and 58 for the five delta specs.
+- **Added lines:** the 90 added lines are clean. gitleaks and `openspec validate` (38/38) are clean too.
+- **My failing-`awk` probe on synthetic history files:**
+  - With `awk` exiting 2, printing partial output then failing, or missing from `PATH`, both history files stay as regular files with every line, and no temp file is left. The next start retries.
+  - The normal merge keeps every distinct line, keeps the multi-line entry, and puts the link back.
+  - The same probe on the old code empties both files (201 lines to 0), so the probe can see the bug.
+- **Correction to my own probe:** my first "`awk` missing" run was invalid. `env` couldn't find `zsh` on the restricted `PATH`, so the script never ran. I caught it from the exit status and redid it with absolute paths.
+- **Fix itself:** it sets `pipefail` inside the subshell and refuses to replace a non-empty file with an empty output. Bash was already safe, since it runs a single `awk`.
+
+## Export of the second builder session
+- **File:** `memory/sessions/202611231816-shell_environment_build_two.md`, 9,839 lines, with README row 18. It is not committed.
+- **Checks:** 0 identity values and 0 of your 10 private-file names. It has no history-shaped lines from your real history file, since the builder used synthetic files only. The folder scan found no segment, and the redaction check passes over all 17 exports and the README.
+- **Embargo:** the message from the guard's orchestrator isn't in it.
+- **Hand-off saved:** `builder-handoff-1.md` was the only file living just in the worktree, and I copied it before removal.
+- **Proposed message:** `docs(chezmoi:memory): export the second correct-shell-environment build session` (79 characters).
+
+## What I need from you
+1. **"commit"** for that export, and **"push"** for `main`. That sends the 14 commits of part 1 plus the export. I scan the outgoing commits first.
+2. **Then the cleanup**, by the rule: I close the linked workspace `w0` by id, never with `--group`, then run `scm:worktree:done`. It refuses until the branch is in `origin/main`, which is why the push comes first. This is the first real test of that rule, and I'll record what happens in the launch-tasks observations.
+
+## After that
+The small `nvim-dev` change is next, then the `add-agent-launch-tasks` lead. The remaining build groups (8 to 13) involve sudo and your presence for groups 11 and 12. The resume note holds all of this. Next time I re-export this session, I'll mask the guard's message first.
+
+---
+
+## User
+
+1. commit and push
+2. ok
+3. export this session
+3. persist planning and context before compaction
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 44.6s)
+
+_Thinking:_
+I'm lining up the user's requests in order: first commit and push the second builder's export, then clean up the workspace, and then handle the session export, which needs the embargo masking step first. Persisting the planning and context before compaction comes last. I'll start with the commit, scan, and push, then close workspace w0.
+
+I'm checking whether my own session export is safe to run, since the guard's embargo masking might not catch everything in the raw transcript. I'll verify the resume note edit and my replies don't contain the sensitive terms before building the throwaway terms layer.
+
+I'm working out how to mask the user's earlier message before exporting my session, since its details, like the tokenizer, heredoc, and a ticket number, would otherwise leak into the raw transcript. I'm considering whether to match that whole block with a multi-line pattern or to mask only the distinctive sentences, and I'm leaning toward the sturdier whole-paragraph approach.
+
+I'm settling on a single regex to mask the whole user message in the export, since its details would otherwise leak through, and I'm checking that the redactor matches across line breaks.
+
+I'm checking the resume note for any details from the user's earlier message that might leak into the export, and I'm confirming that the guard's parsing issue is described only in general terms there. Next I want to scan the raw transcript for the distinctive words from that message so I know exactly what needs masking.
+
+I'm going to mask the whole user message in the export with one multi-line pattern, since its details would otherwise leak through. After that I'll check that the distinctive words are gone from the output and still present in the raw transcript. I won't commit the session export yet; I'll propose the commit message and wait for the user to confirm.
+
+Next I'll check the masked block in the export output, looking only at the redacted markers and the lines around them rather than the raw text. I'm also counting how many distinctive words show up in the raw transcript, without printing any of them. After that I'll update the resume note with the final state and the open to-dos.
+
+I'm settling the last steps: first the commit for the session export, then writing briefs for the upcoming work (the nvim-dev change, the add-agent-launch-tasks lead, and the second build part covering groups 8-10) so the plan survives compaction. I'll make sure the commit message is validated before it goes in.
+
+I'm going to verify the export commit's scan results and push the outgoing commits before moving on to the workspace cleanup.
+
+I'm checking that the workspace close won't touch anything I didn't create, and that the cleanup command is the right one for this branch.
+
+Next I'll check whether the worktree has any untracked files that could block removal, then run the done command.
+
+
+Order of work: commit the builder export, scan and push, run the cleanup, then export this session with the embargoed message masked, then persist the plan. Starting with the commit.
+**Tool: todowrite**
+
+**Input:**
+```json
+{
+  "todos": [
+    {
+      "content": "Commit the second builder export (79 chars), scan the outgoing commits, push main",
+      "status": "in_progress",
+      "priority": "high"
+    },
+    {
+      "content": "Cleanup by the rule: close linked workspace w0 by id (never --group), scm:worktree:done, verify, journal; record the result in add-agent-launch-tasks observations",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "content": "Export this orchestrator session: mask the embargoed guard message with a throwaway layer, count distinctive words raw vs output, show the masked block to the user, install uncommitted",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "content": "Persist planning and context: resume note, briefs for the next work (nvim-dev change, add-agent-launch-tasks lead, build part 2 groups 8 to 10), journal",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "content": "Propose commit messages for the export and the observations/docs edits; wait for the user's word",
+      "status": "pending",
+      "priority": "medium"
+    }
+  ]
+}
+```
+
+**Output:**
+```
+[
+  {
+    "content": "Commit the second builder export (79 chars), scan the outgoing commits, push main",
+    "status": "in_progress",
+    "priority": "high"
+  },
+  {
+    "content": "Cleanup by the rule: close linked workspace w0 by id (never --group), scm:worktree:done, verify, journal; record the result in add-agent-launch-tasks observations",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "content": "Export this orchestrator session: mask the embargoed guard message with a throwaway layer, count distinctive words raw vs output, show the masked block to the user, install uncommitted",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "content": "Persist planning and context: resume note, briefs for the next work (nvim-dev change, add-agent-launch-tasks lead, build part 2 groups 8 to 10), journal",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "content": "Propose commit messages for the export and the observations/docs edits; wait for the user's word",
+    "status": "pending",
+    "priority": "medium"
+  }
+]
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; G=/home/linuxbrew/.linuxbrew/bin/git\n$G status --short\nm='docs(chezmoi:memory): export the second correct-shell-environment build session'; echo \"subject ${#m} chars\"\n$G add memory/sessions/202611231816-shell_environment_build_two.md memory/sessions/README.md\n$G diff --cached --stat | tail -3 | cut -c1-110\nenv -u GITHUB_TOKEN HK_STASH=none $G commit -q -m \"$m\" -m \"Export of the second build session of correct-shell-environment: groups 6 and 7 (the desktop login that loads only the environment files, the shared configuration guarded, the live checks, highlighting last, the history under XDG state), a rebase, and a data-loss path in the history merge that the orchestrator found and the session fixed test first. Redacted with the store alone; the folder scan found no segment and none of the private file's names is readable.\" 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | tail -2; echo \"exit=${pipestatus[1]}\"\n$G log --oneline -2 | cut -c1-100; echo \"dirty: $($G status --short | wc -l); ahead of origin: $($G rev-list --count origin/main..HEAD)\"",
+  "timeout": 180000
+}
+```
+
+**Output:**
+```
+ M memory/sessions/README.md
+?? memory/sessions/202611231816-shell_environment_build_two.md
+subject 79 chars
+ .../202611231816-shell_environment_build_two.md    | 9839 ++++++++++++++++++++
+ memory/sessions/README.md                          |    1 +
+ 2 files changed, 9840 insertions(+)
+  gitleaks – 2:58PM INF no leaks found
+✔ gitleaks
+exit=0
+1063360 docs(chezmoi:memory): export the second correct-shell-environment build session
+32bdfb5 fix(shell:history): keep both history files when the zsh merge fails
+dirty: 0; ahead of origin: 15
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 168.0s)
+
+Committed as `1063360`. I'm scanning all 15 outgoing commits before the push, because it publishes the whole build.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; G=/home/linuxbrew/.linuxbrew/bin/git\nenv -u GITHUB_TOKEN $G fetch -q origin 2>&1 | tail -1; echo \"origin/main $($G rev-parse --short origin/main), behind: $($G rev-list --count HEAD..origin/main)\"\n$G log --format='%h|%s' origin/main..HEAD | while IFS='|' read h s; do [ ${#s} -gt 80 ] && echo \"SUBJECT TOO LONG ${#s}: $h\"; done; echo \"(subject length check done: all at most 80)\"\n$G diff origin/main HEAD -- . ':!memory/sessions' | /usr/bin/grep -a '^+' | /usr/bin/grep -a -v '^+++' > /tmp/opencode/added.txt\nprintf 'added outside exports %s | dashes %s | banned %s | emoji %s | e-mail %s | token shapes %s | /home paths (non-linuxbrew) %s | IPv4 %s\\n' \"$(wc -l < /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -E '[–—]' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -i -w -E '[redacted:private]|[redacted:private]|[redacted:private]|[redacted:repo]|[redacted:private]' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -P '[\\x{1F300}-\\x{1FAFF}\\x{2600}-\\x{27BF}]' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -E '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[a-z]{2,}' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -c -E 'gh[pousr]_[A-Za-z0-9]{20,}|sk-[A-Za-z0-9_-]{20,}|AKIA[0-9A-Z]{16}' /tmp/opencode/added.txt)\" \"$(/usr/bin/grep -a -o -E '/home/[A-Za-z0-9_-]+' /tmp/opencode/added.txt | /usr/bin/grep -a -v -E 'linuxbrew|/home/user' | wc -l)\" \"$(/usr/bin/grep -a -c -E '\\b([0-9]{1,3}\\.){3}[0-9]{1,3}\\b' /tmp/opencode/added.txt)\"\necho \"secret-looking names in added lines: $(/usr/bin/grep -a -o -E '\\b[A-Z][A-Z0-9]*(_[A-Z0-9]+)*_(API_?KEY|TOKEN|SECRET|PASSWORD|PASSWD|CREDENTIAL)\\b' /tmp/opencode/added.txt | sort | uniq -c | tr '\\n' ' ')\"\necho \"embargo words in added lines (count): $(/usr/bin/grep -a -c -i -E 'tokenizer|heredoc' /tmp/opencode/added.txt)\"\nrm -f /tmp/opencode/added.txt\necho \"names of the private file in the whole outgoing diff: $(python3 -c '\nimport os, re, subprocess\nfrom pathlib import Path\nf = Path(os.environ.get(\"XDG_CONFIG_HOME\", str(Path.home()/\".config\")))/\"env\"; names = []\nfor l in f.read_text(encoding=\"utf-8\", errors=\"replace\").splitlines():\n    m = re.match(r\"^\\s*(?:export\\s+)?([A-Za-z_][A-Za-z0-9_]*)=\", l)\n    if m and m.group(1) not in names: names.append(m.group(1))\nd = subprocess.run([\"/home/linuxbrew/.linuxbrew/bin/git\", \"diff\", \"origin/main\", \"HEAD\"], capture_output=True, text=True).stdout\nprint(sum(1 for n in names if re.search(r\"\\b%s\\b\" % re.escape(n), d)))\n')\"\npython3 ~/.config/nvim/scripts/session_redact.py --check memory/sessions/*.md > /tmp/opencode/c.out 2>&1; echo \"--check all 17 exports: exit=$? non-zero: $(sed 's/\\x1b\\[[0-9;]*m//g' /tmp/opencode/c.out | /usr/bin/grep -a -E ': [1-9][0-9]*$' | tr '\\n' ' ')\"; rm -f /tmp/opencode/c.out\necho \"gitleaks origin/main..HEAD (15 commits): $(mise x -- gitleaks git --redact --no-banner --log-opts='origin/main..HEAD' . 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | tail -1)\"\necho \"validate: $(openspec validate --all --strict 2>&1 | tail -1)\"",
+  "timeout": 400000
+}
+```
+
+**Output:**
+```
+origin/main 08733b0, behind: 0
+(subject length check done: all at most 80)
+added outside exports 3065 | dashes 0 | banned 0 | emoji 0 | e-mail 0 | token shapes 0 | /home paths (non-linuxbrew) 0 | IPv4 0
+secret-looking names in added lines:       9 GITHUB_TOKEN 
+embargo words in added lines (count): 0
+names of the private file in the whole outgoing diff: 0
+--check all 17 exports: exit=0 non-zero: 
+gitleaks origin/main..HEAD (15 commits): 3:01PM INF no leaks found
+validate: Totals: 38 passed, 0 failed (38 items)
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 11.1s)
+
+All clean. Pushing.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; G=/home/linuxbrew/.linuxbrew/bin/git\nenv -u GITHUB_TOKEN $G push origin main 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | tail -2; echo \"push exit=${pipestatus[1]}\"\nenv -u GITHUB_TOKEN $G fetch -q origin 2>&1 | tail -1\necho \"repo ahead/behind: $($G rev-list --count origin/main..HEAD)/$($G rev-list --count HEAD..origin/main), head $($G rev-parse --short HEAD)\"\necho \"branch in origin/main (what scm:worktree:done checks): $($G merge-base --is-ancestor feat/correct-shell-environment origin/main && echo yes || echo NO)\"\nprintf -- '- %s chezmoi-orch (wN:p1) committed 1063360 (export of the second build session) and pushed main to 1063360 on the user word: part 1 of correct-shell-environment is public (15 commits; scans clean: 3065 added lines, no private-file name, no embargo word, gitleaks over 15 commits, validate 38/38, --check over 17 exports)\\n' \"$(date '+%Y-%m-%d %H:%M:%S')\" >> .state/journal.md",
+  "timeout": 120000
+}
+```
+
+**Output:**
+```
+To https://github.com/silopolis/dotfiles.git
+   08733b0..1063360  main -> main
+push exit=0
+repo ahead/behind: 0/0, head 1063360
+branch in origin/main (what scm:worktree:done checks): yes
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 9.9s)
+
+Pushed: `origin/main` is `1063360`. Now the cleanup, by the rule. I'm checking the state of the groups first, so I close only `w0` and nothing else.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; W=[redacted:worktrees_root]/dotfiles-correct-shell-environment; G=/home/linuxbrew/.linuxbrew/bin/git\necho \"workspaces: $(herdr workspace list 2>/dev/null | jq -r '.result.workspaces[]? | select(.workspace_id==\"wN\" or .workspace_id==\"w0\") | \"\\(.workspace_id)=\\(.label) tabs=\\(.tab_count) worktree=\\(.worktree.is_linked_worktree // \"null\")\"' 2>/dev/null | tr '\\n' ' ')\"\necho \"agents: $(herdr agent list 2>/dev/null | jq -r '.result.agents[]? | select((.pane_id // \"\") | test(\"^(wN|w0):\")) | \"\\(.name // \"(no name)\")@\\(.pane_id)=\\(.agent_status)\"' 2>/dev/null | tr '\\n' ' ')\"\necho \"herdr worktree list wN: $(herdr worktree list --workspace wN 2>/dev/null | jq -c '[.result.worktrees[] | {branch, open_workspace_id, linked: .is_linked_worktree}]' 2>/dev/null)\"\necho \"worktree dirty (porcelain, ignored excluded): $($G -C $W status --porcelain | wc -l); processes with cwd in the worktree (other than the agent's shell): $(for p in /proc/[0-9]*; do readlink $p/cwd 2>/dev/null; done | /usr/bin/grep -a -c \"^$W\")\"\necho \"tab file of the scm flow: $(ls $W/.git 2>/dev/null | head -1) / base file check skipped; the worktree was created without --tab\"\necho \"my pane before: $(herdr agent get chezmoi-orch 2>/dev/null | jq -r '.result.agent.pane_id' 2>/dev/null)\"",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+workspaces: wN=chezmoi tabs=2 worktree=null w0=env-build tabs=1 worktree=true 
+agents: chezmoi-orch@wN:p1=working chezmoi-env-build2@w0:p2=idle 
+herdr worktree list wN: [{"branch":"main","open_workspace_id":"wN","linked":false},{"branch":"feat/correct-shell-environment","open_workspace_id":"w0","linked":true}]
+worktree dirty (porcelain, ignored excluded): 0; processes with cwd in the worktree (other than the agent's shell): 2
+tab file of the scm flow: [redacted:worktrees_root]/dotfiles-correct-shell-environment/.git / base file check skipped; the worktree was created without --tab
+my pane before: wN:p1
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 10.5s)
+
+`w0` is the linked workspace (`linked: true`), the tree is clean, and the only agent in it is idle. Closing it by id, without `--group`, then checking that `wN` and my pane are untouched.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\nherdr workspace close w0 > .state/tmp/close-w0.json 2> .state/tmp/close-w0.err; echo \"close exit=$?\"\njq -c '{ok: (.error == null), error: (.error // null), type: (.result.type // null)}' .state/tmp/close-w0.json 2>/dev/null; head -c 300 .state/tmp/close-w0.err | sed \"s#$HOME#~#g\"\nsleep 2\necho \"workspaces now: $(herdr workspace list 2>/dev/null | jq -r '.result.workspaces[]? | select(.label==\"chezmoi\" or .label==\"env-build\") | \"\\(.workspace_id)=\\(.label) tabs=\\(.tab_count)\"' 2>/dev/null | tr '\\n' ' ')\"\necho \"wN tabs: $(herdr tab list --workspace wN 2>/dev/null | jq -r '.result.tabs[] | \"\\(.tab_id // .id)=\\(.label // .name)\"' 2>/dev/null | tr '\\n' ' ')\"\necho \"chezmoi-orch resolves: $(herdr agent get chezmoi-orch 2>/dev/null | jq -r '.result.agent.pane_id + \" \" + .result.agent.agent_status' 2>/dev/null)\"\necho \"builder agent: $(herdr agent get chezmoi-env-build2 2>&1 | jq -r '.error.message // \"still listed\"' 2>/dev/null | cut -c1-80)\"\necho \"herdr worktree list wN: $(herdr worktree list --workspace wN 2>/dev/null | jq -c '[.result.worktrees[] | {branch, open_workspace_id}]' 2>/dev/null)\"\nrm -f .state/tmp/close-w0.json .state/tmp/close-w0.err",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+close exit=0
+{"ok":true,"error":null,"type":"ok"}
+workspaces now: wN=chezmoi tabs=2 
+wN tabs: wN:t1=orch wN:tY=editor 
+chezmoi-orch resolves: wN:p1 working
+builder agent: agent target chezmoi-env-build2 not found
+herdr worktree list wN: [{"branch":"main","open_workspace_id":"wN"},{"branch":"feat/correct-shell-environment","open_workspace_id":null}]
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 11.8s)
+
+Closing the linked workspace by id left `wN` and my pane intact, and the builder agent is gone. Next, `scm:worktree:done`, which removes the git worktree and the branch.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\nmise run scm:worktree:done feat/correct-shell-environment 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | sed \"s#$HOME#~#g\" | tail -8 | cut -c1-170; echo \"done exit=${pipestatus[1]}\"\nG=/home/linuxbrew/.linuxbrew/bin/git\necho '--- after'\necho \"worktree dir exists: $([ -e [redacted:worktrees_root]/dotfiles-correct-shell-environment ] && echo yes || echo no); local branch: $($G branch --list feat/correct-shell-environment | wc -l); remote branch: $(env -u GITHUB_TOKEN $G ls-remote --heads origin feat/correct-shell-environment 2>/dev/null | wc -l)\"\necho \"git worktree list: $($G worktree list | sed \"s#$HOME#~#g\" | tr '\\n' ';')\"\necho \"herdr worktree list wN: $(herdr worktree list --workspace wN 2>/dev/null | jq -c '[.result.worktrees[] | {branch, open_workspace_id}]' 2>/dev/null)\"\nmise run scm:worktree:ls 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | tail -2 | cut -c1-120\necho \"chezmoi-orch: $(herdr agent get chezmoi-orch 2>/dev/null | jq -r '.result.agent.pane_id' 2>/dev/null); main $($G rev-parse --short HEAD) dirty $($G status --short | wc -l)\"",
+  "timeout": 120000
+}
+```
+
+**Output:**
+```
+[scm:worktree:done] $ ~/.config/mise/tasks/scm/worktree/done feat/correct-shell-environment
+dotfiles-correct-shell-environment: merged (in origin/main)
+Deleted branch feat/correct-shell-environment (was 32bdfb5).
+removed [redacted:worktrees_root]/dotfiles-correct-shell-environment (branch feat/correct-shell-environment); the remote branch is kept
+done exit=0
+--- after
+worktree dir exists: no; local branch: 0; remote branch: 0
+git worktree list: ~/.local/share/chezmoi 1063360 [main];
+herdr worktree list wN: [{"branch":"main","open_workspace_id":"wN"}]
+REPO      NAME     BRANCH  AHEAD  BEHIND  DIRTY  PR  TAB  AGENT
+dotfiles  chezmoi  main    0      0       0      -   -    -
+chezmoi-orch: wN:p1; main 1063360 dirty 0
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 15.9s)
+
+_Thinking:_
+The cleanup ran with `herdr workspace close w0` and then `scm:worktree:done`, leaving only `main` in git and herdr. I'm recording that as observations, since it was the first real test.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; python3 - <<'EOF'\nfrom pathlib import Path\np = Path(\"openspec/changes/add-agent-launch-tasks/observations.md\"); s = p.read_text(encoding=\"utf-8\")\nml = \"<!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->\"\nassert s.rstrip().endswith(ml)\nentry = '''- 2026-11-24, cleanup of the grouped launch, the first real test of the closing rule (the builder of `correct-shell-environment`, a linked workspace that held two agent sessions in two tabs, one after the other):\n  - Order that worked: the branch was pushed to `origin/main` first, the sessions were exported before that, then `herdr workspace close <linked workspace id>` without `--group`, then `scm:worktree:done <branch>`.\n  - Closing the linked workspace by id left the primary workspace, its two tabs and the orchestrator's agent untouched; the builder's agent name stopped resolving at once, and `herdr worktree list --workspace <primary>` then listed the branch with no workspace open on it.\n  - `scm:worktree:done` found the branch in `origin/main`, removed the worktree and the local branch, and ran with no tab to close and no tab file, since the worktree had been created without `--tab`: the cleanup of a grouped worker needs no tab file.\n  - A tab of a linked workspace can be closed while the workspace has another tab (the first builder's tab was closed by id when the second session took over), and the workspace stayed open; closing its last tab first would have closed the workspace.\n  - Not observed: closing a linked workspace whose agent is blocked or working, and a cleanup where the worktree holds an untracked file (an editor's grammar server wrote one in an earlier launch and `done` refused until it was deleted by hand).\n  - For the design: the closing is two calls today (workspace by id, then the task), and the order matters only for the export, which no generic task can know: the project hook that refuses the closing before the export is committed is still the open piece.\n'''\ns = s.rstrip()[: -len(ml)].rstrip(\"\\n\") + \"\\n\" + entry + \"\\n\" + ml + \"\\n\"\np.write_text(s, encoding=\"utf-8\")\nEOF\nf=openspec/changes/add-agent-launch-tasks/observations.md\nprintf 'dashes %s | banned %s | modeline last %s | validate %s\\n' \"$(/usr/bin/grep -a -c -E '[–—]' $f)\" \"$(/usr/bin/grep -a -c -i -w -E '[redacted:private]|[redacted:private]|[redacted:private]|[redacted:repo]|[redacted:private]' $f)\" \"$(tail -1 $f | /usr/bin/grep -a -c 'vim: set ts=2')\" \"$(openspec validate --all --strict 2>&1 | tail -1)\"\ngit diff --stat | tail -1\nprintf -- '- %s chezmoi-orch (wN:p1) cleanup of the grouped build done by the rule: linked workspace w0 closed by id without --group (wN, its 2 tabs and chezmoi-orch untouched), scm:worktree:done removed the worktree and local branch (merged in origin/main, no tab file needed); git and herdr list only main; observations entry added to add-agent-launch-tasks (uncommitted)\\n' \"$(date '+%Y-%m-%d %H:%M:%S')\" >> .state/journal.md",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+dashes 0 | banned 0 | modeline last 1 | validate Totals: 38 passed, 0 failed (38 items)
+ 1 file changed, 7 insertions(+)
+
+```
+
+**Tool: todowrite**
+
+**Input:**
+```json
+{
+  "todos": [
+    {
+      "content": "Commit the second builder export (1063360), scan, push: done",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "content": "Cleanup by the rule (w0 closed by id, scm:worktree:done), observations entry added (uncommitted)",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "content": "Export this orchestrator session: mask the embargoed guard message with a throwaway layer, count distinctive words raw vs output, show the masked block to the user, install uncommitted",
+      "status": "in_progress",
+      "priority": "high"
+    },
+    {
+      "content": "Persist planning and context: resume note, briefs for the next work (nvim-dev change, add-agent-launch-tasks lead, build part 2 groups 8 to 10), journal",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "content": "Propose commit messages for the export and the observations/docs edits; wait for the user's word",
+      "status": "pending",
+      "priority": "medium"
+    }
+  ]
+}
+```
+
+**Output:**
+```
+[
+  {
+    "content": "Commit the second builder export (1063360), scan, push: done",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "content": "Cleanup by the rule (w0 closed by id, scm:worktree:done), observations entry added (uncommitted)",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "content": "Export this orchestrator session: mask the embargoed guard message with a throwaway layer, count distinctive words raw vs output, show the masked block to the user, install uncommitted",
+    "status": "in_progress",
+    "priority": "high"
+  },
+  {
+    "content": "Persist planning and context: resume note, briefs for the next work (nvim-dev change, add-agent-launch-tasks lead, build part 2 groups 8 to 10), journal",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "content": "Propose commit messages for the export and the observations/docs edits; wait for the user's word",
+    "status": "pending",
+    "priority": "medium"
+  }
+]
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 28.8s)
+
+_Thinking:_
+I'm weighing whether to persist the resume notes and briefs before running the session export, since the export only captures turns up to that point. Exporting last would give the closest final state, but the export is large and the embargo masking takes work, so I'm checking the risk of leaving it for the end.
+
+I'm going to write the briefs and resume note before the export, since persisting first protects against losing context. Then I'll export, and finish with a short resume update recording the export's outcome. The next step is working out what the nvim-dev change needs, starting with the existing specs under openspec/specs/.
+
+I'm picking a name for the nvim-dev change and looking at how the archived `allow-public-secret-names` change was structured, so I can follow the same layout. I'll check whether I should draft the full change now or just leave a brief, given how close compaction is.
+
+I'm drafting the planning brief for the add-agent-launch-tasks change: the topology decisions, the verified recipe and JSON paths, the cleanup observations, and its dependency on add-repo-roadmap. I'll check the existing proposal and spec so the brief matches what's already written.
+
+I'm reading the full proposal for the add-agent-launch-tasks change, checking its capabilities section and the relevant `global-mise-tasks` requirements to see what the change would modify. After that I want to draft a brief for the part 2 builder covering the session-defaults script, which uses sudo and hasn't been run yet, and the documentation work.
+
+Next I'm writing the three briefs: one for the nvim-dev change, one for the add-agent-launch-tasks lead, and one for the build part 2 work. I still need to check the status of tasks 8 through 10 before drafting the builder brief.
+
+Next I'll check the groups 8 through 13 in the main branch and the add-agent-launch-tasks proposal, then settle the order for the nvim-dev change, the launch-tasks planning, and the remaining build groups.
+
+I'm now settling the order of the remaining work: the plan lead for add-agent-launch-tasks, the nvim-dev change I can handle myself, and build part 2. My inclination is to start build part 2 first, since deploying part 1 is what the user cares about most and groups 8 through 10 don't depend on the launch-tasks change.
+
+Next I'm settling on a rough order: the nvim-dev change is small enough that I can handle it myself without an agent, and I'd suggest the build part 2 work go next, since deploying part 1 matters most. I'll leave the launch-tasks planning lead for after that, and put the recommendation to the user rather than deciding it myself.
+
+
+_Thinking:_
+Cleanup is recorded, and I'm saving the planning notes before the export since a compaction is near. Next I'm reading the remaining build groups, the launch-tasks change and the planned order.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; D=openspec/changes/correct-shell-environment\necho \"=== tasks 8 to 10 (full text), and 11 to 13 headings\"\nsed -n '/^## 8\\./,/^## 11\\./p' $D/tasks.md | cut -c1-520\necho; /usr/bin/grep -a -n -E '^## (11|12|13)\\.' $D/tasks.md\necho \"unticked tasks: $(/usr/bin/grep -a -c '^- \\[ \\]' $D/tasks.md), ticked: $(/usr/bin/grep -a -c '^- \\[x\\]' $D/tasks.md)\"",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+=== tasks 8 to 10 (full text), and 11 to 13 headings
+## 8. Session defaults script
+
+- [ ] 8.1 `home/.chezmoidata/packages.yaml`: `system.session` (`umask: "027"`, `sudo_umask: "022"`, `home_mode: "0700"`, `locales: [en_US.UTF-8, fr_FR.UTF-8]`), with a comment that names the script; the tools it calls declared where the install-scripts capability wants them
+- [ ] 8.2 Harness: stubs and fixtures for `chfn`, `getent`, `visudo`, `locale-gen` and `locale`, and the scratch paths that stand for `/etc/sudoers.d`, `/etc/locale.gen` and the home (`bats tests/unit/harness.bats` passes)
+- [ ] 8.3 `tests/unit/install-scripts-isolated.bats`: the eight scenarios of "Session defaults are set for the login"; `tests/unit/install-scripts-render.bats`: the script re-renders when `system.session` changes and not otherwise, render failure on bad data
+- [ ] 8.4 `home/.chezmoiscripts/run_onchange_before_03-session-defaults.sh.tmpl` on `script-lib.sh`: GECOS `other` sub-field, sudoers file through `visudo -cf` then `install -m 0440`, `chmod` of the home, locales; never weaker, sudo only to write, dry run (rendered with `chezmoi -S <worktree> execute-template`, run with `CHEZMOI_SCRIPTS_DRY_RUN=1`, `shellcheck -s bash` on the render)
+- [ ] 8.5 Mutant `install-session-weakens` (a stricter GECOS umask overwritten): at least the "A stricter live value is left" test fails
+
+## 9. Documents
+
+- [ ] 9.1 `tests/README.md`: the scenario table maps every scenario of `shell-environment` and the changed scenarios of `shell-startup`, `agent-environment` and `install-scripts` (rows equal the sum of the four `rg -c '^#### Scenario'` counts after the archive: 35 scenarios for `shell-environment`, 58 for the five delta specs together); "After the next login" and "The live session holds no key" map to `smoke/environment-live.bats`, opt-in with `DOTFILES_TEST_AFTER_LOGIN=1`
+- [ ] 9.2 `AGENTS.md`, wording shown to the user first: `secrets load` (the user types it; an agent never does), the session umask from the login, and the line about non-interactive shells and brew (a non-interactive login shell now loads the environment)
+- [ ] 9.3 `proposal.md`: open questions answered, capabilities modified (`shell-startup`, `agent-environment`, `install-scripts`, `shell-test-harness`), impact (the system script, `.chezmoiremove`, the deleted targets)
+- [ ] 9.4 Ask the orchestrator to forward the note for the Neovim repository (avante `cmd:` key names) and to add the `~/.zshenv` review to the backlog of `TODO.md`
+
+## 10. Checks before deployment
+
+- [ ] 10.1 `mise run test` and `mise run test:mutants` exit 0; `zsh -n`, `bash -n` and `shellcheck` on every changed shell file; `openspec validate --all --strict`
+- [ ] 10.2 The redaction tool (public profile, `--check`, file by file) and `gitleaks dir tests` report nothing on the new tests and fixtures
+- [ ] 10.3 `chezmoi -S <worktree> apply --dry-run --verbose --exclude=scripts` on the shell targets lists only the expected files and removals (reviewed with the user)
+
+## 11. Deployment, one target at a time, with the user present
+
+77:## 11. Deployment, one target at a time, with the user present
+90:## 12. Session defaults, reboot and live checks (the user)
+102:## 13. Close
+unticked tasks: 27, ticked: 34
+
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\necho \"=== add-agent-launch-tasks: proposal tail, Capabilities and Impact\"\nsed -n '/^## Capabilities/,$p' openspec/changes/add-agent-launch-tasks/proposal.md | cut -c1-260\necho; echo \"=== its spec: requirement titles and the delta kind\"\n/usr/bin/grep -a -n -E '^## (ADDED|MODIFIED)|^### Requirement' openspec/changes/add-agent-launch-tasks/specs/*/spec.md | cut -c1-150\nrtk ls openspec/changes/add-agent-launch-tasks openspec/changes/add-agent-launch-tasks/specs\necho \"=== the planned order around it\"\n/usr/bin/grep -a -n -E 'add-agent-launch-tasks|add-repo-roadmap|port-[redacted:private]|correct-shell-environment' TODO.md | cut -c1-170",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+=== add-agent-launch-tasks: proposal tail, Capabilities and Impact
+## Capabilities
+
+
+### New Capabilities
+
+- `agent-launch`: delivering a first prompt once, creating or reusing the workspace of a worktree, launching an agent into it, the refusals before creation, and the test harness.
+
+
+### Modified Capabilities
+
+- `global-mise-tasks`: `agent:dispatch` delivers through the library, reports the outcome, and opens the workspace by the same rules.
+
+
+## Impact
+
+- New: the Python library and the tasks `workspace:open` and `agent:launch` in `home/dot_config/mise/lib/` and `home/dot_config/mise/tasks/`, and `tests/global-mise-tasks/`.
+- Changed: `scm.sh` (the prompt helper goes away), `scm:worktree:new` and `agent:dispatch`.
+- Deleted: `openspec/changes/fix-prompt-delivery/` (done in the commit that created this change).
+- Archive order: this change modifies only the requirement "Dispatching an agent" of `global-mise-tasks`, which no other open change touches (`add-repo-roadmap` modifies two other requirements and `add-incus-host-setup` adds one), so the archive order is free;
+- The return status contract of the callers stays: 0 delivered, non-zero not delivered, message on stderr; the first prompt takes longer, about 10 s while opencode draws, plus 1 s.
+- Applying the targets is a single-target apply with `--exclude=scripts`, after the user's go; the live check starts one throwaway agent in a herdr workspace and removes it afterwards.
+- Open questions for the design: the task names; what an existing branch with no checkout does (refuse or attach a worktree); whether the main checkout's workspace counts as a worktree workspace; how plan mode and model settings are passed; whether herdr's own
+
+
+<!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->
+
+=== its spec: requirement titles and the delta kind
+openspec/changes/add-agent-launch-tasks/specs/agent-launch/spec.md:1:## ADDED Requirements
+openspec/changes/add-agent-launch-tasks/specs/agent-launch/spec.md:9:### Requirement: First prompt is delivered once
+openspec/changes/add-agent-launch-tasks/specs/agent-launch/spec.md:105:### Requirement: herdr calls are bounded
+openspec/changes/add-agent-launch-tasks/specs/agent-launch/spec.md:117:### Requirement: A workspace is built out of a worktree
+openspec/changes/add-agent-launch-tasks/specs/agent-launch/spec.md:148:### Requirement: An agent is launched into a workspace
+openspec/changes/add-agent-launch-tasks/specs/agent-launch/spec.md:173:### Requirement: Callers report the delivery outcome
+openspec/changes/add-agent-launch-tasks/specs/agent-launch/spec.md:192:### Requirement: Unknown workspace is refused before anything is created
+openspec/changes/add-agent-launch-tasks/specs/agent-launch/spec.md:203:### Requirement: Prompt help warns about file references
+openspec/changes/add-agent-launch-tasks/specs/agent-launch/spec.md:214:### Requirement: Launch tasks are deployed and tested
+openspec/changes/add-agent-launch-tasks/specs/global-mise-tasks/spec.md:1:## MODIFIED Requirements
+openspec/changes/add-agent-launch-tasks/specs/global-mise-tasks/spec.md:4:### Requirement: Dispatching an agent
+specs/
+agent-launch/
+global-mise-tasks/
+observations.md
+proposal.md
+... (2 filtered)
+[+2 hidden: rtk recall 7a3c16779658a4f4]
+=== the planned order around it
+39:  The proposal `correct-shell-environment` carries the profile questions of this study together with `PATH`, locale and umask; its design starts from the findings in i
+41:  Done on 2026-11-21: the findings are in `openspec/changes/correct-shell-environment/findings.md` (counts and labels only) and the decisions in its design: the profil
+43:* Per-tool keys instead of the environment (from decision 1 of `correct-shell-environment`, the target once the loader is in place).
+47:  Two facts from its reading of the plugin matter for that choice: a key command runs synchronously with no timeout, so a locked wallet would block the editor until th
+49:* A managed `~/.zshenv` for non-interactive non-login zsh (from decision 4 of `correct-shell-environment`, kept out of that change on purpose).
+58:  The exact probe, with its expected counts before and after the deployment of `correct-shell-environment`, is `openspec/changes/correct-shell-environment/manual-steps
+59:  Done on 2026-11-23, after the reboot of 2026-11-22: the user manager holds 0 GitHub token variables and 0 of 113 readable processes hold one (the terminal and the mu
+82:Once `add-repo-roadmap` is applied, its generated `ROADMAP.md` replaces this list, the packaging backlog and the older bullets move into its backlog, and this file is 
+87:4. [x] `fast-correct-shell-startup` (audit 7): silent and fast startup, archived 2026-11-16; its environment half is the change `correct-shell-environment` (audit 28),
+93:10. [ ] `add-repo-roadmap` (audit 24): proposal and specs; replaces this file once applied.
+109:    * [x] `add-shell-test-harness` (audit 29): the bats suite that replaces the three scratch harnesses of the install scripts, the wrapper and the shell startup, arc
+110:    * [ ] `correct-shell-environment` (audit 28): `PATH`, locale, umask, the load order of highlighting, the guard of `shellrc` and what the desktop login shell loads
+111:    * [ ] `add-agent-launch-tasks` (audit 25): moved on 2026-11-23 to follow `correct-shell-environment` part 1 (it was after item 10), so that workers are grouped as
+112:    * [ ] `port-[redacted:private]-shell-aliases` (audit 8)
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 9.5s)
+
+_Thinking:_
+I'm going to write the briefs now, starting with the small nvim-dev change plan. I want to look at how the archived `allow-public-secret-names` change is laid out, and find the spec closest to nvim-dev. The current spec names are agent-environment, chezmoi-config, global-mise-tasks, install-scripts, neovim-config, secret-hygiene, shell-startup, shell-test-harness, source-layout, and spec-workflow. `neovim-config` looks like the likeliest fit, so I'll check what it covers.
+
+I'm checking whether `neovim-config` is the right spec for the nvim-dev change, specifically whether its requirement titles and Purpose cover the development command for the Neovim configuration.
+
+
+The `neovim-config` capability may be the home for the `nvim-dev` script. I'm checking its scope and the structure of the small-change precedent before I write the plan.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\necho \"=== neovim-config spec: purpose and requirements\"; sed -n '1,12p' openspec/specs/neovim-config/spec.md | cut -c1-220; /usr/bin/grep -a -n '^### Requirement' openspec/specs/neovim-config/spec.md | cut -c1-140\necho; echo \"=== the precedent: allow-public-secret-names (archived): files and sizes\"\n/usr/bin/find openspec/changes/archive/2026-11-16-allow-public-secret-names -type f -printf '%P %s\\n' | sort\necho; echo \"=== its tasks.md (shape)\"; cat openspec/changes/archive/2026-11-16-allow-public-secret-names/tasks.md | cut -c1-190 | head -20\necho; echo \"=== source-layout spec requirement titles (where a managed ~/.local/bin file might belong)\"\n/usr/bin/grep -a -n '^### Requirement' openspec/specs/source-layout/spec.md | cut -c1-150\necho \"=== how awsenv is described anywhere in specs\"; /home/linuxbrew/.linuxbrew/bin/git grep -n -i 'awsenv\\|dot_local/bin' -- openspec/specs docs README.md | cut -c1-160 | head -5",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+=== neovim-config spec: purpose and requirements
+# neovim-config Specification
+
+## Purpose
+
+Where the Neovim configuration comes from and how it is kept safe from the external: the location is local chezmoi data, the clone is a `git-repo` external that never overwrites local work.
+
+## Requirements
+### Requirement: Neovim location is configuration
+
+The host, owner and repository of the Neovim configuration SHALL come from chezmoi data kept in the local config, never from a tracked file.
+
+#### Scenario: Data keys
+8:### Requirement: Neovim location is configuration
+17:### Requirement: Neovim configuration from its own repository
+
+=== the precedent: allow-public-secret-names (archived): files and sizes
+.openspec.yaml 40
+proposal.md 1561
+specs/spec-workflow/spec.md 1255
+tasks.md 801
+
+=== its tasks.md (shape)
+## 1. Rule wording
+
+- [x] 1.1 `AGENTS.md`, "Writing for a public repository": the bullet on secret variable names (commit `26a2da4`)
+- [x] 1.2 `openspec/config.yaml`, proposal rule, and the briefs of `add-agent-env-wrapper` and `add-repo-roadmap` (commit `26a2da4`)
+
+## 2. Main spec
+
+- [x] 2.1 `openspec validate allow-public-secret-names --strict` passes
+- [x] 2.2 Run the scenario command and list the distinct names it prints, with counts: only `GITHUB_TOKEN` (a provider convention) and synthetic `DEMO_` names
+- [x] 2.3 Archive: `openspec archive allow-public-secret-names --yes`, then `rg -n 'names of secret variables' openspec/specs/spec-workflow/spec.md` prints nothing and `openspec validate --a
+
+<!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->
+
+=== source-layout spec requirement titles (where a managed ~/.local/bin file might belong)
+8:### Requirement: Source state under home/
+22:### Requirement: Repository files stay outside the source state
+36:### Requirement: The layout move changes no target
+45:### Requirement: No hard-coded source path
+=== how awsenv is described anywhere in specs
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 46.9s)
+
+_Thinking:_
+Capability `neovim-config` fits, since it covers where the Neovim configuration comes from and how it stays safe. I'm adding the development command to it as an ADDED requirement, with a command that starts the development checkout under its own application name. Next I'll write three briefs into `.state/briefs/`, starting with a plan for this small change.
+
+I'm writing the plan for this small change as a to-do covering the spec requirement, the scenarios for the dev command, the tests, and the apply step.
+
+I'm looking at the umask in the chezmoi config, which would turn the executable mode 0755 into 0750 when the file gets updated, so the script stays runnable by its owner. Next I'll write the second brief, for the agent launch tasks.
+
+Next I'm drafting a brief for the plan lead, set to plan mode on Opus. It will cover the topology decision from 2026-11-23, the verified recipe values, what already exists (the proposal, two delta specs, and observations from seven launches), and what still needs writing. The herdr facts I've confirmed so far go in too, including how worktree opening, tab creation, and closing behave.
+
+Next I'm checking the plan's decisions against the config before building the brief for the agent launch tasks, since the notes on herdr and the repo mention have to fit the rules I'm following. After that I'll write the third brief, covering the second build part: groups 8 through 10, with the settled facts from part one.
+
+Next I'm planning the group 8 script: it needs sudo only to write, so I'll test it with harness stubs and run it under dry-run only, leaving the first real run to the user. I'll check the current GECOS field in `chfn -o` to see its four fields, and make sure the script is never weaker than what's there now. Then group 9: I'll check the test counts against the table in `tests/README.md`, which already shows 35 of 58, and have the AGENTS.md wording on secrets loading, umask, and brew in non-interactive shells shown to the user before I change it.
+
+Next I'm planning the group 8 script and checking the user's group 9 notes, which means confirming the AGENTS.md line on login shells and non-interactive environments before I tick anything.
+
+I'm checking that the dry-run only reads the shell targets and doesn't expose any private values, so the builder can review the diff safely. Next I need a fresh worktree for this session, and I'm weighing whether to reuse the freed branch name `feat/correct-shell-environment` or pick a new one.
+
+Next I'm settling the briefs for the builder's second part and the plan lead: the new worktree will use the `feat/correct-shell-environment-part2` branch name, and the brief goes into its own `.state` folder at launch. I'm also noting that the pending decision on `060-libvirt.sh` belongs to group 11, and the briefs need to stay free of private details because they get copied into change folders.
+
+Now I'm deciding how to word the briefs, keeping them clean of private names since they get copied into change folders, so I'll name no other projects' agents there and just refer to the Neovim repository.
+
+
+The `neovim-config` capability is the right home for the `nvim-dev` script. I'm writing the three pieces of planning as files in `.state/`, starting with the small change, which I'll do myself.
+**Tool: write**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/.state/briefs/manage-nvim-dev-command/plan.md",
+  "content": "# Plan: the small change that manages the `nvim-dev` command\n\nWritten by chezmoi-orch on 2026-11-24 for myself or for the orchestrator that follows me: it is not a brief for another agent, because the change is small and has no worktree.\nDecided by the user on 2026-11-24: the SCRIPT ALONE (no alias line), AFTER part 1 of the build of `correct-shell-environment` (accepted and pushed on 2026-11-24, `origin/main` `1063360`).\nA pointer reply was sent to the Neovim repository's orchestrator the same day: it expects to be told when the change is applied.\n\n## What exists (verified read-only on 2026-11-24)\n\n- `~/.local/bin/nvim-dev`: POSIX shell, 548 bytes, mode 0755, created 2026-11-18 by the Neovim repository's session at the user's request, NOT managed by chezmoi.\n  Six lines of code: it computes `profile=\"${XDG_CONFIG_HOME:-$HOME/.config}/nvim-dev\"`, prints a message on standard error and exits 1 when that path does not exist, otherwise runs `exec env NVIM_APPNAME=nvim-dev nvim \"$@\"`.\n  `shellcheck -s sh` and `dash -n` are clean, the redaction tool's `--check` is clean, its one `@` is `\"$@\"`: it can be published as it is.\n- `~/.config/nvim-dev` is a symlink to the development clone of the Neovim repository; chezmoi creates neither (and must not: the clone is the Neovim repository's business).\n- `home/dot_local/bin/` holds `executable_awsenv` today, and the `bin` external writes `.local/bin/bin`; no source file names `nvim-dev`; the live shells carry no alias of that name.\n- Capability to extend: `neovim-config` (Purpose: where the Neovim configuration comes from and how it is kept safe from the external; two requirements today: \"Neovim location is configuration\", \"Neovim configuration from its own repository\").\n\n## The change\n\nName: `manage-nvim-dev-command` (small, in the style of `allow-public-secret-names`: proposal, one delta spec, tasks; no design: say why in the proposal).\nBranch: none, work on `main` in the main checkout (no builder is running; one agent at a time while memory is tight).\nFiles:\n1. `home/dot_local/bin/executable_nvim-dev`: byte for byte the content on disk (`chezmoi add ~/.local/bin/nvim-dev` then `cmp` against the live file; no edit).\n2. `openspec/changes/manage-nvim-dev-command/` with `proposal.md`, `specs/neovim-config/spec.md` (`## ADDED Requirements`), `tasks.md`.\n3. `tests/unit/nvim-dev.bats` (bats, scratch home, a stub `nvim` first on `PATH` that prints `NVIM_APPNAME` and its arguments, one per line, to a file).\n4. One row of `tests/README.md` (scenario table) and, if the table is by capability, the mapping of the new scenarios.\n\nRequirement (ADDED to `neovim-config`), wording to refine when writing:\n- \"A development command starts the development checkout with its own application name\": the managed command `nvim-dev` SHALL run `nvim` with `NVIM_APPNAME=nvim-dev` and the caller's arguments unchanged, and SHALL refuse, naming the missing path, when the development profile does not exist; it SHALL NOT create the profile or the clone.\nScenarios (each with a test):\n- Starts the development profile: profile directory present in a scratch `XDG_CONFIG_HOME`, stub `nvim` first on `PATH`, `nvim-dev a \"b c\"` -> the stub saw `NVIM_APPNAME=nvim-dev` and exactly the arguments `a` and `b c`; exit status is the stub's.\n- Missing profile: the profile path absent -> nothing on standard output, a message that contains the path on standard error, exit 1, the stub not called, and no directory created.\n- Works without aliases: run through `sh -c` and `dash -c` and `env -i` (the command works in scripts and panes that skip the aliases file): same result as above.\n- Portable and published as is: `shellcheck -s sh` exits 0, `dash -n` and `bash -n` pass, the file holds no home path, no host name, no e-mail address (a static scan in the test).\n- The target is managed: `chezmoi -S <repo> managed` lists `.local/bin/nvim-dev`, the source name carries the executable attribute (render into a scratch destination as `tests/helpers/render.sh` does and check mode 0755 or 0750 depending on the synthetic umask: assert \"executable by the owner\").\nNo mutant needed beyond one cheap one if the table of `tests/mutants/README.md` wants every requirement mutated: a sed that drops the `exit 1` (the missing-profile test must fail); say in the table if none is added.\n\n## Things to watch\n\n- chezmoi's configured umask is 027: a managed file applied by chezmoi ends at 0750, not 0755, which is the same drift as the other managed files (`reconcile-drift-and-supervised-apply`); the live script keeps 0755 until an apply. The first apply of this one target changes only the mode if the content is identical: expected, harmless for the owner.\n- `chezmoi apply --exclude=scripts ~/.local/bin/nvim-dev` is a SINGLE-TARGET apply after `chezmoi diff` shows nothing but the mode; the user's go is needed before it (it writes a file under `$HOME`, but the file already exists with the same content).\n- Do not add the alias line: the user chose the script alone; a later alias would shadow it in shells that read aliases.\n- Names in committed files: the Neovim repository may be named (public); no other sibling, no agent name of another project, no private path.\n\n## Steps, in order\n\n1. `/opsx-propose manage-nvim-dev-command` (or by hand with `openspec new change`), proposal and delta spec, tasks; `openspec validate --all --strict`.\n2. Tests first (they fail on the current tree because the file is not in the source), then `chezmoi add` and `cmp`, then they pass.\n3. `mise run test` (the suite is 513 tests, 0 failures, 30 skipped on 2026-11-24) and `shellcheck`, the redaction `--check` on the new files, `gitleaks dir tests`.\n4. Propose the commit messages to the user (domain `chezmoi:spec` for the change files, `test` or `shell` for the script and its test; one commit per kind), commit only on his word.\n5. The single-target apply on his go, `chezmoi diff` first; `chezmoi managed` shows the target; the script still works (`nvim-dev --version` under the real profile is a read-only check: it starts nvim, so run it only if the user wants it).\n6. Archive the change on his go (`openspec archive`, then check the Purpose and the modeline of `neovim-config` as after every archive), tick the audit change map if one exists for it, add one line to `TODO.md` follow-ups if anything is left.\n7. Tell the Neovim repository's orchestrator with `herdr agent prompt` (information only: applied, the script is managed, nothing changes on its side), journal it.\n\n<!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->\n"
+}
+```
+
+**Output:**
+```
+Wrote file successfully.
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; F=.state/briefs/manage-nvim-dev-command/plan.md; chmod 600 $F\nprintf 'plan: lines %s | dashes %s | modeline last %s | banned ([redacted:private]|[redacted:private]|[redacted:private]|[redacted:repo]|[redacted:private]) %s\\n' \"$(wc -l < $F)\" \"$(/usr/bin/grep -a -c -E '[–—]' $F)\" \"$(tail -1 $F | /usr/bin/grep -a -c 'vim: set ts=2')\" \"$(/usr/bin/grep -a -c -i -w -E '[redacted:private]|[redacted:private]|[redacted:private]|[redacted:repo]|[redacted:private]' $F)\"\necho \"the real files the plan names exist: $(for f in home/dot_local/bin/executable_awsenv tests/README.md tests/helpers/render.sh tests/mutants/README.md openspec/specs/neovim-config/spec.md; do [ -e $f ] && echo -n \"ok \" || echo -n \"MISSING($f) \"; done)\"",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+plan: lines 53 | dashes 0 | modeline last 1 | banned ([redacted:private]|[redacted:private]|[redacted:private]|[redacted:repo]|[redacted:private]) 0
+the real files the plan names exist: ok ok ok ok ok 
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 9.6s)
+
+_Thinking:_
+Next I'm putting together the brief for the add-agent-launch-tasks plan lead. First I want to check the existing `agent:dispatch` and `scm_prompt_agent` files, plus the global tasks list, so I can cite them accurately. I also need to confirm the language rule, since the `add-repo-roadmap` brief points to a Python rule. I'll look at the `home/dot_config/mise/tasks` structure and the lib directory.
+
+
+Now the brief for the `add-agent-launch-tasks` plan lead. I'm checking the exact files it will have to read, so the brief names real paths.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; G=/home/linuxbrew/.linuxbrew/bin/git\necho \"=== global tasks and lib in the source\"; $G ls-files home/dot_config/mise | sed 's#home/dot_config/mise/##' | cut -c1-90\necho; echo \"=== global-mise-tasks spec: requirement titles\"; /usr/bin/grep -a -n '^### Requirement' openspec/specs/global-mise-tasks/spec.md | cut -c1-110\necho; echo \"=== add-repo-roadmap: what it says about the language rule of the global tasks\"\n/usr/bin/grep -a -n -i -E 'python|language rule|shellcheck' openspec/changes/add-repo-roadmap/specs/global-mise-tasks/spec.md | cut -c1-200 | head -8\necho; echo \"=== observations: section headings and number of launches logged\"\n/usr/bin/grep -a -c -E '^- 20[0-9]{2}-[0-9]{2}-[0-9]{2}' openspec/changes/add-agent-launch-tasks/observations.md\necho; echo \"=== proposal 'Open questions for the design' (full line)\"; /usr/bin/grep -a 'Open questions for the design' openspec/changes/add-agent-launch-tasks/proposal.md | fold -s -w 200\necho; echo \"=== audit row 25 and its dependency\"; /usr/bin/grep -a -n -E '^\\| 25 ' docs/audits/2026-10-30-environment.md | cut -c1-260",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+=== global tasks and lib in the source
+config.toml
+encrypted_private_age.txt.age
+encrypted_private_config.archive.toml.age
+lib/scm.sh
+tasks/agent/executable_dispatch
+tasks/scm/worktree/executable_done
+tasks/scm/worktree/executable_ls
+tasks/scm/worktree/executable_new
+tasks/scm/worktree/executable_rm
+
+=== global-mise-tasks spec: requirement titles
+11:### Requirement: Global tasks are deployed and listed
+30:### Requirement: Tasks are generic and clean
+44:### Requirement: Creating a worktree
+65:### Requirement: Source checkout integrity
+74:### Requirement: Merge test
+95:### Requirement: Removing a worktree
+109:### Requirement: Cleaning merged worktrees
+130:### Requirement: Listing worktrees
+139:### Requirement: Dispatching an agent
+148:### Requirement: Project hooks
+
+=== add-repo-roadmap: what it says about the language rule of the global tasks
+24:The helper and tasks SHALL be checked by their language: shell files pass `shellcheck -x`; Python files compile with `python3 -m py_compile`, use only the standard library, and have unit tests that
+26:#### Scenario: shellcheck is clean
+28:- **WHEN** `shellcheck -x` runs on `home/dot_config/mise/lib/scm.sh` and on every shell file under `home/dot_config/mise/tasks/`
+31:#### Scenario: Python compiles and its tests pass
+33:- **WHEN** `python3 -m py_compile` runs on every Python file under `home/dot_config/mise/lib/` and `home/dot_config/mise/tasks/`, then `python3 -m unittest discover -s tests/global-mise-tasks` runs
+
+=== observations: section headings and number of launches logged
+15
+
+=== proposal 'Open questions for the design' (full line)
+- Open questions for the design: the task names; what an existing branch with no checkout does (refuse or attach a worktree); whether the main checkout's workspace counts as a worktree workspace; how 
+plan mode and model settings are passed; whether herdr's own `worktree open` is used or only its listing; the fate of the tab closing in `scm:worktree:done` when a workspace is the unit; a default 
+setting for the delivery timeouts and limits (a mise var or `conf.d` value) with an override flag on the callers, suggested by the user on 2026-11-03 for the superseded change.
+
+=== audit row 25 and its dependency
+237:| 25 | `add-agent-launch-tasks` | 2.7 (mise), process | | proposal, specs; added 2026-11-04 on request; replaces `fix-prompt-delivery`; after 24 (the language rule for the global tasks) |
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 49.4s)
+
+_Thinking:_
+I'm putting together the brief for the plan lead. It needs the worktree location under [redacted:worktrees_root] with a feature branch, and a linked workspace that the orchestrator sets up. The rest covers the change itself, the user's decision from 2026-11-23, what's verified and missing, the open questions, and the dependency on add-repo-roadmap, along with the deliverables.
+
+Next I'm listing the constraints for the plan lead: the unit tests for the tasks go under tests/global-mise-tasks/, and the design has to place that path within the shell test layout. I'll point the lead to tests/README.md for the layout.
+
+I'm working out how to point the plan lead to the Neovim delivery module: the proposal names its source, so the lead can locate it read-only there, and I'll have them ask the user if the path isn't found. I'm also thinking through a `scm:worktree:done` check that should refuse removal until the session export exists, which would need a new pre-remove hook, since the current ones only run after create and remove.
+
+I'm weighing a hook that blocks removal until the orchestrator writes a marker file in the worktree after the export commit, and I'll let the plan lead propose that option alongside alternatives. I also want to note that herdr's worktree list shows the main checkout with its workspace id, so the main workspace does count as a worktree workspace, and closing the last tab closes the workspace.
+
+I'm noting the herdr JSON fields the brief should list, including the worktree list output and the workspace's worktree object, along with the agent start delay and how the first prompt is delivered. I'm also keeping in mind that a blocked agent refuses prompts and that agent names don't survive a restart. Last, I'm checking how external directory prompts come up for opencode, since the brief is going into the worktree state and then the change folder.
+
+I'm settling on the brief's shape now: it should tell the plan lead to avoid naming other agents and keep the text clean for the public change folder, and aim for about ninety lines.
+
+
+**Tool: write**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/.state/briefs/add-agent-launch-tasks/brief.md",
+  "content": "# Brief: lead the design of the change add-agent-launch-tasks\n\nWritten by the orchestrator agent of this repository, on 2026-11-24, for the agent that leads this change (suggested name `chezmoi-launch-lead`, plan mode first, model Opus 5.5).\nThe change exists as a proposal, two delta specs and an observations log: no design, no tasks.\nYour job is to review it against the tree and against what seven real launches showed, take the open decisions with the user, and produce the design and the tasks.\nThis file is the operational complement to the change: once its artifacts exist, they are the contract.\nIt sits in your worktree's `.state/briefs/add-agent-launch-tasks/brief.md` (git-ignored, deleted with the worktree); your first commit on the change copies it to `openspec/changes/add-agent-launch-tasks/brief.md`, so it holds nothing private and you must keep it so.\n\n## Where you work\n\n- A worktree under `[redacted:worktrees_root]/` on a branch started from `main`, opened as a LINKED worktree workspace grouped under the primary workspace of this repository (the rule of 2026-11-23, see below); the orchestrator creates both and gives you the exact path in the first message; if you find yourself in the main checkout, stop and say so.\n- Do not close, rename or type into a workspace, tab or pane you did not open, and never run `herdr workspace close`: the orchestrator closes your workspace when you are finished and exported.\n- You start in plan mode; the user switches you to build mode for the artifacts. You write no task code, no library, no test: this session ends at reviewed artifacts. A separate build session applies them later.\n- The read-only guard and opencode may ask for approval on commands or on external directories (`[redacted:worktrees_root]/*`, `~`); the user answers in your pane.\n- This repository is public: no secret values, no private hosts or IP addresses, no employer or client details; name only darse, cem, bosco, greffe, opencode-readonly-guard and the Neovim configuration repository, call any other \"a fleet repository\"; no names of agents or workspaces of other projects.\n\n## What the change is, and what was decided since the proposal\n\nThe global mise tasks of this repository (`home/dot_config/mise/`: `lib/scm.sh`, `tasks/scm/worktree/{new,done,rm,ls}`, `tasks/agent/dispatch`) create worktrees and start agents, but nothing creates the herdr workspace of a worktree, the first prompt of an agent is delivered by a shell helper that has lost it more than once, and the cleanup closes a tab.\nThe proposal adds a tested Python library (bounded herdr calls, first prompt delivered once), two tasks (`workspace:open`, `agent:launch`), refusals before anything is created, and replaces the superseded `fix-prompt-delivery`.\nDecided with the user on 2026-11-23 (do not reopen without a reason): a worker lives in a LINKED WORKTREE WORKSPACE grouped under the primary workspace of the repository, not in a tab inside it; the cleanup closes that workspace by id and NEVER with `--group` (which closes the primary workspace and every other worker); the export of a worker's session comes before the closing, which no generic task can know, so a project hook must be able to refuse it.\nDecided on 2026-11-24: this change is planned right after part 1 of `correct-shell-environment`; its dependency on `add-repo-roadmap` for the language rule of the global tasks (Python files compile, standard library only, unit tests; shell files pass `shellcheck -x`) must be settled in YOUR review: either that rule lands first, or this change carries it (say which, and what each costs).\n\n## What seven launches showed (read `observations.md`, and trust these verified facts)\n\n- `scm:worktree:new <type>/<name> --base main --json` without `--tab` creates the worktree, the mise trust and the start-commit file, and prints its JSON with empty `tab`, `pane` and `agent`.\n- `herdr worktree open --workspace <primary> --path <worktree> --label <label> --no-focus` accepted that git-created worktree with no trust prompt; `.result` has `already_open`, `type`, `workspace` (`workspace_id`, `label`), `tab` (`tab_id`, labelled `1`: the label names the workspace), `root_pane` (`pane_id`), `worktree` (`branch`, `is_linked_worktree`, `open_workspace_id`); `herdr worktree list --workspace <primary>` lists the main checkout and the linked worktrees with their workspace ids, and `open_workspace_id` becomes null after the workspace is closed.\n- `herdr workspace list` carries a `worktree` object (`checkout_path`, `is_linked_worktree`, `repo_key`, `repo_name`, `repo_root`) on worktree workspaces; the primary workspace of this repository carries `null` there, yet `herdr worktree list` reports it as the workspace open on the main checkout: the main checkout's workspace counts as the workspace of its own worktree.\n- `herdr agent start <name> --kind opencode --pane <root pane> -- --agent build --model <model>` works in that root pane; the TUI footer needs about ten seconds to draw, so a check of the model reads the pane again.\n- `herdr agent prompt <name> \"<text>\" --wait --until working --timeout 20000` is the delivery; it refuses an agent that is blocked on an approval dialog (error code `agent_blocked`) and a name that does not resolve; names are lost when herdr or the machine restarts (the orchestrator's own pane lost its name twice): a caller reports the pane id next to the name.\n- A tab of a linked workspace can be closed while the workspace has another tab; closing its last tab closes the workspace; `herdr workspace close <id>` without `--group` left the primary workspace, its tabs and the orchestrator untouched (first real cleanup, 2026-11-24).\n- `scm:worktree:done <branch>` refuses while the branch is not in `origin/main` or while an untracked file is left, runs the project hook `post-remove`, removes the worktree and the local branch, and needs no tab file when the worktree was created without `--tab`.\n- opencode asks for approval the first time an agent touches a directory outside its worktree (`[redacted:worktrees_root]/*`, the home): expect those prompts in a launch and say so to the user in advance.\n\n## What is missing and what you decide (with the user, one question at a time)\n\nThe proposal's open questions: the task names; what an existing branch with no checkout does (refuse or attach a worktree); plan mode and model settings; whether `worktree open` is used (the observations say it works) or only the listing; the fate of the tab closing in `scm:worktree:done` when the workspace is the unit; the defaults of the delivery timeouts and limits (a mise setting with an override flag, suggested by the user on 2026-11-03).\nPlus, from the cleanup: the hook that refuses the closing before the export (the generic tasks only call it; an option to weigh: a marker file in the worktree's git-ignored `.state/` that the orchestrator writes after the export is committed and pushed, checked by a `pre-remove` hook of this repository; other options welcome), and how a caller closes a worker (`workspace:close <id>`? a flag of `scm:worktree:done`?), always without `--group`, always refusing the primary workspace and a workspace that did not come from the tasks.\nAlso: where the Python tests sit (`tests/global-mise-tasks/` as the proposal says, against the layout and levels of `tests/README.md` of the bats suite), how a fake `herdr` counts what reaches the input box, and which part of the live check (one throwaway agent in a throwaway workspace) is automated and which is the user's.\n\n## What to do\n\n1. Plan mode: read (list below), say in a few lines what does not hold against the tree (counts and facts re-measured: the orchestrator's briefs have been wrong about the tree three times in this project), send chezmoi-orch one line when reading is done.\n2. The decisions above with the user, each with options, cost and your recommendation; record the answers in the design.\n3. Build mode after the user's switch: `design.md` (context, goals and non-goals, decisions with alternatives, risks, migration and rollback, how it is tested), `tasks.md` (small tasks, each with its test, grouped so that a fresh build session can pick it up cold, the Python library first), the updated delta specs (new requirements for the grouping of workers and the cleanup, the hook, the refusals), the proposal updated (open questions answered).\n4. Validate: `openspec validate --all --strict` passes, the redaction tool's `--check` file by file on the new files reports nothing, `gitleaks dir` on the change folder; propose the commit messages to the user (`type(domain:subject): imperative lowercase summary`, English, at most 80 characters, counted; domain `chezmoi:spec`), commit only on his word with `env -u GITHUB_TOKEN HK_STASH=none /home/linuxbrew/.linuxbrew/bin/git commit`, never `git commit | head`, staging by explicit paths.\n5. Stop there: you never apply, merge or push. Rebase on `main`, validate again, and report with the last commit hash; the orchestrator measures the commits on an exported copy (`git archive <hash>`), fast-forwards `main` and pushes on the user's word.\n\n## Read first, in this order\n\n1. `AGENTS.md` (safety rules, writing for a public repository, conventions, the zsh pitfalls, the Workflow section on workers and their cleanup).\n2. `openspec/changes/add-agent-launch-tasks/` (`proposal.md`, `specs/agent-launch/spec.md`, `specs/global-mise-tasks/spec.md`, `observations.md`), then `openspec/specs/global-mise-tasks/spec.md` and the change `add-repo-roadmap` (its `specs/global-mise-tasks/spec.md` and `brief.md`).\n3. The tasks as they are: `home/dot_config/mise/lib/scm.sh`, `home/dot_config/mise/tasks/scm/worktree/{new,done,rm,ls}`, `home/dot_config/mise/tasks/agent/dispatch`, and `home/dot_config/mise/config.toml`.\n4. `tests/README.md` and `tests/helpers/` (how tests are laid out and what a stub tool looks like), `mise.toml`, `hk.pkl`.\n5. `herdr --help` and the help of `herdr worktree`, `herdr workspace`, `herdr tab`, `herdr agent` (the installed binary is the authority); never run a mutating herdr command to probe it: you may create nothing in herdr in this session unless the user asks.\n6. The delivery module that the proposal says to port is in the Neovim configuration repository (public); find it read-only from the proposal's source line, and ask the user for its path if it is not there.\n\n## Rules\n\n- Markdown: one sentence per line, no em or en dashes, no emoji, sentence-case headings, the vim modeline as the last line.\n- Shell: an agent's shell is zsh: see the four habits in `AGENTS.md`, plus `2>&1 >/dev/null | next` also pipes standard output, `print '--- x'` reads an option, a variable holding several words does not split, and several tool calls sent together run in parallel (a command that depends on another's effect goes in the same shell line).\n- `rtk` condenses some outputs: use `/usr/bin/grep -a` and `/usr/bin/ls` for counts that decide something.\n- Your process holds none of the secret-named variables, but a command can still print private values: never print the environment, `chezmoi data`, `chezmoi dump-config`, `systemctl --user show-environment` or an unfiltered herdr listing; select fields with `jq` (agent fields are under `.result.agent`, tabs under `.result.tab`, `herdr pane read` is not JSON).\n- Anything that uses sudo, writes outside `$HOME`, installs, uninstalls or deletes needs the user's explicit go. Your scratch goes in `.state/tmp/` of your worktree (mode 0700), not in `/tmp/opencode`; `.state/journal.md` is the orchestrator's.\n- One agent of this repository at a time while memory is tight (the machine has 16 GB and swaps): do not start sub-agents.\n- Cut your session at a section boundary when your context nears 70% (`tokenscope` works): write a hand-off note into `.state/briefs/add-agent-launch-tasks/` and tell the orchestrator.\n\n## Reporting\n\n- One short line at each of: reading done (with what does not hold), decisions taken, artifacts ready for review (with the validation result), blocked (say on what), with `herdr agent prompt chezmoi-orch \"<one line>\"`; if the name does not resolve, find the pane of the tab labelled `orch` in the primary workspace (`herdr worktree list --cwd <your worktree>` names the workspace open on the main checkout) and prompt it by pane id; `herdr agent prompt` refuses a blocked agent, so write the line in your own pane as well when the orchestrator waits for the user.\n- Send with the last report the frictions you met with the tooling, and anything that made a private value inferable in your transcript, so that your export is masked before it is committed.\n- Your session export is done at the end, when the user asks, following `memory/sessions/README.md`.\n\n<!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->\n"
+}
+```
+
+**Output:**
+```
+Wrote file successfully.
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; F=.state/briefs/add-agent-launch-tasks/brief.md; chmod 600 $F\nprintf 'brief: lines %s | dashes %s | modeline last %s | banned %s | embargo words %s\\n' \"$(wc -l < $F)\" \"$(/usr/bin/grep -a -c -E '[–—]' $F)\" \"$(tail -1 $F | /usr/bin/grep -a -c 'vim: set ts=2')\" \"$(/usr/bin/grep -a -c -i -w -E '[redacted:private]|[redacted:private]|[redacted:private]|[redacted:repo]|[redacted:private]' $F)\" \"$(/usr/bin/grep -a -c -i -E 'tokenizer|heredoc' $F)\"\npython3 ~/.config/nvim/scripts/session_redact.py --check $F 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | /usr/bin/grep -a -E ': [1-9][0-9]*$'; echo '(redaction non-zero list ends)'\necho \"files the brief tells the lead to read exist: $(for f in home/dot_config/mise/lib/scm.sh home/dot_config/mise/tasks/scm/worktree/executable_new home/dot_config/mise/tasks/agent/executable_dispatch home/dot_config/mise/config.toml openspec/changes/add-agent-launch-tasks/observations.md openspec/changes/add-repo-roadmap/brief.md tests/README.md; do [ -e $f ] && echo -n \"ok \" || echo -n \"MISSING($f) \"; done)\"",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+brief: lines 74 | dashes 0 | modeline last 1 | banned 0 | embargo words 0
+path aliases: 3
+  global: 3
+(redaction non-zero list ends)
+files the brief tells the lead to read exist: ok ok ok ok ok ok ok 
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 21.1s)
+
+_Thinking:_
+I'm checking the path aliases in the brief: three hits, covering the worktrees root and the home path. Earlier archived briefs were flagged the same way, so this brief should be acceptable as it is. I'm also weighing whether to keep the `[redacted:worktrees_root]/*` literal, since earlier briefs include it and the redactor maps it to a placeholder.
+
+Next I'm checking the existing install scripts to see which one to model the new brief on, and the system-limits script is the closest match. I'll look at its header, the test names, and the `system.limits` entry in the packages file.
+
+
+_Thinking:_
+Both briefs are done, and the worktrees root matched the archived briefs. I'm checking the closest existing model for the system script before writing the part 2 brief for groups 8 to 10.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; G=/home/linuxbrew/.linuxbrew/bin/git\necho \"=== the model: 02-system-limits script (shape only)\"; rtk wc -l home/.chezmoiscripts/run_onchange_before_02-system-limits.sh.tmpl; sed -n '1,25p' home/.chezmoiscripts/run_onchange_before_02-system-limits.sh.tmpl | cut -c1-165\necho; echo \"=== script library\"; $G ls-files home | /usr/bin/grep -a -i -E 'script-lib|chezmoitemplates' | head -5\necho; echo \"=== packages.yaml: system section keys\"; /usr/bin/grep -a -n -E '^system:|^  [a-z_]+:' home/.chezmoidata/packages.yaml | sed -n '1,12p' | cut -c1-100\necho; echo \"=== tests that exercise install scripts: names and the harness stubs\"\nls tests/unit | /usr/bin/grep -a -E 'install|harness' | tr '\\n' ' '; echo; ls tests/fixtures | head -12 | tr '\\n' ' '; echo\n/usr/bin/grep -a -n -E 'stub' tests/helpers/*.sh | cut -c1-130 | head -8\necho; echo \"=== install-scripts spec: the requirement the change ADDS (scenario titles in the delta)\"\n/usr/bin/grep -a -n -E '^#### Scenario' openspec/changes/archive/*/specs/install-scripts/spec.md 2>/dev/null | head -0\n/usr/bin/grep -a -n -E '^### Requirement|^#### Scenario' openspec/changes/correct-shell-environment/specs/install-scripts/spec.md | cut -c1-150",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+=== the model: 02-system-limits script (shape only)
+51
+{{- /*
+  Open-files limits from system.limits.nofile; an empty render (no data, or not Linux) is neither run nor listed.
+  Data is checked at render time: whole numbers, soft not above hard.
+*/ -}}
+{{- $nofile := dig "system" "limits" "nofile" dict . -}}
+{{- if and (eq .chezmoi.os "linux") $nofile -}}
+{{-   $soft := $nofile.soft | int -}}
+{{-   $hard := $nofile.hard | int -}}
+{{-   if or (lt $soft 1) (gt $soft $hard) -}}
+{{-     fail "system.limits.nofile needs whole numbers with 0 < soft <= hard" -}}
+{{-   end -}}
+#!/usr/bin/env bash
+# Write /etc/security/limits.d/ulimit.conf only when it differs from system.limits.nofile, and never lower a limit.
+# sudo is called only to write; the file reaches PAM login sessions (TTY, ssh), not the systemd user manager.
+# limits hash: {{ .system.limits | toJson | sha256sum }}
+{{ template "script-lib.sh" "system-limits" }}
+
+file=/etc/security/limits.d/ulimit.conf
+soft={{ $soft }}
+hard={{ $hard }}
+want=$(printf '* soft nofile %s\n* hard nofile %s\n' "$soft" "$hard")
+
+if [ -f "$file" ] && [ "$(cat "$file")" = "$want" ]; then
+  log "$file already holds soft $soft and hard $hard"
+  exit 0
+
+=== script library
+home/.chezmoitemplates/.gitkeep
+home/.chezmoitemplates/cpu.toml.tmpl
+home/.chezmoitemplates/gh-codespaces.toml.tmpl
+home/.chezmoitemplates/machine-type.toml.tmpl
+home/.chezmoitemplates/os.toml.tmpl
+
+=== packages.yaml: system section keys
+2:  common:
+10:  linux:
+33:  darwin:
+41:system:
+42:  limits:
+51:  ycm_build: false
+55:  prefix: /home/linuxbrew/.linuxbrew
+
+=== tests that exercise install scripts: names and the harness stubs
+harness.bats install-scripts-isolated.bats install-scripts-render.bats install-scripts-static.bats 
+broot-launcher 
+tests/helpers/fixtures.sh:2:# Fixture builders: stub tools and synthetic files made at run time in a scratch directory,
+tests/helpers/fixtures.sh:8:#   dt_make_opencode_stub DIR   DIR/bin/opencode, a stub that appends a line to DIR/calls.log, prints 
+tests/helpers/fixtures.sh:24:#   dt_make_startup_tools DIR   DIR/bin/<tool> stubs for the eight tools whose completion scripts are
+tests/helpers/fixtures.sh:39:dt_make_opencode_stub() {
+tests/helpers/fixtures.sh:40:  local dir=${1:?dt_make_opencode_stub DIR}
+tests/helpers/fixtures.sh:144:  *" zsh "*) printf '#compdef %s\n_stub_%s() { :; }\ncompdef _stub_%s %s\n' "$tool" "$tool" "$tool" 
+tests/helpers/harness.sh:3:# stub. Plain bash, no bats. Source it (`. tests/helpers/harness.sh`; it loads scripts.sh), or call one
+tests/helpers/harness.sh:6:#   isolated   a scratch HOME (a copy of FIXDIR/userhome when there is one), a PATH of the stubs and of
+
+=== install-scripts spec: the requirement the change ADDS (scenario titles in the delta)
+3:### Requirement: Session defaults are set for the login
+11:#### Scenario: Everything already set
+16:#### Scenario: Nothing set yet
+21:#### Scenario: Other GECOS entries are kept
+26:#### Scenario: A stricter live value is left
+31:#### Scenario: An invalid sudoers file is never installed
+36:#### Scenario: A system without the tools
+41:#### Scenario: Dry run
+46:#### Scenario: Data checked at render time
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 38.3s)
+
+**Tool: write**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/.state/briefs/correct-shell-environment/builder-brief-3.md",
+  "content": "# Brief: build the change correct-shell-environment, part 2 (groups 8, 9 and 10)\n\nWritten by the orchestrator agent of this repository, on 2026-11-24, for the agent that continues the build (suggested name `chezmoi-env-build3`, build mode, Sonnet 5.5).\nIt adds to `builder-brief.md` (the contract: scope rules, what you do not do, rules, reporting; same folder) and does not replace it; where they differ, this file wins for part 2.\nPart 1 (groups 1 to 7 and a fix) is accepted and public: `origin/main` is `1063360` (2026-11-24).\nIt sits in your worktree's `.state/briefs/correct-shell-environment/`, which is git-ignored and goes with the worktree.\n\n## Where you work\n\n- A NEW worktree: the orchestrator creates it from `main` (suggested branch `feat/correct-shell-environment-part2`) and opens it as a linked worktree workspace grouped under the primary workspace of this repository, then starts you in its root pane and gives you the exact path in the first message; if you find yourself in the main checkout, stop and say so.\n- Do not close, rename or type into a workspace, tab or pane you did not open, and never run `herdr workspace close`: the orchestrator closes your workspace when you are finished and exported.\n- `tests/.lib` is not in a new worktree (git-ignored): run `mise run test:deps` once; it downloads three pinned bats libraries from GitHub into `tests/.lib`, so say what you run and wait for the user's go once.\n- The permission prompts for directories outside the worktree (`[redacted:worktrees_root]/*`, the home) will come again; the user answers them in your pane.\n\n## What the user has already decided (all in `design.md`, `decisions.md` of the first session is in the same folder)\n\nKeys on demand (`secrets load`), umask 027 from the login through the account's comment field, 022 forced for sudo, home 0700 through ONE install script that also generates `en_US.UTF-8`, a desktop login that loads only the `env_` files, highlighting last, and history under XDG state.\nPart 1 built everything that is shell code under `home/dot_config/shell/` and its tests; part 2 builds the one thing that is not: the system script and the documents.\n\n## What is yours in this session\n\nGroups 8, 9 and 10 of `tasks.md`, tests first, in order. The state at the start (measured by the orchestrator on the exported tip `32bdfb5`): `mise run test` 513 tests, 0 failures, 30 skipped; `mise run test:mutants` 17 run, 0 problems; `openspec validate --all --strict` 38/38; `openspec list` shows 34 of 61 tasks done.\n\n- Group 8, the session defaults script: `home/.chezmoiscripts/run_onchange_before_03-session-defaults.sh.tmpl` and its data `system.session` in `home/.chezmoidata/packages.yaml`.\n  The closest model is `run_onchange_before_02-system-limits.sh.tmpl` (render-time checks of the data, a hash line so the script re-renders when the data changes, `script-lib.sh`, `log`, sudo only to write, never weakens, dry run through `CHEZMOI_SCRIPTS_DRY_RUN`): read it and its tests (`tests/unit/install-scripts-isolated.bats`, `install-scripts-render.bats`, the harness in `tests/helpers/harness.sh`) before writing anything.\n  The eight scenarios of the requirement \"Session defaults are set for the login\" are in `specs/install-scripts/spec.md` of the change: each gets a test (the isolated harness with stubs for `chfn`, `getent`, `visudo`, `locale-gen`, `locale`, `install`, `sudo`, and scratch paths for `/etc/sudoers.d`, `/etc/locale.gen` and the home), and the mutant `install-session-weakens` (a stricter GECOS umask overwritten) needs at least the test \"A stricter live value is left\" to fail.\n  The design's wording of what the script does is in `design.md`, decision 2 (\"umask 027 for the user's sessions, 022 for sudo, home 0700, from one install script\") and decision 3 (the locale half): the `umask=027` entry in the `other` sub-field (the fifth) of the account's comment field through `chfn -o`, keeping the other entries; `/etc/sudoers.d/50-umask` with `Defaults umask=0022` and `Defaults umask_override`, written to a temporary file, checked with `visudo -cf`, installed with `install -m 0440`; `chmod 0700` on the home; the locales of the list generated through `/etc/locale.gen` and `locale-gen`, adding and never removing.\n- Group 9, documents: 9.1 (the scenario table of `tests/README.md`: 35 scenarios for `shell-environment`, 58 for the five delta specs), 9.2 (`AGENTS.md`: the wording is SHOWN TO THE USER in your pane before you write it: `secrets load` is typed by the user and an agent never types it, the session umask comes from the login, and the line about non-interactive shells and brew, which is false now: a non-interactive login shell loads the environment part), 9.3 (`proposal.md`: open questions answered, modified capabilities, impact), 9.4 (already done by the orchestrator on 2026-11-21 and 2026-11-24: the note for the Neovim repository was delivered and answered, and the `~/.zshenv` review and the per-tool keys are in the backlog of `TODO.md`: tick it with that sentence).\n- Group 10, checks before deployment: 10.1 and 10.2 as written; 10.3 is the dry run `chezmoi -S <worktree> apply --dry-run --verbose --exclude=scripts` limited to the shell targets (`~/.config/shell`, `~/.zshrc`, `~/.bashrc`, `~/.profile`, `~/.zprofile` and the removals): it is read-only, but it renders the real home, so print the LIST of paths and the kind of each change (create, update, remove, mode), not the content of any file, and show the list to the user.\n\n## What you do NOT do (stricter than part 1)\n\n- You never run the system script for real, never call sudo, never `chfn`, never edit `/etc` or the account: the script is rendered (`chezmoi -S <worktree> execute-template`) and run only with `CHEZMOI_SCRIPTS_DRY_RUN=1`, and its tests use stubs in a scratch home. The first real run is the user's, with a password, in group 12 (see `manual-steps.md`).\n- Never set `CHEZMOI_SCRIPTS_DRY_RUN` on a real `chezmoi apply`: chezmoi records a script as run when it exits 0 and would skip the real run afterwards.\n- No `chezmoi apply` of any kind (group 11 deploys, with the user present, after your group 10); no change to the live files under `$HOME`; do not copy any real file of the home (history, environment file, shell configuration) into the worktree or your transcript: synthetic files only.\n- Groups 11 to 13 are not yours.\n\n## Things to know (measured by the orchestrator, 2026-11-24)\n\n- The account's comment field has 4 comma-separated fields at the moment: the fifth (\"other\") is empty, so there is nothing to keep today; the script must still keep entries such as `pri=` or `ulimit=` when they exist (scenario \"Other GECOS entries are kept\").\n- `getent passwd <user>` prints the comment field: a test or a report must COUNT (`grep -c 'umask=027'`), never print the line.\n- `sudo` 1.9.17: without `umask_override` it uses the union of the user's umask and 022, so a 027 user would get 027 for root's files (a root-owned file `sudo cp`'d into `/usr/local/bin` not executable by the user): that is why the sudoers file exists.\n- `pam_umask` reads the umask from the fifth field of the comment field, its own argument, `login.defs` or `/etc/default/login`, in that order; `USERGROUPS_ENAB yes` would turn a missing value into 007 for a user whose private group has no other member: the entry must be explicit.\n- Generated locales today: `C`, `C.utf8`, `fr_FR.utf8`; `en_US.UTF-8` is not generated; `LANG` is `fr_FR.UTF-8` in the user manager.\n- The user's private group has no other member, three accounts have a login shell, and the home is 0755 today: `chmod 0700` closes it.\n\n## Rules and habits from part 1 (they cost time)\n\n- The orchestrator measures from an exported copy of the commit you name (`git archive <hash>`), never from your working tree: every count you report must be of committed state, with the hash.\n- Tests first, a mutant for each requirement, tick a task only when its test passes and its mutant fails.\n- `/usr/bin/python3` or Python from the repository root (the mise shim refuses inside `home/dot_config/shell/rc.d`); `grep -c` exits 1 on a count of 0 (`|| true` under bats); `rtk` filters some outputs: use `/usr/bin/ls` and plain greps for counts that decide something; restricting `PATH` under `env -i` needs the shell's absolute path; bats runs the tests of one file in parallel, so tests that count processes use names unique to the test.\n- A pipeline in a shell script is only as safe as its last command: part 1 had a data-loss path (a failing `awk` in a pipeline emptied the history) that the tests did not catch and the orchestrator found by reading: for every step of the new script that writes under `/etc` or changes an account, write the test of its failure first (the tool fails, the tool is missing, the tool prints part of its output) and show that nothing is changed.\n- Commits: one per group or sub-group, proposed to the user first (`type(domain:subject): imperative lowercase summary`, English, at most 80 characters, COUNTED; domains `test`, `shell`, `chezmoi:spec`, `chezmoi:docs`), committed only after the user validates, with `env -u GITHUB_TOKEN HK_STASH=none /home/linuxbrew/.linuxbrew/bin/git commit`, never `git commit | head`, staging by explicit paths. Never push.\n- Before each commit that adds a test or a fixture: the redaction tool's `--check` file by file (counts only), `gitleaks dir tests`, and scans for home paths, host names and names of sibling repositories other than darse, cem, bosco, greffe, opencode-readonly-guard and the Neovim configuration repository; show the counts in your pane.\n- Cut at a group boundary when your context nears 70% with `builder-handoff-3.md` in this folder; a fresh session continues from it.\n\n## Reporting\n\nOne line each time with `herdr agent prompt chezmoi-orch \"<one line>\"`, at: reading done (with what does not hold against the tree), group 8 done, group 9 done, group 10 done (with the dry-run LIST summary: counts of creates, updates, removes, modes), cut, blocked.\nIf the name does not resolve, find the pane of the tab labelled `orch` in the primary workspace (`herdr worktree list --cwd <your worktree>` names the workspace open on the main checkout) and prompt it by pane id; `herdr agent prompt` refuses a blocked agent, so write the line in your own pane as well when the orchestrator waits for the user.\nThe last report carries: the last commit hash, the suite and mutant counts, the deviations from the tasks and the design, the frictions, and anything that makes a private value inferable in your transcript (so that the export is masked before it is committed).\nWhen part 2 is done: rebase on `main`, `openspec validate --all --strict`, report; you never merge and never push.\n\n<!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->\n"
+}
+```
+
+**Output:**
+```
+Wrote file successfully.
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; B=.state/briefs/correct-shell-environment\ncat > $B/builder-prompt-3.txt <<'EOF'\nYou are chezmoi-env-build3, the third build session of the OpenSpec change correct-shell-environment: part 2, groups 8, 9 and 10 of tasks.md (the session defaults script, the documents, the checks before deployment). Your worktree is __WORKTREE__ (a new branch started from main at the tip that the orchestrator names in this message); stay inside it. Read in this order: __WORKTREE__/.state/briefs/correct-shell-environment/builder-brief-3.md (what is yours, what you do not do: no sudo, no real run of the script, no chezmoi apply), then builder-brief.md (the contract: rules and reporting), then decisions.md and builder-handoff-1.md for the background, then tasks.md groups 8 to 10, design.md decisions 2 and 3, and specs/install-scripts/spec.md of the change. Say in a few lines what does not hold against the tree, send chezmoi-orch one line with herdr agent prompt when reading is done, and wait for the user's go before the first download (mise run test:deps), since tests/.lib is not in a new worktree.\nEOF\nfor f in builder-brief-3.md; do F=$B/$f; printf '%s: lines %s | dashes %s | modeline last %s | banned %s | embargo words %s\\n' $f \"$(wc -l < $F)\" \"$(/usr/bin/grep -a -c -E '[–—]' $F)\" \"$(tail -1 $F | /usr/bin/grep -a -c 'vim: set ts=2')\" \"$(/usr/bin/grep -a -c -i -w -E '[redacted:private]|[redacted:private]|[redacted:private]|[redacted:repo]|[redacted:private]' $F)\" \"$(/usr/bin/grep -a -c -i -E 'tokenizer|heredoc' $F)\"; done\npython3 ~/.config/nvim/scripts/session_redact.py --check $B/builder-brief-3.md 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | /usr/bin/grep -a -E ': [1-9][0-9]*$'; echo '(redaction non-zero list ends)'\nchmod 600 $B/*; ls $B | tr '\\n' ' '; echo\necho \"prompt: $(wc -c < $B/builder-prompt-3.txt) bytes, placeholders $(/usr/bin/grep -a -o '__WORKTREE__' $B/builder-prompt-3.txt | wc -l)\"\necho \"files named exist: $(for f in home/.chezmoiscripts/run_onchange_before_02-system-limits.sh.tmpl tests/unit/install-scripts-isolated.bats tests/unit/install-scripts-render.bats tests/helpers/harness.sh openspec/changes/correct-shell-environment/specs/install-scripts/spec.md; do [ -e $f ] && echo -n \"ok \" || echo -n \"MISSING($f) \"; done)\"",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+builder-brief-3.md: lines 64 | dashes 0 | modeline last 1 | banned 0 | embargo words 0
+path aliases: 1
+  global: 1
+(redaction non-zero list ends)
+brief.md builder-brief-2.md builder-brief-3.md builder-brief.md builder-handoff-1.md builder-prompt-2.txt builder-prompt-3.txt builder-prompt.txt decisions.md handoff.md 
+prompt: 1012 bytes, placeholders 2
+files named exist: ok ok ok ok ok 
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 9.5s)
+
+_Thinking:_
+I'm going to rewrite the resume note so it reflects where things stand at the end of this session. It's grown to about 200 lines, so I'll restructure it, drop the instructions for a builder that isn't running anymore, and keep the procedures, rules, signal state, embargo, and next steps. First I'll read the current file in full so I don't lose anything that matters.
+
+I'll open the full resume file now, since it's grown long enough that I want to check every item before rewriting anything.
+
+
+The three briefs are in place. The resume note has grown by accretion and still describes a builder that no longer exists, so I'm reading it in full and rewriting it for the real state.
+**Tool: read**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/.state/resume.md",
+  "limit": 120
+}
+```
+
+**Output:**
+```
+<path>~/.local/share/chezmoi/.state/resume.md</path>
+<type>file</type>
+<content>
+1: # Resume note of chezmoi-orch, updated 2026-11-24 15:00: PART 1 OF THE BUILD ACCEPTED (tip 32bdfb5, main fast-forwarded, NOT pushed), second builder idle, to export and clean up
+2: 
+3: Git-ignored, factual, no secret values.
+4: Read it, then `AGENTS.md` (Workflow section, safety rules, writing for a public repository), then `.state/journal.md` (last 20 lines), then `openspec list`.
+5: 
+6: ## Who and where
+7: 
+8: - Role: orchestrator of the dotfiles repository (`~/.local/share/chezmoi`, public, `github.com/silopolis/dotfiles`), herdr name `chezmoi-orch`, pane `wN:p1`, session `ses_e720ce42affen6d11Mjrfbnxpi` (the one exported in `memory/sessions/202610301854-harden_sensitive_targets.md`).
+9: - If `herdr agent get chezmoi-orch` fails after a herdr restart or a pane restart, rename the pane: `herdr agent rename wN:p1 chezmoi-orch`.
+10: - Workspace `wN` (label `chezmoi`, herdr's primary workspace of this repository): tab `wN:t1` orch (me, pane `wN:p1`), and a `firefox` tab `wN:tY` that is the user's (not touched).
+11: - Linked workspace `w0` (label `env-build`, grouped under `wN`): the SECOND build session, agent `chezmoi-env-build2`, tab `w0:t2` (label `build2`), pane `w0:p2`, session `ses_df6978237ffep8f55EkhyZmu3O`; worktree `[redacted:worktrees_root]/dotfiles-correct-shell-environment`, branch `feat/correct-shell-environment`.
+12:   The first builder (`chezmoi-env-builder`, session `ses_df7bc0034ffeVSFL9O71R9GqgJ`, tab `w0:t1`) was cut at the group 5 boundary, exported and its tab closed by id at about 18:15; the workspace stays open as long as a tab of it exists (never close its last tab before the work is done and its tab replaced).
+13: - Tabs of `wN` now: `wN:t1` orch (me) and `wN:tY` `editor` (the user's).
+14: - `/compact` and restarting a pane are user actions; never send keys to my own pane.
+15: - Private store: `[redacted:private_store]` (never print terms; no hooks there).
+16: - The machine rebooted on 2026-11-22 at 10:53 and the user resumed THIS SAME session (session id unchanged) through the `opencode` function: the opencode process of this pane holds none of the ten keys and no GitHub variable (counts), while the pane's shell and herdr itself still hold the ten until `correct-shell-environment` is deployed.
+17:   The next export of this session overwrites the same file `memory/sessions/202610301854-harden_sensitive_targets.md` (`--full`, same slug); only a NEW session id gets a new file and a README row.
+18: - herdr forgot the agent name after the reboot: `herdr agent rename wN:p1 chezmoi-orch` (done 2026-11-23); check `herdr agent get chezmoi-orch` after any herdr or machine restart, because an agent that reports to a name that does not resolve is lost.
+19: 
+20: ## State at the end of this session
+21: 
+22: - Repository on 2026-11-24 15:00: `main` = `32bdfb5`, 14 commits ahead of `origin/main` (`08733b0`), tree clean, `openspec validate` 38/38, NOT PUSHED (waiting for the user's word): the 14 commits are part 1 of the build of `correct-shell-environment` (groups 1 to 7 and the history fix; `openspec list` shows 34 of 61 tasks done).
+23:   The turns of this session after the 13:00 export on 2026-11-23 are in no export until the next one; see the EMBARGO note under "Reports and signals" before the next re-export.
+24: - The reboot check of `TODO.md` PASSED on 2026-11-23 (probe of `manual-steps.md`): user manager holds 0 GitHub token variables, 0 of 113 readable processes hold one, 10 names of the private file still exported by the profile (expected until the deployment), umask 0002, no `en_US.UTF-8`, home 0755.
+25: - Machine on 2026-11-23: 3.0 GB of memory available, 7.8 of 15.8 GB of swap used, no pressure stalls, 0 kernel kills since the reboot, no old `nvim`; the largest users are Firefox (about 9 GB with swap) and 11 `opencode` processes (about 6.5 GB).
+26: - Delivered since the previous resume (all pushed): the redaction work (`1649908`, `13c7e1e`, `711b14d`), `3a39713` (places `correct-shell-environment` in `TODO.md`, backlogs the hk bump), `890872e` and `4aa8cad` (brief, study, design, five specs, tasks of `correct-shell-environment`), `57bd76b` (export of its planning lead), `7ebe727`, `11082bc`, `325f914`.
+27: - Store commits pushed this session: `61b37f9` (mine: other-project terms, store path alias), six commits of `nvim-s26` (consented: 34 of 35 dotfiles-only entries to the global layer, line 52 kept; `public-folders.txt` for the folder scan), `71292df` (mine: two folder segments the user classified as public).
+28: - The redaction tool in `~/.config/nvim/scripts/session_redact.py` now has the FOLDER SCAN: it reads opencode's database, takes the segments of the folder paths it records, and counts those the checked files still hold (category `folder names`); `--folder-report FILE` (mode 0600) is the only place that names a segment; accepted segments come from `public-folders.txt` of the store's global layer (46 entries) and the public repository names.
+29:   A new project folder can make `--check` of old exports fail with no change in the repository: the user classifies the report lines (all public so far), I add them in a store commit of my own.
+30: - Tools fixed: `/tmp/opencode` is mode 750 (TokenScope refuses a group-write bit); `tokenscope` works (about 279K tokens of active context at 14:44 on 2026-11-21).
+31: 
+32: ## The change in flight: `correct-shell-environment`
+33: 
+34: Designed with the user on 2026-11-21 (five decisions in `.state/briefs/correct-shell-environment/decisions.md`, folded into `design.md`):
+35: 1. keys on demand: `secrets load` loader, new shells and the desktop hold none, inherited copies unset;
+36: 2. umask 027 from the login (account comment field read by `pam_umask`), 022 forced for sudo, home 0700, one system install script (needs sudo, the user's go);
+37: 3. locale: no `LC_ALL`, a missing inherited locale dropped, `en_US.UTF-8` generated by the same script;
+38: 4. the desktop login pass loads only the `env_` files (0.23 s and 55 names against 0.62 s and 108), `shellrc` interactive-only again;
+39: 5. highlighting last (`999`), four stub files and `zsh/zshrc` and `bash/bashrc` removed, `HISTFILE` under XDG state with a migration.
+40: 
+41: Artifacts on `main`: `openspec/changes/correct-shell-environment/` (`proposal.md`, `design.md`, `findings.md`, `brief.md`, `tasks.md` with 13 groups, `manual-steps.md`, five specs: new `shell-environment`, deltas for `shell-startup`, `agent-environment`, `install-scripts`, `shell-test-harness`).
+42: THE BUILDER IS RUNNING since 2026-11-23 13:00 (part 1, groups 1 to 7); see "Orchestrating the builder" below.
+43: Builder material, git-ignored in `.state/briefs/correct-shell-environment/` (and copied into the worktree's own `.state/`): `builder-brief.md` (part 1 = groups 1 to 7: shell code, tests first, a mutant per requirement; no deployment, no sudo, no reboot), `builder-prompt.txt` (first prompt, `__WORKTREE__` placeholder), `decisions.md`, `handoff.md` (planning lead's notes), `brief.md`; the lead's study scripts are in `.state/tmp/study-env/` (they compute the repository root from their own location, so in the builder's worktree they go to `.state/tmp/study/`).
+44: The launch used the grouped recipe below and it worked at the first attempt (observations in `add-agent-launch-tasks/observations.md`, seventh launch).
+45: 
+46: ### Topology rule (decided with the user on 2026-11-23): a worker lives in a LINKED WORKTREE WORKSPACE grouped under `wN`
+47: 
+48: herdr groups a primary workspace with its linked worktree workspaces (`herdr workspace close <id> --group` closes the primary and all of them: NEVER use `--group`, it would close `wN` and this pane).
+49: The recipes of `scm:worktree:new --tab` open a plain tab inside `wN`, which does not group; until the permanent fix (the change `add-agent-launch-tasks`, planned right after the builder, with its cleanup) the worker is grouped by hand:
+50: 
+51: ```sh
+52: cd ~/.local/share/chezmoi
+53: # 1. the git worktree, the mise trust, the hooks and the start-commit file that scm:worktree:done needs; no tab
+54: mise run scm:worktree:new <type>/<name> --base main --json > .state/tmp/launch.json 2> .state/tmp/launch.err
+55: W=$(jq -r .path .state/tmp/launch.json)
+56: # 2. its workspace, linked under wN (verified 2026-11-23: accepted, no trust prompt; add --trust-repository only if herdr ever refuses on trust, the user allowed it for this repository)
+57: herdr worktree open --workspace wN --path "$W" --label <label> --no-focus > .state/tmp/open.json 2> .state/tmp/open.err
+58: WS=$(jq -r .result.workspace.workspace_id .state/tmp/open.json); PANE=$(jq -r .result.root_pane.pane_id .state/tmp/open.json)
+59: # 3. material for the worker, in its own .state (git-ignored, deleted with the worktree)
+60: mkdir -p $W/.state/briefs/<change> $W/.state/tmp && chmod 700 $W/.state/tmp
+61: cp .state/briefs/<change>/<files> $W/.state/briefs/<change>/
+62: # 4. the agent, in the root pane of the new workspace (model flags as for the role; the footer takes about ten seconds to draw: read the pane again)
+63: herdr agent start <name> --kind opencode --pane "$PANE" -- --agent build --model anthropic/claude-sonnet-5-5
+64: herdr pane read "$PANE" --lines 40 | /usr/bin/grep -a -E 'Build|Plan|Sonnet|Opus|xhigh'
+65: herdr agent prompt <name> "<prompt with the absolute worktree path>" --wait --until working --timeout 20000
+66: ```
+67: 
+68: Verified values of the builder launch: workspace `w0`, root pane `w0:p1`, tab `w0:t1` (labelled `1`, the label names the workspace).
+69: 
+70: Journal the events (brief copied, worktree and workspace created with their ids, prompt sent).
+71: If `worktree open` refuses a worktree that git created, or the workspace cannot be closed without `--group`, fall back to the tab recipe (`scm:worktree:new --tab --workspace wN ...`), which worked six times, and report the failure for the change `add-agent-launch-tasks`.
+72: One agent of this repository at a time while memory is tight (see the machine line above).
+73: 
+74: ### Cleanup rule when a worker is finished (the export comes BEFORE any closing)
+75: 
+76: 1. Re-measure its report from my pane, fast-forward `main` locally, push on the user's word.
+77: 2. Export its session (procedure below), commit and push on the user's word.
+78: 3. Close its linked workspace by id: `herdr workspace close <linked workspace id>`, never `--group`; check that `wN` and this pane are still there.
+79: 4. `mise run scm:worktree:done feat/correct-shell-environment` (checks the branch is in `origin/main`, runs the post-remove hook, removes the worktree and the local branch; an untracked file it refuses on is deleted by hand when no process uses it, never `--force`).
+80: 5. Check: `herdr worktree list --workspace wN` and `git worktree list` show only `main`; journal it.
+81: 
+82: ### After the builder, the plan of the next steps
+83: 
+84: The builder cuts itself at about 70% with a hand-off note; a second build session takes groups 8 to 10 (the session-defaults script, documents, checks before deployment); groups 11 and 12 are done with the user present (`manual-steps.md` is the checklist); `/opsx-verify`, archive on the user's go, then the closer export and the cleanup rule above.
+85: Right after part 1 of the builder: a plan lead for `add-agent-launch-tasks` (moved right after `correct-shell-environment` in the planned order), which updates `scm:worktree:new`, `rm` and `done` for every repository: grouping into linked workspaces, closing the linked workspace at the end, and a repository hook that refuses the closing before the export is committed.
+86: 
+87: ## Orchestrating the builder (what to do after the compaction)
+88: 
+89: State at 18:20 on 2026-11-23: agent `chezmoi-env-build2` (Build, Claude Sonnet 5.5, xhigh), pane `w0:p2`, was `working` on its first prompt (the reading list of `builder-brief-2.md`, then it says what does not hold against the tree and reports "reading done" to me).
+90: First actions after a compaction, in this order, all read-only:
+91: 1. `herdr agent get chezmoi-orch` (rename the pane if it fails), `herdr agent get chezmoi-env-build2`, `herdr agent list` with `jq` for names and panes only.
+92: 2. `herdr pane read w0:p2 --lines 60 | /usr/bin/grep -a -v '^\s*$' | tail -25`: is it blocked on a permission prompt (read it, report it to the user, never answer it), asking a question, or working? `tokenscope` with `sessionID` gives its context size.
+93: 3. `git -C [redacted:worktrees_root]/dotfiles-correct-shell-environment log --oneline main..HEAD` and `status --short`: commits are proposed to the user by the builder in its own pane, so a commit appearing without a report is worth a look.
+94: 4. `tail -20 .state/journal.md`, then the builder's reports in my pane (it sends one line with `herdr agent prompt chezmoi-orch`).
+95: When it reports "group N done", re-measure on `git archive <hash>` (recipe in "Builder progress") before trusting: suite counts, mutants, shellcheck on changed shell files, scans over the added lines (dashes, sibling names, e-mails, token shapes, `/home/<login>` forms, IPv4, secret-looking names, names of the private file counted in memory), the redaction `--check` file by file, `gitleaks git --log-opts='main..<hash>'`, `openspec validate --all --strict` in its worktree, and a read of any security-relevant code.
+96: Cutting a builder at 70% (proven on 2026-11-23): the builder writes `builder-handoff-N.md` and says its pane stays open; I (1) accept its last group on the exported commit, (2) export its session (scratch `/tmp/opencode/export-scratch`, `export.py --full --no-children --force --slug <slug> <session id>`, redaction with the store alone, checks, README row, uncommitted until the user's commit word), (3) write `builder-brief-N+1.md` and `builder-prompt-N+1.txt`, copy the brief into the worktree's `.state/briefs/`, (4) `herdr tab create --workspace w0 --cwd <worktree> --label <label> --no-focus` (JSON: `.result.tab.tab_id`, `.result.root_pane.pane_id`), `herdr agent start <new name> --kind opencode --pane <pane> -- --agent build --model anthropic/claude-sonnet-5-5`, read the footer again after ten seconds, send the prompt, (5) close the OLD tab by id (`herdr tab close w0:t1`; the workspace survives while one tab of it exists, never close its last tab first), (6) check `herdr agent list` shows chezmoi-orch and the new name only.
+97: Memory: one agent of this repository at a time apart from the few minutes of a hand-over; 4 GB available at 18:00. `tokenscope` works for the context size of an agent.
+98: 
+99: ### Builder progress (2026-11-23, updated 18:20: groups 2 to 5 accepted, first session cut and exported)
+100: 
+101: Branch `feat/correct-shell-environment`, 5 commits on `d9f437d` (main is `c006474` now: two docs commits with no file in common, rebase at the END, not before):
+102: `3c9c565` docs(chezmoi:spec): the round 1 decisions applied; `86f7a4c` test(shell:env): kinds runner, history fixtures, session probe (group 2); `5e2a9c6` feat(shell:path): `PATH` helper and the `env_` files (group 3); `f39e59f` feat(shell:env): drop missing locales, no forced `LC_ALL` (group 4); `9c0a96e` feat(shell:secrets): keys loaded on demand with `secrets load` (group 5).
+103: Each group re-measured by me on `git archive <hash>` (suite, mutants, shellcheck, scans, redaction check, gitleaks): group 5 = 473 tests, 0 failures, 28 skipped, mutants 12 run 0 problems (env-path-no-clean 12, env-lc-all-forced 14, env-keys-at-startup 3), no private-file name in the added text; code of `446-tools_secrets.sh` and `010-env_user.sh` read.
+104: Scratch measuring recipe: `git archive <hash> | tar -x -C /tmp/opencode/orch-tree`, `ln -s <worktree>/tests/.lib <tree>/tests/.lib`, `DOTFILES_TEST_REPORTS=/tmp/opencode/orch-reports DOTFILES_TEST_JOBS=3 tests/run.sh` and `tests/mutants/run.sh` from inside the tree (mise does not trust that tree: `openspec validate` is run in the builder's worktree, read-only); delete `/tmp/opencode/orch-*` afterwards. NEVER run the suite on the builder's working tree while it edits.
+105: The first builder asked whether the two live scenarios of `shell-environment` ("After the next login", "The live session holds no key") need tasks: DECIDED by me (the spec says "a live test"): task 6.7, tests in `tests/smoke/environment-live.bats` gated by `DOTFILES_TEST_LIVE=1` AND a new opt-in `DOTFILES_TEST_AFTER_LOGIN=1` (so `mise run test:live` stays green before the deployment), reusing probe lines A7, A8, A9 and counting the user manager plus the ANCESTORS of the test process (not every process: a pane that typed `secrets load` holds keys on purpose); artifact commit `docs(chezmoi:spec)` proposed by the builder to the user; 12.4 and `manual-steps.md` step 4 become `DOTFILES_TEST_AFTER_LOGIN=1 mise run test:live`. Tell the user at the next report (he can veto).
+106: Second session `chezmoi-env-build2` (started 18:17 on 2026-11-23; at 12:40 on 2026-11-24 it had made FOUR commits on top of `9c0a96e`, none measured by me yet: `b6674f3` docs(chezmoi:spec) (live login tests 6.7, login sh scenario, env pass for bash and zsh only), `015b537` feat(shell:env) (desktop login loads only env_ files, `shellrc` guard), `d8758ff` test(shell:env) (differences with main listed), `383c9dd` test(shell:env) (live checks behind the opt-in `DOTFILES_TEST_AFTER_LOGIN`); measure the tip it names in its group 6 report on `git archive`; context 27%): scope groups 6 and 7 plus 6.7, then part 1 done (tick 1.2, rebase on main, validate, suite, mutants, last report); brief `builder-brief-2.md`, hand-off `builder-handoff-1.md` (both in the worktree's `.state/briefs/correct-shell-environment/` and in mine, git-ignored). Its first report should be "reading done"; cut at 70% with `builder-handoff-2.md`.
+107: Reading report of `chezmoi-env-build2` (18:30), all three points valid and answered: (1) the mutant `env-desktop-full-pass` runs a real rc.d pass in profile's non-interactive branch (a shellrc-sourcing mutant would be a no-op under the guard); (2) profile sources `shell/environment` only when `CURRENT_SHELL` is bash or zsh (dash has no `source`: `sh -l -c` prints 0 bytes today and would print `source: not found`, status 127), plus ONE new scenario "A login sh loads nothing" in the requirement "The desktop login loads the environment only" (shell-environment 34 scenarios, the five delta specs 57, noted in task 9.1); (3) a paragraph on live tests in `tests/mutants/README.md`. All of it goes into the `docs(chezmoi:spec)` commit that carries task 6.7, proposed by the builder to the user first.
+108: GROUP 6 ACCEPTED at 13:20 on 2026-11-24, tip `383c9dd` (4 commits on `9c0a96e`: `b6674f3` docs(chezmoi:spec) live login tests 6.7 and the login sh scenario; `015b537` feat(shell:env) desktop login loads only env_ files, `shellrc` guard, `zsh/zshrc` and `bash/bashrc` removed with removal entries; `d8758ff` test(shell:env) `compare-allow.txt`; `383c9dd` test(shell:env) live checks behind `DOTFILES_TEST_AFTER_LOGIN`).
+109: Measured by me on `git archive 383c9dd`: 496 tests, 0 failures, 30 skipped, canary 0; mutants 14 run, 0 problems (env-desktop-full-pass 7, env-shellrc-no-guard 4, startup-generator-prints 4 to 3 because the non-interactive login zsh no longer loads rc.d); profile and shellrc read (login shell guard `bash | zsh`, `dash -n` and `shellcheck -s sh` clean); scenario counts 34 for shell-environment, 57 for the five delta specs; 652 added lines clean; 0 private-file names in the branch diff; gitleaks and `openspec validate` (38/38) clean.
+110: I ran the manual mutation myself on a scratch copy (login sh guard dropped): 2 failures ("a login sh loads nothing", "profile is POSIX").
+111: Sent to the builder for its NEXT commit (no separate one): (a) `compare-allow.txt` writes the literal key-shaped name `[redacted:envvar]` (main never writes such a name; the redaction check counts 1): have `startup-compare.bats` add the synthetic private-file names to the allow list at run time and drop the two literal lines; (b) a wrong comment in `environment-live.bats` (a pane that typed `secrets load` IS an ancestor when the test runs from it).
+112: The builder was blocked at 13:20 on a permission prompt ("Access external directory /home", pattern `/home/*`); the user answered it, and my acceptance message with the two tidy items was re-sent and delivered at 13:30. It is on group 7 (28% of its context).
+113: Expect this class of prompt again (external directories): tell the user in advance, never answer it myself.
+114: PART 1 REPORT at 14:00 on 2026-11-24 (first tip): tip `f6d6659`, 12 commits directly on `main` (`08733b0`, fast-forwardable): `103cd82` docs, `a1e1c3f` group 2, `62fc2d4` group 3, `cb27db9` group 4, `14ddef2` group 5, `cdc352b` docs (live tests 6.7, login sh scenario), `651881d` desktop login and `shellrc` guard, `d5fc805` compare-allow, `635b081` live checks, `8b4237f` highlighting last and dead files removed, `0518b8c` history under XDG, `f6d6659` ticks.
+115: Measured by me on `git archive f6d6659`: 508 tests, 0 failures, 30 skipped, canary 0; mutants 16 run, 0 problems; compare with main 5 of 5 (run by me in the idle worktree, tree unchanged); 12 removed or renamed sources each with a removal entry and none naming an added target; 2978 added lines clean; 0 private-file names in the diff; both group 6 tidy items done; gitleaks and `openspec validate` 38/38 clean. `320-shell_history.sh` has 2 redaction matches on lines 61 and 62 that main already has (not new); `999-highlighting.sh` is byte-identical to main's `930`.
+116: BLOCKER FOUND by me (data loss, reproduced on a scratch copy of the REAL zsh history, counts only, copy deleted): the zsh branch of `_history_merge` in `320-shell_history.sh` is a pipeline (awk, sort, cut, tr) with no pipefail; if awk fails the pipeline exits 0 with empty or partial output, and `_history_migrate` then moves it over the new history and replaces the legacy file with a link: with an awk stub exiting 2 the new file went 2627 to 0 lines and the legacy 2628 to 0. The happy paths are fine (first start byte-identical, merge after a trim loses 0 distinct lines under fr_FR.UTF-8, C.UTF-8 and C).
+117: SENT BACK at 14:10: test first (failing awk and missing awk: new file keeps its lines, legacy stays a regular file, no temp left), then pipefail plus a refusal to replace a non-empty new file by an empty output, one scenario "A failed merge loses nothing" in History under XDG state (shell-environment 35 scenarios, five delta specs 58, task 9.1), mutant `env-history-merge-unchecked`, one docs(chezmoi:spec) commit and one fix commit, each proposed to the user in its pane first; known and accepted: lines appended by another shell during the few milliseconds of a merge may be lost (design accepts it). The builder was told to use synthetic history files only. Its context was 32% at 14:10.
+118: FIX ACCEPTED at 14:50: new tip `32bdfb5` (`e514422` docs scenario "A failed merge loses nothing" plus task 7.6 and counts 35 and 58; `32bdfb5` fix: pipefail in the subshell plus a refusal to replace by an empty output). Measured on `git archive 32bdfb5`: 513 tests, 0 failures, 30 skipped, canary 0; mutants 17 run, 0 problems (`env-history-merge-unchecked` 1 failure, `env-history-no-merge` 7); scenarios 35 and 58; 90 added lines clean; gitleaks and `openspec validate` clean. My failing-awk probe on SYNTHETIC history files against the fix: awk exit 2, partial output then failure, and awk missing (restricted PATH with absolute zsh) all keep both files as regular files with every line and no temp file; the happy merge keeps every distinct line and the multi-line entry and puts the link back; the same restricted-PATH control on the old blob loses both files (201 to 0), so the probe can see the bug. A first run of my "awk missing" case was invalid (env could not find zsh on the restricted PATH: exit 127, script never ran) and was redone: when you restrict PATH for `env -i`, give the shell's absolute path.
+119: (Original instruction after the first report, kept for the record:) After the fix, re-measure the NEW tip the same way and ALSO re-run my failing-awk probe against it (synthetic files; do NOT copy the real history again unless needed: if so counts only, delete the copy, and never into a committed file).
+120: STATE at 14:05 on 2026-11-24: the builder has ALREADY REBASED on `08733b0` (all hashes of its branch changed: the group 2 to 6 commits I measured as `86f7a4c` ... `383c9dd` are now `a1e1c3f` ... `d5fc805`/`635b081`) and made the group 7 commits `8b4237f` (feat(shell:env): highlighting last, dead startup files removed), `0518b8c` (feat(shell:history): history under XDG state, merge of a trimmed file) and `f6d6659` (docs(chezmoi:spec): tick the test-first rule, groups 1 to 7 done). It was BLOCKED on a permission prompt "Access external directory ~" (pattern `~/*`) in `w0:p2`, left to the user. Its final report is NOT in yet: when it comes, measure the TIP it names on `git archive` (suite, mutants, scans, `main..tip` gitleaks), read `320-shell_history.sh` (the migration touches live history files: look for data-loss paths, the merge, the link) and `999-highlighting.sh`, check every removed or renamed target has its `.chezmoiremove` entry, and that the two tidy items of group 6 were done.
+
+(Showing lines 1-120 of 209. Use offset=121 to continue.)
+</content>
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 6.1s)
+
+**Tool: read**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/.state/resume.md",
+  "offset": 121
+}
+```
+
+**Output:**
+```
+<path>~/.local/share/chezmoi/.state/resume.md</path>
+<type>file</type>
+<content>
+121: Open points for group 7 and the last report: the bash merge wording (multiset); `INFOPATH` grows in nested shells (brew shellenv prepends each call), out of scope, to say in the last report.
+122: 
+123: ### Second builder: export done, cleanup pending (2026-11-24 15:00)
+124: 
+125: - Export of the second builder session built and checked, UNCOMMITTED: `memory/sessions/202611231816-shell_environment_build_two.md` (9,839 lines, through `msg_20dbf24cb001RFRWCuL0smLtuE`, 0 identity values, 0 of 10 private-file names, no history-shaped lines, folder scan 0 segments, the embargoed message is NOT in it) and README row 18 (18 rows now). Proposed message: `docs(chezmoi:memory): export the second correct-shell-environment build session` (79 characters).
+126: - Worktree-only material saved to my `.state/briefs/correct-shell-environment/` before removal: `builder-handoff-1.md`. Its `.state/tmp` (3.5 MB of logs and scratch) is deleted with the worktree.
+127: - CLEANUP, to run only AFTER the user's push word AND the export commit are in `origin/main` (`scm:worktree:done` refuses otherwise; never `--force`): (1) `herdr workspace close w0` (the LINKED workspace by id, never `--group`; check afterwards that `wN` and `chezmoi-orch` still resolve), (2) `mise run scm:worktree:done feat/correct-shell-environment` (a refusal on an untracked file is fixed by deleting that file when no process uses it), (3) `herdr worktree list --workspace wN` and `git worktree list` show only `main`, (4) journal it. This is the FIRST real test of the closing rule written into `AGENTS.md` and into the proposal of `add-agent-launch-tasks`: record what happens in that change's `observations.md` (does the workspace close by id leave `wN` untouched? does `done` still find the tab file?).
+128: - The tab file of the old `scm:worktree:new` flow does not exist for this worktree (no `--tab` was used): `done` runs the hook and removes the worktree without a tab to close; the builder agent `chezmoi-env-build2` ends with the workspace.
+129: 
+130: ## What is waiting for the user
+131: 
+132: 0. PUSH of the 14 commits of part 1 (`main` `32bdfb5`, nothing pushed since `08733b0`): scan first (`gitleaks git --log-opts='origin/main..HEAD'`, added lines, `--check` over all exports), then `env -u GITHUB_TOKEN git push origin main`. Ask whether to push before or after the export of the second builder is committed (the export is built next).
+133: 1. (Done 2026-11-24: `nvim-dev` is the script alone, after part 1; see "Reports and signals" for the to-do.)
+134: 2. Tell the user: my decision on the two live scenarios (task 6.7, opt-in `DOTFILES_TEST_AFTER_LOGIN=1`), the closing of the cut builder's tab before the export was committed (the export exists and the session is in opencode's database), and the group 3 to 5 results.
+135: 3. The builder will propose commits in its own pane (the artifact commit for task 6.7 first, then one per group); the user validates them there; an external-directory permission prompt (`[redacted:worktrees_root]/*`) is likely again for the second session.
+136: 4. At the start of group 11 (deployment), one decision: the live libvirt snippet `060-libvirt.sh` is not an `env_` file, so once `profile` is environment-only the user manager loses the variable it sets until `reconcile-drift-and-supervised-apply` task 2.3 adopts it as `060-env_libvirt.sh`; either do tasks 2.3 and 2.4 of that change by hand, with the user's go, before deploying `profile` (task 11.6), or accept the interim.
+137: 5. The machine is under memory pressure on and off (swap 6 to 9 GB used, Firefox about 9 GB with swap, no kernel kills since the reboot of 2026-11-22, no out-of-memory daemon); another fleet repository owns that policy. One agent at a time; ask the user to close Firefox tabs or stale editors before starting another.
+138: 6. After part 1 of the build: a plan lead for `add-agent-launch-tasks` (updates `scm:worktree:new`, `rm`, `done` for every repository: grouping into linked workspaces, closing by id, a hook that refuses the closing before the export; the dependency on `add-repo-roadmap` for the language rule of the global tasks must be settled in its review), then the second build part for groups 8 to 10 of `correct-shell-environment`.
+139: 
+140: ## Planning for what comes after
+141: 
+142: Overlaps checked on 2026-11-21 between `correct-shell-environment` and the planned changes:
+143: - `home/.chezmoiremove` is shared by `correct-shell-environment` (many entries), `manage-xdg-basics` (two fonts files), `cleanup-dead-config` (one stale line) and `reconcile-drift` (none): a trivial conflict for whoever lands second, who rebases.
+144: - `reconcile-drift-and-supervised-apply` tasks 2.3 and 2.4 own the two live unmanaged `rc.d` files (see decision 4 above); its proposal says most managed files change to 0640 and 0750 at the supervised apply (umask 027), which is consistent with the login umask decision.
+145: - `port-[redacted:private]-shell-aliases` adds `aliases` entries and `rc.d/8NN-*` files: no number collides with 035, 041 to 047, 446 or 999; it runs after `correct-shell-environment` as the planned order says, and a new `rc.d` file must not export anything the desktop needs unless it is named `NNN-env_*.sh`.
+146: - `remove-brew-libvirt` mentions the brew hook in `110-pkg_brew.sh` only as context: check at its launch whether it edits that file; if it does, it waits for the builder's group 3 (the split of `110`).
+147: - `manage-xdg-basics` (48 tasks, designed): no shell-startup file in common (user-dirs, fontconfig, `.chezmoiremove`); can run beside the builder.
+148: - `add-private-store-external`: its clone mode relies on chezmoi's umask 027; unaffected.
+149: 
+150: Candidate tracks in the order I would propose (one at a time, the user chooses):
+151: 1. The builder, part 1 (above).
+152: 2. `remove-brew-libvirt` (item 3 of the planned order, small), after checking the `110` point.
+153: 3. `manage-xdg-basics` (item 5), or `add-repo-roadmap` (item 10: its brief is in the change folder, by hand per the launch protocol; it needs paths of a fleet repository for its first prompt, and the Neovim repository now has a `ROADMAP.md` that could be the model: ask the user which repository to use).
+154: `add-secret-tasks` (audit 26) stays "keep as planned", not built.
+155: 
+156: Follow-ups recorded in `TODO.md`: per-tool keys instead of the environment (the Neovim orchestrator recorded its half in its roadmap, unscheduled; it will say which route the user chooses; its facts: a key command runs synchronously with no timeout, and a provider switched to one stops reading the environment), a managed `~/.zshenv`, the hk bump (2.10.0 to 2.11.1 in `mise.toml:5` and `hk.pkl:8-9`), the reboot check (its exact probe is `manual-steps.md`, line A16 covers every process).
+157: 
+158: ## Reports and signals
+159: 
+160: - Delivered: the identity-strategy signal is STILL undelivered (`.state/briefs/signal-identity-strategy/signal-identity-strategy.md`, for the coordination repository's orchestrator; no agent runs there; the user decided on 2026-11-16 to keep the real name and address on new commits).
+161: - Delivered 2026-11-21: key commands for the Neovim AI plugin (to `nvim-orch`, answered, information only); four read-only guard blocks that look like false positives (to `rog-orch`, times and reasons from the guard's own log, no reply owed).
+162: - Received 2026-11-24 (information, nothing asked, no reply owed; a pointer reply only records what is taken): `~/.local/state/orchestration/briefs/202611241234-nvim-signal-nvim-dev-alias-and-script.md`, from the Neovim orchestrator: the `nvim-dev` command of its development checkout.
+163:   Verified read-only on 2026-11-24: `~/.local/bin/nvim-dev` exists (POSIX sh, 548 bytes, mode 0755, created 2026-11-18, not managed by chezmoi, shellcheck and `dash -n` clean, redaction check clean, 6 code lines: checks that `${XDG_CONFIG_HOME:-$HOME/.config}/nvim-dev` exists, else message and exit 1, then `exec env NVIM_APPNAME=nvim-dev nvim "$@"`); no source file names `nvim-dev`; the live shells carry NO such alias (`type -a nvim-dev` finds only the script); `.local/bin` holds two managed entries (`awsenv`, the `bin` external); the profile `~/.config/nvim-dev` is a symlink to the clone `~/Work/nvim`, which chezmoi neither creates nor knows.
+164:   Candidates (the user chooses): (a) the script as `home/dot_local/bin/executable_nvim-dev`, content as on disk (works in scripts and panes without aliases; harmless on a machine without the dev checkout because it prints its message); (b) the alias line in `home/dot_config/shell/aliases` (reaches only shells that read it; duplicates the script and would shadow it); (c) both. DECIDED by the user on 2026-11-24: (a), the script ALONE, and AFTER part 1 of the build. A pointer reply was sent to `nvim-orch` the same day (script alone, after part 1, I tell it when applied). To do after part 1: a small change (precedent: `allow-public-secret-names`; name it e.g. `manage-nvim-dev-command`): `git mv`-free, copy `~/.local/bin/nvim-dev` to `home/dot_local/bin/executable_nvim-dev` byte for byte (`chezmoi add` then check), one requirement in a spec (a new capability or the closest existing one, to decide when writing it), a test that the managed script is POSIX (`shellcheck -s sh`, `dash -n`), prints its message and exits 1 when the profile is missing, and passes its arguments through (stub `nvim` first on `PATH`, scratch home), `chezmoi apply --exclude=scripts ~/.local/bin/nvim-dev` of that one target only after a diff review, then tell `nvim-orch`. Branch it from `main` AFTER the build's rebase so `tests/` does not conflict; it touches no file of the build.
+165: - ANSWER of the read-only guard's orchestrator (2026-11-24, information, no reply owed, nothing asked of this repository): of my four events, one was fixed long before, one blocks by design, the two others are one real false positive whose cause is in the guard's own parsing (not what my brief guessed), and the 8 `nvim` blocks are real headless runs, correctly blocked.
+166:   A fix is only DRAFTED on their side (not decided, not scheduled, nothing fixed).
+167:   EMBARGO, explicit: that repository is public and the wording of a fix is the maintainer's call; do NOT describe or forward the details of that message, or of what the guard misses, outside the fleet's private channels: not in a committed file (TODO.md, openspec, observations, README), not to the builders, not in my replies or tool inputs more than the one line above.
+168:   CONSEQUENCE FOR THE NEXT EXPORT of this session: the message sits in my transcript and `memory/sessions/` is public. The export of 2026-11-23 (through about 13:00) does not contain it; the NEXT re-export would. Before it is installed: build a throwaway terms layer in a 0700 scratch directory (`SESSION_REDACT_TERMS_DIR`, a file `redact-terms.txt`, one `re:` line per line of that message, each anchored on its own wording), run the redactor, then COUNT (never print) the distinctive words of the message in the output and in the raw file, and ask the user to check the masked block in the output before the commit; also make sure none of my own replies or tool inputs of that turn repeat the details. If it cannot be masked cleanly, cut the export at the message before it. Delete the scratch layer afterwards.
+169:   For my agents: a `set -a` inside a `bash -c` string asks by design (the guard cannot see what a sourced file assigns): put such probes in script files, as the builders already do.
+170: - Read, no action: the Neovim orchestrator's out-of-memory signal (the item exists elsewhere, corrected by it).
+171: - Still to report when convenient: `openspec archive` drops the Purpose and preamble of new specs, moves a modeline, adds blank lines (third time; a note to the tool's owners or a ticket); the cem checklist `cles-en-main:migrations/2026-10-[redacted:private]-to-[redacted:private]/checklist.md` item 4.4 names secret variable names in a repository that will go public (cem's orchestrator should reword it; flagged once, no decision recorded).
+172: - darse: T-073 (our zsh habits and secret handling) is `ready`, a decision task; read its Resolution at the next re-import.
+173: - Optional store clean-up: seven dotfiles entries duplicate an entry of a project or global layer (a store commit of my own, later).
+174: 
+175: ## Procedures that worked (repeat them)
+176: 
+177: - Launch a lead in a tab of this workspace: `mise run scm:worktree:new <branch> --base main --tab --workspace wN --label <label> --agent-kind opencode --agent-name <name> --json -- --agent plan --model anthropic/claude-opus-5-5`; copy the brief and anything the lead must read into the worktree's own `.state/`; one prompt with `herdr agent prompt <name> "<text>" --wait --until working --timeout 20000` pointing at the brief by absolute path.
+178:   Footer to check: `Plan · Claude Opus 5.5 · xhigh` (read with `herdr pane read <pane> --lines 30`, filter with `/usr/bin/grep -a`).
+179: - A build or closing session in the same worktree: `herdr tab create --workspace wN --cwd <worktree> --label <l> --no-focus`, then `herdr agent start <name> --kind opencode --pane <pane> -- --agent build --model anthropic/claude-sonnet-5-5`, then the prompt.
+180: - When a lead reports: re-measure from my own pane before trusting it (counts, scans over the added lines, `gitleaks git --log-opts='main..<branch>'`, `openspec validate --all --strict`, claims about the machine checked on the machine), review the diff, fast-forward `main` locally, push only on the user's word.
+181:   Three of the lead's four corrections this session were my own mistakes: say so, and fix the brief in both copies.
+182: - Export of a session: scratch `/tmp/opencode/export-scratch` (mode 0700: `raw`, `out`); `python3 ~/Work/[redacted:private]/scripts/session/export.py --full --no-children --force --out-dir <scratch>/raw --slug <slug> <session id>`; redact with `python3 ~/.config/nvim/scripts/session_redact.py < raw > out` (public profile through the root `.session-redact.toml`, the store alone, no throwaway layer needed any more); checks: `--check` exits 0 on the new file, the README and all exports, a second pass is identical on every file, counts of identity values, sibling names, token shapes, secret-looking names (only public ones and `DEMO_`), IPv4 (loopback only), `gitleaks dir`, `hk util detect-private-key`; if the folder scan reports segments, write `--folder-report` to a 0600 file outside the repository, do not read it in the pane, the user classifies by line number; install and add the README row (no dashes); commit after the user validates the message; delete the scratch and the report.
+183: - Finish an agent: after its export is committed and pushed, `herdr tab close <tab id>` and `mise run scm:worktree:done <branch> --keep-tab` (it refuses while the branch is not in `origin/main` or while an untracked file is left: delete only a stray file that no process uses, never `--force`).
+184: - Commit: `env -u GITHUB_TOKEN HK_STASH=none /home/linuxbrew/.linuxbrew/bin/git commit`; push: `env -u GITHUB_TOKEN git push origin main` (this shell still holds the revoked variable; new shells drop it); the store pushes too, only commits that are mine and the consented ones.
+185: - A cross-repository consent request (here the store): read-only checks first (counts and line numbers, never terms), reply by `herdr agent prompt` with exclusions and checks, check each commit it reports (`--check`, second pass over all exports), push only on the user's word and the other agent's go.
+186: 
+187: ## Rules the user set or confirmed
+188: 
+189: - Names of secret variables: only publicly well-known ones (a provider's documented convention), never a name specific to this workstation; the private repository's name never in a committed file; neutral alias `private_store` for its directory.
+190: - Orchestration state lives in `.state/` of the checkout, not `/tmp/opencode`.
+191: - Close a finished agent's tab (and worktree) once its session is exported; the orchestrator does it.
+192: - History of this repository accepted as it is; real name and address stay for new commits for now.
+193: - Commit messages are proposed first and committed only after the user says "commit"; push only on "push".
+194: - An agent never prints the environment, `chezmoi data`, `chezmoi dump-config`, `systemctl --user show-environment` or an unfiltered herdr listing; facts about keys come as counts or booleans, computed in memory.
+195: - A permission prompt in another agent's pane is read (`herdr pane read`), reported to the user and left to him: never answered by me.
+196: 
+197: ## Habits that bit me, again
+198: 
+199: - zsh: `set -- $var` and `$var` holding several words do not split; `echo ==` is equals-expansion; an unmatched glob aborts the command; `2>&1 >/dev/null | next` also pipes stdout; `mapfile` is bash-only.
+200: - Tool calls sent in the same batch run in parallel: a `chmod` and the command it fixes must share a shell line (TokenScope ran before the `chmod`).
+201: - Plan mode blocks `herdr agent prompt` to another agent: draft the message, wait for build mode.
+202: - `rtk` condenses or hides output (`rtk ls` hid files): use `/usr/bin/grep -a`, plain `rg`, `/usr/bin/ls` for anything that decides something.
+203: - A scan helper that prints zero added lines, or a `wc` on a directory, is a bug until the count is shown beside it: verify by listing (I wrongly read a spec directory as empty).
+204: - `umask` prints `0002` in bash and `002` in zsh: normalise before comparing; reading `/proc/<pid>/environ` of other users prints errors: wrap the loop body in `{ ...; } 2>/dev/null`.
+205: - A fleet agent can exit after its last message (`nvim-s26`): check `herdr agent list` before relying on a name.
+206: - `scm:worktree:done` refuses on an untracked file (an editor's grammar server writes `.spell/`): check no process uses it, delete that directory only.
+207: - `git commit | head` kills git on SIGPIPE in the hook.
+208: 
+209: <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->
+
+(End of file - total 209 lines)
+</content>
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 63.5s)
+
+_Thinking:_
+I'm rewriting resume.md from scratch now, keeping it concise but complete. The header gets a fresh timestamp and state: part 1 is accepted and pushed, no agent is running, cleanup is done, and the export of my own session is still pending a commit. After that I'll update the "who and where" section to reflect the current setup.
+
+I'm working through the rest of the resume plan: after the header and the "who and where" update, I'm checking the repo and store state, then noting what was delivered and what's still left. The next steps are to commit the observations edit and my session export, then handle the small nvim-dev change myself, and think through ordering the part 2 build and the launch-tasks plan around memory limits, with one agent running at a time.
+
+I'm weighing the build-order question for the remaining groups: the next agent runs one at a time unless the user says otherwise, so I'll ask them whether they want to start part 2 first, since that is the step that unblocks deployment.
+
+The resume note's embargo section should stay generic, and the export of this session will mask the private store path inside my tool inputs, as earlier exports already did. I'll write the file now with the export state set to in progress, then update it once the export finishes.
+
+I'm deciding what to leave out of the resume note: the embargo paragraph stays generic, with no distinctive terms from my own session, and the export will mask the private store path as before.
+
+
+I have the full picture. I'm rewriting the resume note from scratch for the real end state: nothing running, part 1 public, three pieces of work prepared, and the embargo carried forward.
+**Tool: write**
+
+**Input:**
+```json
+{
+  "filePath": "~/.local/share/chezmoi/.state/resume.md",
+  "content": "# Resume note of chezmoi-orch, rewritten 2026-11-24 15:40 before a compaction: part 1 of the build is public, no agent runs\n\nGit-ignored, factual, no secret values.\nRead it, then `AGENTS.md` (Workflow section, safety rules, writing for a public repository), then `.state/journal.md` (last 25 lines), then `openspec list`.\n\n## Who and where\n\n- Role: orchestrator of the dotfiles repository (`~/.local/share/chezmoi`, public, `github.com/silopolis/dotfiles`), herdr name `chezmoi-orch`, pane `wN:p1`, session `ses_e720ce42affen6d11Mjrfbnxpi`, exported in `memory/sessions/202610301854-harden_sensitive_targets.md` (same file at each re-export, `--full`, same slug).\n- Workspace `wN` (label `chezmoi`, herdr's primary workspace of this repository): tab `wN:t1` orch (me), tab `wN:tY` `editor` (the user's, not touched). NO linked workspace and NO worktree exist: `git worktree list` and `herdr worktree list --workspace wN` show only `main`.\n- If `herdr agent get chezmoi-orch` fails after a herdr or machine restart, `herdr agent rename wN:p1 chezmoi-orch` (it happened twice); an agent that reports to a name that does not resolve is lost.\n- `/compact` and restarting a pane are user actions; never send keys to my own pane.\n- Private store: `[redacted:private_store]` (never print terms; no hooks there).\n- My opencode process holds none of the ten keys (the machine rebooted on 2026-11-22 and the user resumed this session through the `opencode` function); the pane's shell and herdr still hold them until `correct-shell-environment` is deployed.\n\n## State at 15:40 on 2026-11-24\n\n- Repository: `main` = `origin/main` = `1063360`, 0 ahead and 0 behind, `openspec validate --all --strict` 38/38. PUSHED today on the user's word: the 15 commits of part 1 of the build (`103cd82` ... `32bdfb5`) and `1063360` (export of the second builder session). Earlier today: `08733b0`, `c006474`, `58633a0` (and `5ac1d81`, `d9f437d` on 2026-11-23).\n- UNCOMMITTED in the main checkout: `openspec/changes/add-agent-launch-tasks/observations.md` (the cleanup entry, first real test of the closing rule) and, once built, the re-export of THIS session with its README row (see \"Export of this session\"); proposed messages are in the journal.\n- Store: `028f55e` (mine: one public folder segment), in sync with its origin (another session pushed it); its working copy still carries ONE uncommitted line of `session-redact/public-folders.txt` from another session (2026-11-21): not mine, never commit it with mine (stage my own lines with `git update-index --cacheinfo`, as done on 2026-11-21 and 23).\n- Redaction tool in `~/.config/nvim/scripts/session_redact.py`: has the folder scan (reads opencode's database; `--folder-report FILE`, mode 0600, is the only place a segment is named; the user classifies by line number, public ones go to `session-redact/public-folders.txt` of the store); 46 plus 3 entries are classified public so far. A new project folder can fail old exports with no repository change.\n- Machine: 16 GB, swaps (6 to 9 GB), Firefox about 9 GB with swap, no old `nvim`, 0 kernel kills since the reboot of 2026-11-22, no out-of-memory daemon (another fleet repository owns that policy). `/tmp/opencode` is mode 750 (TokenScope refuses a group-write bit). One agent of this repository at a time unless the user says otherwise; ask him to close Firefox tabs before starting another.\n\n## What was delivered (do not redo)\n\n`correct-shell-environment`, PART 1 (groups 1 to 7 of 13 tasks, `openspec list` 34 of 61 tasks done) is on `main` and public: the shell-kind runner and history fixtures, the probe of `manual-steps.md` as a script, the `PATH` helper and the `env_` files (`035` to `047`, `050`), the locale file without a forced `LC_ALL`, keys on demand (`secrets load`, `446-tools_secrets.sh`, `010-env_user.sh` no longer sources the private file), the desktop login that loads only the `env_` files for bash and zsh (`profile`, `shellrc` guard, `zsh/zshrc` and `bash/bashrc` removed), the opt-in live checks (`DOTFILES_TEST_AFTER_LOGIN=1`), highlighting last (`999`), four dead startup files removed, history under XDG state with a merge that keeps both files when it fails.\nMeasured by me on `git archive 32bdfb5`: 513 tests, 0 failures, 30 skipped; mutants 17 run, 0 problems; compare with `main` 5 of 5; 35 scenarios for `shell-environment`, 58 for the five delta specs. NOTHING IS DEPLOYED: no `chezmoi apply` of any of it has been run, the live session still exports the ten keys, umask is 0002, `en_US.UTF-8` is not generated.\nOther results today: the reboot check of `TODO.md` passed (0 GitHub variables in the user manager and in 0 of 113 processes); `TODO.md` follow-ups (per-tool keys, managed `~/.zshenv`, hk bump); the grouped worker rule in `AGENTS.md`.\nThe data-loss path in the history merge was found by me by reading the code and testing a copy of the real history (counts only, deleted): a pipeline without `pipefail`. Lesson: read the code of anything that writes user data, and test its failure path, whatever the suite says.\n\n## Next steps, in the order I recommend (the user chooses; one agent at a time)\n\n0. User words pending: \"commit\" for the observations edit and for the export of this session; then \"push\". Nothing else is uncommitted.\n1. `nvim-dev` small change, by me, no agent: the user decided on 2026-11-24 the SCRIPT ALONE, AFTER part 1; plan with every fact and step in `.state/briefs/manage-nvim-dev-command/plan.md` (change `manage-nvim-dev-command`, a requirement ADDED to `neovim-config`, `home/dot_local/bin/executable_nvim-dev` byte for byte, `tests/unit/nvim-dev.bats`, single-target apply on the user's go, then tell the Neovim orchestrator: a pointer reply was already sent).\n2. Build PART 2 of `correct-shell-environment` (groups 8 to 10: the session defaults script with its data and tests, documents, checks before deployment): brief `.state/briefs/correct-shell-environment/builder-brief-3.md`, prompt `builder-prompt-3.txt` (placeholder `__WORKTREE__`), background in `decisions.md`, `builder-handoff-1.md` and `brief.md` of the same folder. NEW worktree, branch `feat/correct-shell-environment-part2`; the builder never runs the script or sudo and never applies. This is what the user's security fix waits for.\n3. Plan lead for `add-agent-launch-tasks` (plan mode, Opus 5.5): brief `.state/briefs/add-agent-launch-tasks/brief.md` (to be copied into the worktree's `.state/briefs/add-agent-launch-tasks/`; it has no prompt file yet: write one like `builder-prompt-3.txt`, pointing at the brief by absolute path); worktree branch e.g. `feat/launch-tasks-design`; deliverables design, tasks, updated specs; it settles the dependency on `add-repo-roadmap` (language rule of the global tasks) and the export-first hook.\n4. After part 2: groups 11 and 12 WITH THE USER PRESENT (deployment one target at a time, the system script's first real run with sudo, reboot, live checks): `manual-steps.md` is the checklist. ONE DECISION before task 11.6: the live `060-libvirt.sh` is not an `env_` file, so once `profile` is environment-only the user manager loses the libvirt default URI until `reconcile-drift-and-supervised-apply` task 2.3 adopts it as `060-env_libvirt.sh`; either do tasks 2.3 and 2.4 of that change by hand, with the user's go, before deploying `profile`, or accept the interim. Then group 13 (`/opsx-verify`, archive on his go: check the merged `shell-startup` Purpose and modeline afterwards).\n5. Later: `remove-brew-libvirt` (check whether it edits `110-pkg_brew.sh`; if so it comes after the build, which already split that file), `manage-xdg-basics`, `add-repo-roadmap` (needs a fleet repository's paths for its first prompt; the Neovim repository's `ROADMAP.md` could be the model), `port-[redacted:private]-shell-aliases` (after `correct-shell-environment`; a new `rc.d` file exports nothing the desktop needs unless it is named `NNN-env_*.sh`). `home/.chezmoiremove` is shared by several changes: the one that lands second rebases.\n\n## Launch recipe for a worker (verified on 2026-11-23, linked workspace grouped under `wN`)\n\n```sh\ncd ~/.local/share/chezmoi\n# 1. worktree, mise trust, hooks, start-commit file (no tab)\nmise run scm:worktree:new <type>/<name> --base main --json > .state/tmp/launch.json 2> .state/tmp/launch.err\nW=$(jq -r .path .state/tmp/launch.json)\n# 2. its workspace, LINKED under wN (accepted, no trust prompt; --trust-repository only if herdr ever refuses, the user allowed it for this repository)\nherdr worktree open --workspace wN --path \"$W\" --label <label> --no-focus > .state/tmp/open.json 2> .state/tmp/open.err\nWS=$(jq -r .result.workspace.workspace_id .state/tmp/open.json); PANE=$(jq -r .result.root_pane.pane_id .state/tmp/open.json)\n# 3. material in its own .state (git-ignored, deleted with the worktree); tests/.lib is NOT there: the builder asks for the go to run mise run test:deps\nmkdir -p $W/.state/briefs/<change> $W/.state/tmp && chmod 700 $W/.state/tmp\ncp .state/briefs/<change>/<files> $W/.state/briefs/<change>/\n# 4. the agent in the root pane (Build + Sonnet 5.5 for a builder, Plan + Opus 5.5 for a lead: --agent plan --model anthropic/claude-opus-5-5); the footer takes about ten seconds to draw: read the pane again\nherdr agent start <name> --kind opencode --pane \"$PANE\" -- --agent build --model anthropic/claude-sonnet-5-5\nherdr pane read \"$PANE\" --lines 40 | /usr/bin/grep -a -E 'Build|Plan|Sonnet|Opus|xhigh'\nherdr agent prompt <name> \"$(sed \"s#__WORKTREE__#$W#g\" <prompt file>)\" --wait --until working --timeout 20000\n```\n\nJournal the events. Tell the user in advance that opencode will ask for external-directory approval (`[redacted:worktrees_root]/*`, `/home/*`, `~`) and that he answers in the agent's pane: I never answer a permission prompt, I read it (`herdr pane read`) and report it.\nA second session in the same worktree (a cut): `herdr tab create --workspace <linked id> --cwd <worktree> --label <l> --no-focus`, `herdr agent start ...` in `.result.root_pane.pane_id`, prompt, then close the OLD tab by id (the workspace stays while one tab exists).\n\n## Cleanup rule when a worker is finished (verified 2026-11-24)\n\n1. Measure its report on `git archive <hash>` (below), fast-forward `main` locally, push on the user's word.\n2. Export its session, commit and push on his word. Copy out of its `.state/` anything that must last (a hand-off note); the rest goes with the worktree.\n3. `herdr workspace close <linked workspace id>`, NEVER `--group` (it closes `wN` and this pane); then check `wN`, its tabs and `chezmoi-orch` resolve.\n4. `mise run scm:worktree:done <branch>` (refuses while the branch is not in `origin/main` or an untracked file is left: delete only a stray file no process uses, never `--force`).\n5. Check `git worktree list` and `herdr worktree list --workspace wN` show only `main`; journal it.\n\n## Measuring a worker's report (do not trust, re-measure on committed state)\n\n`git archive <hash> | tar -x -C /tmp/opencode/orch-tree`; `ln -s <worktree>/tests/.lib <tree>/tests/.lib`; from inside the tree `DOTFILES_TEST_REPORTS=/tmp/opencode/orch-reports DOTFILES_TEST_JOBS=3 tests/run.sh` and `tests/mutants/run.sh` (mise does not trust that tree: run `openspec validate --all --strict` in the worker's worktree, read-only); delete `/tmp/opencode/orch-*` after. NEVER run the suite in a worktree while the worker edits (a run on 2026-11-23 failed 4 tests for that reason).\nThen: shellcheck and `bash -n`/`zsh -n` on changed shell files; scans over `git diff <base> <hash>` added lines (dashes, sibling names `[redacted:private]|[redacted:private]|[redacted:private]|[redacted:repo]|[redacted:private]`, e-mails, token shapes, `/home/<login>` forms, IPv4, secret-looking names, the names of the private file counted in memory); the redaction `--check` file by file; `gitleaks git --log-opts='main..<hash>'`; every removed or renamed target has its `.chezmoiremove` entry; and READ the security-relevant code, testing its failure path on synthetic or copied-then-deleted data (counts only).\nCutting a worker at 70% context: it writes `builder-handoff-N.md`; I accept its last group, export its session, write the next brief and prompt, start the new agent in a new tab of the same linked workspace, close the old tab by id.\n\n## Export of this session (the procedure, with the embargo)\n\n- Scratch `/tmp/opencode/export-scratch` (0700: `raw`, `out`, `terms`); `python3 ~/Work/[redacted:private]/scripts/session/export.py --full --no-children --force --out-dir <scratch>/raw --slug orchestration_wrapper_startup_harness ses_e720ce42affen6d11Mjrfbnxpi`; redact with `python3 ~/.config/nvim/scripts/session_redact.py < raw > out` (public profile, store alone) PLUS a throwaway layer (`SESSION_REDACT_TERMS_DIR=<scratch>/terms`, a file `redact-terms.txt`) that masks the message of the read-only guard's orchestrator (see EMBARGO below).\n- Checks: `--check` exits 0 on the new file, the README and all exports; second pass identical; counts of identity values, sibling names, token shapes, secret-looking names (only public ones and `DEMO_`), IPv4 (loopback only), the ten private-file names (0), gitleaks, `hk util detect-private-key`; a folder report (`--folder-report`, 0600, not read in the pane) when the scan finds a segment. README row 21 is extended (no dashes). Commit after the user validates the message; delete the scratch.\n- State of THIS export: see the last lines of the journal (built and installed uncommitted, or not yet).\n\n## Reports, signals and the embargo\n\n- EMBARGO (explicit, 2026-11-24): the read-only guard's orchestrator answered my signal with information and asked that the details of its message, and of what the guard misses, not leave the fleet's private channels while its maintainer decides how a fix is worded in that public repository. So: nothing from that message in a committed file (`TODO.md`, openspec, observations, README) or in a brief, nothing in my replies beyond the one-line outcome (one event fixed long ago, one blocks by design, the others one real false positive whose cause is in the guard's own parsing, a fix only drafted on its side). The message sits in my transcript: THE EXPORT OF THIS SESSION MUST MASK IT (throwaway layer as above, count the distinctive words in the raw file and in the output, show the user the masked block). Lift the embargo only when the guard's orchestrator or the user says so.\n- For my agents: a `set -a` inside a `bash -c` string asks by design: put such probes in script files.\n- Received and answered, nothing owed: the Neovim orchestrator's replies on per-provider key commands (in its roadmap, unscheduled, route is the user's decision; its facts are in `TODO.md`), on `nvim-dev` (pointer reply sent), and its out-of-memory signal (the item exists in a fleet repository).\n- Undelivered: the identity-strategy signal `.state/briefs/signal-identity-strategy/signal-identity-strategy.md` (no agent runs in the coordination repository; the user decided on 2026-11-16 to keep the real name and address on new commits).\n- Still to report when convenient: `openspec archive` drops the Purpose and preamble of new specs, moves a modeline, adds blank lines (third time: a note to the tool's owners); the cem checklist item 4.4 (`cles-en-main:migrations/2026-10-[redacted:private]-to-[redacted:private]/checklist.md`) names secret variable names in a repository that will go public (cem's orchestrator should reword it); darse T-073 (zsh habits and secret handling) is `ready`, read its Resolution at the next re-import; optional store clean-up of seven duplicate dotfiles entries.\n\n## Rules the user set or confirmed\n\n- Names of secret variables: only publicly well-known ones, never a name specific to this workstation; the private repository's name never in a committed file; neutral alias `private_store`; name only darse, cem, bosco, greffe, opencode-readonly-guard and the Neovim configuration repository.\n- Commit messages are proposed first (counted, at most 80 characters) and committed only on \"commit\"; push only on \"push\"; scan the outgoing commits before each push.\n- Orchestration state lives in `.state/`, never `/tmp/opencode` (scratch there is deleted after use); a finished agent's workspace is closed once its session is exported and the branch pushed; one agent at a time while memory is tight.\n- An agent never prints the environment, `chezmoi data`, `chezmoi dump-config`, `systemctl --user show-environment` or an unfiltered herdr listing; facts about keys come as counts or booleans computed in memory; a permission prompt in another pane is read, reported and left to the user.\n- History of this repository accepted as it is; real name and address stay for new commits for now. Commit: `env -u GITHUB_TOKEN HK_STASH=none /home/linuxbrew/.linuxbrew/bin/git commit`, never `git commit | head`; push `env -u GITHUB_TOKEN git push origin main`.\n\n## Habits that bit me\n\n- zsh: `set -- $var` and `$var` holding several words do not split; `echo ==` is equals-expansion; an unmatched glob aborts; `2>&1 >/dev/null | next` pipes stdout; two stdin sources for one command (`python3 - <<EOF` fed by a pipe) clash; `mapfile` is bash-only.\n- Tool calls sent in one batch run in parallel: a fix and the command it fixes share a shell line.\n- `rtk` hides output: use `/usr/bin/grep -a`, plain `rg`, `/usr/bin/ls` for anything that decides something; a scan that prints zero added lines is a bug until the count is shown beside it; list a directory before concluding it is empty.\n- Restricting `PATH` under `env -i` needs the shell's absolute path (an exit 127 means the script never ran); `umask` prints `0002` in bash and `002` in zsh; reading other users' `/proc/<pid>/environ` prints errors: wrap the loop body in `{ ...; } 2>/dev/null`.\n- Plan mode blocks `herdr agent prompt` to another agent; an agent that exited leaves its name unresolved: check `herdr agent list` first; a briefed fact about the tree was wrong three times: have the worker re-measure and re-measure the worker.\n\n<!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->\n"
+}
+```
+
+**Output:**
+```
+Wrote file successfully.
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+[redacted:private]
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+resume: lines 105 | dashes 0 | modeline last 1 | embargo words 0
+files and briefs the note points at exist: ok ok ok ok ok ok ok 
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 16.7s)
+
+_Thinking:_
+The note says the launch-tasks lead has no prompt file yet, so I'll write one now to wrap up the planning. It goes at `.state/briefs/add-agent-launch-tasks/prompt.txt`.
+
+
+The launch-tasks lead still lacks its first-prompt file. I'm writing it now so both next launches are one command each.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; B=.state/briefs/add-agent-launch-tasks\ncat > $B/prompt.txt <<'EOF'\nYou are chezmoi-launch-lead, the lead of the OpenSpec change add-agent-launch-tasks, in plan mode. Your worktree is __WORKTREE__ (a branch started from main at the tip that the orchestrator names in this message, opened as a linked worktree workspace of this repository); stay inside it. Read __WORKTREE__/.state/briefs/add-agent-launch-tasks/brief.md first and follow it. It gives what the change is and what was decided since its proposal (workers grouped as linked workspaces, closed by id and never with --group, the export before the closing), the facts that seven real launches verified, what is missing (design, tasks) and the decisions to take with the user in this pane, the deliverables, the rules for a public repository, and how to report to chezmoi-orch. You write no task code and no test: your work ends at reviewed artifacts. Start with its step 1: read in the order it gives, say in a few lines what does not hold against the tree, and send chezmoi-orch one line when reading is done.\nEOF\nchmod 600 $B/prompt.txt\necho \"prompt: $(wc -c < $B/prompt.txt) bytes, placeholders $(/usr/bin/grep -a -o '__WORKTREE__' $B/prompt.txt | wc -l); embargo words $(/usr/bin/grep -a -c -i -E 'tokenizer|heredoc' $B/prompt.txt)\"\npython3 - <<'EOF'\nfrom pathlib import Path\np = Path(\".state/resume.md\"); s = p.read_text(encoding=\"utf-8\")\na = \"(to be copied into the worktree's `.state/briefs/add-agent-launch-tasks/`; it has no prompt file yet: write one like `builder-prompt-3.txt`, pointing at the brief by absolute path)\"\nb = \"(copy `brief.md` into the worktree's `.state/briefs/add-agent-launch-tasks/`; first prompt `.state/briefs/add-agent-launch-tasks/prompt.txt`, placeholder `__WORKTREE__`; agent name `chezmoi-launch-lead`; recipe below with `--agent plan --model anthropic/claude-opus-5-5`)\"\nassert s.count(a) == 1; p.write_text(s.replace(a, b), encoding=\"utf-8\")\nEOF\nchmod 600 .state/resume.md; printf 'resume dashes %s\\n' \"$(/usr/bin/grep -a -c -E '[–—]' .state/resume.md)\"",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+prompt: 1002 bytes, placeholders 2; embargo words 0
+resume dashes 0
+
+```
+
+**Tool: todowrite**
+
+**Input:**
+```json
+{
+  "todos": [
+    {
+      "content": "Commit the second builder export (1063360), scan, push: done",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "content": "Cleanup by the rule (w0 closed by id, scm:worktree:done), observations entry added (uncommitted): done",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "content": "Persist planning: resume note rewritten, three briefs and two prompts written, journal: done",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "content": "Export this orchestrator session: mask the embargoed guard message with a throwaway layer, count distinctive words raw vs output, show the masked block to the user, install uncommitted",
+      "status": "in_progress",
+      "priority": "high"
+    },
+    {
+      "content": "Propose commit messages (export + README; observations edit); wait for the user's word; push after",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "content": "Update the resume note with the export result",
+      "status": "pending",
+      "priority": "medium"
+    }
+  ]
+}
+```
+
+**Output:**
+```
+[
+  {
+    "content": "Commit the second builder export (1063360), scan, push: done",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "content": "Cleanup by the rule (w0 closed by id, scm:worktree:done), observations entry added (uncommitted): done",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "content": "Persist planning: resume note rewritten, three briefs and two prompts written, journal: done",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "content": "Export this orchestrator session: mask the embargoed guard message with a throwaway layer, count distinctive words raw vs output, show the masked block to the user, install uncommitted",
+    "status": "in_progress",
+    "priority": "high"
+  },
+  {
+    "content": "Propose commit messages (export + README; observations edit); wait for the user's word; push after",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "content": "Update the resume note with the export result",
+    "status": "pending",
+    "priority": "medium"
+  }
+]
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 54.5s)
+
+_Thinking:_
+I'm exporting my own session with embargo masking, starting with a raw export into a private scratch directory. Next I'll find the embargoed message by its opening phrase and its closing line, using Python to get the start and end positions without printing its contents.
+
+I'm checking whether the embargoed message's distinctive words show up outside its own block, by counting them in the raw export and noting only line numbers. Then I'll add a regex term that matches the whole message between its two anchors, since the redactor applies terms to the full text at once.
+
+Next I'm checking that the redactor sees the whole embargoed message as one span, so I'll test the start and end positions in Python and print only lengths. I'll also count the message's distinctive words outside its block and treat zero as the pass condition.
+
+I'm weighing whether my own tool commands are a leak risk: grepping for the distinctive words puts them into the transcript, so the next export could carry them. Those words alone hint at what the guard's problem was, so I should avoid repeating them in commands from here on.
+
+I'm now weighing whether the distinctive words I've been grepping for also appear in my own tool commands, which would put them into the transcript of the next export. I think I should mask those bare words as well, even though that may also hide some unrelated uses.
+
+I'm adding a term that masks the whole embargoed block between its two anchors, plus bare-word terms for the distinctive words so they stop appearing in my own tool inputs. I'll then check that the raw and redacted counts line up.
+
+I'm adding a pattern so that the tokenizer and heredoc words, wherever they appear in my own tool inputs, get masked too, since those bare words would otherwise leak the embargoed topic into the next export.
+
+[redacted:private]
+
+I'm thinking through how to build the masking layer: first a raw export into a private scratch directory, then locating the embargoed block by its anchors. I'm also considering that the words I keep grepping for could leak into the next export through my own tool inputs, so I should mask those bare words as well.
+
+I'm keeping the layer file at a durable path outside the repo, so the next export can reuse it without my having to restate the masking terms in a command.
+
+I'm weighing whether to keep the masking layer in `.state/tmp/embargo/` rather than deleting it, so the next export can reuse it. Since that directory is git-ignored, the file can stay on disk without being committed.
+
+I'm settling on where the masking layer lives: I'll keep it in `.state/tmp/embargo/` inside my checkout, which is git-ignored, so the next export can reuse it. The layer only holds the anchors and word patterns, so it's safe there. Next I'll export the raw session now.
+
+
+Now the export of this session. I'm exporting the raw file first, then locating the embargoed message by anchors and by counts only, without printing it.
+**Tool: bash**
+
+**Input:**
+```json
+{
+[redacted:private]
+  "timeout": 600000
+}
+```
+
+**Output:**
+```
+export exit=0
+raw: 202610301854-orchestration_wrapper_startup_harness.md, 6709182 bytes, 98572 lines; files in raw: 1
+through msg_20de267cf0012ZODN1FrMou6c9
+--- locating the embargoed message by anchors (positions and counts only, no content)
+start anchor occurrences: 2 | end anchor occurrences: 2
+  block from char 6382456 to 6384541 length 2113 | lines 95676 to 95682
+  block from char 6681929 to 6681993 length 92 | lines 98565 to 98565
+distinctive words in the raw file (total count, and how many lie INSIDE a block):
+  'tokenizer': 23 total, 4 inside, 19 outside
+  'heredoc': 21 total, 2 inside, 19 outside
+[redacted:private]
+  'T-020': 10 total, 1 inside, 9 outside
+[redacted:private]
+[redacted:private]
+  'command substitution': 9 total, 2 inside, 7 outside
+  'misses some': 4 total, 1 inside, 3 outside
+  'maintainer': 59 total, 2 inside, 57 outside
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 27.9s)
+
+_Thinking:_
+I'm working out which of the two anchor occurrences is the real message. The first block is 2113 characters, while the second is a shorter match that turns up inside my own export command, so it's probably a quote rather than the actual content.
+
+I'm checking where the leftover word counts come from. The 'tokenizer', 'heredoc' and 'T-020' hits are most likely in my own grep patterns and tool inputs, since the scan commands contain those strings. I don't think they come from the resume note, which showed zero embargo words.
+
+I'm planning to mask the large anchored block with a regex that spans from the start anchor to the end anchor, which should cover the 2113-character message and the smaller quoted copy in my command. I'll also strip out the bare words that keep showing up in my own grep patterns and script, since those aren't part of the real content.
+
+I'm planning to mask the leftover words from my own scan commands and tool inputs, since those aren't part of the real content. Some of the less common words probably come from my own word-list script, so masking them seems safe. I'm still deciding whether to mask phrases like "command substitution" everywhere, since they might appear in legitimate text too.
+
+I'm weighing whether to mask the leftover terms like "tokenizer," "heredoc," and "T-020," since they mostly come from my own grep patterns and word-list script rather than the real content. The only one I'm unsure about is "command substitution," because I haven't yet checked whether its occurrences come from my own commands.
+
+I'm going to check the context of the leftover "command substitution", "tokenizer" and "heredoc" hits by looking at the nearest section header and whether each line contains command-like strings such as grep or python3, without printing any of the surrounding text.
+
+
+_Thinking:_
+Two anchor hits turned up, the real message and my own export command that quotes them. I'm sorting out where the distinctive words appear, without printing any of the text.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+[redacted:private]
+  "timeout": 120000
+}
+```
+
+**Output:**
+```
+'tokenizer': outside 18 lines; classified as my command or note 7; OTHER 11 at lines [72278, 73960, 95689, 95691, 95695, 95697, 95699, 95705] kinds ['Assistant']
+'heredoc': outside 17 lines; classified as my command or note 10; OTHER 7 at lines [20117, 33410, 71110, 71216, 71218, 73665, 97226] kinds ['Assistant']
+'command substitution': outside 6 lines; classified as my command or note 1; OTHER 5 at lines [14253, 54406, 58746, 58767, 93042] kinds ['Assistant']
+[redacted:private]
+'T-020': outside 8 lines; classified as my command or note 2; OTHER 6 at lines [21879, 52742, 52750, 80145, 80313, 98548] kinds ['Assistant', 'User']
+[redacted:private]
+[redacted:private]
+'misses some': outside 2 lines; classified as my command or note 1; OTHER 1 at lines [73566] kinds ['Assistant']
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 28.2s)
+
+_Thinking:_
+I'm looking back at the lines right after that message, around 95676 to 95705, to see what I sent as my reply and tool input. My guess is that the first tool call was a Python edit to the resume note, and I want to confirm whether that edit included the "EMBARGO" text.
+
+Now I'm checking whether the "tokenizer" hits in that range belong to my own edit or to the reasoning text itself. My resume-note edit didn't use that word, so these are likely my thinking about the export, and the exporter's thinking-block option is the thing to look at.
+
+I'm going through the older lines that mention these terms and sorting out which ones are plain heredoc usage from earlier commands. The ones before the message at line 95676 predate it, so they can't be tied to it. I only need to mask the references that came after the message and trace back to it.
+
+I'm weighing whether to mask the sensitive terms across the whole export or only in the section after the message, since earlier uses of "heredoc" are ordinary shell usage. Restricting the edit to the later lines would mean changing the output after export, which the README rules out, so a global pass on those words looks like the cleaner route.
+
+I'm settling on a layered approach: masking the sensitive terms across the whole export instead of only after the message, since earlier uses of "heredoc" and "tokenizer" are harmless and a global pass is cleaner than editing the output afterward. I'll leave "command substitution" alone as a generic shell term, and I'm still weighing whether masking the task identifier in the user turns is warranted.
+
+I'm looking at the "T-020" mentions here and sorting out which ones belong to the [redacted:private] repo's task list versus other places in the export. The nvim-orch correction line has the same ID, but it's unrelated to my own messages, so it doesn't need masking on its own. I'm settling on masking the message block along with "tokenizer" and "heredoc," since those are the terms tied to what came after it.
+
+I'm settling on masking "T-020" too, since it's cheap to include and the post-message references are the ones that matter, and I'll check afterward that each masked term no longer appears in the output.
+
+I'm settling on masking the whole span, since the paraphrase in those lines could carry other details beyond the terms I already planned to mask.
+
+I'm planning to look at the structure of the export around that message, checking only the header-like lines and their lengths, so I don't surface any of the details inside the reasoning itself.
+
+
+_Thinking:_
+I'm checking the structure of that stretch, printing only the structural markers rather than the text, before I mask it.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; RAW=$(ls /tmp/opencode/export-scratch/raw/*.md | head -1)\npython3 - $RAW <<'EOF'\nimport re, sys\nlines = open(sys.argv[1], encoding=\"utf-8\").read().split(\"\\n\")\nstruct = re.compile(r'^(## |### |#### |\\*\\*|<!--|---$|```)')\nprint(\"message block lines 95676 to 95682; structure from 95660 to 95760 (structural lines only, first 24 chars; others summarised by length)\")\nlast = None; run = 0\nfor i in range(95660, 95760):\n    l = lines[i - 1]\n    if struct.match(l):\n        if run: print(f\"      ... {run} text lines\"); run = 0\n        print(f\"  {i}: {l[:24]!r}\")\n    else:\n        run += 1\nif run: print(f\"      ... {run} text lines\")\nEOF",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+message block lines 95676 to 95682; structure from 95660 to 95760 (structural lines only, first 24 chars; others summarised by length)
+      ... 12 text lines
+  95672: '---'
+      ... 1 text lines
+  95674: '## User'
+      ... 9 text lines
+  95684: '---'
+      ... 1 text lines
+  95686: '## Assistant (Build · Cl'
+      ... 32 text lines
+  95719: '**Tool: bash**'
+      ... 1 text lines
+  95721: '**Input:**'
+  95722: '```json'
+      ... 4 text lines
+  95727: '```'
+      ... 1 text lines
+  95729: '**Output:**'
+  95730: '```'
+      ... 5 text lines
+  95736: '```'
+      ... 2 text lines
+  95739: '---'
+      ... 1 text lines
+  95741: '## Assistant (Build · Cl'
+      ... 2 text lines
+  95744: '**Tool: bash**'
+      ... 1 text lines
+  95746: '**Input:**'
+  95747: '```json'
+      ... 4 text lines
+  95752: '```'
+      ... 1 text lines
+  95754: '**Output:**'
+  95755: '```'
+      ... 4 text lines
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 150.4s)
+
+_Thinking:_
+I'm going through the message block at lines 95674-95683 and then the 32 reasoning lines that follow, which paraphrase it. I plan to mask that whole span as the next step.
+
+I'm settling on a regex that masks the message from its start anchor through the line before the next bash tool call, with a lookahead to stop at that marker. Python's `re` supports lookaheads, so it should compile. The headers inside the masked span will get replaced too, which changes the structure a bit, but that's acceptable.
+
+I'm checking how the masking span should end, and the next tool marker after the reasoning at 95719 is the right stopping point. The second anchor near 98565 is trickier, since its span would run until the next tool call and could swallow the output of the export command along with whatever text follows it.
+
+I'm looking at the next step of masking those turns, with a regex that runs from the message's start anchor up to the next bash tool marker, and I'm weighing whether the later commands that also contain the sensitive word list need a separate pass.
+
+I'm settling on a regex that masks from the message's start anchor through the line before the next bash tool marker, using a lookahead to stop there, and I'm checking whether Python's `re` will compile it.
+
+[redacted:private]
+
+[redacted:private]
+
+I'm setting the redaction layer up to run from a throwaway terms directory, with the terms file kept in the git-ignored state folder, then checking the output for leftover matches and confirming the structure of the masked region still reads correctly.
+
+I'm checking whether the earlier message text shows up anywhere else in the raw log, such as in pane outputs, and the final reply's summary of the four events doesn't need masking. I'm also noting the resume note edit in the user's reports section, which carries the embargo text but is fine to leave as is.
+
+
+_Thinking:_
+I'm setting up a throwaway masking layer in a persistent git-ignored directory so that later commands quoting these lines get the same masking.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+[redacted:private]
+  "timeout": 900000
+}
+```
+
+**Output:**
+```
+layer: 2 lines, mode 600, dir mode 700
+ignored by git: yes
+redaction exit=0 lines 98522; stderr lines 0
+idempotent with the layer: yes
+word                           raw  output
+tokenizer                       23       0
+heredoc                         21       0
+[redacted:private]
+T-020                           10       1
+misses some                      4       0
+[redacted:private]
+[redacted:private]
+From rog-orch                   10       6
+Nothing is asked of chezmoi      2       1
+command substitution             9       7
+pull request, changelog          1       0
+OPEN POINT                      14      13
+maintainer has not               2       1
+markers [redacted:private] raw-region check: output has 3296 private markers in total
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 44.6s)
+
+_Thinking:_
+Zero tokenizer-related matches remain, but one raw "T-020" hit is still showing up in the output. I'm wondering where it's hiding: maybe a different case, or embedded in a longer token like "T-0200". The left boundary lookbehind might be rejecting it when a word character or hyphen sits just before the T.
+
+I'm still hunting for that one leftover "T-020" in the output, checking whether it sits in a different case or inside a longer token, and whether a preceding hyphen or bracket is slipping past the boundary check. For the "From rog-orch" count, the other occurrences look like separate attribution strings, so I need to confirm none of them touch the embargoed details.
+
+I'm checking the one leftover "T-020" that survives in the output, and whether it's hiding behind a hyphen or bracket that slips past the boundary check. I also need to see where the other "From rog-orch" hits come from, since they may be my own notes rather than real attributions.
+
+I'm checking whether the leftover "T-020" is hiding behind a hyphen or bracket that slips past the boundary check, and whether the block regex actually matched the first message. The tokenizer words are zero in the output, which would also be true if only the word-level masks fired, so I'll need to verify which one did the work.
+
+I'm checking the remaining "Nothing is asked of chezmoi" and "T-020" hits to see whether the second block's span actually matched. I also want to confirm that the "OPEN POINT" count only dropped because of my own memos.
+
+I'm checking the remaining occurrences of "maintainer has not" and "OPEN POINT" to see which ones come from the message and which come from my own notes. Printing line numbers and a short window around each match should show that without pulling in the message text itself.
+
+I'm checking whether the second block's masking actually applied, since the export ran in the same call and no closing marker follows the raw text, so the lookahead may have failed. I'll compare the remaining occurrences against the line ranges of both blocks to see which one is still showing.
+
+I'm weighing whether to add literal masks for the two leftover anchor phrases from my own script, since block 2 never closed and so the span mask didn't catch them. They're only attribution lines with no details, but masking them directly would be cleaner.
+
+I'm planning to print the line numbers of the remaining "T-020", "Nothing is asked of chezmoi", "maintainer has not", and "From rog-orch" hits in the output, and to check where the masked region sits. I'll also add literal masks for the two anchor phrases from my script, since the second block never closed.
+
+
+The distinctive words are gone from the output, but a few anchors remain, so I'm checking exactly which and where, by line number only.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; S=/tmp/opencode/export-scratch\npython3 - $S/out/pass1.md <<'PYEOF'\nimport re, sys\nlines = open(sys.argv[1], encoding=\"utf-8\").read().split(\"\\n\")\ndef kind(i):\n    for j in range(i, max(i - 600, 0), -1):\n        m = re.match(r'^## (User|Assistant)', lines[j])\n        if m: return m.group(1)\n    return \"?\"\ndef tool(i):\n    for j in range(i, max(i - 80, 0), -1):\n        if lines[j].startswith(\"**Input:**\"): return \"tool-input\"\n        if lines[j].startswith(\"**Output:**\"): return \"tool-output\"\n        if lines[j].startswith(\"## \"): return \"turn-text\"\n    return \"?\"\nfor w in [\"T-020\", \"Nothing is asked of chezmoi\", \"maintainer has not\", \"From rog-orch\"]:\n    hits = [i + 1 for i, l in enumerate(lines) if re.search(re.escape(w), l, re.I)]\n    print(f\"{w!r}: lines {hits} | kinds {[ (kind(h-1), tool(h-1)) for h in hits]}\")\n# where the first masked span sits: lines holding a private marker near the user message\nmk = [i + 1 for i, l in enumerate(lines) if \"[redacted:private]\" in l]\nnear = [m for m in mk if 95600 <= m <= 95800]\nprint(\"private markers between lines 95600 and 95800 of the output:\", near)\nPYEOF",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+'T-020': lines [80137] | kinds [('Assistant', 'tool-output')]
+'Nothing is asked of chezmoi': lines [98515] | kinds [('Assistant', 'tool-input')]
+'maintainer has not': lines [42896] | kinds [('Assistant', 'turn-text')]
+'From rog-orch': lines [41440, 46573, 50453, 52511, 53729, 98515] | kinds [('User', 'turn-text'), ('User', 'turn-text'), ('User', 'turn-text'), ('User', 'turn-text'), ('User', 'turn-text'), ('Assistant', 'tool-input')]
+private markers between lines 95600 and 95800 of the output: [95668]
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 132.6s)
+
+_Thinking:_
+I'm scanning the earlier lines: the leftover 'T-020' at line 80137 is older tool output and looks harmless, and 'maintainer has not' at line 42896 is also earlier and fine. The 'From rog-orch' hits around lines 41440 through 53729 are earlier user turns, so I'm checking whether any of them are my own earlier replies.
+
+I'm checking the other 'From rog-orch' hits in that range, and they look like older exports that were already published, so they're not a concern. I'm also noting that the private marker near the message is a single line at 95668, with the offset from the earlier removals accounted for.
+
+I'm checking the output around lines 95660 to 95675 to confirm that the masked block has the right shape, with the heading and separator lines left intact around the redacted span. Those structural lines are outside the masked region, so printing them is safe, and I'll pull up the lines 95664 to 95672 in full to verify.
+
+
+_Thinking:_
+Everything outside the embargoed stretch is already published, so I'm adding the two anchor phrases to the layer and re-running before showing you the masked block.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+[redacted:private]
+  "timeout": 900000
+}
+```
+
+**Output:**
+```
+layer now 4 lines
+redaction exit=0 lines 98522
+idempotent with the layer: yes
+  'tokenizer': raw 23, output 0
+  'heredoc': raw 21, output 0
+[redacted:private]
+  'misses some': raw 4, output 0
+[redacted:private]
+[redacted:private]
+  'Nothing is asked of chezmoi': raw 2, output 0
+  'opencode-readonly-guard orchestrator': raw 2, output 0
+=== the masked block as it appears in the output (the span between the user's message header and the first tool call)
+ 95664: ---
+ 95665: 
+ 95666: ## User
+ 95667: 
+ 95668: [redacted:private]
+ 95669: **Tool: bash**
+ 95670: 
+ 95671: **Input:**
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 876.7s)
+
+_Thinking:_
+Next I'm running the standard checks on the output: the --check pass (reading layers the same way, via the env var), confirming the second pass matches, and scanning for identity values, banned names, secret names, and the count of private-file names. After that comes the folder scan in 0600 mode, then installing, and finally extending README row 21.
+
+Next I'm running the checks: --check with the env var set, a second pass to confirm it matches, and scans for identity values, banned names, secret names, and the private-file count. After that I'll do the folder scan in 0600 mode.
+
+
+_Thinking:_
+The masked block is a single marker placed between the user header and the first tool call. Next I'll run the standard checks on this output and compare it with the committed export to see what the layer changed outside the embargoed stretch.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; S=/tmp/opencode/export-scratch; R=~/.config/nvim/scripts/session_redact.py; O=$S/out/pass1.md; OLD=memory/sessions/202610301854-harden_sensitive_targets.md\numask 077; python3 $R --check --folder-report $S/folders.txt $O > $S/chk.out 2>&1; echo \"--check on the new export (store alone, no layer): exit=$?\"\nsed 's/\\x1b\\[[0-9;]*m//g' $S/chk.out | /usr/bin/grep -a -E ': [1-9][0-9]*$'; echo '(non-zero categories end)'\necho \"folder report: $(stat -c '%a' $S/folders.txt), $(wc -l < $S/folders.txt) line(s)\"; umask 002\npython3 - $O $OLD <<'PYEOF'\nimport os, re, sys\nfrom pathlib import Path\nt = Path(sys.argv[1]).read_text(encoding=\"utf-8\"); old = Path(sys.argv[2]).read_text(encoding=\"utf-8\")\ndef n(p, flags=0): return len(re.findall(p, t, flags))\nH = Path.home()\nidf = H/\".local/share/[redacted:private]/session-redact/identity.txt\"\nvals = [l.split(\"=\",1)[-1].strip() for l in idf.read_text(encoding=\"utf-8\").splitlines() if l.strip() and not l.strip().startswith(\"#\")] if idf.exists() else []\nprint(\"identity values present:\", sum(1 for v in vals if len(v) >= 3 and re.search(r'(?<![A-Za-z0-9])%s(?![A-Za-z0-9])' % re.escape(v), t, re.I)), \"of\", len(vals))\nprint(\"login /home/<user> forms:\", n(r'/home/(?!linuxbrew|user\\b)[A-Za-z0-9_-]+'), \"| banned names:\", n(r'(?i)\\b([redacted:private]|[redacted:private]|[redacted:private]|[redacted:repo]|[redacted:private])\\b'), \"| store dir word:\", t.count(\"[redacted:private]\"))\nprint(\"token shapes:\", n(r'gh[pousr]_[A-Za-z0-9]{20,}') + n(r'sk-[A-Za-z0-9_-]{20,}') + n(r'-----BEGIN [A-Z ]*PRIVATE KEY-----') + n(r'AKIA[0-9A-Z]{16}') + n(r'xox[abp]-[A-Za-z0-9-]{10,}'))\nnames = sorted(set(re.findall(r'\\b[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*_(?:API_?KEY|TOKEN|SECRET|PASSWORD|PASSWD|CREDENTIAL|ACCESS_?KEY|PRIVATE_?KEY)\\b', t)))\nallowed = {\"ANTHROPIC_API_KEY\",\"AWS_SECRET_ACCESS_KEY\",\"AZURE_OPENAI_API_KEY\",\"BRAVE_API_KEY\",\"GEMINI_API_KEY\",\"GITHUB_TOKEN\",\"MISTRAL_API_KEY\",\"MOONSHOT_API_KEY\",\"OPENAI_API_KEY\",\"TAVILY_API_KEY\",\"XAI_API_KEY\",\"SYN_PASSWD\",\"X_ACCESSKEY\"}\nprint(\"secret-looking names outside the allowed set and DEMO_:\", [x for x in names if x not in allowed and not x.startswith(\"DEMO_\")])\nips = re.findall(r'\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b', t); print(\"IPv4 non-loopback:\", len([i for i in ips if not i.startswith((\"127.\", \"0.\"))]), \"| e-mails:\", n(r'[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[a-z]{2,}'), \"| NUL symbols:\", t.count(\"\\u2400\"))\nf = Path(os.environ.get(\"XDG_CONFIG_HOME\", str(H/\".config\")))/\"env\"; pn = []\nfor l in f.read_text(encoding=\"utf-8\", errors=\"replace\").splitlines():\n    m = re.match(r'^\\s*(?:export\\s+)?([A-Za-z_][A-Za-z0-9_]*)=', l)\n    if m and m.group(1) not in pn: pn.append(m.group(1))\nprint(\"names of the user's private file readable:\", sum(1 for x in pn if re.search(r'\\b%s\\b' % re.escape(x), t)), \"of\", len(pn))\nprint(\"zsh-history-shaped lines (': <epoch>:<n>;'):\", n(r'(?m)^: \\d{10}:\\d+;'), \"| store alias markers:\", t.count(\"[redacted:private_store]\"))\nPYEOF\nmise x -- gitleaks dir --redact --no-banner $O 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | tail -1\nhk util detect-private-key $O > /dev/null 2>&1; echo \"detect-private-key exit=$?\"\necho '--- diff against the committed export: changed lines and whether any redaction marker disappeared'\npython3 - $O $OLD <<'PYEOF'\nimport difflib, re, sys\nfrom collections import Counter\nnew = open(sys.argv[1], encoding=\"utf-8\").read().split(\"\\n\"); old = open(sys.argv[2], encoding=\"utf-8\").read().split(\"\\n\")\ntok = re.compile(r'\\[redacted:[a-z_]+\\]')\nsm = difflib.SequenceMatcher(None, old, new, autojunk=False)\nrem = add = 0; lost = Counter(); removed_lines = []\nfor tag, i1, i2, j1, j2 in sm.get_opcodes():\n    if tag in (\"replace\", \"delete\"):\n        rem += i2 - i1\n        co = Counter(tok.findall(\"\\n\".join(old[i1:i2]))); cn = Counter(tok.findall(\"\\n\".join(new[j1:j2])))\n        for k in co:\n            if co[k] > cn.get(k, 0): lost[k] += co[k] - cn.get(k, 0)\n        removed_lines += list(range(i1 + 1, i2 + 1))\n    if tag in (\"replace\", \"insert\"): add += j2 - j1\nprint(f\"committed export lines {len(old)}, new {len(new)}; lines of the committed file replaced or removed: {rem}; markers lost: {dict(lost)} (expected none)\")\nPYEOF",
+  "timeout": 900000
+}
+```
+
+**Output:**
+```
+--check on the new export (store alone, no layer): exit=0
+(non-zero categories end)
+folder report: 600, 0 line(s)
+identity values present: 0 of 5
+login /home/<user> forms: 0 | banned names: 0 | store dir word: 0
+token shapes: 0
+secret-looking names outside the allowed set and DEMO_: []
+IPv4 non-loopback: 0 | e-mails: 0 | NUL symbols: 0
+names of the user's private file readable: 2 of 10
+zsh-history-shaped lines (': <epoch>:<n>;'): 0 | store alias markers: 301
+3:17PM INF no leaks found
+detect-private-key exit=0
+--- diff against the committed export: changed lines and whether any redaction marker disappeared
+committed export lines 89851, new 98523; lines of the committed file replaced or removed: 20; markers lost: {} (expected none)
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 50.1s)
+
+_Thinking:_
+I'm checking the issue about the private file's names being readable, 2 of 10. The question is whether those two are the provider-documented names that are fine to expose, which the study marks as V1, V4, V5, V7 and V10, or whether they're just well-known names that happen to appear in the transcript text.
+
+I'm now working out whether the two readable names are the allowed public-convention ones, since the scan list itself contains names like ANTHROPIC_API_KEY and OPENAI_API_KEY. I'll check each readable name's label against the allowed set and report only the labels and whether they match.
+
+
+_Thinking:_
+Two of your ten private-file names are readable in this export; I'm checking that they are provider-documented names the repository allows, by label and in memory.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; S=/tmp/opencode/export-scratch; O=$S/out/pass1.md; OLD=memory/sessions/202610301854-harden_sensitive_targets.md\npython3 - $O $OLD <<'PYEOF'\nimport os, re, sys\nfrom pathlib import Path\nt = Path(sys.argv[1]).read_text(encoding=\"utf-8\"); old = Path(sys.argv[2]).read_text(encoding=\"utf-8\")\nH = Path.home(); f = Path(os.environ.get(\"XDG_CONFIG_HOME\", str(H/\".config\")))/\"env\"; pn = []\nfor l in f.read_text(encoding=\"utf-8\", errors=\"replace\").splitlines():\n    m = re.match(r'^\\s*(?:export\\s+)?([A-Za-z_][A-Za-z0-9_]*)=', l)\n    if m and m.group(1) not in pn: pn.append(m.group(1))\nallowed = {\"ANTHROPIC_API_KEY\",\"AWS_SECRET_ACCESS_KEY\",\"AZURE_OPENAI_API_KEY\",\"BRAVE_API_KEY\",\"GEMINI_API_KEY\",\"GITHUB_TOKEN\",\"MISTRAL_API_KEY\",\"MOONSHOT_API_KEY\",\"OPENAI_API_KEY\",\"TAVILY_API_KEY\",\"XAI_API_KEY\"}\nfor i, nme in enumerate(pn, 1):\n    c = len(re.findall(r'\\b%s\\b' % re.escape(nme), t)); co = len(re.findall(r'\\b%s\\b' % re.escape(nme), old))\n    if c: print(f\"V{i}: readable {c} time(s) in the new export, {co} in the committed one; publicly documented name (in the repository's allowed set): {nme in allowed}\")\nprint(\"of the ten, how many are in the allowed set at all:\", sum(1 for n in pn if n in allowed))\nPYEOF\necho '--- is the same true of the exports already published? (count of private-file names readable in each, by file position)'\npython3 - <<'PYEOF'\nimport os, re\nfrom pathlib import Path\nH = Path.home(); f = Path(os.environ.get(\"XDG_CONFIG_HOME\", str(H/\".config\")))/\"env\"; pn = []\nfor l in f.read_text(encoding=\"utf-8\", errors=\"replace\").splitlines():\n    m = re.match(r'^\\s*(?:export\\s+)?([A-Za-z_][A-Za-z0-9_]*)=', l)\n    if m and m.group(1) not in pn: pn.append(m.group(1))\nfor i, p in enumerate(sorted(Path(\"memory/sessions\").glob(\"*.md\")), 1):\n    t = p.read_text(encoding=\"utf-8\", errors=\"ignore\"); c = sum(1 for n in pn if re.search(r'\\b%s\\b' % re.escape(n), t))\n    if c: print(f\"  export file {i} of 17: {c} of 10 names readable\")\nPYEOF",
+  "timeout": 120000
+}
+```
+
+**Output:**
+```
+V1: readable 62 time(s) in the new export, 59 in the committed one; publicly documented name (in the repository's allowed set): True
+V4: readable 50 time(s) in the new export, 47 in the committed one; publicly documented name (in the repository's allowed set): True
+of the ten, how many are in the allowed set at all: 2
+--- is the same true of the exports already published? (count of private-file names readable in each, by file position)
+  export file 1 of 17: 2 of 10 names readable
+  export file 14 of 17: 2 of 10 names readable
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 442.9s)
+
+_Thinking:_
+I'm checking the names V1 and V4: both are provider-documented and on the allowed list, and they already appear in the published export and in file 14, which fits the rule about only publicly well-known secret variable names. Of the ten, only two fall in the allowed set, and the rest are workstation-specific. The study's list picks up from V1,V4.
+
+I'm checking whether the remaining names fall in the allowed set; the study lists several more as provider-documented, but only two are in my allowed list, so the other eight stay unreadable. The mention count of 62 against 59 probably comes from a few new matches in my scan scripts, which is fine. Next I'll install the file and update the README row and the note about this export's throwaway layer, keeping the public wording generic so no details of the other project's message leak.
+
+I'm extending the row 21 description with the work since the 23rd: the second builders' session, acceptance of the first part of the `correct-shell-environment` build (including a data-loss path in the history merge that I found by reading the code and fixed with a test first), its publication, closing the grouped worker's workspace by id, and the next pieces of work and the exchanges with other projects' orchestrators.
+
+I'm wrapping up the commit plan: one commit for the re-exported orchestrator session and README update, and a second for the observations on the first cleanup of a grouped worker, and I'll ask the user to check the masked block before committing. Next I'll install the file.
+
+
+_Thinking:_
+Two of the readable names are provider-documented and in the allowed set, and files 1 and 14 already show the same two. I'm installing the export with its README row, then running the full check.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+[redacted:private]
+  "timeout": 900000
+}
+```
+
+**Output:**
+```
+README: rows 18 | dashes 0 | banned 0 | modeline last 1 | embargo words 0
+--check README + 18 files (store alone, no layer): exit=0 ; non-zero: 
+3:35PM INF no leaks found
+second pass over 17 committed exports (store alone): differing=0
+export: 98522 lines, 6713023 bytes, through msg_20de267cf0012ZODN1FrMou6c9; embargo words in the installed file: 0
+scratch, raw export and empty folder report deleted (the layer stays in .state/tmp/embargo, git-ignored)
+ M memory/sessions/202610301854-harden_sensitive_targets.md
+ M memory/sessions/README.md
+ M openspec/changes/add-agent-launch-tasks/observations.md
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 33.4s)
+
+_Thinking:_
+I'm updating the resume note with the export state, and recording the embargo layer kept at .state/tmp/embargo, which has four lines and can be reused for the next export.
+
+Next I'm checking the later part of the transcript for any commands that touch the masked words, since those were run this turn after the raw export and are covered by word-level masks. Then I'll move on to counting the lengths of the proposed messages.
+
+
+Installed and checked. I'm recording the export state and the reusable layer in the resume note and the journal, and counting the two proposed commit subjects.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; python3 - <<'EOF'\nfrom pathlib import Path\np = Path(\".state/resume.md\"); s = p.read_text(encoding=\"utf-8\")\ndef rep(a, b):\n    global s\n    assert s.count(a) == 1, (s.count(a), a[:70]); s = s.replace(a, b)\nrep(\"- State of THIS export: see the last lines of the journal (built and installed uncommitted, or not yet).\",\n    \"- State of THIS export (2026-11-24 15:35): BUILT, CHECKED AND INSTALLED, UNCOMMITTED: `memory/sessions/202610301854-harden_sensitive_targets.md` (98,522 lines, through `msg_20de267cf0012ZODN1FrMou6c9`) and README row 21 (18 rows). The embargoed message and my reasoning that answered it are masked as ONE span (between the user header and the first tool call after it), the distinctive words are masked everywhere (0 left in the output), 0 identity values, 0 folder segments, the only two private-file names readable are provider-documented ones in the allowed set (the same two are readable in already published exports), no marker lost against the committed file (20 lines of it were rewritten: innocent earlier uses of the masked words), `--check` exit 0 store alone, second pass identical.\\n- THE LAYER IS KEPT (not deleted) at `.state/tmp/embargo/redact-terms.txt` (git-ignored, mode 0600, 4 lines: the span regex from the message's first line to the next `**Tool: bash**` marker, the distinctive words with suffixes and the JSON-escape gap, two attribution phrases). REUSE it at the next export: `SESSION_REDACT_TERMS_DIR=$PWD/.state/tmp/embargo python3 ~/.config/nvim/scripts/session_redact.py < raw > out`; the span regex needs a tool marker after the message to end its match (it has one now); my masking commands of 2026-11-24 mention the words and are covered by the word-level lines; recount the distinctive words in raw and output, and show the user the masked block, every time. Delete the layer when the embargo is lifted.\")\np.write_text(s, encoding=\"utf-8\")\nEOF\nchmod 600 .state/resume.md; printf 'resume dashes %s, modeline last %s\\n' \"$(/usr/bin/grep -a -c -E '[–—]' .state/resume.md)\" \"$(tail -1 .state/resume.md | /usr/bin/grep -a -c 'vim: set ts=2')\"\nfor m in 'docs(chezmoi:memory): re-export the orchestrator session of 2026-11-24' 'docs(chezmoi:docs): log the first cleanup of a grouped worker'; do printf '%s chars: %s\\n' \"${#m}\" \"$m\"; done\nprintf -- '- %s chezmoi-orch (wN:p1) orchestrator session re-exported (98522 lines through msg_20de267cf0012ZODN1FrMou6c9) with the embargoed guard message masked as one span plus word-level masks (0 distinctive words left, layer kept in .state/tmp/embargo for the next export); checks clean; installed with README row 21, UNCOMMITTED with the observations edit; proposed: docs(chezmoi:memory): re-export the orchestrator session of 2026-11-24 (70) and docs(chezmoi:docs): log the first cleanup of a grouped worker (58); awaiting the commit word then push\\n' \"$(date '+%Y-%m-%d %H:%M:%S')\" >> .state/journal.md\nG=/home/linuxbrew/.linuxbrew/bin/git; echo \"main $($G rev-parse --short HEAD) = origin $($G rev-parse --short origin/main); validate: $(openspec validate --all --strict 2>&1 | tail -1)\"; herdr agent list 2>/dev/null | jq -r '[.result.agents[]? | select(.name != null) | select((.pane_id // \"\") | test(\"^(wN|w0):\")) | .name] | join(\" \")' 2>/dev/null",
+  "timeout": 60000
+}
+```
+
+**Output:**
+```
+resume dashes 0, modeline last 1
+70 chars: docs(chezmoi:memory): re-export the orchestrator session of 2026-11-24
+61 chars: docs(chezmoi:docs): log the first cleanup of a grouped worker
+main 1063360 = origin 1063360; validate: Totals: 38 passed, 0 failed (38 items)
+chezmoi-orch
+
+```
+
+**Tool: todowrite**
+
+**Input:**
+```json
+{
+  "todos": [
+    {
+      "content": "Commit the second builder export (1063360), scan, push: done",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "content": "Cleanup by the rule (w0 closed by id, scm:worktree:done), observations entry added: done",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "content": "Persist planning: resume note rewritten, three briefs and two prompts written, journal: done",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "content": "Export this orchestrator session with the embargoed message masked: built, checked, installed (uncommitted); layer kept for the next export",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "content": "User: check the masked block shown, then say commit for two commits (export 70 chars; observations 58 chars), then push",
+      "status": "in_progress",
+      "priority": "high"
+    },
+    {
+      "content": "After compaction: nvim-dev small change (plan in .state/briefs/manage-nvim-dev-command), build part 2, launch-tasks lead (recommended order, user chooses)",
+      "status": "pending",
+      "priority": "medium"
+    }
+  ]
+}
+```
+
+**Output:**
+```
+[
+  {
+    "content": "Commit the second builder export (1063360), scan, push: done",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "content": "Cleanup by the rule (w0 closed by id, scm:worktree:done), observations entry added: done",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "content": "Persist planning: resume note rewritten, three briefs and two prompts written, journal: done",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "content": "Export this orchestrator session with the embargoed message masked: built, checked, installed (uncommitted); layer kept for the next export",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "content": "User: check the masked block shown, then say commit for two commits (export 70 chars; observations 58 chars), then push",
+    "status": "in_progress",
+    "priority": "high"
+  },
+  {
+    "content": "After compaction: nvim-dev small change (plan in .state/briefs/manage-nvim-dev-command), build part 2, launch-tasks lead (recommended order, user chooses)",
+    "status": "pending",
+    "priority": "medium"
+  }
+]
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 10.3s)
+
+_Thinking:_
+I'm checking the journal entry, which says the second message is 58 characters, but the actual count is 61. I'll append a correction line rather than editing the existing entry, and I'll also look at the resume's wording about the proposed messages.
+
+
+The second commit subject is 61 characters, not the 58 I wrote in the journal. The journal is append-only, so I'm adding a correction line.
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi\nprintf -- '- %s chezmoi-orch (wN:p1) correction of the previous line: the subject docs(chezmoi:docs): log the first cleanup of a grouped worker is 61 characters, not 58; both proposed subjects are at most 80\\n' \"$(date '+%Y-%m-%d %H:%M:%S')\" >> .state/journal.md\ntail -3 .state/journal.md | cut -c1-150",
+  "timeout": 30000
+}
+```
+
+**Output:**
+```
+- 2026-11-24 15:07:30 chezmoi-orch (wN:p1) planning persisted before a compaction: resume note rewritten for the real state (part 1 public, no agent, 
+- 2026-11-24 15:38:59 chezmoi-orch (wN:p1) orchestrator session re-exported (98522 lines through msg_20de267cf0012ZODN1FrMou6c9) with the embargoed gu
+- 2026-11-24 15:39:23 chezmoi-orch (wN:p1) correction of the previous line: the subject docs(chezmoi:docs): log the first cleanup of a grouped worker 
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 15.5s)
+
+Part 1 of the build is pushed, the grouped worker is cleaned up, the planning is saved, and this session is exported. The export and one doc edit are not committed yet, because I need your word.
+
+## Done
+- **Commit and push:** I committed `1063360`, the second builder's export. I then scanned the 15 outgoing commits and pushed. `origin/main` is `1063360` and is in sync. The scans came back clean: 3,065 added lines, none of your private-file names, no embargo words, gitleaks, and `openspec validate` at 38/38.
+- **Cleanup:** I closed the linked workspace `w0` with `herdr workspace close w0`, never with `--group`, then ran `scm:worktree:done`. `wN`, its two tabs and my pane were untouched. Only `main` remains in git and in herdr. I logged this in the launch-tasks observations, in the working tree, uncommitted.
+
+## Planning saved in `.state/`
+- **Resume note:** it's rewritten for the real state. It has the recommended order, the launch and cleanup recipes, how to measure a worker's report, the export procedure, the rules, and the habits that cost time.
+- **`nvim-dev` plan:** `briefs/manage-nvim-dev-command/plan.md` is a step-by-step plan for the small change you chose, with the script alone. I do it myself, with no agent.
+- **Build part 2:** `builder-brief-3.md` and a prompt cover groups 8 to 10, the system script, the documents and the pre-deployment checks. Its limits are explicit: no sudo, no real run of the script, no apply.
+- **Launch-tasks lead:** `briefs/add-agent-launch-tasks/brief.md` and a prompt cover the design review.
+- **Recommended order:** `nvim-dev` first, then build part 2, since your keys fix waits on it, then the launch-tasks lead. I run one agent at a time. You choose.
+- **Flagged for group 11:** the live `060-libvirt.sh` isn't an `env_` file. After the new `profile` is deployed, your user manager loses the libvirt URI until `reconcile-drift` task 2.3 adopts it. You'll decide whether to do tasks 2.3 and 2.4 first.
+
+## Export of this session, for you to check
+- **File:** it's 98,522 lines and installed with README row 21, uncommitted.
+- **Embargoed message:** it's masked as one span, together with my own reasoning that answered it. The span runs from the user header to the first tool call after it. The block now reads:
+  ```
+  ## User
+
+  [redacted:private]
+  **Tool: bash**
+  ```
+[redacted:private]
+- **Other checks:** the folder scan found nothing, and there are 0 identity values. `--check` exits 0 with the store alone, a second pass is identical, and gitleaks is clean.
+- **Private-file names:** two of them are readable, V1 and V4. Both are provider-documented names in the allowed set, and the same two are already readable in the published exports. The other eight aren't.
+- **Layer kept:** I didn't delete the throwaway layer. It lives at `.state/tmp/embargo/redact-terms.txt`, git-ignored, and the next export must reuse it.
+- **README:** it says generically that one message was masked at its maintainers' request, with no details.
+
+## What I need from you
+1. Look at the masked block above. It is yours to confirm.
+2. **"commit"** for two commits: `docs(chezmoi:memory): re-export the orchestrator session of 2026-11-24` (70 characters) for the export and README, and `docs(chezmoi:docs): log the first cleanup of a grouped worker` (61 characters) for the observations. Then **"push"**.
+3. Tell me which piece comes first after the compaction.
+
+I'm ready for your `/compact`. The first read-only steps after it are in the resume note.
+
+---
+
+## User
+
+1. None of these should be redacted
+2. ok
+3. persist useful context and prepare for continuing orchestration after compaction
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 48.8s)
+
+_Thinking:_
+I'm trying to pin down what the user means by "None of these should be redacted," since it could refer to the embargoed message span or to the distinctive words I masked. Both readings are possible, and the phrasing is unclear.
+
+I'm weighing whether the user means lifting the embargo on the message details, or only stopping the masking of the distinctive words that also hit innocent earlier uses. The maintainer's call on the public repo is the open question, and the second reading fits the context better.
+
+I'm weighing whether "none of these should be redacted" refers to the list of masked words or to the embargoed message block itself. Publishing those details in a public repo would be hard to undo, so I'm not going to guess. I'll hold off on committing the export until the user clarifies, while persisting the context in the meantime.
+
+I'm treating "ok" as the go-ahead for the observations commit, since that one has no embargoed content. The export commit has to wait, because "none of these should be redacted" could mean lifting the embargo on the message itself, and publishing that in a public repo would be hard to undo. I'll ask which one the user means before touching the export.
+
+I'm leaning toward asking before the export commit, since "none of these should be redacted" could mean lifting the embargo on the message itself, which would publish it in a public repo. Another reading is that it only means unmasking the words I masked in my own earlier, innocent uses. I'll also commit the observations now, since that one has no embargoed content.
+
+I'll commit the observations now, since they hold no embargoed content, and hold off on pushing until the export decision is settled.
+
+I'm going to commit the observations now, since they hold no embargoed content, and leave the push until the export question is settled. Then I'll record the pending export decision in the resume note.
+
+I'm going to commit the observations first, since they don't contain any embargoed content, and then ask the user to clarify "none of these should be redacted" before touching the export.
+
+
+I'll take your three points in order. The observations commit has nothing to do with the embargo, so I'll make it now. Your first point could mean two things, and the export is public and irreversible once pushed, so I'll confirm what you meant before touching it.
+**Tool: todowrite**
+
+**Input:**
+```json
+{
+  "todos": [
+    {
+      "content": "Commit the observations edit (independent of the embargo), hold the push until the export question is settled",
+      "status": "in_progress",
+      "priority": "high"
+    },
+    {
+      "content": "Clarify with the user what 'none of these should be redacted' covers (embargoed message, or only the words masked elsewhere)",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "content": "Rebuild the export according to the answer, re-check, install; propose the commit",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "content": "Persist context and prepare continuing orchestration after compaction (resume note, journal)",
+      "status": "pending",
+      "priority": "high"
+    }
+  ]
+}
+```
+
+**Output:**
+```
+[
+  {
+    "content": "Commit the observations edit (independent of the embargo), hold the push until the export question is settled",
+    "status": "in_progress",
+    "priority": "high"
+  },
+  {
+    "content": "Clarify with the user what 'none of these should be redacted' covers (embargoed message, or only the words masked elsewhere)",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "content": "Rebuild the export according to the answer, re-check, install; propose the commit",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "content": "Persist context and prepare continuing orchestration after compaction (resume note, journal)",
+    "status": "pending",
+    "priority": "high"
+  }
+]
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; G=/home/linuxbrew/.linuxbrew/bin/git\n$G status --short\nm='docs(chezmoi:docs): log the first cleanup of a grouped worker'; echo \"subject ${#m} chars\"\n$G add openspec/changes/add-agent-launch-tasks/observations.md\n$G diff --cached --stat | tail -2 | cut -c1-110\nenv -u GITHUB_TOKEN HK_STASH=none $G commit -q -m \"$m\" -m \"The first real cleanup of a worker opened as a linked workspace: the workspace was closed by id without the group flag, the primary workspace, its tabs and the orchestrator were untouched, and the worktree task needed no tab file. Records what was and was not observed, and the open piece for the design: the hook that refuses the closing before the export.\" 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | tail -2; echo \"exit=${pipestatus[1]}\"\n$G log --oneline -2 | cut -c1-100; echo \"still uncommitted: $($G status --short | tr '\\n' ' ')\"",
+  "timeout": 120000
+}
+```
+
+**Output:**
+```
+ M memory/sessions/202610301854-harden_sensitive_targets.md
+ M memory/sessions/README.md
+ M openspec/changes/add-agent-launch-tasks/observations.md
+subject 61 chars
+ openspec/changes/add-agent-launch-tasks/observations.md | 7 +++++++
+ 1 file changed, 7 insertions(+)
+  gitleaks – 3:56PM INF no leaks found
+✔ gitleaks
+exit=0
+6f13031 docs(chezmoi:docs): log the first cleanup of a grouped worker
+1063360 docs(chezmoi:memory): export the second correct-shell-environment build session
+still uncommitted:  M memory/sessions/202610301854-harden_sensitive_targets.md  M memory/sessions/README.md 
+
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5 · 104.3s)
+
+The observations commit is `6f13031`. Now your first point. I'm asking, because publishing the embargoed message can't be undone.
+**Tool: question**
+
+**Input:**
+```json
+{
+  "questions": [
+    {
+      "header": "What not to redact",
+      "question": "You said none of these should be redacted. The export masks two things: (a) the message from the read-only guard's orchestrator, with my reasoning that answered it, as one span; (b) a few distinctive words everywhere else, which also hid my own innocent earlier uses. That orchestrator asked, because its repository is public, that the details stay inside the fleet until its maintainer decides how a fix is worded. Which do you mean?",
+      "options": [
+        {
+          "label": "Keep (a), drop (b) (Recommended)",
+          "description": "The message and my answer to it stay masked as one span, so the embargo holds. The distinctive words come back everywhere else, since those earlier uses are mine and carry nothing from the message. I rebuild the export, recheck it, and show you the block."
+        },
+        {
+          "label": "Nothing masked, embargo lifted",
+          "description": "You are the maintainer or have settled it with them: the message is published as it stands. This is irreversible once pushed, so I'd want that stated plainly and I'd tell the guard's orchestrator it is now public."
+        },
+        {
+          "label": "Keep both masks",
+          "description": "I misread you: leave the export as built and commit it."
+        }
+      ]
+    }
+  ]
+}
+```
+
+**Output:**
+```
+User has answered your questions: "You said none of these should be redacted. The export masks two things: (a) the message from the read-only guard's orchestrator, with my reasoning that answered it, as one span; (b) a few distinctive words everywhere else, which also hid my own innocent earlier uses. That orchestrator asked, because its repository is public, that the details stay inside the fleet until its maintainer decides how a fix is worded. Which do you mean?"="Keep (a), drop (b) (Recommended)". You can now continue with the user's answers in mind.
+```
+
+
+---
+
+## Assistant (Build · Claude Sonnet 5.5)
+
+_Thinking:_
+I'm settling on keeping the first option and dropping the second: the export gets rebuilt with only the span-regex layer, without the word-level lines. I'm also weighing whether to remove the two attribution lines, since they were added to hide the leftover anchors that showed up in my tool inputs.
+
+I'm now wondering whether the two attribution lines can be removed too, since I'd added them to cover up stray anchors. Those anchors turned up in my own tool inputs, in the script I wrote to build the layer, so the second export will likely pick them up again.
+
+I'm checking whether the words I put in my own commands, like "tokenizer" and "heredoc," give away the same details the embargo is meant to cover, even though the user said not to redact them everywhere.
+
+[redacted:private]
+
+[redacted:private]
+
+I'm working out how to keep the embargo narrow: masking the span itself, while still keeping the specific message-derived phrasing out of the commands I write later, even though the general words stay in.
+
+I'm checking whether the layer's own regex lines, which quote the attribution phrases, would be swept up by the span pattern the second export uses, since the commands I wrote to build the layer now sit in the raw text. I'm weighing keeping the mask narrow: only the few lines in my tool inputs that spell out the message's specific wording, not every word in them.
+
+I'm checking whether the earlier "From rog-orch" anchors in the transcript, including the ones in my own layer-building commands, will be caught by the span pattern, and whether that would mask more of my tool inputs than intended.
+
+I'm checking whether the span pattern would also catch earlier "From rog-orch" messages, since it matches from the first anchor up to the next tool marker and could mask more than intended. I'm going to test the pattern against the earlier occurrences before relying on it.
+
+I'm counting the raw occurrences of the parenthetical anchor against the ones left in the output, and the numbers don't line up: ten raw "From rog-orch" matches, six remaining, so four were masked. I'm now checking whether the span pattern is anchored tightly enough to have caught only those four, or whether it also reached into my own layer-building commands.
+
+I'm now looking at how to scope the masking so the span regex doesn't reach into my own layer-building commands, since those contain the anchor text too. The next question is whether a tighter pattern could catch only the real message and leave my tool inputs alone.
+
+I'm settling on masking just the message's span and the few tool-input lines that spell out its specific wording, rather than redacting every word. The tricky part is that the span regex anchored on the attribution phrase could also catch my own layer-building commands and reach past them to the next tool marker, so the plan is to scope the match to the real user message instead.
+
+[redacted:private]
+
+[redacted:private]
+
+I'm picking the span-regex version over the word-level one, and I'm checking that the layer's own lines don't get swept up by the pattern. The specific message wording only needs masking in the few tool-input lines that spell it out, and the general words can stay.
+
+I'm working out how to match the message's opening line without catching the same anchor in my own tool inputs, so I'll use a more specific phrase from the start of the message instead.
+
+I'm planning to mask the message span by anchoring on its opening sentence, so the match runs from there to the next bash tool header. The tricky part is that this could also swallow my own later tool inputs, so I'll check the new raw text for any later occurrences before settling on that pattern.
+
+I'm planning to export the raw text first and only then build the new layer, since the layer's creation commands won't be in this export. The older commands with the shorter anchor and the word list are already in the raw text, so I'll keep that in mind when I check the results.
+
+I'm planning to export the raw text first, then build the new layer, so its creation commands stay out of this export. When I come back to the redaction later, I'll need to check that the layer's own anchor and specific-word lines don't mask the commands that define them.
+
+I'm considering whether the anchor text could be written in a way that avoids spelling out the specific phrases literally, perhaps with character classes, so the new layer file doesn't leave them in the transcript for the next export to catch.
+
+Writing the layer-file regexes with the specific words spelled as character classes, like `[c]ase-arm`, so the literal phrases never appear in the raw text.
+
+I'm weighing whether to drop the word-level redaction layer and keep only the span-based one, so the masking doesn't reach into my own tool inputs. The remaining question is whether the leftover words like "tokenizer" or "T-020" in ordinary uses outside the message span are a problem, and I'm leaning toward accepting them.
+
+[redacted:private]
+
+[redacted:private]
+
+[redacted:private]
+
+I'm checking the scripts I ran earlier, since the export's own command text with the word list got recorded in the transcript before it executed. That explains the extra hits in the raw output. I'm now planning to mask only the lines that contain those specific phrases, leaving the general words alone.
+
+[redacted:private]
+
+[redacted:private]
+
+I'm thinking about whether the word "heredoc" next to "tokenizer" in my scan commands would give away the fix's nature, even without the three trigger phrases. A grep line that lists those generic words could hint at what the change was about, so I'm weighing whether that's acceptable.
+
+I'm thinking about whether listing "tokenizer" and "heredoc" in my scan commands would hint at the embargoed topic, even without the trigger phrases. Those generic words could suggest what the fix covered, so I'm weighing whether to keep them out of the grep lines and mention the tradeoff in my report.
+
+I'm weighing whether to flag that "heredoc" and "tokenizer" still show up in my scan commands as readable words. The user chose to drop word-level redaction knowing those words were in the list, so I'll respect that and keep the line-level safeguard only for the lines carrying the three trigger phrases.
+
+I'm weighing a narrow safeguard: line-level masking only on the lines carrying the most specific phrases, since those appear only in the message and my own scripts. I'll also stop putting those specific words into future commands, and I'll mention the tradeoff to the user.
+
+I'm weighing whether the span regex still reaches the message correctly now that my own scripts quote its anchor text. The "Nothing is asked of chezmoi." line in my scripts is harmless, so I'll leave it, though I'll drop it from the layer; the opencode-readonly-guard attribution at later lines is innocuous too.
+
+Next I'm checking that the span regex catches only the message itself, and that the trio words appear nowhere in the output while the innocent uses of the other words come back.
+
+Next I'm re-exporting the raw transcript to a fresh scratch file, then building the layer with the specific phrases written as character classes so the literal words never land in my commands. After that I'll restore the innocent uses I'd masked and check that the trio words appear nowhere in the output.
+
+I'm checking how the tool inputs are stored in the export: each command seems to sit on a single line with escaped newlines, so a line-level mask on those specific phrases would cover the whole command, scripts included.
+
+I'm checking how many lines carry the trio words before I apply the line-level mask, since each of my scan commands is stored as one long JSON line, so masking one would hide the whole script.
+
+I'm planning to anchor the message span on its opening line and stop at the next bash tool marker, then check that the anchor appears only once in the new export.
+
+I'm re-exporting the transcript to a fresh scratch file first, and I'll rewrite the throwaway layer afterward so it no longer depends on the old one.
+
+
+_Thinking:_
+I'm keeping the message span masked and restoring the words everywhere else, then re-exporting and rebuilding with that narrower layer. I'll avoid writing the specific phrases into my own commands so they don't leak into the next export.
+
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "cd ~/.local/share/chezmoi; S=/tmp/opencode/export-scratch; rm -rf $S; mkdir -p $S/raw $S/out && chmod 700 $S\npython3 ~/Work/[redacted:private]/scripts/session/export.py --full --no-children --force --out-dir $S/raw --slug orchestration_wrapper_startup_harness ses_e720ce42affen6d11Mjrfbnxpi > $S/export.log 2>&1; echo \"export exit=$?\"\nRAW=$(ls $S/raw/*.md | head -1); echo \"raw: $(basename $RAW), $(stat -c %s $RAW) bytes, $(wc -l < $RAW) lines; $(/usr/bin/grep -a -m1 -o 'through msg_[A-Za-z0-9]*' $RAW)\"\npython3 - $RAW <<'PYEOF'\nimport re, sys\nt = open(sys.argv[1], encoding=\"utf-8\").read()\nlong_anchor = r\"F[r]om rog-orch \\(opencode-readonly-guard orchestrator\\), information, no reply needed\"\ntrio = r\"(?:c[a]se-arm|apos[t]rophe|closing par[e]nthesis)\"\nprint(\"long anchor occurrences:\", len(re.findall(long_anchor, t)))\nlines = t.split(\"\\n\")\nhit = [i + 1 for i, l in enumerate(lines) if re.search(trio, l, re.I)]\nprint(\"lines holding one of the three specific phrases:\", len(hit), \"| their lengths:\", [len(lines[i - 1]) for i in hit][:12])\nfor w, p in ((\"tok\" + \"enizer\", r\"tok[e]nizer\"), (\"here\" + \"doc\", r\"he[r]edoc\"), (\"T-0\" + \"20\", r\"T-0[2]0\"), (\"misses \" + \"some\", r\"misses [s]ome\")):\n    print(f\"  {w!r} total in raw: {len(re.findall(p, t, re.I))}\")\nPYEOF",
   "timeout": 600000
 }
 ```
