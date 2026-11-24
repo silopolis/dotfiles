@@ -20,6 +20,10 @@ Candidates for `rationalize-package-ownership`, which owns package ownership.
   A client from mise would come first on `PATH` and shadow `/usr/bin/incus`, which `sys:virt:incus:setup` reports on purpose: keep it on the daemon's release line (7.0 while Kali packages 7.0.1), or leave the client to apt.
   Check whether apt's `incus-extra` already holds `incus-migrate` and `incus-simplestreams` before adding them.
   The daemon stays with apt: it is a system service that needs root.
+* mise itself (backlogged by the user on 2026-11-24, after a request from cem for a newer mise).
+  `~/.local/bin/mise` is installed outside any package manager and updated by hand with `mise self-update`: it went from 2026.10.23 to 2026.11.12 that day, because a pin in cem that uses the `http:` backend with `filter_bins` needs 2026.11.10.
+  Nothing in this repository installs it, pins its version or declares a minimum, and a second copy from brew (`brew mise` in the Brewfile, 2026.9.5 on that date) sits later on `PATH`: it is the overlap of audit F16 in its plainest form, and `brew uses` lists nothing that depends on it.
+  To decide in `rationalize-package-ownership`: how this repository owns mise (an install script of the `run_onchange_` kind on the pattern of the others, or a documented `mise self-update` step; a `min_version` in the repository `mise.toml` and in the global config), then the removal of the brew copy (the Brewfile line, then `brew uninstall mise`, which needs the user's go and is committed by the brew hook).
 
 ## Follow-ups from changes
 
