@@ -1,0 +1,84 @@
+# The differences with main that this change claims (DOTFILES_TEST_BASE_REF=main DOTFILES_TEST_BASE_ALLOW=<this file> mise run test).
+# One entry per line, a whole listing line or a name; the lines that start with a hash match nothing.
+# Each group says why its names differ. A name that differs and is not here fails tests/smoke/startup-compare.bats.
+
+# Group 3, PATH and the env_ files: the helper functions are new, PATH is clean and ordered (it differs by value),
+# FPATH loses the completions that 110-pkg_brew.sh adds, because the desktop pass no longer runs that interactive file.
+function _path_prepend
+function _path_clean
+PATH
+FPATH
+
+# Group 4, locale: no forced LC_ALL, LANGUAGE defaults to en_US:en.
+LC_ALL
+LANGUAGE
+
+# Group 5, keys on demand: the secrets function and its two helpers are new; the two synthetic names of the private
+# file of the scratch home (the stand-ins of the user's private file) are no longer exported by any startup.
+function secrets
+function _secrets_file
+function _secrets_names
+DEMO_ALPHA_TOKEN
+DEMO_BETA_SETTING
+
+# Group 6, the desktop login loads the environment only: what only an interactive shell uses is gone from the desktop.
+# The variables of the aliases file (forgit, kubecolor, less termcap) and the settings of ls, less and hstr:
+forgit_add
+forgit_attributes
+forgit_blame
+forgit_branch_delete
+forgit_checkout_branch
+forgit_checkout_commit
+forgit_checkout_file
+forgit_checkout_file_from_commit
+forgit_checkout_tag
+forgit_cherry_pick
+forgit_clean
+forgit_diff
+forgit_fixup
+forgit_ignore
+FORGIT_INSTALL_DIR
+forgit_log
+forgit_rebase
+forgit_reflog
+forgit_reset_head
+forgit_restore
+forgit_revert_commit
+forgit_reword
+forgit_show
+forgit_squash
+forgit_stash_push
+forgit_stash_show
+forgit_switch_branch
+forgit_worktree
+forgit_worktree_add
+forgit_worktree_delete
+KUBECOLOR_CONFIG
+KUBECOLOR_FORCE_COLORS
+LESSCLOSE
+LESSOPEN
+LESS_TERMCAP_mb
+LESS_TERMCAP_md
+LESS_TERMCAP_me
+LESS_TERMCAP_se
+LESS_TERMCAP_so
+LESS_TERMCAP_ue
+LESS_TERMCAP_us
+LS_COLORS
+HSTR_CONFIG
+# The state of mise's shell hook, and the lines of the activation script that the listing splits (the scratch home is S):
+MISE_SHELL
+__MISE_ORIG_PATH
+__MISE_ZSH_ACTIVATE_ENV
+__MISE_ZSH_ACTIVATE_PATH
+__MISE_ZSH_CHPWD_RAN
+__MISE_ZSH_PRECMD_RUN
+export MISE_CEILING_PATHS=S
+export MISE_CONFIG_DIR=S/.config/mise-scratch
+export MISE_DATA_DIR=S/.local/share/mise
+export MISE_GLOBAL_CONFIG_FILE=S/.config/mise-scratch/config.toml
+export MISE_SHELL=zsh
+export MISE_STATE_DIR=S/.local/state/mise
+export MISE_SYSTEM_CONFIG_FILE=S/.config/mise-scratch/system.toml
+
+# vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en :
