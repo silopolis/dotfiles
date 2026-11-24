@@ -1,7 +1,7 @@
 ## 1. Start
 
 - [x] 1.1 Read `design.md`, `findings.md`, `manual-steps.md` and the specs of this change; `mise run test:deps` if `tests/.lib` is missing, then `mise run test` (baseline of 2026-11-21: 343 tests, 0 failures, 27 skipped)
-- [ ] 1.2 Each group below writes its tests first and sees them fail on the current tree (`tests/run.sh <file>`), then the code, then sees them pass; every new mutant goes in `tests/mutants/` with its row in `tests/mutants/README.md` (`mise run test:mutants` exits 0)
+- [x] 1.2 Each group below writes its tests first and sees them fail on the current tree (`tests/run.sh <file>`), then the code, then sees them pass; every new mutant goes in `tests/mutants/` with its row in `tests/mutants/README.md` (`mise run test:mutants` exits 0)
 
 ## 2. Test helpers
 
