@@ -199,5 +199,12 @@ Each step below is logged with its command, its result and any friction, so that
   - The tab of the new workspace is labelled `1`, not with the label given: the label names the workspace.
   - `herdr agent start <name> --kind opencode --pane <root pane> -- --agent build --model <model>` worked in that root pane; the footer took about ten seconds to draw, so a check of the model reads the pane again before it concludes.
   - Still to observe at the cleanup: closing that workspace by id without `--group` (the primary workspace and the orchestrator pane must stay), and `scm:worktree:done` after it.
+- 2026-11-24, cleanup of the grouped launch, the first real test of the closing rule (the builder of `correct-shell-environment`, a linked workspace that held two agent sessions in two tabs, one after the other):
+  - Order that worked: the branch was pushed to `origin/main` first, the sessions were exported before that, then `herdr workspace close <linked workspace id>` without `--group`, then `scm:worktree:done <branch>`.
+  - Closing the linked workspace by id left the primary workspace, its two tabs and the orchestrator's agent untouched; the builder's agent name stopped resolving at once, and `herdr worktree list --workspace <primary>` then listed the branch with no workspace open on it.
+  - `scm:worktree:done` found the branch in `origin/main`, removed the worktree and the local branch, and ran with no tab to close and no tab file, since the worktree had been created without `--tab`: the cleanup of a grouped worker needs no tab file.
+  - A tab of a linked workspace can be closed while the workspace has another tab (the first builder's tab was closed by id when the second session took over), and the workspace stayed open; closing its last tab first would have closed the workspace.
+  - Not observed: closing a linked workspace whose agent is blocked or working, and a cleanup where the worktree holds an untracked file (an editor's grammar server wrote one in an earlier launch and `done` refused until it was deleted by hand).
+  - For the design: the closing is two calls today (workspace by id, then the task), and the order matters only for the export, which no generic task can know: the project hook that refuses the closing before the export is committed is still the open piece.
 
 <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->
