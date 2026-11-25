@@ -2,6 +2,7 @@
 "cargo:pdf_oxide_cli" = "latest"
 "github:obsidianmd/obsidian-releases" = "latest"
 herdr = "latest"
+"github:sheprd-labs/sheprd" = "latest"
 "github:rtk-ai/rtk" = "latest"
 jiq = "latest"
 "aqua:anomalyco/opencode" = "1"  # 1.x only: 2.x (npm:@opencode/cli) waits for plugin/fleet support
