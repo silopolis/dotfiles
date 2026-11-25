@@ -1,3 +1,6 @@
+# mise 2026.11.10 or later: the http: backend accepts filter_bins only from that version
+min_version = "2026.11.10"
+
 [tools]
 "cargo:pdf_oxide_cli" = "latest"
 "github:obsidianmd/obsidian-releases" = "latest"
@@ -51,6 +54,17 @@ pi = "latest"
 # Used by the chezmoi install scripts: jq filters the pipx spec file, kubectl runs krew
 jq = "latest"
 kubectl = "latest"
+
+# adb: the same tool key and version as cles-en-main's pin, which wins inside that repository.
+# Bump both together: one adb server per user serves every client, and a client of another version restarts it.
+# filter_bins keeps the archive's other binaries (sqlite3, mke2fs, fastboot...) off PATH. Google ships no Linux arm64 archive.
+[tools."http:adb"]
+version = "37.0.3"
+bin_path = "platform-tools"
+filter_bins = ["adb"]
+
+[tools."http:adb".platforms]
+linux-x64 = { url = "https://dl.google.com/android/repository/platform-tools_r{{ version }}-linux.zip", checksum = "sha256:214548146cadb2ca3508143d8a1d4be4c59de5bb837253e3ede89ed74cf450d1" }
 
 [settings]
 # aube (the default JS package manager) aborts on packages with install scripts
