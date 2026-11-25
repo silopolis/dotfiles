@@ -1,0 +1,10 @@
+#!/bin/sh
+# Start Neovim with the profile of the development checkout (~/Work/nvim, NVIM_APPNAME=nvim-dev).
+# Managed by chezmoi; the same thing as `alias nvim-dev='NVIM_APPNAME=nvim-dev nvim'`, but it also
+# works in scripts and in panes that do not read the shell's aliases. Arguments go to nvim unchanged.
+profile="${XDG_CONFIG_HOME:-$HOME/.config}/nvim-dev"
+if [ ! -e "$profile" ]; then
+  echo "nvim-dev: $profile does not exist (a symlink to the development checkout, ~/Work/nvim)" >&2
+  exit 1
+fi
+exec env NVIM_APPNAME=nvim-dev nvim "$@"

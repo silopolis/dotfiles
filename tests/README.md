@@ -114,8 +114,8 @@ GNU parallel runs the tests of `--jobs` when it is found, and GNU time times the
 
 ## Scenarios
 
-Each scenario of the three specifications that this suite proves, with the file that proves it, or the reason it is manual.
-The rows equal the number of scenarios of `openspec/specs/agent-environment/spec.md`, `shell-startup/spec.md` and `install-scripts/spec.md`.
+Each scenario of the specifications that this suite proves, with the file that proves it, or the reason it is manual.
+The rows equal the number of scenarios of `openspec/specs/agent-environment/spec.md`, `shell-startup/spec.md` and `install-scripts/spec.md`, and of the one requirement of `neovim-config/spec.md` that a test proves, the development command (the other requirements of that specification are checked by hand with chezmoi).
 The ids in parentheses are the names that the old scratch harness gave its cases: each test name of the isolated, render and live files starts with one, except three live cases that were renamed, `bat-live-scratch` (the test `live bat-scratch`), `vimrc-no-N` (`live vimrc`) and `mise-pending` (`live mise-pending`).
 
 | Specification | Scenario | Proof |
@@ -210,5 +210,12 @@ The ids in parentheses are the names that the old scratch harness gave its cases
 | install-scripts | Dry run of the brew script | `unit/install-scripts-isolated.bats` (`br-dry`, `br-nobrew-dry`, `br-completions-dry`) |
 | install-scripts | Dry-run variable under chezmoi | `unit/install-scripts-isolated.bats` (`dry-chezmoi`) |
 | install-scripts | shellcheck on rendered scripts | `unit/install-scripts-static.bats` |
+| neovim-config | Starts the development profile | `unit/nvim-dev.bats` (starts nvim with `NVIM_APPNAME=nvim-dev` and the arguments unchanged) |
+| neovim-config | Arguments and status come back unchanged | `unit/nvim-dev.bats` (the awkward arguments, no argument, the exit status of nvim) |
+| neovim-config | The profile follows the XDG directory | `unit/nvim-dev.bats` (the two `XDG_CONFIG_HOME` checks) |
+| neovim-config | A missing profile is refused | `unit/nvim-dev.bats` (a missing profile, a profile that is a symlink to nothing) |
+| neovim-config | Works without aliases and in the usual shells | `unit/nvim-dev.bats` (runs under sh, dash and bash, runs as a program found on `PATH`) |
+| neovim-config | Portable and published as it is | `unit/nvim-dev.bats` (first line and syntax, shellcheck, no home path and no e-mail address) |
+| neovim-config | The target is managed and executable | `unit/nvim-dev.bats` (`chezmoi dump` of the target) |
 
 <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->

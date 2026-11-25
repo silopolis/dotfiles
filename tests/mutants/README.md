@@ -30,6 +30,7 @@ Expected failures: `exactly N` for a mutant whose failures are counted one by on
 | env-highlighting-not-last | tests/unit/rc-d-files.bats | home/dot_config/shell/rc.d/999-highlighting.sh | sed env/highlighting-not-last.sed | at least 1 |
 | env-history-no-merge | tests/unit/history.bats | home/dot_config/shell/rc.d/320-shell_history.sh | sed env/history-no-merge.sed | at least 2 |
 | env-history-merge-unchecked | tests/unit/history.bats | home/dot_config/shell/rc.d/320-shell_history.sh | sed env/history-merge-unchecked.sed | at least 1 |
+| nvim-dev-no-refusal | tests/unit/nvim-dev.bats | home/dot_local/bin/executable_nvim-dev | sed nvim-dev/no-refusal.sed | exactly 3 |
 
 The wrapper mutant replaces the `opencode` function with `opencode() { command env opencode "$@"; }`, which hands the whole environment to the binary.
 Three checks fail in each of the three shells: the synthetic set is not removed, a variable added later is not removed, and the secret-named names do not disappear from the list of what the stub sees.
@@ -60,5 +61,8 @@ The install-script mutants and what they break:
 - `install-run-ignores-dry-run` makes `run()` of the shared helper execute whatever the dry-run switch says, so every dry-run check that goes through `run` fails: the apt update, the limits install, the brew file install, the mise reshim, the bat cache, the VSCodium install and the brew completions link (10).
 - `install-need-always-ok` makes `need()` succeed for a missing tool, so the checks of a script that must skip when a tool is absent fail: mise, pipx, jq, kubectl, kubectl-krew, vim, bat and codium (9).
 - `install-limits-lower` makes the limits script declare half of the soft limit, so a file that already matches no longer does, and the content that is written is no longer the declared one (3).
+
+The development command mutant and what it breaks:
+- `nvim-dev-no-refusal` removes the `exit 1` of `nvim-dev`, so a missing profile prints its message and then starts `nvim` anyway: the three checks of a refusal fail, the missing profile, the dangling symlink and the profile that exists only outside `XDG_CONFIG_HOME` (3).
 
 <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->
