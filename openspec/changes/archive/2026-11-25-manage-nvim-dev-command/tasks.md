@@ -18,8 +18,8 @@
 
 ## 4. Apply and close
 
-- [ ] 4.1 With the user's go: `chezmoi diff ~/.local/bin/nvim-dev` shows only the mode and the comment line, then `chezmoi apply --exclude=scripts ~/.local/bin/nvim-dev`; `chezmoi managed` lists the target and `nvim-dev` still starts (a read-only check with `command -v nvim-dev`, and the start itself only if the user asks)
-- [ ] 4.2 Archive with the user's go: `openspec archive manage-nvim-dev-command --yes`, then extend the purpose of `neovim-config` by hand, check its modeline, and run `openspec validate --all --strict`
-- [ ] 4.3 Tell the orchestrator of the Neovim repository that the command is managed and applied, with `herdr agent prompt`; information only
+- [x] 4.1 With the user's go: `chezmoi diff ~/.local/bin/nvim-dev` shows only the mode and the comment line, then `chezmoi apply --exclude=scripts ~/.local/bin/nvim-dev` (done on 2026-11-25, no prompt: the target is in sync, mode 0750); `chezmoi managed` lists the target and `nvim-dev --version` answers without loading a configuration
+- [x] 4.2 Archive with the user's go: `openspec archive manage-nvim-dev-command --yes`, then extend the purpose of `neovim-config` by hand, check its modeline, and run `openspec validate --all --strict`
+- [x] 4.3 Tell the orchestrator of the Neovim repository that the command is managed and applied, with `herdr agent prompt`; information only
 
 <!-- vim: set ts=2 sts=2 sw=2 et endofline fixendofline spell spl=en : -->
