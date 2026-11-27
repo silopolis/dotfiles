@@ -70,9 +70,9 @@
 
 ## 10. Checks before deployment
 
-- [ ] 10.1 `mise run test` and `mise run test:mutants` exit 0; `zsh -n`, `bash -n` and `shellcheck` on every changed shell file; `openspec validate --all --strict`
-- [ ] 10.2 The redaction tool (public profile, `--check`, file by file) and `gitleaks dir tests` report nothing on the new tests and fixtures
-- [ ] 10.3 `chezmoi -S <worktree> apply --dry-run --verbose --exclude=scripts` on the shell targets lists only the expected files and removals (reviewed with the user)
+- [x] 10.1 `mise run test` and `mise run test:mutants` exit 0; `zsh -n`, `bash -n` and `shellcheck` on every changed shell file; `openspec validate --all --strict`
+- [x] 10.2 The redaction tool (public profile, `--check`, file by file) and `gitleaks dir tests` report nothing on the new tests and fixtures
+- [x] 10.3 `chezmoi -S <worktree> apply --dry-run --verbose --exclude=scripts` on the shell targets lists only the expected files and removals (reviewed with the user on 2026-11-27: 10 creates, 12 removes, 8 content updates, 19 mode-only changes, nothing else)
 
 ## 11. Deployment, one target at a time, with the user present
 
