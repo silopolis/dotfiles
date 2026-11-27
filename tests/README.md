@@ -116,7 +116,7 @@ GNU parallel runs the tests of `--jobs` when it is found, and GNU time times the
 ## Scenarios
 
 Each scenario of the specifications that this suite proves, with the file that proves it, or the reason it is manual.
-The rows equal the number of scenarios of `openspec/specs/agent-environment/spec.md`, `shell-startup/spec.md` and `install-scripts/spec.md`, and of the one requirement of `neovim-config/spec.md` that a test proves, the development command (the other requirements of that specification are checked by hand with chezmoi).
+The rows equal the number of scenarios of `openspec/specs/agent-environment/spec.md`, `shell-startup/spec.md`, `install-scripts/spec.md` and `shell-environment/spec.md`, and of the one requirement of `neovim-config/spec.md` that a test proves, the development command (the other requirements of that specification are checked by hand with chezmoi).
 The ids in parentheses are the names that the old scratch harness gave its cases: each test name of the isolated, render and live files starts with one, except three live cases that were renamed, `bat-live-scratch` (the test `live bat-scratch`), `vimrc-no-N` (`live vimrc`) and `mise-pending` (`live mise-pending`).
 
 | Specification | Scenario | Proof |
@@ -137,14 +137,14 @@ The ids in parentheses are the names that the old scratch harness gave its cases
 | agent-environment | No recursion | `unit/agent-env.bats` (no recursion) |
 | agent-environment | Bypass keeps the environment | `unit/agent-env.bats` (bypass keeps the environment) |
 | agent-environment | Documented | `unit/agent-env.bats` (`AGENTS.md` documents the bypass) |
-| agent-environment | Live agent process | manual: a herdr tab and a probe agent, counted by process id |
+| agent-environment | Live agent process | manual: a herdr tab where the user types `secrets load`, then a probe agent, counted by process id |
 | agent-environment | opencode still works | manual: the probe agent of the live check |
 | agent-environment | The probe tab is removed | manual: the probe agent of the live check |
 | shell-startup | Interactive startup time | `smoke/startup-live.bats` (median of 7 alternating rounds) |
 | shell-startup | Login startup time | `smoke/startup-live.bats` (same rounds) |
 | shell-startup | Login zsh | `smoke/startup-single.bats` |
 | shell-startup | The other interactive shells | `smoke/startup-single.bats` |
-| shell-startup | Non-interactive login zsh | `smoke/startup-single.bats` (zsh once; bash loads no `rc.d`) |
+| shell-startup | Non-interactive login shells | `smoke/startup-single.bats` (zsh and bash: no `rc.d` pass and one environment line) |
 | shell-startup | Completion dump | `smoke/startup-single.bats` (five alternating starts) |
 | shell-startup | No output with a terminal | `smoke/startup-silent.bats` |
 | shell-startup | No output without a terminal | `smoke/startup-silent.bats` |
@@ -154,7 +154,7 @@ The ids in parentheses are the names that the old scratch harness gave its cases
 | shell-startup | Failing generator | `unit/completion-cache.bats` (failing generator, empty output, older file kept) |
 | shell-startup | Completion still works | `smoke/startup-behaviour.bats` (registrations with the cache filled) |
 | shell-startup | Refresh | `smoke/startup-cache.bats` and `unit/completion-cache.bats` |
-| shell-startup | Private environment | `smoke/startup-behaviour.bats` (three shells) |
+| shell-startup | Private environment | `smoke/startup-behaviour.bats` (three shells: no name of the private file exported at startup, the revoked name unset) |
 | shell-startup | opencode function | `smoke/startup-behaviour.bats` (zsh and bash) |
 | shell-startup | Aliases and functions | `smoke/startup-behaviour.bats` (every unconditional name is defined) and, against another ref, `smoke/startup-compare.bats` |
 | shell-startup | Desktop session environment | `smoke/startup-behaviour.bats` and, against another ref, `smoke/startup-compare.bats` |
@@ -163,7 +163,7 @@ The ids in parentheses are the names that the old scratch harness gave its cases
 | shell-startup | Commands that take arguments | `unit/aliases.bats` (bare shells that source the file, not interactive ones) |
 | shell-startup | Minimal environment | `smoke/startup-behaviour.bats` (bash login on a bare terminal) |
 | install-scripts | Run each script on the provisioned laptop | `smoke/install-scripts-live.bats` (the ten live runs) |
-| install-scripts | Second run in a row | `unit/install-scripts-isolated.bats` (`again-*`) |
+| install-scripts | Second run in a row | `unit/install-scripts-isolated.bats` (`again-*`, `again-session` among them) |
 | install-scripts | Undeclared brew package | `unit/install-scripts-isolated.bats` (`br-drift`) |
 | install-scripts | Undeclared pipx venv | `unit/install-scripts-isolated.bats` (`px-miss`: no uninstall call, and the output names the undeclared venv) |
 | install-scripts | Undeclared krew plugin | `unit/install-scripts-isolated.bats` (`kr-miss`) |
@@ -211,6 +211,52 @@ The ids in parentheses are the names that the old scratch harness gave its cases
 | install-scripts | Dry run of the brew script | `unit/install-scripts-isolated.bats` (`br-dry`, `br-nobrew-dry`, `br-completions-dry`) |
 | install-scripts | Dry-run variable under chezmoi | `unit/install-scripts-isolated.bats` (`dry-chezmoi`) |
 | install-scripts | shellcheck on rendered scripts | `unit/install-scripts-static.bats` |
+| install-scripts | Everything already set | `unit/install-scripts-isolated.bats` (`ses-set`) |
+| install-scripts | Nothing set yet | `unit/install-scripts-isolated.bats` (`ses-nothing` for the recorded calls and their order, `ses-effects`, `ses-locale-append`, `ses-locale-active`) |
+| install-scripts | Other GECOS entries are kept | `unit/install-scripts-isolated.bats` (`ses-other-kept`, `ses-other-same`) |
+| install-scripts | A stricter live value is left | `unit/install-scripts-isolated.bats` (`ses-stricter`, `ses-other-left`, `ses-sudo-stricter`) |
+| install-scripts | An invalid sudoers file is never installed | `unit/install-scripts-isolated.bats` (`ses-invalid-sudoers`) |
+| install-scripts | A system without the tools | `unit/install-scripts-isolated.bats` (`ses-no-chfn`, `ses-no-getent`, `ses-no-sudoers-dir`, `ses-no-visudo`, `ses-no-locale-gen`, `ses-no-locale`) |
+| install-scripts | Dry run | `unit/install-scripts-isolated.bats` (`ses-dry`) |
+| install-scripts | A sudoers file that only root can read | `unit/install-scripts-isolated.bats` (`ses-root-same`, `ses-root-differs`, `ses-root-stricter`, `ses-root-dry`) |
+| install-scripts | The sudoers file cannot be compared | `unit/install-scripts-isolated.bats` (`ses-root-fails`, `ses-root-force`) |
+| install-scripts | A failing tool changes nothing | `unit/install-scripts-isolated.bats` (`ses-getent`, `ses-locale-query`, `ses-tmp`, `ses-locale-gen-file`, `ses-no-sudo`, `ses-invalid-sudoers`, and the failed writes `ses-chfn-fails`, `ses-sudo-fails`, `ses-locale-install-fails`, `ses-locale-gen-fails`, `ses-chmod-fails`) |
+| install-scripts | Data checked at render time | `unit/install-scripts-render.bats` (`session-render`, `session-tools`, and the trigger `trigger-matrix` rows of the session data) |
+| shell-environment | No rc.d pass in the desktop replay | `smoke/environment-desktop.bats` and `smoke/startup-single.bats` |
+| shell-environment | What the session keeps | `smoke/environment-desktop.bats` |
+| shell-environment | What the session no longer gets | `smoke/environment-desktop.bats` |
+| shell-environment | Only env_ files hold the environment | `smoke/environment-desktop.bats` (the static search, and the test that the search finds what it must) |
+| shell-environment | A login sh loads nothing | `smoke/environment-desktop.bats` (skipped, naming it, where `sh` is bash) |
+| shell-environment | Every shell kind | `smoke/environment-keys.bats` |
+| shell-environment | Inherited copies are dropped | `smoke/environment-keys.bats` |
+| shell-environment | The revoked variable stays unset | `smoke/environment-keys.bats` |
+| shell-environment | Load in the calling shell and its children | `unit/secrets.bats` (zsh and bash) |
+| shell-environment | A child shell keeps what its parent loaded | `unit/secrets.bats` |
+| shell-environment | Unload and status | `unit/secrets.bats` |
+| shell-environment | No private file | `unit/secrets.bats` |
+| shell-environment | No name in the repository | `unit/secrets.bats` (the `rg` half) and `smoke/environment-live.bats` (the names of the private file, kept in memory) |
+| shell-environment | No duplicates and no missing directory | `smoke/environment-path.bats` |
+| shell-environment | Inherited entries are kept | `smoke/environment-path.bats` |
+| shell-environment | User bin directories first | `smoke/environment-path.bats` and `smoke/environment-desktop.bats` (the first entry) |
+| shell-environment | Nested shells do not grow PATH | `smoke/environment-path.bats` |
+| shell-environment | The helper | `unit/path-helper.bats` and `unit/env-path-files.bats` |
+| shell-environment | No forced LC_ALL | `unit/locale.bats` and `smoke/environment-locale.bats` |
+| shell-environment | No locale warnings from the user's files | `smoke/environment-locale.bats` (`perl -e1` in every kind) |
+| shell-environment | An inherited missing locale is dropped | `unit/locale.bats` and `smoke/environment-locale.bats` |
+| shell-environment | Default when LANG is unset | `unit/locale.bats` |
+| shell-environment | The man alias takes effect | `smoke/environment-locale.bats` |
+| shell-environment | Non-interactive source | `smoke/environment-shellrc.bats` |
+| shell-environment | bash started for an ssh command | `smoke/environment-shellrc.bats` |
+| shell-environment | Last file | `unit/rc-d-files.bats` |
+| shell-environment | Paths | `unit/history.bats` |
+| shell-environment | First start moves the legacy file | `unit/history.bats` |
+| shell-environment | Two shells at once | `unit/history.bats` |
+| shell-environment | Merge after a trim | `unit/history.bats` |
+| shell-environment | A failed merge loses nothing | `unit/history.bats` |
+| shell-environment | Source and removal list | `unit/rc-d-files.bats` |
+| shell-environment | Startup leaves the umask alone | `smoke/environment-umask.bats` (the desktop replay, `zsh -i` and `bash -l -i`, started with 0027 and with 0002) |
+| shell-environment | After the next login | `smoke/environment-live.bats`, opt-in with `DOTFILES_TEST_LIVE=1` and `DOTFILES_TEST_AFTER_LOGIN=1` |
+| shell-environment | The live session holds no key | `smoke/environment-live.bats`, opt-in with `DOTFILES_TEST_LIVE=1` and `DOTFILES_TEST_AFTER_LOGIN=1` |
 | neovim-config | Starts the development profile | `unit/nvim-dev.bats` (starts nvim with `NVIM_APPNAME=nvim-dev` and the arguments unchanged) |
 | neovim-config | Arguments and status come back unchanged | `unit/nvim-dev.bats` (the awkward arguments, no argument, the exit status of nvim) |
 | neovim-config | The profile follows the XDG directory | `unit/nvim-dev.bats` (the two `XDG_CONFIG_HOME` checks) |

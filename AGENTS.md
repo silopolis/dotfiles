@@ -66,9 +66,10 @@ Its location (`nvim.host`, `nvim.owner`, `nvim.repo`) is chezmoi data kept in th
   `SHELL_RC_DEBUG=1` prints one debug line per startup file on standard error, and `SHELL_COMPLETION_REFRESH=1` regenerates the cached completion scripts at the next start.
 - Agents started from an interactive shell, by hand or by herdr, run through the `opencode` function of `home/dot_config/shell/rc.d/445-tools_opencode.sh`, which removes the exported variables with secret-looking uppercase names from their environment (the pattern lives in that file and the names are computed at each call).
   `command opencode` runs the real binary with the full environment: the user types it, an agent never does.
-- chezmoi comes from brew, and minimal non-interactive shells (ssh command, cron, `env -i`) do not load brew, so they do not find it.
-  Run `eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"` first, or call `/home/linuxbrew/.linuxbrew/bin/chezmoi`.
-  Interactive bash login shells load brew since `fast-correct-shell-startup`; the non-interactive ones still do not, and what they load is the subject of `correct-shell-environment`.
+- chezmoi comes from brew.
+  Interactive shells and non-interactive login shells (`zsh -l -c`, `bash -l -c`, the desktop session) load brew through the environment part (the `env_` files of `rc.d`); non-interactive non-login shells (an ssh command, cron, `bash -c`, `env -i`) do not: run `eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"` first, or call `/home/linuxbrew/.linuxbrew/bin/chezmoi`.
+- The session umask is 0027, from the login: the `umask=` entry of the account's comment field, set by `run_onchange_before_03-session-defaults.sh.tmpl`, which also gives sudo a umask of 022 (`/etc/sudoers.d/50-umask`), the home mode 0700 and the generated locales; no startup file sets a umask, so files an agent creates are 0640 (directories 0750).
+  Run that script only through its dry run (`CHEZMOI_SCRIPTS_DRY_RUN=1`) unless the user is present with sudo; `CHEZMOI_SCRIPTS_FORCE=1` installs the sudoers file without comparing it.
 
 ## Safety rules
 
@@ -77,6 +78,8 @@ Its location (`nvim.host`, `nvim.owner`, `nvim.repo`) is chezmoi data kept in th
 - Apply single targets with `--exclude=scripts`.
 - `chezmoi apply -R` also pulls into `~/.config/nvim`, fast-forward only, after asking for confirmation (chezmoi expects mode 0750 there, git made it 0775); `--force` skips the question, so run it only when the Neovim work is idle.
 - Edit the source, never the target, for managed files; bring live edits back with `chezmoi re-add` after a diff review.
+- Keys are not in the environment of a new shell: `secrets load` (`rc.d/446-tools_secrets.sh`) exports the private environment file into the calling shell and its children, `secrets unload` removes them and `secrets` alone prints how many are set.
+  The user types `secrets load`; an agent never does.
 - Never print, log or commit secret values; encrypted files are added with `chezmoi add --encrypt` and keep the `private_` attribute.
   Compare secrets by hash in memory, never by value, and never print a masked form either: a masked display keeps the last characters.
   To discard the standard output of a command in a pipe, write `cmd 2>/dev/null | next`: in zsh, `cmd 2>&1 >/dev/null | next` also sends standard output into the pipe (MULTIOS).

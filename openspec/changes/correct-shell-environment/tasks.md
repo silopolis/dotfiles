@@ -63,10 +63,10 @@
 
 ## 9. Documents
 
-- [ ] 9.1 `tests/README.md`: the scenario table maps every scenario of `shell-environment` and the changed scenarios of `shell-startup`, `agent-environment` and `install-scripts` (rows equal the sum of the four `rg -c '^#### Scenario'` counts after the archive: 35 scenarios for `shell-environment`, 61 for the five delta specs together); "After the next login" and "The live session holds no key" map to `smoke/environment-live.bats`, opt-in with `DOTFILES_TEST_AFTER_LOGIN=1`
-- [ ] 9.2 `AGENTS.md`, wording shown to the user first: `secrets load` (the user types it; an agent never does), the session umask from the login, and the line about non-interactive shells and brew (a non-interactive login shell now loads the environment)
-- [ ] 9.3 `proposal.md`: open questions answered, capabilities modified (`shell-startup`, `agent-environment`, `install-scripts`, `shell-test-harness`), impact (the system script, `.chezmoiremove`, the deleted targets)
-- [ ] 9.4 Ask the orchestrator to forward the note for the Neovim repository (avante `cmd:` key names) and to add the `~/.zshenv` review to the backlog of `TODO.md`
+- [x] 9.1 `tests/README.md`: the scenario table maps every scenario of `shell-environment` and the changed scenarios of `shell-startup`, `agent-environment` and `install-scripts` (rows equal the sum of the four `rg -c '^#### Scenario'` counts after the archive: 35 scenarios for `shell-environment`, 61 for the five delta specs together); "After the next login" and "The live session holds no key" map to `smoke/environment-live.bats`, opt-in with `DOTFILES_TEST_AFTER_LOGIN=1`
+- [x] 9.2 `AGENTS.md`, wording shown to the user first: `secrets load` (the user types it; an agent never does), the session umask from the login, and the line about non-interactive shells and brew (a non-interactive login shell now loads the environment)
+- [x] 9.3 `proposal.md`: open questions answered, capabilities modified (`shell-startup`, `agent-environment`, `install-scripts`, `shell-test-harness`), impact (the system script, `.chezmoiremove`, the deleted targets)
+- [x] 9.4 Ask the orchestrator to forward the note for the Neovim repository (avante `cmd:` key names) and to add the `~/.zshenv` review to the backlog of `TODO.md` (done by the orchestrator on 2026-11-21 and 2026-11-24: the note was delivered and answered, and the `~/.zshenv` review and the per-tool keys are items of the backlog of `TODO.md`)
 
 ## 10. Checks before deployment
 
