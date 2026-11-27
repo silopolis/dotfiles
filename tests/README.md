@@ -41,13 +41,14 @@ It is defined here and has no directory and no test yet: bats 1.14 errors on an 
 
 ## The install-script harness
 
-Both modes put a logging stub first on `PATH` for each tool the install scripts call (`sudo`, `apt-get`, `dpkg-query`, `brew`, `pipx`, `mise`, `kubectl`, `kubectl-krew`, `codium`, `vim`, `gh`, `rustup`, `bat`, `unzip`, `chezmoi`, `curl`, `python3`).
+Both modes put a logging stub first on `PATH` for each tool the install scripts call (`sudo`, `apt-get`, `dpkg-query`, `brew`, `pipx`, `mise`, `kubectl`, `kubectl-krew`, `codium`, `vim`, `gh`, `rustup`, `bat`, `unzip`, `chezmoi`, `curl`, `python3`, `chfn`, `getent`, `visudo`, `locale-gen`, `locale`).
 A script passes when it exits 0 and both the sudo log and the refused-command log are empty.
 
 ### Isolated mode
 
 A scratch `HOME` (a copy of the fixture's home directory), a `PATH` of the stubs and of a curated directory of base utilities only, and standard input from `/dev/null`: the script can call nothing but stubs.
 A stub logs its arguments and answers from the fixture directory.
+A fixture may also answer for `sudo` itself (exit status 99 leaves the answer to the stub), `-t TOOL` stubs one more tool for a run (a base utility such as `chmod`), and `-M MODE[:PATH]` sets the mode of the scratch home or of a path below it.
 It refuses a script whose `use_tool_dirs` lists a real directory, because a real `/usr/bin` in front of the stubs would let real tools run.
 
 ### Live read-only mode

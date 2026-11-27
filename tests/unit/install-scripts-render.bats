@@ -273,6 +273,52 @@ init_render() { # DATA
   printf '%s\n' "$output" | "$DT_TOOL_PYTHON3" -c 'import sys, tomllib; d = tomllib.loads(sys.stdin.read()); assert d["data"]["tools"]["search"] == {"extra": [], "override": []}, d["data"]["tools"]; assert d["data"]["features"]["incus"] is False; assert list(d["data"]["github"]) == ["is_codespaces"], d["data"]["github"]'
 }
 
+# --- the session defaults script: data checked at render time, empty where it does not apply, locales declared
+
+# sdata KEY VALUE-JSON: the data of a render with system.session.KEY set
+sdata() { dt_json_merge "$(ovi)" "{\"system\":{\"session\":{\"$1\":$2}}}"; }
+SESSION_TMPL=run_onchange_before_03-session-defaults.sh.tmpl
+
+@test "session-render: bad data fails the render with a message that names the key" {
+  local bad out key value
+  for bad in 'umask|"27"' 'umask|"0o27"' 'umask|"0278"' 'umask|27' 'umask|""' 'sudo_umask|"22"' 'sudo_umask|"0o22"' 'sudo_umask|22' \
+    'home_mode|"700"' 'home_mode|"0o700"' 'home_mode|"07000"' 'home_mode|700' 'locales|["en_US"]' 'locales|["en_US.UTF-8; rm"]' 'locales|[5]'; do
+    key=${bad%%|*}
+    value=${bad#*|}
+    if out=$(dt_chezmoi_render --data "$(sdata "$key" "$value")" < "$SCRIPTS_SRC/$SESSION_TMPL" 2>&1); then
+      fail "the value $value of $key was accepted"
+    fi
+    case $out in
+      *"system.session.$key"*) ;;
+      *) fail "no message that names system.session.$key for $value: $(printf '%s' "$out" | head -c 160)" ;;
+    esac
+  done
+}
+
+@test "session-render: the declared values are in the text, the sudoers umask with a leading zero" {
+  local out
+  out=$(rend "$SESSION_TMPL")
+  begins_script "$out" || fail "$ODD"
+  case $out in *"umask_want='027'"*) ;; *) fail "no declared umask" ;; esac
+  case $out in *"home_mode='0700'"*) ;; *) fail "no declared home mode" ;; esac
+  case $out in *"locales=('en_US.UTF-8' 'fr_FR.UTF-8' )"*) ;; *) fail "no declared locales" ;; esac
+  case $out in *"Defaults umask=0\$sudo_umask"*) ;; *) fail "the sudoers content does not take the declared umask" ;; esac
+}
+
+@test "session-render: nothing renders away from Linux" {
+  local out
+  out=$(dt_chezmoi_render --data "$(dt_json_merge "$(ovi)" '{"chezmoi":{"os":"darwin"}}')" < "$SCRIPTS_SRC/$SESSION_TMPL")
+  [ -z "$(printf '%s' "$out" | tr -d '[:space:]')" ] || fail "darwin is not empty"
+}
+
+@test "session-render: the script does not depend on PATH" {
+  path_independent "$SESSION_TMPL"
+}
+
+@test "session-tools: locales, which provides locale-gen, is declared in the apt list" {
+  assert_equal "$(dt_script_data '.packages.linux.apt' | "$DT_TOOL_JQ" -r 'index("locales") != null')" true
+}
+
 # --- the triggers, the Debian guard, the krew lists, the literal paths
 
 # changed_scripts A B: the numbers of the scripts whose text differs between two renders, sorted
@@ -319,9 +365,11 @@ changed_scripts() {
   mx_file 'bat config' '90' dot_config/bat/config
   mx_file 'bat externals' '90' .chezmoiexternals/bat.toml.tmpl
   mx_file 'tmux config (unrelated)' '' dot_config/tmux/tmux.conf
-  mx_file 'shared helper' '00 01 02 10 11 12 13 20 21 90' .chezmoitemplates/script-lib.sh
+  mx_file 'shared helper' '00 01 02 03 10 11 12 13 20 21 90' .chezmoitemplates/script-lib.sh
   mx_data 'apt list' '00' '{"packages":{"linux":{"apt":["curl","jq"]}}}'
   mx_data 'limits' '02' '{"system":{"limits":{"nofile":{"soft":30000,"hard":65536}}}}'
+  mx_data 'session defaults' '03' '{"system":{"session":{"home_mode":"0750"}}}'
+  mx_data 'session locales' '03' '{"system":{"session":{"locales":["en_US.UTF-8"]}}}'
   mx_data 'krew shared list' '13' '{"packages":{"common":{"krews":["tail","ctx"]}}}'
   mx_data 'vim.ycm_build' '21' '{"vim":{"ycm_build":true}}'
   mx_data 'vscodium extensions' '20' '{"vscodium":{"extensions":["a.b"]}}'

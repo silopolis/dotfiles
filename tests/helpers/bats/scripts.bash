@@ -11,6 +11,7 @@
 #                                       darwin  K_DARWIN    the brew and krew scripts for macOS
 #                                       extra   PIPX_EXTRA  the pipx script with one more directory in tools.search
 #                                       lower   LIM_LOWER   the limits script with a declared value below the live one
+#                                       strict  SES_STRICT  the session defaults script with a declared home mode of 0750
 #   scripts_setup                     call from setup: a scratch root for the runs (DT_HARNESS_ROOT) and for the fixtures
 #   run_case NAME MODE FIXTURE SCRIPT FLAGS
 #                                     build the fixture and run the script under the harness (no assertion)
@@ -78,6 +79,11 @@ scripts_setup_file() {
         extra_json=$(awk '{ printf "{\"system\":{\"limits\":{\"nofile\":{\"soft\":%d,\"hard\":%d}}}}", $1 / 2, $2 }' "$DT_DATA_DIR/limits")
         dt_render_scripts "$LIM_LOWER" "$(dt_json_merge "$ISO_BASE" "$extra_json")" system-limits || return 1
         export LIM_LOWER
+        ;;
+      strict)
+        SES_STRICT=$SCRIPTS_ROOT/ses-strict
+        dt_render_scripts "$SES_STRICT" "$(dt_json_merge "$ISO_BASE" '{"system":{"session":{"home_mode":"0750"}}}')" session-defaults || return 1
+        export SES_STRICT
         ;;
     esac
   done

@@ -1,0 +1,279 @@
+{{- /*
+  Session defaults from system.session: the umask of the login, the umask of sudo, the mode of $HOME and the generated locales;
+  an empty render (no data, or not Linux) is neither run nor listed.
+  Data is checked at render time: the umasks are three octal digits and the home mode four, all in quotes, and a locale is
+  written like en_US.UTF-8 (its character set is what follows the dot, as in /etc/locale.gen).
+*/ -}}
+{{- $session := dig "system" "session" dict . -}}
+{{- if and (eq .chezmoi.os "linux") $session -}}
+{{-   range $key := list "umask" "sudo_umask" -}}
+{{-     $value := get $session $key -}}
+{{-     if not (and (kindIs "string" $value) (regexMatch "^[0-7]{3}$" $value)) -}}
+{{-       fail (printf "system.session.%s needs three octal digits in quotes, for example \"027\"" $key) -}}
+{{-     end -}}
+{{-   end -}}
+{{-   $homeMode := get $session "home_mode" -}}
+{{-   if not (and (kindIs "string" $homeMode) (regexMatch "^[0-7]{4}$" $homeMode)) -}}
+{{-     fail "system.session.home_mode needs four octal digits in quotes, for example \"0700\"" -}}
+{{-   end -}}
+{{-   $locales := dig "locales" list $session -}}
+{{-   range $locale := $locales -}}
+{{-     if not (and (kindIs "string" $locale) (regexMatch "^[A-Za-z]{2,3}_[A-Za-z]{2}\\.[A-Za-z0-9-]+$" $locale)) -}}
+{{-       fail "system.session.locales names locales like en_US.UTF-8" -}}
+{{-     end -}}
+{{-   end -}}
+#!/usr/bin/env bash
+# Set what system.session declares: the umask of the login (the umask= entry of the other sub-field of the account's comment
+# field, which pam_umask reads), the umask of sudo (/etc/sudoers.d/50-umask), the mode of $HOME, the generated locales.
+# Every check is made, and every file to install is written to a temporary directory and checked, before the first change: a tool
+# that fails or prints part of its answer stops the script with nothing changed. sudo is called only to write, except for one
+# read-only call when the user cannot read the sudoers file (mode 0440, owned by root); CHEZMOI_SCRIPTS_FORCE=1 skips that read
+# and installs the file. Never weakens: a stricter umask in the comment field or in sudoers and a stricter home mode are left
+# with a warning, and no generated locale is removed (locale-gen --keep-existing).
+# session hash: {{ $session | toJson | sha256sum }}
+{{ template "script-lib.sh" "session-defaults" }}
+
+# chfn, visudo and locale-gen live in the sbin directories, which not every PATH holds
+PATH="$PATH:/usr/local/sbin:/usr/sbin:/sbin"
+
+umask_want={{ get $session "umask" | squote }}
+sudo_umask={{ get $session "sudo_umask" | squote }}
+home_mode={{ $homeMode | squote }}
+locales=({{ range $locales }}{{ . | squote }} {{ end }})
+sudoers_dir=/etc/sudoers.d
+sudoers_file=$sudoers_dir/50-umask
+locale_gen_file=/etc/locale.gen
+sudoers_want=$(printf '%s\n' "Defaults umask=0$sudo_umask" 'Defaults umask_override')
+
+die() {
+  printf '%s: error: %s\n' "$script_name" "$*" >&2
+  exit 1
+}
+force() { [ "${CHEZMOI_SCRIPTS_FORCE:-}" = 1 ]; }
+
+# is_mask <text>: three or four octal digits
+is_mask() {
+  case $1 in '' | *[!0-7]*) return 1 ;; esac
+  [ "${#1}" -ge 3 ] && [ "${#1}" -le 4 ]
+}
+# weakens_umask <live> <new>: true when the live umask masks a bit that the new one lets through
+weakens_umask() { [ $((8#$1 & ~8#$2 & 8#777)) -ne 0 ]; }
+# weakens_mode <live> <new>: true when the new mode gives a bit that the live mode withholds
+weakens_mode() { [ $((8#$2 & ~8#$1 & 8#7777)) -ne 0 ]; }
+
+work=$(mktemp -d "${TMPDIR:-/tmp}/session-defaults.XXXXXX") || die "cannot make a temporary directory in ${TMPDIR:-/tmp}: nothing is changed"
+trap 'rm -rf -- "$work"' EXIT
+
+gecos_action=none
+sudoers_action=none
+locale_edit=0
+locale_gen_run=0
+home_action=none
+
+# --- the umask of the login
+user=$(id -un)
+if ! have getent || ! have chfn; then
+  warn "getent or chfn not found: skipping the login umask"
+else
+  entry=$(getent passwd "$user") || die "getent cannot read the account of $user: nothing is changed"
+  colons=${entry//[!:]/}
+  if [ "${#colons}" -ne 6 ] || [ "${entry%%:*}" != "$user" ]; then
+    die "getent printed a line that is not the account of $user: nothing is changed"
+  fi
+  IFS=: read -r _ _ _ _ gecos _ <<< "$entry"
+  # the other sub-field is what follows the fourth comma of the comment field; its entries are separated by commas
+  commas=${gecos//[!,]/}
+  other=''
+  [ "${#commas}" -lt 4 ] || other=${gecos#*,*,*,*,}
+  entries=()
+  [ -z "$other" ] || IFS=, read -r -a entries <<< "$other"
+  found=()
+  for i in "${!entries[@]}"; do
+    case ${entries[i]} in umask=*) found+=("$i") ;; esac
+  done
+  case ${#found[@]} in
+    0)
+      entries+=("umask=$umask_want")
+      gecos_action=change
+      ;;
+    1)
+      idx=${found[0]}
+      live=${entries[idx]#umask=}
+      if ! is_mask "$live"; then
+        warn "login umask: the comment field of $user holds umask=$live, which is not an octal number: left unchanged"
+      elif [ $((8#$live)) -eq $((8#$umask_want)) ]; then
+        log "login umask: already set (umask=$live in the comment field of $user)"
+      elif weakens_umask "$live" "$umask_want"; then
+        warn "login umask: the comment field of $user holds umask=$live, stricter than the declared $umask_want: left unchanged"
+      else
+        entries[idx]="umask=$umask_want"
+        gecos_action=change
+      fi
+      ;;
+    *) warn "login umask: the comment field of $user holds more than one umask entry: left unchanged" ;;
+  esac
+  if [ "$gecos_action" = change ]; then
+    new_other=$(
+      IFS=,
+      printf '%s' "${entries[*]}"
+    )
+    log "login umask: the other sub-field of the comment field of $user is '$other' and becomes '$new_other'"
+  fi
+fi
+
+# --- the umask of sudo
+if ! have visudo; then
+  warn "visudo not found: skipping the sudo umask (a sudoers file is never installed unchecked)"
+elif [ ! -d "$sudoers_dir" ]; then
+  warn "$sudoers_dir does not exist: skipping the sudo umask"
+else
+  live=''
+  if [ -r "$sudoers_file" ]; then
+    live=$(cat "$sudoers_file") || die "cannot read $sudoers_file: nothing is changed"
+    sudoers_state=plain
+  elif [ -x "$sudoers_dir" ] && [ ! -e "$sudoers_file" ]; then
+    sudoers_state=absent
+  elif dry_run; then
+    log "sudo umask: $sudoers_file exists and only root can read it: a real run would read it through sudo and compare it"
+    sudoers_state=skip
+  elif force; then
+    log "sudo umask: $sudoers_file is installed without a comparison (CHEZMOI_SCRIPTS_FORCE=1)"
+    sudoers_state=forced
+  else
+    live=$(sudo cat "$sudoers_file") || die "cannot read $sudoers_file through sudo: run in a terminal where sudo can ask for the password, or set CHEZMOI_SCRIPTS_FORCE=1 to install the file without comparing; nothing is changed"
+    sudoers_state=plain
+  fi
+  case $sudoers_state in
+    absent | forced) sudoers_action=change ;;
+    plain)
+      if [ "$live" = "$sudoers_want" ]; then
+        log "sudo umask: already set ($sudoers_file)"
+      else
+        live_umask=''
+        while IFS= read -r line; do
+          case $line in
+            'Defaults umask='*)
+              live_umask=${line#'Defaults umask='}
+              live_umask=${live_umask%%[[:space:]]*}
+              ;;
+          esac
+        done <<< "$live"
+        if is_mask "$live_umask" && weakens_umask "$live_umask" "$sudo_umask"; then
+          warn "sudo umask: $sudoers_file holds umask=$live_umask, stricter than the declared 0$sudo_umask: left unchanged"
+        else
+          sudoers_action=change
+        fi
+      fi
+      ;;
+  esac
+  if [ "$sudoers_action" = change ]; then
+    printf '%s\n' "$sudoers_want" > "$work/50-umask" || die "cannot write in $work: nothing is changed"
+    if ! checked=$(visudo -cf "$work/50-umask" 2>&1); then
+      die "visudo rejects the sudo umask file, nothing is installed: ${checked%%$'\n'*}"
+    fi
+    log "sudo umask: $sudoers_file will hold Defaults umask=0$sudo_umask and umask_override"
+  fi
+fi
+
+# --- the mode of the home
+if [ ! -d "${HOME:-}" ]; then
+  warn "HOME is not a directory: skipping the home mode"
+else
+  live=$(stat -c %a "$HOME") || die "cannot read the mode of $HOME: nothing is changed"
+  case $live in '' | *[!0-7]*) die "stat printed a mode that is not octal for $HOME: nothing is changed" ;; esac
+  printf -v live '%04d' "$((10#$live))"
+  if [ $((8#$live)) -eq $((8#$home_mode)) ]; then
+    log "home mode: already set ($home_mode)"
+  elif weakens_mode "$live" "$home_mode"; then
+    warn "home mode: $HOME is $live, stricter than the declared $home_mode: left unchanged"
+  else
+    home_action=change
+    log "home mode: $HOME is $live and becomes $home_mode"
+  fi
+fi
+
+# --- the locales: an entry of /etc/locale.gen is enabled or added, nothing is removed, and locale-gen keeps what it has
+if ! have locale || ! have locale-gen; then
+  warn "locale or locale-gen not found: skipping the locales"
+elif [ "${#locales[@]}" -eq 0 ]; then
+  log "locales: none declared"
+else
+  generated=$(locale -a) || die "locale -a failed: nothing is changed"
+  # locale -a writes en_US.utf8 for en_US.UTF-8: names are compared in lower case and without hyphens
+  norm() {
+    local n=${1,,}
+    printf '%s' "${n//-/}"
+  }
+  listed=$'\n'
+  while IFS= read -r line; do
+    listed+="$(norm "$line")"$'\n'
+  done <<< "$generated"
+  missing=()
+  for loc in "${locales[@]}"; do
+    case $listed in *$'\n'"$(norm "$loc")"$'\n'*) ;; *) missing+=("$loc") ;; esac
+  done
+  if [ "${#missing[@]}" -eq 0 ]; then
+    log "locales: already generated (${locales[*]})"
+  else
+    log "locales: not generated yet: ${missing[*]}"
+    locale_gen_run=1
+    if [ -e "$locale_gen_file" ] && [ ! -r "$locale_gen_file" ]; then
+      die "cannot read $locale_gen_file: nothing is changed"
+    fi
+    declare -A enabled=()
+    if [ -e "$locale_gen_file" ]; then
+      while IFS= read -r line || [ -n "$line" ]; do
+        body=${line#"${line%%[![:space:]]*}"}
+        body=${body%"${body##*[![:space:]]}"}
+        cand=''
+        if [ "${body:0:1}" = '#' ]; then
+          cand=${body#\#}
+          cand=${cand#"${cand%%[![:space:]]*}"}
+        fi
+        for loc in "${missing[@]}"; do
+          entry="$loc ${loc#*.}"
+          [ -z "${enabled[$loc]:-}" ] || continue
+          if [ "$body" = "$entry" ]; then
+            enabled[$loc]=1
+          elif [ "$cand" = "$entry" ]; then
+            line=$entry
+            enabled[$loc]=1
+          fi
+        done
+        printf '%s\n' "$line"
+      done < "$locale_gen_file" > "$work/locale.gen"
+      [ "$(wc -l < "$work/locale.gen")" -ge "$(wc -l < "$locale_gen_file")" ] || die "the copy of $locale_gen_file lost lines: nothing is changed"
+    else
+      : > "$work/locale.gen"
+    fi
+    for loc in "${missing[@]}"; do
+      [ -n "${enabled[$loc]:-}" ] || printf '%s\n' "$loc ${loc#*.}" >> "$work/locale.gen"
+    done
+    if [ ! -e "$locale_gen_file" ] || ! cmp -s "$locale_gen_file" "$work/locale.gen"; then
+      locale_edit=1
+    fi
+  fi
+fi
+
+# --- the changes, in this order; a failed one stops the script
+if [ "$gecos_action" = change ] || [ "$sudoers_action" = change ] || [ "$locale_edit" = 1 ] || [ "$locale_gen_run" = 1 ]; then
+  if [ "$(id -u)" -ne 0 ] && ! have sudo; then
+    die "sudo not found, and the changes need root: nothing is changed"
+  fi
+fi
+if [ "$gecos_action" = change ]; then
+  as_root "set umask=$umask_want in the comment field of $user" chfn -o "$new_other" "$user" || die "chfn failed: the steps after it are not run"
+fi
+if [ "$sudoers_action" = change ]; then
+  as_root "install $sudoers_file" install -m 0440 "$work/50-umask" "$sudoers_file" || die "the install of $sudoers_file failed: the steps after it are not run"
+fi
+if [ "$locale_edit" = 1 ]; then
+  as_root "enable ${missing[*]} in $locale_gen_file" install -m 0644 "$work/locale.gen" "$locale_gen_file" || die "the install of $locale_gen_file failed: the steps after it are not run"
+fi
+if [ "$locale_gen_run" = 1 ]; then
+  as_root "generate the locales" locale-gen --keep-existing || die "locale-gen failed: the steps after it are not run"
+fi
+if [ "$home_action" = change ]; then
+  run chmod "$home_mode" "$HOME" || die "chmod of $HOME failed"
+fi
+{{ end -}}

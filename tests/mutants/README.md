@@ -21,6 +21,7 @@ Expected failures: `exactly N` for a mutant whose failures are counted one by on
 | install-run-ignores-dry-run | tests/unit/install-scripts-isolated.bats | home/.chezmoitemplates/script-lib.sh | sed install/run-ignores-dry-run.sed | at least 10 |
 | install-need-always-ok | tests/unit/install-scripts-isolated.bats | home/.chezmoitemplates/script-lib.sh | sed install/need-always-ok.sed | at least 9 |
 | install-limits-lower | tests/unit/install-scripts-isolated.bats | home/.chezmoiscripts/run_onchange_before_02-system-limits.sh.tmpl | sed install/limits-lower.sed | at least 3 |
+| install-session-weakens | tests/unit/install-scripts-isolated.bats | home/.chezmoiscripts/run_onchange_before_03-session-defaults.sh.tmpl | sed install/session-weakens.sed | at least 4 |
 | startup-unset-removed | tests/smoke/startup-behaviour.bats | home/dot_config/shell/rc.d/010-env_user.sh | sed startup/unset-removed.sed | at least 4 |
 | env-path-no-clean | tests/unit/path-helper.bats tests/unit/env-path-files.bats tests/smoke/environment-path.bats | home/dot_config/shell/rc.d/035-env_path_helper.sh | sed env/path-no-clean.sed | at least 8 |
 | env-lc-all-forced | tests/unit/locale.bats tests/smoke/environment-locale.bats | home/dot_config/shell/rc.d/020-env_defaults.sh | sed env/lc-all-forced.sed | at least 10 |
@@ -61,6 +62,7 @@ The install-script mutants and what they break:
 - `install-run-ignores-dry-run` makes `run()` of the shared helper execute whatever the dry-run switch says, so every dry-run check that goes through `run` fails: the apt update, the limits install, the brew file install, the mise reshim, the bat cache, the VSCodium install and the brew completions link (10).
 - `install-need-always-ok` makes `need()` succeed for a missing tool, so the checks of a script that must skip when a tool is absent fail: mise, pipx, jq, kubectl, kubectl-krew, vim, bat and codium (9).
 - `install-limits-lower` makes the limits script declare half of the soft limit, so a file that already matches no longer does, and the content that is written is no longer the declared one (3).
+- `install-session-weakens` makes the session defaults script treat every live umask as one it may replace, so a stricter umask in the comment field is overwritten instead of left: the scenario "A stricter live value is left" (the comment-field umask and the home mode), the check of the left umask entries (its first case, the stricter one), and the checks of a stricter sudo umask, read directly and read through sudo, fail (4).
 
 The development command mutant and what it breaks:
 - `nvim-dev-no-refusal` removes the `exit 1` of `nvim-dev`, so a missing profile prints its message and then starts `nvim` anyway: the three checks of a refusal fail, the missing profile, the dangling symlink and the profile that exists only outside `XDG_CONFIG_HOME` (3).

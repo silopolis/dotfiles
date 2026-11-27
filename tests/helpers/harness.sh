@@ -11,13 +11,16 @@
 # A script passes when it exits 0 and both the sudo log and the refused log are empty.
 #
 # Provides:
-#   dt_harness_run [-m isolated|live] [-n NAME] [-f FIXDIR] [-s FROM=TO]... [-e VAR=VALUE]... [-a TOOL]...
-#                  [-x N] [-u N] [-P] [-E] [-K] SCRIPT
+#   dt_harness_run [-m isolated|live] [-n NAME] [-f FIXDIR] [-s FROM=TO]... [-e VAR=VALUE]... [-a TOOL]... [-t TOOL]...
+#                  [-M MODE] [-x N] [-u N] [-P] [-E] [-K] SCRIPT
 #       -n  name of the run (default: script name and mode); its files are in dt_harness_logdir NAME
 #       -f  fixture directory: FIXDIR/userhome is copied to the scratch HOME, FIXDIR/<tool> answers for a stub
 #       -s  text substitution applied to a copy of the script (an absolute system path aimed at a scratch file)
 #       -e  a variable for the script's environment
 #       -a  leave this tool out (missing): its stub, and its link in the curated directory
+#       -t  isolated only: also stub this tool for this run (a base utility such as chmod, logged and answered by the fixture)
+#       -M  isolated only: MODE or MODE:PATH, a chmod of the scratch HOME or of PATH below it (default home mode 0700), made
+#           after the fixture is copied and not when -K keeps the home of the previous run
 #       -x, -u  exit status of a refused call (default 1) and of the sudo stub (isolated 0, live 1)
 #       -P  leave HOMEBREW_PREFIX unset;  -E  isolated only: sudo logs, then runs the command as the plain user
 #       -K  isolated only: keep the scratch HOME of the previous run of the same name, with every log reset
@@ -35,7 +38,8 @@
 . "$(dirname "${BASH_SOURCE[0]}")/scripts.sh"
 
 # The tools that the install scripts call and that a run replaces by the stub.
-DT_HARNESS_TOOLS=(sudo apt-get dpkg-query brew pipx mise kubectl kubectl-krew codium vim gh rustup bat unzip chezmoi curl python3)
+DT_HARNESS_TOOLS=(sudo apt-get dpkg-query brew pipx mise kubectl kubectl-krew codium vim gh rustup bat unzip chezmoi curl python3
+  chfn getent visudo locale-gen locale)
 
 dt_harness_logdir() {
   printf '%s\n' "${DT_HARNESS_ROOT:?DT_HARNESS_ROOT is not set}/logs/${1:?dt_harness_logdir NAME}"
@@ -59,9 +63,9 @@ dt_harness_config_env() {
 
 dt_harness_run() {
   local mode='' name='' fix='' refuse_exit=1 sudo_exit='' unset_prefix=0 sudo_exec=0 keep_home=0 opt
-  local subs=() envs=() absent=()
+  local subs=() envs=() absent=() extra=() modes=()
   OPTIND=1
-  while getopts m:n:f:s:e:a:x:u:PEK opt; do
+  while getopts m:n:f:s:e:a:t:M:x:u:PEK opt; do
     case $opt in
       m) mode=$OPTARG ;;
       n) name=$OPTARG ;;
@@ -69,6 +73,8 @@ dt_harness_run() {
       s) subs+=("$OPTARG") ;;
       e) envs+=("$OPTARG") ;;
       a) absent+=("$OPTARG") ;;
+      t) extra+=("$OPTARG") ;;
+      M) modes+=("$OPTARG") ;;
       x) refuse_exit=$OPTARG ;;
       u) sudo_exit=$OPTARG ;;
       P) unset_prefix=1 ;;
@@ -107,6 +113,11 @@ dt_harness_run() {
     for a in "${absent[@]:-}"; do [ "$a" = "$t" ] && skip=1; done
     [ "$skip" -eq 1 ] || ln -s -- "$DT_HELPERS_DIR/stub" "$logdir/bin/$t"
   done
+  if [ "$mode" = isolated ]; then
+    for t in "${extra[@]:-}"; do
+      [ -z "$t" ] || ln -sf -- "$DT_HELPERS_DIR/stub" "$logdir/bin/$t"
+    done
+  fi
 
   if [ "$mode" = isolated ]; then
     home=$logdir/userhome
@@ -117,7 +128,15 @@ dt_harness_run() {
       chmod 0700 -- "$home"
       if [ -n "$fix" ] && [ -d "$fix/userhome" ]; then
         cp -a -- "$fix/userhome/." "$home/"
+        # the copy brings the mode of the fixture's own directory with it: the home of a run is 0700 unless -M says otherwise
+        chmod 0700 -- "$home"
       fi
+      for a in "${modes[@]:-}"; do
+        [ -n "$a" ] || continue
+        t=${a#*:}
+        [ "$t" = "$a" ] && t=''
+        chmod -- "${a%%:*}" "$home${t:+/$t}"
+      done
     fi
     # curated utilities only: no real copy of a stubbed tool (vim, python3, curl...) can be found when its stub is left
     # out with -a; -a also drops a curated utility (jq) from this run's directory

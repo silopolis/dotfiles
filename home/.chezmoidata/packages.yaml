@@ -22,6 +22,8 @@ packages:
       - btrfs-assistant
       - snapper
       - git-credential-oauth
+      # locale-gen, which the session defaults script calls (.chezmoiscripts/run_onchange_before_03-session-defaults.sh.tmpl).
+      - locales
     brews:
     pipxs:
     bins:
@@ -45,6 +47,18 @@ system:
     nofile:
       soft: 32768
       hard: 65536
+  session:
+    # Defaults of the login, set by .chezmoiscripts/run_onchange_before_03-session-defaults.sh.tmpl (it writes outside $HOME with sudo).
+    # umask: written as umask=027 in the other sub-field of the account's comment field, which pam_umask reads at every login.
+    # sudo_umask: the umask that sudo gives commands run as root, in /etc/sudoers.d/50-umask (without it sudo keeps the user's 027).
+    # home_mode: the mode of $HOME. locales: made sure to be generated, never removed.
+    # The script never makes a umask or the home mode more permissive than the live value. Values are quoted strings of octal digits.
+    umask: "027"
+    sudo_umask: "022"
+    home_mode: "0700"
+    locales:
+      - en_US.UTF-8
+      - fr_FR.UTF-8
 
 vim:
   # Build the YouCompleteMe core library when the vim plugins script runs and the library is missing.

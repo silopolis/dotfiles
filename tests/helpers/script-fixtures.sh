@@ -9,13 +9,14 @@
 #
 # Provides:
 #   dt_script_data_files DIR     write the data that the fixtures and the expected messages use, one file each:
-#                                apt.txt, limits (two numbers), krews-linux.txt, krews-darwin.txt, vscodium.txt, venvs.txt
+#                                apt.txt, limits (two numbers), krews-linux.txt, krews-darwin.txt, vscodium.txt, venvs.txt,
+#                                session (one tab-separated line: umask, sudo umask, home mode, locales joined by spaces)
 #   dt_script_fixture NAME DIR   build the fixture NAME (a name of the cases below) into DIR; needs DT_DATA_DIR, the directory
 #                                of dt_script_data_files. The fixture directory is what `dt_harness_run -f` takes.
 #
 # Names: prereq-ok prereq-missing, limits-match limits-absent limits-old limits-inf, decrypt-present decrypt-absent,
 # brew-ok brew-drift brew-norust brew-nofile, pipx-ok pipx-missing pipx-nospec pipx-shim, krew-ok krew-miss krew-nokrew krew-ok4,
-# vim-ok vim-fails vim-novundle vim-ycm-missing vim-ycm-built, vs-base vs-missing vs-newvsix vs-case vs-fbname vs-badzip
+# vim-ok vim-fails vim-novundle vim-ycm-missing vim-ycm-built, session-set session-none, vs-base vs-missing vs-newvsix vs-case vs-fbname vs-badzip
 # vs-both vs-listfail vs-fail vs-novsix, st-apt st-pipx st-krew st-codium (the stateful ones: the stub tools keep their state in
 # the scratch home, which dt_harness_run -K reuses for a second run).
 
@@ -38,6 +39,7 @@ dt_script_data_files() {
   dt_script_data '(concat (default (list) (dig "common" "krews" (list) .packages)) (default (list) (dig "darwin" "krews" (list) .packages))) | uniq | sortAlpha' \
     | "$jq_bin" -r '.[]' > "$dir/krews-darwin.txt"
   dt_script_data '.vscodium.extensions' | "$jq_bin" -r '.[]' > "$dir/vscodium.txt"
+  dt_script_data '.system.session' | "$jq_bin" -r '[.umask, .sudo_umask, .home_mode, (.locales | join(" "))] | @tsv' > "$dir/session"
   "$jq_bin" -r '.venvs | keys[]' "$(dt_source_file dot_config/pipx/packages.json)" | LC_ALL=C sort > "$dir/venvs.txt"
 }
 
@@ -139,6 +141,91 @@ esac
 exit 0
 EOF
   printf '#!/bin/sh\nexec %q "$@"\n' "$unzip_bin" | _dtf_exec "$1/unzip"
+}
+
+# _dtf_session DIR: the tools of the session-defaults script, as responders that keep their state in the scratch home.
+# State files: gecos (the comment field), generated (the answer of `locale -a`), locale.gen, sudoers.d/ (the directory that stands
+# for /etc/sudoers.d), sudoers.root (what sudo would read from a file that only root can read), tmp/ (TMPDIR of the run).
+# A file NAME.mode in the scratch home changes one tool: getent.mode (fail, partial, partial-fail, other), chfn.mode (fail),
+# visudo.mode (reject, partial), locale.mode (fail, partial), locale-gen.mode (fail), chmod.mode (fail), sudo-cat.mode (fail).
+# The responders write what they were asked to check or change: visudo.seen and visudo.path, gecos, generated.
+_dtf_session() {
+  local d=$1 chmod_bin
+  chmod_bin=$(dt_find_tool chmod) || return 2
+  _dtf_exec "$d/getent" << 'EOF'
+#!/bin/sh
+[ "$1" = passwd ] || exit 2
+case $(cat "$HOME/getent.mode" 2> /dev/null) in
+  fail) echo "getent: simulated failure" >&2; exit 2 ;;
+  partial) printf '%s:x:1000' "$2"; exit 0 ;;
+  partial-fail) printf '%s:x:1000' "$2"; exit 2 ;;
+  other) printf 'someone:x:1000:1000:%s:/home/someone:/bin/sh\n' "$(cat "$HOME/gecos")"; exit 0 ;;
+esac
+printf '%s:x:1000:1000:%s:/home/%s:/bin/sh\n' "$2" "$(cat "$HOME/gecos")" "$2"
+EOF
+  _dtf_exec "$d/chfn" << 'EOF'
+#!/bin/sh
+case $(cat "$HOME/chfn.mode" 2> /dev/null) in
+  fail) echo "chfn: simulated failure" >&2; exit 1 ;;
+esac
+[ "$1" = -o ] || exit 2
+awk -F, -v other="$2" '{ printf "%s,%s,%s,%s,%s\n", $1, $2, $3, $4, other }' "$HOME/gecos" > "$HOME/gecos.new"
+mv "$HOME/gecos.new" "$HOME/gecos"
+EOF
+  _dtf_exec "$d/visudo" << 'EOF'
+#!/bin/sh
+[ "$1" = -cf ] || exit 1
+cp "$2" "$HOME/visudo.seen"
+printf '%s\n' "$2" > "$HOME/visudo.path"
+case $(cat "$HOME/visudo.mode" 2> /dev/null) in
+  reject) printf '%s:2:24: syntax error\n' "$2"; exit 1 ;;
+  partial) printf '%s: parsed OK\n' "$2"; echo "visudo: internal error" >&2; exit 1 ;;
+esac
+printf '%s: parsed OK\n' "$2"
+EOF
+  _dtf_exec "$d/locale" << 'EOF'
+#!/bin/sh
+case $(cat "$HOME/locale.mode" 2> /dev/null) in
+  fail) echo "locale: simulated failure" >&2; exit 1 ;;
+  partial) head -n 2 "$HOME/generated"; exit 1 ;;
+esac
+[ "$1" = -a ] && cat "$HOME/generated"
+exit 0
+EOF
+  _dtf_exec "$d/locale-gen" << 'EOF'
+#!/bin/sh
+case $(cat "$HOME/locale-gen.mode" 2> /dev/null) in
+  fail) echo "locale-gen: simulated failure" >&2; exit 1 ;;
+esac
+# an active line of locale.gen ("name charset") becomes a generated locale: en_US.UTF-8 UTF-8 is listed as en_US.utf8
+while read -r name charset; do
+  case $name in '' | '#'*) continue ;; esac
+  made="${name%%.*}.$(printf '%s' "$charset" | tr 'A-Z' 'a-z' | tr -d '-')"
+  grep -qxF "$made" "$HOME/generated" || printf '%s\n' "$made" >> "$HOME/generated"
+done < "$HOME/locale.gen"
+exit 0
+EOF
+  # shellcheck disable=SC2016  # the responder is written as it is, its variables expand when it runs
+  printf '#!/bin/sh\ncase $(cat "$HOME/chmod.mode" 2> /dev/null) in fail) echo "chmod: simulated failure" >&2; exit 1 ;; esac\nexec %q "$@"\n' "$chmod_bin" | _dtf_exec "$d/chmod"
+  _dtf_exec "$d/sudo" << 'EOF'
+#!/bin/sh
+# the stub asks this responder first: exit status 99 means "no answer", and the stub exits with its own status
+case $1 in
+  cat)
+    case $(cat "$HOME/sudo-cat.mode" 2> /dev/null) in
+      fail) echo "sudo: a terminal is required to read the password" >&2; exit 1 ;;
+    esac
+    [ -f "$HOME/sudoers.root" ] || { echo "cat: no such file" >&2; exit 1; }
+    exec cat "$HOME/sudoers.root"
+    ;;
+esac
+exit 99
+EOF
+  mkdir -p -- "$d/userhome/sudoers.d" "$d/userhome/tmp"
+  printf '%s\n' '# This file lists the locales; a line starts with the name and the character set.' '' '#en_US.ISO-8859-1 ISO-8859-1' \
+    '# en_US.UTF-8 UTF-8' '# de_DE.UTF-8 UTF-8' '# fr_FR ISO-8859-1' 'fr_FR.UTF-8 UTF-8' > "$d/userhome/locale.gen"
+  printf 'C\nC.utf8\nfr_FR.utf8\nPOSIX\n' > "$d/userhome/generated"
+  printf 'Demo User,,,\n' > "$d/userhome/gecos"
 }
 
 # _dtf_drop FILE LINE: the file without that line
@@ -260,6 +347,18 @@ EOF
           : > "$d/userhome/.config/vim/bundle/YouCompleteMe/third_party/ycmd/ycm_core.cpython-313-x86_64-linux-gnu.so"
           ;;
       esac
+      ;;
+    session-set | session-none)
+      _dtf_session "$d"
+      if [ "$name" = session-set ]; then
+        local s_umask s_sudo
+        IFS=$'\t' read -r s_umask s_sudo _ < "$data/session"
+        printf 'Demo User,,,,umask=%s\n' "$s_umask" > "$d/userhome/gecos"
+        printf 'Defaults umask=0%s\nDefaults umask_override\n' "$s_sudo" > "$d/userhome/sudoers.d/50-umask"
+        chmod 0440 "$d/userhome/sudoers.d/50-umask"
+        sed -i 's/^# en_US.UTF-8 UTF-8$/en_US.UTF-8 UTF-8/' "$d/userhome/locale.gen"
+        printf 'en_US.utf8\n' >> "$d/userhome/generated"
+      fi
       ;;
     vs-*)
       mkdir -p -- "$d/userhome/.local/share/vsix"

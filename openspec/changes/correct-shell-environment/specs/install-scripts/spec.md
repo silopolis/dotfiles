@@ -2,8 +2,10 @@
 
 ### Requirement: Session defaults are set for the login
 
-`run_onchange_before_03-session-defaults.sh.tmpl` SHALL make the login give the user the umask of `system.session.umask` (the `umask=` entry of the `other` sub-field of the user's GECOS field, which `pam_umask` reads), make sudo run commands with the umask of `system.session.sudo_umask` (a file in `/etc/sudoers.d/` with `Defaults umask=` and `Defaults umask_override`, validated with `visudo -cf` before it is installed with mode 0440), set the mode of `$HOME` to `system.session.home_mode`, and make sure the locales of `system.session.locales` are generated.
+`run_onchange_before_03-session-defaults.sh.tmpl` SHALL make the login give the user the umask of `system.session.umask` (the `umask=` entry of the `other` sub-field of the user's GECOS field, which `pam_umask` reads), make sudo run commands with the umask of `system.session.sudo_umask` (a file in `/etc/sudoers.d/` with `Defaults umask=` and `Defaults umask_override`, validated with `visudo -cf` before it is installed with mode 0440), set the mode of `$HOME` to `system.session.home_mode`, and make sure the locales of `system.session.locales` are generated (`/etc/locale.gen` and `locale-gen --keep-existing`, so that the locales which `/etc/locale.gen` does not list stay).
 It SHALL change only what differs, call sudo only to write, keep the other entries of the GECOS `other` sub-field, never make a umask or the home mode more permissive than the live value, and never remove a generated locale.
+A sudoers file is mode 0440 and owned by root, so the user may not be able to read it: the script SHALL then read it through sudo (one read-only call, never in a dry run) before it decides, and with `CHEZMOI_SCRIPTS_FORCE=1` it SHALL install the declared file without comparing.
+It SHALL make every check, and write to temporary files every file it will install, before the first change: a tool that fails or prints a partial answer stops the script with a non-zero status before anything is changed.
 The template SHALL fail at render time when a umask is not three octal digits or the home mode is not four.
 
 In the scenarios below, the script runs rendered, in the isolated mode of the suite: stubs for `sudo`, `chfn`, `getent`, `visudo`, `install`, `locale-gen` and `locale`, a scratch home, and fixture answers for the GECOS field, the sudoers file, the home mode and `locale -a`.
@@ -16,7 +18,7 @@ In the scenarios below, the script runs rendered, in the isolated mode of the su
 #### Scenario: Nothing set yet
 
 - **WHEN** the GECOS field has no `other` sub-field, the sudoers file does not exist, the home has mode 0755 and `en_US.UTF-8` is not generated
-- **THEN** the recorded sudo calls are, in order, one `chfn -o umask=027 <user>`, one `install -m 0440` of a file that `visudo -cf` accepted, and the commands that enable `en_US.UTF-8` in `/etc/locale.gen` and run `locale-gen`, and the home is changed to 0700 without sudo
+- **THEN** the recorded sudo calls are, in order, one `chfn -o umask=027 <user>`, one `install -m 0440` of a file that `visudo -cf` accepted, and the commands that enable `en_US.UTF-8` in `/etc/locale.gen` and run `locale-gen --keep-existing`, and the home is changed to 0700 without sudo
 
 #### Scenario: Other GECOS entries are kept
 
@@ -42,6 +44,25 @@ In the scenarios below, the script runs rendered, in the isolated mode of the su
 
 - **WHEN** the rendered script runs with `CHEZMOI_SCRIPTS_DRY_RUN=1` on the "Nothing set yet" fixtures
 - **THEN** it prints one line per change it would make, and records no sudo call and no `chmod`
+
+#### Scenario: A sudoers file that only root can read
+
+- **WHEN** the sudoers file exists but the user cannot read it, and the script does not run in dry-run mode
+- **THEN** the script reads it with one `sudo cat`, installs nothing when it holds the declared content, and installs the declared file when it differs, unless the live `Defaults umask=` is stricter than the declared one, which it leaves with a warning
+
+#### Scenario: The sudoers file cannot be compared
+
+- **WHEN** the read through sudo fails
+- **THEN** the script prints a reason that names `CHEZMOI_SCRIPTS_FORCE=1`, exits non-zero and changes nothing
+- **WHEN** `CHEZMOI_SCRIPTS_FORCE=1` is set
+- **THEN** the script makes no read through sudo and installs the declared file, a file that `visudo -cf` accepted
+
+#### Scenario: A failing tool changes nothing
+
+- **WHEN** `getent`, `visudo` or `locale -a` fails, or prints a partial answer, or the temporary directory cannot be made
+- **THEN** the script exits non-zero, records no sudo call and no `chmod`, and leaves no temporary file
+- **WHEN** a write fails
+- **THEN** the steps after it are not run
 
 #### Scenario: Data checked at render time
 

@@ -26,6 +26,11 @@ if [ "$name" = sudo ]; then
   if [ "${SUDO_EXEC:-0}" = 1 ] && [ "$mode" = isolated ]; then
     exec "$@"
   fi
+  # a fixture may answer for sudo itself (the read of a file that only root can read): its exit status 99 means "no answer"
+  if [ -n "${HARNESS_FIX:-}" ] && [ -x "$HARNESS_FIX/sudo" ]; then
+    "$HARNESS_FIX/sudo" "$@" && rc=0 || rc=$?
+    [ "$rc" -eq 99 ] || exit "$rc"
+  fi
   exit "${SUDO_EXIT:-0}"
 fi
 
@@ -111,6 +116,16 @@ allow() {
       ;;
     pipx)
       case "${1:-}" in list | --version) return 0 ;; esac
+      ;;
+    # the account, the generated locales and a syntax check of a file are read-only; chfn and locale-gen stay refused
+    getent)
+      [ "${1:-}" = passwd ] && [ $# -eq 2 ] && return 0
+      ;;
+    locale)
+      [ "${1:-}" = -a ] && [ $# -eq 1 ] && return 0
+      ;;
+    visudo)
+      [ "${1:-}" = -cf ] && [ $# -eq 2 ] && return 0
       ;;
     kubectl)
       if [ "${1:-}" = krew ]; then

@@ -12,7 +12,7 @@ load ../helpers/bats/load
 load ../helpers/bats/scripts
 
 setup_file() {
-  scripts_setup_file real iso ycm darwin extra lower
+  scripts_setup_file real iso ycm darwin extra lower strict
 }
 
 setup() {
@@ -20,6 +20,7 @@ setup() {
   S00=$RI/run_onchange_before_00-prerequisites.sh
   S01=$RI/run_onchange_before_01-decrypt-private-key.sh
   S02=$RI/run_onchange_before_02-system-limits.sh
+  S03=$RI/run_onchange_before_03-session-defaults.sh
   S10=$RI/run_onchange_after_10-brew.sh
   S11=$RI/run_onchange_after_11-mise.sh
   S12=$RI/run_onchange_after_12-pipx.sh
@@ -40,6 +41,9 @@ setup() {
   E1=$(sed -n 2p "$DT_DATA_DIR/vscodium.txt")
   E2=$(sed -n 6p "$DT_DATA_DIR/vscodium.txt")
   VSIX=$DT_VSIX_ID
+  IFS=$'\t' read -r S_UMASK S_SUDO S_HOME _ < "$DT_DATA_DIR/session"
+  SUDO_WANT=$(printf 'Defaults umask=0%s\nDefaults umask_override' "$S_SUDO")
+  ME=$(id -un)
 }
 
 # lim NAME: the flags that aim the limits script at a file of the scratch home of that run, and let sudo run as the plain user
@@ -464,6 +468,333 @@ limits_file() {
 @test "again-codium: the first run installs, the second installs nothing" {
   require_tool python3 unzip
   twice_case again-codium st-codium "$S20" '' 'install-extension'
+}
+
+# --- session defaults: the comment field, the sudoers file, the home mode and the locales
+# The sudoers directory, /etc/locale.gen and the sbin directories are aimed at the scratch home of the run, sudo only logs
+# (-E makes it run the command as the plain user, against those scratch paths), chmod is a stub that answers like the real one.
+
+# ses NAME: the flags of a session defaults run
+ses() {
+  local h
+  h=$(dt_harness_logdir "$1")/userhome
+  printf -- '-s /etc/sudoers.d=%s/sudoers.d -s /etc/locale.gen=%s/locale.gen -s /usr/local/sbin:/usr/sbin:/sbin=%s/none -e TMPDIR=%s/tmp -t chmod' "$h" "$h" "$h" "$h"
+}
+sh_file() { printf '%s/userhome/%s' "$(dt_harness_logdir "$1")" "$2"; } # NAME FILE: a file of the scratch home of a run
+sh_mode() { stat -c %a "$(dt_harness_logdir "$1")/userhome"; }
+sesfix() { dt_script_fixture "$1" "$BATS_TEST_TMPDIR/fix/$2"; } # FIXTURE NAME: build FIXTURE as NAME, to change before the run
+sesput() { printf '%s\n' "${@:3}" > "$BATS_TEST_TMPDIR/fix/$1/userhome/$2"; } # NAME FILE LINES...
+out_has() { # NAME TEXT...
+  local n=$1 t
+  shift
+  for t in "$@"; do
+    grep -q -F -- "$t" "$(dt_harness_logdir "$n")/out.log" || fail "out.log lacks: $t [$(head -n 6 "$(dt_harness_logdir "$n")/out.log" | tr '\n' '|')]"
+  done
+}
+sudo_line() { sed -n "${2}p" "$(dt_harness_logdir "$1")/sudo.log"; } # NAME N
+# nothing_changed NAME HOMEMODE: no sudo call, no call that writes, the home mode as it was, nothing left in TMPDIR
+nothing_changed() {
+  [ ! -s "$(dt_harness_logdir "$1")/sudo.log" ] || fail "sudo was called"
+  count_calls "$1" '^stub (chfn|locale-gen|chmod) ' 0
+  assert_equal "$(sh_mode "$1")" "$2"
+  assert_equal "$(ls -A "$(sh_file "$1" tmp)" | wc -l | tr -d ' ')" 0
+}
+# gecos_case NAME LIVE WANT [OUTRE]: a comment field LIVE on the session-set fixture makes one chfn call with WANT, or none for "-"
+gecos_case() {
+  sesfix session-set "$1"
+  sesput "$1" gecos "$2"
+  if [ "$3" = - ]; then
+    case_run "$1" isolated "$1" "$S03" "$(ses "$1")" 0 0 "${4:-}" ''
+  else
+    case_run "$1" isolated "$1" "$S03" "$(ses "$1")" 0 1 '' ''
+    assert_equal "$(sudo_line "$1" 1)" "sudo chfn -o $(printf '%q' "$3") $ME"
+  fi
+  nothing_changed_but_sudo "$1"
+}
+nothing_changed_but_sudo() { count_calls "$1" '^stub (locale-gen|chmod) ' 0; }
+
+@test "ses-set: everything is already set, no sudo, no chmod, nothing installed" {
+  case_run ses-set isolated session-set "$S03" "$(ses ses-set)" 0 0 'login umask: already set' ''
+  out_has ses-set 'sudo umask: already set' 'home mode: already set' 'locales: already generated'
+  nothing_changed ses-set 700
+}
+
+@test "ses-nothing: the recorded sudo calls are chfn, the checked sudoers file, the locale.gen file and locale-gen, then the home" {
+  local vpath
+  case_run ses-nothing isolated session-none "$S03" "$(ses ses-nothing) -M 0755" 0 4 '' 'stub chmod 0700'
+  read -r vpath < "$(sh_file ses-nothing visudo.path)"
+  assert_equal "$(sudo_line ses-nothing 1)" "sudo chfn -o umask=$S_UMASK $ME"
+  assert_equal "$(sudo_line ses-nothing 2)" "sudo install -m 0440 $vpath $(sh_file ses-nothing sudoers.d/50-umask)"
+  [[ $(sudo_line ses-nothing 3) == "sudo install -m 0644 "*"/locale.gen $(sh_file ses-nothing locale.gen)" ]] || fail "line 3: $(sudo_line ses-nothing 3)"
+  assert_equal "$(sudo_line ses-nothing 4)" "sudo locale-gen --keep-existing"
+  assert_equal "$(cat "$(sh_file ses-nothing visudo.seen)")" "$SUDO_WANT"
+  assert_equal "$(sh_mode ses-nothing)" 700
+  count_calls ses-nothing '^sudo sudo chmod' 0
+}
+
+@test "ses-effects: run as the plain user, the comment field, the sudoers file, locale.gen and the home hold the declared values" {
+  local h orig
+  case_run ses-effects isolated session-none "$S03" "$(ses ses-effects) -M 0755 -E" 0 4 '' ''
+  h=$(dt_harness_logdir ses-effects)/userhome
+  orig=$BATS_TEST_TMPDIR/fix/session-none/userhome/locale.gen
+  assert_equal "$(cat "$h/gecos")" "Demo User,,,,umask=$S_UMASK"
+  assert_equal "$(cat "$h/sudoers.d/50-umask")" "$SUDO_WANT"
+  assert_equal "$(stat -c %a "$h/sudoers.d/50-umask")" 440
+  assert_equal "$(stat -c %a "$h")" 700
+  # in locale.gen the one commented line became active and no other line moved
+  assert_equal "$(wc -l < "$h/locale.gen")" "$(wc -l < "$orig")"
+  assert_equal "$(diff "$orig" "$h/locale.gen" | grep -c '^[<>]' || true)" 2
+  grep -qxF 'en_US.UTF-8 UTF-8' "$h/locale.gen"
+  grep -qxF 'en_US.utf8' "$h/generated"
+  grep -qxF 'fr_FR.utf8' "$h/generated"
+  assert_equal "$(ls -A "$h/tmp" | wc -l | tr -d ' ')" 0
+}
+
+@test "ses-locale-append: a locale that locale.gen does not name is appended and no line is removed" {
+  local h orig
+  sesfix session-none la
+  sesput la locale.gen '# header' '# de_DE.UTF-8 UTF-8' 'fr_FR.UTF-8 UTF-8'
+  case_run ses-locale-append isolated la "$S03" "$(ses ses-locale-append) -E" 0 4 '' ''
+  h=$(dt_harness_logdir ses-locale-append)/userhome
+  orig=$BATS_TEST_TMPDIR/fix/la/userhome/locale.gen
+  assert_equal "$(tail -n 1 "$h/locale.gen")" 'en_US.UTF-8 UTF-8'
+  assert_equal "$(head -n -1 "$h/locale.gen")" "$(cat "$orig")"
+}
+
+@test "ses-locale-active: an entry that is active but not generated needs locale-gen and no edit" {
+  sesfix session-none lv
+  sesput lv gecos "Demo User,,,,umask=$S_UMASK"
+  sesput lv locale.gen 'en_US.UTF-8 UTF-8' 'fr_FR.UTF-8 UTF-8'
+  rm -f "$BATS_TEST_TMPDIR/fix/lv/userhome/sudoers.d/50-umask"
+  printf 'Defaults umask=0%s\nDefaults umask_override\n' "$S_SUDO" > "$BATS_TEST_TMPDIR/fix/lv/userhome/sudoers.d/50-umask"
+  case_run ses-locale-active isolated lv "$S03" "$(ses ses-locale-active)" 0 1 '' ''
+  assert_equal "$(sudo_line ses-locale-active 1)" 'sudo locale-gen --keep-existing'
+}
+
+@test "ses-other-kept: the entries of the other sub-field stay, in order, and the umask entry is added or replaced in place" {
+  gecos_case ses-kept-1 'Demo User,,,,pri=5' "pri=5,umask=$S_UMASK"
+  gecos_case ses-kept-2 'Demo User,,,,ulimit=9,pri=5' "ulimit=9,pri=5,umask=$S_UMASK"
+  gecos_case ses-kept-3 'Demo User,,,,pri=5,umask=022,ulimit=9' "pri=5,umask=$S_UMASK,ulimit=9"
+  gecos_case ses-kept-4 'Demo User,,,,umask=007' "umask=$S_UMASK"
+}
+
+@test "ses-other-same: the same umask in another spelling is already set" {
+  gecos_case ses-same 'Demo User,,,,pri=5,umask=0027,ulimit=9' - 'login umask: already set'
+}
+
+@test "ses-other-left: a stricter, unreadable or ambiguous umask in the comment field is left with a warning" {
+  gecos_case ses-left-1 'Demo User,,,,umask=077' - 'stricter'
+  gecos_case ses-left-2 'Demo User,,,,pri=5,umask=abc' - 'not an octal'
+  gecos_case ses-left-3 'Demo User,,,,umask=027,umask=077' - 'more than one'
+}
+
+@test "ses-stricter: a stricter comment-field umask and a stricter home mode are left with a warning each" {
+  sesfix session-set ses-stricter
+  sesput ses-stricter gecos 'Demo User,,,,umask=077'
+  case_run ses-stricter isolated ses-stricter "$SES_STRICT/run_onchange_before_03-session-defaults.sh" "$(ses ses-stricter)" 0 0 'login umask: .*stricter' ''
+  out_has ses-stricter 'home mode: '
+  assert_equal "$(grep -c 'warning:.*left unchanged' "$(sh_file ses-stricter ../out.log)")" 2
+  nothing_changed ses-stricter 700
+}
+
+@test "ses-sudo-stricter: a sudo umask that the live file makes stricter is left, a more permissive one is replaced" {
+  sesfix session-set ss
+  rm -f "$BATS_TEST_TMPDIR/fix/ss/userhome/sudoers.d/50-umask"
+  printf 'Defaults umask=0077\nDefaults umask_override\n' > "$BATS_TEST_TMPDIR/fix/ss/userhome/sudoers.d/50-umask"
+  case_run ses-sudo-stricter isolated ss "$S03" "$(ses ses-sudo-stricter)" 0 0 'sudo umask: .*stricter' ''
+  sesfix session-set sw
+  rm -f "$BATS_TEST_TMPDIR/fix/sw/userhome/sudoers.d/50-umask"
+  printf 'Defaults umask=0002\nDefaults umask_override\n' > "$BATS_TEST_TMPDIR/fix/sw/userhome/sudoers.d/50-umask"
+  case_run ses-sudo-weaker isolated sw "$S03" "$(ses ses-sudo-weaker)" 0 1 '' ''
+  [[ $(sudo_line ses-sudo-weaker 1) == "sudo install -m 0440 "*"/50-umask $(sh_file ses-sudo-weaker sudoers.d/50-umask)" ]]
+}
+
+@test "ses-invalid-sudoers: a file that visudo rejects is never installed, the reason is printed, nothing is changed" {
+  local m
+  for m in reject partial; do
+    sesfix session-none "iv-$m"
+    sesput "iv-$m" visudo.mode "$m"
+    case_run "ses-invalid-$m" isolated "iv-$m" "$S03" "$(ses "ses-invalid-$m") -M 0755" 1 0 'visudo rejects' ''
+    nothing_changed "ses-invalid-$m" 755
+  done
+  out_has ses-invalid-reject 'syntax error'
+}
+
+@test "ses-no-chfn: without chfn the comment field is skipped and the other parts are done" {
+  case_run ses-no-chfn isolated session-none "$S03" "$(ses ses-no-chfn) -M 0755 -a chfn" 0 3 'skipping the login umask' 'stub chmod 0700'
+  count_calls ses-no-chfn 'chfn -o' 0
+}
+
+@test "ses-no-getent: without getent the comment field is skipped and the other parts are done" {
+  case_run ses-no-getent isolated session-none "$S03" "$(ses ses-no-getent) -M 0755 -a getent" 0 3 'skipping the login umask' 'stub chmod 0700'
+}
+
+@test "ses-no-sudoers-dir: without /etc/sudoers.d the sudo umask is skipped and the other parts are done" {
+  sesfix session-none nd
+  rmdir "$BATS_TEST_TMPDIR/fix/nd/userhome/sudoers.d"
+  case_run ses-no-sudoers-dir isolated nd "$S03" "$(ses ses-no-sudoers-dir) -M 0755" 0 3 'skipping the sudo umask' 'stub chmod 0700'
+  count_calls ses-no-sudoers-dir 'visudo' 0
+}
+
+@test "ses-no-visudo: without visudo nothing is installed into sudoers.d" {
+  case_run ses-no-visudo isolated session-none "$S03" "$(ses ses-no-visudo) -M 0755 -a visudo" 0 3 'skipping the sudo umask' 'stub chmod 0700'
+  count_calls ses-no-visudo '0440' 0
+}
+
+@test "ses-no-locale-gen: without locale-gen the locales are skipped and the other parts are done" {
+  case_run ses-no-locale-gen isolated session-none "$S03" "$(ses ses-no-locale-gen) -M 0755 -a locale-gen" 0 2 'skipping the locales' 'stub chmod 0700'
+}
+
+@test "ses-no-locale: without locale the locales are skipped" {
+  case_run ses-no-locale isolated session-none "$S03" "$(ses ses-no-locale) -M 0755 -a locale" 0 2 'skipping the locales' 'stub chmod 0700'
+}
+
+@test "ses-dry: a dry run prints the five changes it would make and records no sudo call and no chmod" {
+  case_run ses-dry isolated session-none "$S03" "$(ses ses-dry) -M 0755 $DRY" 0 0 'would run: sudo chfn' ''
+  out_has ses-dry "would run: sudo chfn -o umask=$S_UMASK $ME" 'would run: sudo install -m 0440' 'would run: sudo install -m 0644' \
+    'would run: sudo locale-gen --keep-existing' "would run: chmod $S_HOME"
+  assert_equal "$(grep -c 'would run:' "$(sh_file ses-dry ../out.log)")" 5
+  nothing_changed ses-dry 755
+}
+
+# --- a sudoers file that only root can read (the mode 0440 of the real one): compared through one sudo call
+
+# rv NAME [SUDOERS-LINES...]: a session-set fixture whose sudoers file cannot be read, and what root would read from it
+rv() {
+  sesfix session-set "$1"
+  sesput "$1" sudoers.root "${@:2}"
+}
+RV_FLAGS='-M 000:sudoers.d/50-umask'
+
+@test "ses-root-same: the file is read through sudo, equal to the declared one: nothing is installed" {
+  [ "$(id -u)" -ne 0 ] || skip "root reads every file"
+  rv rs "Defaults umask=0$S_SUDO" 'Defaults umask_override'
+  case_run ses-root-same isolated rs "$S03" "$(ses ses-root-same) $RV_FLAGS" 0 1 'sudo umask: already set' ''
+  assert_equal "$(sudo_line ses-root-same 1)" "sudo cat $(sh_file ses-root-same sudoers.d/50-umask)"
+}
+
+@test "ses-root-differs: a file that differs is read through sudo, then replaced" {
+  [ "$(id -u)" -ne 0 ] || skip "root reads every file"
+  rv rd 'Defaults umask=0002' 'Defaults umask_override'
+  case_run ses-root-differs isolated rd "$S03" "$(ses ses-root-differs) $RV_FLAGS" 0 2 '' ''
+  assert_equal "$(sudo_line ses-root-differs 1)" "sudo cat $(sh_file ses-root-differs sudoers.d/50-umask)"
+  [[ $(sudo_line ses-root-differs 2) == "sudo install -m 0440 "*"/50-umask $(sh_file ses-root-differs sudoers.d/50-umask)" ]]
+}
+
+@test "ses-root-stricter: a stricter umask in a file read through sudo is left" {
+  [ "$(id -u)" -ne 0 ] || skip "root reads every file"
+  rv rt 'Defaults umask=0077' 'Defaults umask_override'
+  case_run ses-root-stricter isolated rt "$S03" "$(ses ses-root-stricter) $RV_FLAGS" 0 1 'sudo umask: .*stricter' ''
+}
+
+@test "ses-root-fails: a read through sudo that fails stops the script, names the force variable and changes nothing" {
+  [ "$(id -u)" -ne 0 ] || skip "root reads every file"
+  rv rf 'Defaults umask=0002'
+  sesput rf sudo-cat.mode fail
+  case_run ses-root-fails isolated rf "$S03" "$(ses ses-root-fails) $RV_FLAGS -M 0755" 1 1 'CHEZMOI_SCRIPTS_FORCE=1' ''
+  assert_equal "$(sh_mode ses-root-fails)" 755
+  count_calls ses-root-fails '^stub (chfn|locale-gen|chmod) ' 0
+}
+
+@test "ses-root-force: with CHEZMOI_SCRIPTS_FORCE=1 the file is installed without a read through sudo" {
+  [ "$(id -u)" -ne 0 ] || skip "root reads every file"
+  rv rg 'Defaults umask=0002'
+  sesput rg sudo-cat.mode fail
+  case_run ses-root-force isolated rg "$S03" "$(ses ses-root-force) $RV_FLAGS -e CHEZMOI_SCRIPTS_FORCE=1" 0 1 '' ''
+  [[ $(sudo_line ses-root-force 1) == "sudo install -m 0440 "*"/50-umask "* ]]
+  count_calls ses-root-force 'sudo cat' 0
+}
+
+@test "ses-root-dry: a dry run makes no read through sudo and says it would compare" {
+  [ "$(id -u)" -ne 0 ] || skip "root reads every file"
+  rv rr 'Defaults umask=0002'
+  case_run ses-root-dry isolated rr "$S03" "$(ses ses-root-dry) $RV_FLAGS $DRY" 0 0 'would read' ''
+}
+
+# --- a tool that fails or prints part of its answer, a write that fails: nothing is changed, the steps after it do not run
+
+@test "ses-getent: a getent that fails, prints part of a line or answers for another name changes nothing" {
+  local m
+  for m in fail partial partial-fail other; do
+    sesfix session-none "g-$m"
+    sesput "g-$m" getent.mode "$m"
+    case_run "ses-getent-$m" isolated "g-$m" "$S03" "$(ses "ses-getent-$m") -M 0755" 1 0 'getent' ''
+    nothing_changed "ses-getent-$m" 755
+  done
+}
+
+@test "ses-locale-query: a locale -a that fails or prints part of its answer changes nothing" {
+  local m
+  for m in fail partial; do
+    sesfix session-none "l-$m"
+    sesput "l-$m" locale.mode "$m"
+    case_run "ses-locale-$m" isolated "l-$m" "$S03" "$(ses "ses-locale-$m") -M 0755" 1 0 'locale -a' ''
+    nothing_changed "ses-locale-$m" 755
+  done
+}
+
+@test "ses-tmp: a temporary directory that cannot be made changes nothing" {
+  case_run ses-tmp isolated session-none "$S03" "$(ses ses-tmp) -M 0755 -e TMPDIR=/nonexistent/scratch" 1 0 'temporary' ''
+  nothing_changed ses-tmp 755
+}
+
+@test "ses-locale-gen-file: a locale.gen that cannot be read changes nothing" {
+  [ "$(id -u)" -ne 0 ] || skip "root reads every file"
+  case_run ses-gen-file isolated session-none "$S03" "$(ses ses-gen-file) -M 0755 -M 000:locale.gen" 1 0 'locale.gen' ''
+  nothing_changed ses-gen-file 755
+}
+
+@test "ses-no-sudo: without sudo no change is made" {
+  case_run ses-no-sudo isolated session-none "$S03" "$(ses ses-no-sudo) -M 0755 -a sudo" 1 0 'sudo' ''
+  nothing_changed ses-no-sudo 755
+}
+
+@test "ses-chfn-fails: a chfn that fails stops the script before the sudoers file, the locales and the home" {
+  sesfix session-none cf
+  sesput cf chfn.mode fail
+  case_run ses-chfn-fails isolated cf "$S03" "$(ses ses-chfn-fails) -M 0755 -E" 1 1 'chfn' ''
+  assert_equal "$(cat "$(sh_file ses-chfn-fails gecos)")" 'Demo User,,,'
+  [ ! -e "$(sh_file ses-chfn-fails sudoers.d/50-umask)" ] || fail "the sudoers file was written"
+  count_calls ses-chfn-fails '^stub (locale-gen|chmod) ' 0
+  assert_equal "$(sh_mode ses-chfn-fails)" 755
+}
+
+@test "ses-sudo-fails: a sudo that fails on the sudoers install stops the script before the locales and the home" {
+  sesfix session-none sf
+  sesput sf gecos "Demo User,,,,umask=$S_UMASK"
+  case_run ses-sudo-fails isolated sf "$S03" "$(ses ses-sudo-fails) -M 0755 -u 1" 1 1 '' ''
+  [[ $(sudo_line ses-sudo-fails 1) == "sudo install -m 0440 "* ]]
+  count_calls ses-sudo-fails '^stub (locale-gen|chmod) ' 0
+  assert_equal "$(sh_mode ses-sudo-fails)" 755
+}
+
+@test "ses-locale-install-fails: a failed locale.gen install is not followed by locale-gen" {
+  sesfix session-set lf
+  sesput lf generated C C.utf8 fr_FR.utf8 POSIX
+  sesput lf locale.gen '# en_US.UTF-8 UTF-8' 'fr_FR.UTF-8 UTF-8'
+  case_run ses-locale-install-fails isolated lf "$S03" "$(ses ses-locale-install-fails) -u 1" 1 1 '' ''
+  [[ $(sudo_line ses-locale-install-fails 1) == "sudo install -m 0644 "* ]]
+  count_calls ses-locale-install-fails 'locale-gen --keep-existing' 0
+}
+
+@test "ses-locale-gen-fails: a locale-gen that fails stops the script before the home" {
+  sesfix session-set gf
+  sesput gf generated C C.utf8 fr_FR.utf8 POSIX
+  sesput gf locale-gen.mode fail
+  case_run ses-locale-gen-fails isolated gf "$S03" "$(ses ses-locale-gen-fails) -E -M 0755" 1 1 'locale-gen' ''
+  count_calls ses-locale-gen-fails '^stub chmod ' 0
+  assert_equal "$(sh_mode ses-locale-gen-fails)" 755
+}
+
+@test "ses-chmod-fails: a chmod of the home that fails is an error" {
+  sesfix session-set mf
+  sesput mf chmod.mode fail
+  case_run ses-chmod-fails isolated mf "$S03" "$(ses ses-chmod-fails) -M 0755" 1 0 'chmod' ''
+  assert_equal "$(sh_mode ses-chmod-fails)" 755
+}
+
+@test "again-session: the first run makes the changes, the second run makes none" {
+  twice_case again-session session-none "$S03" "$(ses again-session) -E -M 0755" '^sudo |^stub chmod '
 }
 
 # --- the guard: an isolated script that lists a real directory is refused before it runs

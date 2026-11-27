@@ -219,6 +219,46 @@ hlog() { # NAME FILE
   assert_equal "$(cat "$SCRIPT")" 'echo FROM_TEXT'
 }
 
+@test "the session tools are stubs: chfn, getent, visudo, locale-gen and locale log their calls and are never run for real" {
+  harness_setup
+  hrun h20 'getent passwd root; chfn -o x nobody; visudo -cf /dev/null; locale-gen; locale -a; echo done'
+  assert_equal "$(hlog h20 out.log)" done
+  assert_equal "$(hlog h20 calls.log | grep -c '^stub ')" 5
+  hlog h20 calls.log | grep -q '^stub chfn -o x nobody$'
+}
+
+@test "-t stubs one more tool for one run and the fixture answers for it, -M sets the mode of the home or of a path below it" {
+  harness_setup
+  mkdir -p "$BATS_TEST_TMPDIR/fix/t/userhome/sub"
+  printf '#!/bin/sh\necho answered-by-the-fixture\n' > "$BATS_TEST_TMPDIR/fix/t/chmod"
+  chmod 0700 "$BATS_TEST_TMPDIR/fix/t/chmod"
+  hrun h21 -f "$BATS_TEST_TMPDIR/fix/t" -t chmod -M 0750 -M 0500:sub 'chmod 0777 "$HOME"; stat -c %a "$HOME"'
+  assert_equal "$(hlog h21 out.log | tr '\n' ' ')" "answered-by-the-fixture 750 "
+  assert_equal "$(stat -c %a "$(dt_harness_logdir h21)/userhome/sub")" 500
+  hlog h21 calls.log | grep -q '^stub chmod 0777 '
+  hrun h21b 'chmod 0777 "$HOME"; stat -c %a "$HOME"'
+  assert_equal "$(hlog h21b out.log)" 777
+}
+
+@test "a sudo responder of the fixture answers, and its status 99 leaves the answer to the stub" {
+  harness_setup
+  mkdir -p "$BATS_TEST_TMPDIR/fix/s"
+  printf '#!/bin/sh\n[ "$1" = cat ] && { echo from-the-responder; exit 0; }\nexit 99\n' > "$BATS_TEST_TMPDIR/fix/s/sudo"
+  chmod 0700 "$BATS_TEST_TMPDIR/fix/s/sudo"
+  hrun h22 -f "$BATS_TEST_TMPDIR/fix/s" -u 4 'sudo cat x; echo "status=$?"; sudo true; echo "status=$?"'
+  assert_equal "$(hlog h22 out.log | tr '\n' ' ')" "from-the-responder status=0 status=4 "
+  assert_equal "$(hlog h22 sudo.log | wc -l)" 2
+}
+
+@test "live mode forwards getent passwd, locale -a and visudo -cf, and refuses chfn and locale-gen" {
+  require_tool getent locale
+  harness_setup
+  hrun h23 live 'getent passwd root > /dev/null; echo "getent=$?"; locale -a > /dev/null; echo "locale=$?"; chfn -o x nobody; echo "chfn=$?"; locale-gen; echo "locale-gen=$?"'
+  assert_equal "$(hlog h23 out.log | grep -c '^[a-z-]*=0$')" 2
+  assert_equal "$(hlog h23 refused.log | wc -l)" 2
+  hlog h23 refused.log | grep -q '^chfn -o x nobody$'
+}
+
 # --- the helper that every script includes (script-lib.sh), run under the harness
 
 helper_script() { # BODY: the rendered helper followed by a body
