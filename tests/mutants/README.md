@@ -31,6 +31,7 @@ Expected failures: `exactly N` for a mutant whose failures are counted one by on
 | env-highlighting-not-last | tests/unit/rc-d-files.bats | home/dot_config/shell/rc.d/999-highlighting.sh | sed env/highlighting-not-last.sed | at least 1 |
 | env-history-no-merge | tests/unit/history.bats | home/dot_config/shell/rc.d/320-shell_history.sh | sed env/history-no-merge.sed | at least 2 |
 | env-history-merge-unchecked | tests/unit/history.bats | home/dot_config/shell/rc.d/320-shell_history.sh | sed env/history-merge-unchecked.sed | at least 1 |
+| env-umask-in-startup | tests/smoke/environment-umask.bats | home/dot_config/shell/rc.d/020-env_defaults.sh | sed env/umask-in-startup.sed | at least 3 |
 | nvim-dev-no-refusal | tests/unit/nvim-dev.bats | home/dot_local/bin/executable_nvim-dev | sed nvim-dev/no-refusal.sed | exactly 3 |
 
 The wrapper mutant replaces the `opencode` function with `opencode() { command env opencode "$@"; }`, which hands the whole environment to the binary.
@@ -51,6 +52,7 @@ The environment mutants and what they break:
   A mutant that sources `shellrc` there would be no mutant: once `shellrc` has its guard it returns at once in that branch.
 - `env-shellrc-no-guard` removes the interactive guard of `shellrc`, so a non-interactive shell that sources it, or the bash that sshd starts for a command and that reads `~/.bashrc`, runs the whole `rc.d`: the four checks of `environment-shellrc.bats` fail (4).
 - `env-highlighting-not-last` turns the `source` line of `999-highlighting.sh` into a no-op, so the last `rc.d` file in name order no longer sources zsh-syntax-highlighting: the "last file" check of `rc-d-files.bats` fails (1).
+- `env-umask-in-startup` appends `umask 0022` to `020-env_defaults.sh`, an `env_` file that the desktop replay and the interactive shells all load, so each of them ends its startup with 0022 whatever umask it started with: the three kinds of `environment-umask.bats` fail on the 0027 start (3).
 - `env-history-no-merge` makes the merge write the new history file as it is, so the entries of a legacy file that a trim turned back into a regular file are dropped when the link is put back: the two "merge after a trim" checks, zsh and bash, and the five failed-merge checks, whose last step expects the next start to merge, fail (7).
 - `env-history-merge-unchecked` removes the `pipefail` line of the migration: the zsh merge is a pipeline, so an `awk` that prints part of its output and then fails leaves a partial file with a status of 0, which replaces the new history and loses its lines: the "part of its output" check of the failed-merge scenario fails (1).
   The two checks of an `awk` that fails with nothing printed still pass, because the guard against an empty output holds; the line that the mutant removes is what catches a partial output.
